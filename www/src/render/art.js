@@ -1283,7 +1283,8 @@ function drawZombieDust(ctx, motion, t, phase, type) {
     ctx.restore();
     return;
   }
-  if (type === 'mountain' && !motion.eating) {
+  if (type === 'mountain') {
+    if (motion.eating) return;
     const slam = motion.slam ?? 0;
     if (slam < 0.015) return;
     const age = motion.gaitAge ?? 0;
