@@ -10,7 +10,18 @@ if (loading) loading.classList.add('hidden');
 const canvas = document.getElementById('game');
 const game = new Game();
 const renderer = new Renderer(canvas);
+renderer.setResolution(game.settings.resolution || 'auto');
 const input = { x: 640, y: 360, clicks: [] };
+
+let fullscreenRequested = false;
+function requestFullscreen() {
+  if (fullscreenRequested) return;
+  const bridge = window.chrome && window.chrome.webview;
+  if (!bridge || !bridge.postMessage) return;
+  bridge.postMessage('display:fullscreen');
+  fullscreenRequested = true;
+}
+requestFullscreen();
 
 audio.setTrack('menu');
 audio.setMuted(game.settings.sound === false);
@@ -121,6 +132,7 @@ function frame(now) {
   audio.setTrack(musicScene(game));
   audio.setDuck('pause', game.phase === 'paused');
   audio.setDuck('cinema', game.overlay === 'prep' && !!game.prep && !game.prep.cinemaDone);
+  renderer.setResolution(game.settings.resolution || 'auto');
 
   renderer.render(game, now / 1000);
 }

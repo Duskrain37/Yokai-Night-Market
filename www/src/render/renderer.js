@@ -17,56 +17,79 @@ export class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    this.resMode = 'auto';
     this.dpr = 1;
     this.cssW = 0;
     this.cssH = 0;
+    this.canvasW = 0;
+    this.canvasH = 0;
     this.scale = 1;
     this.ox = 0;
     this.oy = 0;
+    this.cssScaleX = 1;
+    this.cssScaleY = 1;
+    this.cssOx = 0;
+    this.cssOy = 0;
     this.resize();
     window.addEventListener('resize', () => this.resize());
+  }
+
+  setResolution(mode) {
+    const next = ['auto', '720', '1080', '1600'].includes(mode) ? mode : 'auto';
+    if (next === this.resMode) return;
+    this.resMode = next;
+    this.resize();
   }
 
   resize() {
     const dpr = window.devicePixelRatio || 1;
     const w = window.innerWidth;
     const h = window.innerHeight;
+    const fixedWidth = { 720: 1280, 1080: 1920, 1600: 2560 }[this.resMode] || 0;
+    const bw = fixedWidth || Math.round(w * dpr);
+    const bh = fixedWidth ? Math.max(1, Math.round(fixedWidth * h / w)) : Math.round(h * dpr);
     this.dpr = dpr;
     this.cssW = w;
     this.cssH = h;
-    this.canvas.width = Math.round(w * dpr);
-    this.canvas.height = Math.round(h * dpr);
+    this.canvasW = bw;
+    this.canvasH = bh;
+    this.canvas.width = bw;
+    this.canvas.height = bh;
     this.canvas.style.width = w + 'px';
     this.canvas.style.height = h + 'px';
-    this.scale = Math.min(w / VIEW.w, h / VIEW.h);
-    this.ox = (w - VIEW.w * this.scale) / 2;
-    this.oy = (h - VIEW.h * this.scale) / 2;
+    this.scale = Math.min(bw / VIEW.w, bh / VIEW.h);
+    this.ox = (bw - VIEW.w * this.scale) / 2;
+    this.oy = (bh - VIEW.h * this.scale) / 2;
+    this.cssScaleX = this.scale * (w / bw);
+    this.cssScaleY = this.scale * (h / bh);
+    this.cssOx = this.ox * (w / bw);
+    this.cssOy = this.oy * (h / bh);
   }
 
   toLogical(clientX, clientY) {
     const r = this.canvas.getBoundingClientRect();
     return {
-      x: (clientX - r.left - this.ox) / this.scale,
-      y: (clientY - r.top - this.oy) / this.scale
+      x: (clientX - r.left - this.cssOx) / this.cssScaleX,
+      y: (clientY - r.top - this.cssOy) / this.cssScaleY
     };
   }
 
   toClient(lx, ly) {
     const r = this.canvas.getBoundingClientRect();
     return {
-      x: r.left + this.ox + lx * this.scale,
-      y: r.top + this.oy + ly * this.scale
+      x: r.left + this.cssOx + lx * this.cssScaleX,
+      y: r.top + this.cssOy + ly * this.cssScaleY
     };
   }
 
   render(game, t) {
     const ctx = this.ctx;
-    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.clearRect(0, 0, this.cssW, this.cssH);
+    ctx.clearRect(0, 0, this.canvasW, this.canvasH);
     ctx.fillStyle = '#060608';
-    ctx.fillRect(0, 0, this.cssW, this.cssH);
+    ctx.fillRect(0, 0, this.canvasW, this.canvasH);
     this.drawLetterboxBackdrop(ctx, game);
 
     ctx.translate(this.ox, this.oy);
@@ -90,30 +113,30 @@ export class Renderer {
   drawLetterboxBackdrop(ctx, game) {
     const contentW = VIEW.w * this.scale;
     const contentH = VIEW.h * this.scale;
-    if (contentW >= this.cssW - 1 && contentH >= this.cssH - 1) return;
+    if (contentW >= this.canvasW - 1 && contentH >= this.canvasH - 1) return;
     const boardLike = game.phase !== 'menu' || game.overlay === 'prep';
     const bg = boardLike ? assets.backgrounds.board : assets.backgrounds.menu;
     if (!bg) return;
-    const s = Math.max(this.cssW / bg.width, this.cssH / bg.height);
+    const s = Math.max(this.canvasW / bg.width, this.canvasH / bg.height);
     const w = bg.width * s;
     const h = bg.height * s;
     ctx.save();
     ctx.globalAlpha = 0.72;
-    ctx.drawImage(bg, (this.cssW - w) / 2, (this.cssH - h) / 2, w, h);
+    ctx.drawImage(bg, (this.canvasW - w) / 2, (this.canvasH - h) / 2, w, h);
     ctx.restore();
-    const veil = ctx.createLinearGradient(0, 0, 0, this.cssH);
+    const veil = ctx.createLinearGradient(0, 0, 0, this.canvasH);
     veil.addColorStop(0, 'rgba(2,4,9,0.62)');
     veil.addColorStop(0.5, 'rgba(3,5,10,0.44)');
     veil.addColorStop(1, 'rgba(2,3,7,0.68)');
     ctx.fillStyle = veil;
-    ctx.fillRect(0, 0, this.cssW, this.cssH);
+    ctx.fillRect(0, 0, this.canvasW, this.canvasH);
     ctx.strokeStyle = 'rgba(226,192,122,0.14)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, this.oy + 0.5);
-    ctx.lineTo(this.cssW, this.oy + 0.5);
+    ctx.lineTo(this.canvasW, this.oy + 0.5);
     ctx.moveTo(0, this.oy + contentH - 0.5);
-    ctx.lineTo(this.cssW, this.oy + contentH - 0.5);
+    ctx.lineTo(this.canvasW, this.oy + contentH - 0.5);
     ctx.stroke();
   }
 

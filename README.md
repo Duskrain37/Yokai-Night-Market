@@ -1,10 +1,11 @@
 # 妖怪夜市 v0.2
 
-PvZ-like 5×9 车道塔防，中式夜市题材。当前版本包含 8 张卡、6 种僵尸、十关、备战镜头、10 个出战槽位、三档清晰度与四套合成音乐。
+PvZ-like 5×9 车道塔防，中式夜市题材。当前版本包含 8 张卡、6 种僵尸、十关、备战镜头、10 个出战槽位、四档渲染分辨率、全屏启动与四套古风悬疑合成音乐。
 
 ## 直接运行
 - 双击 `release/妖怪夜市v0.2.exe`。这是单文件 exe，不需要旁边的 `www` 或 DLL。
 - 首次启动会把内置资源解包到 `%LOCALAPPDATA%/YaoguaiNightMarket/runtime`。
+- 默认全屏启动；F11 切换全屏。设置内可选自适应 / 1280×720 / 1920×1080 / 2560×1600 渲染分辨率。
 - 环境：Windows 10/11 x64，需要系统 WebView2 Runtime（Win11 与大部分更新过的 Win10 自带；缺失时安装 Microsoft Edge WebView2 Runtime）。
 - 存档在 `%LOCALAPPDATA%/YaoguaiNightMarket/WebView2`。
 

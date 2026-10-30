@@ -40,7 +40,8 @@ const DEFAULT_SETTINGS = {
   healthBars: 'bar',
   difficulty: 'easy',
   cheats: false,
-  sound: true
+  sound: true,
+  resolution: 'auto'
 };
 
 const DEFAULT_RECORDS = {

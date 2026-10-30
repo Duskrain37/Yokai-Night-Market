@@ -45,6 +45,7 @@ export function loadSettings(defaults) {
   if (['easy', 'normal', 'hard'].includes(s.difficulty)) out.difficulty = s.difficulty;
   if (typeof s.cheats === 'boolean') out.cheats = s.cheats;
   if (typeof s.sound === 'boolean') out.sound = s.sound;
+  if (['auto', '720', '1080', '1600'].includes(s.resolution)) out.resolution = s.resolution;
   return out;
 }
 

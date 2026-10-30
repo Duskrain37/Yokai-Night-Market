@@ -99,6 +99,115 @@ function pluck(ctx, dest, time, freq, dur = 0.4, gain = 0.06, pan = 0) {
   o2.stop(time + dur + 0.03);
 }
 
+function guqin(ctx, dest, time, freq, dur = 0.9, gain = 0.045, pan = 0, bend = 0) {
+  const f = ctx.createBiquadFilter();
+  f.type = 'lowpass';
+  f.Q.value = 1.1;
+  f.frequency.setValueAtTime(1700, time);
+  f.frequency.exponentialRampToValueAtTime(360, time + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.linearRampToValueAtTime(gain, time + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  const a = ctx.createOscillator();
+  a.type = 'triangle';
+  a.frequency.setValueAtTime(freq * (1 + bend), time);
+  a.frequency.exponentialRampToValueAtTime(freq, time + 0.12);
+  const b = ctx.createOscillator();
+  b.type = 'sawtooth';
+  b.frequency.setValueAtTime(freq * (1 + bend), time);
+  b.frequency.exponentialRampToValueAtTime(freq, time + 0.12);
+  b.detune.value = 5;
+  a.connect(f);
+  b.connect(f);
+  f.connect(g);
+  withPan(ctx, g, dest, pan);
+  a.start(time);
+  b.start(time);
+  a.stop(time + dur + 0.04);
+  b.stop(time + dur + 0.04);
+  noiseBurst(ctx, dest, time, 0.035, gain * 0.24, 'highpass', 2400, 1600, 0.9, pan);
+}
+
+function dizi(ctx, dest, time, freq, dur = 1.4, gain = 0.03, pan = 0) {
+  const f = ctx.createBiquadFilter();
+  f.type = 'lowpass';
+  f.frequency.value = 2200;
+  f.Q.value = 0.8;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.linearRampToValueAtTime(gain, time + 0.1);
+  g.gain.setValueAtTime(gain * 0.82, time + dur * 0.7);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  const o = ctx.createOscillator();
+  o.type = 'triangle';
+  o.frequency.value = freq;
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = 4.8;
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.value = freq * 0.006;
+  lfo.connect(lfoGain);
+  lfoGain.connect(o.frequency);
+  o.connect(f);
+  f.connect(g);
+  withPan(ctx, g, dest, pan);
+  o.start(time);
+  lfo.start(time);
+  o.stop(time + dur + 0.05);
+  lfo.stop(time + dur + 0.05);
+  noiseBurst(ctx, dest, time, dur * 0.85, gain * 0.2, 'bandpass', freq * 1.8, freq * 1.3, 0.7, pan);
+}
+
+function erhu(ctx, dest, time, freq, dur = 1.6, gain = 0.028, pan = 0) {
+  const f = ctx.createBiquadFilter();
+  f.type = 'lowpass';
+  f.frequency.value = 1250;
+  f.Q.value = 1.8;
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 170;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.linearRampToValueAtTime(gain, time + 0.18);
+  g.gain.setValueAtTime(gain * 0.86, time + dur * 0.72);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  const o1 = ctx.createOscillator();
+  o1.type = 'sawtooth';
+  o1.frequency.value = freq;
+  o1.detune.value = -6;
+  const o2 = ctx.createOscillator();
+  o2.type = 'sawtooth';
+  o2.frequency.value = freq;
+  o2.detune.value = 7;
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = 5.1;
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.value = freq * 0.008;
+  lfo.connect(lfoGain);
+  lfoGain.connect(o1.frequency);
+  lfoGain.connect(o2.frequency);
+  o1.connect(hp);
+  o2.connect(hp);
+  hp.connect(f);
+  f.connect(g);
+  withPan(ctx, g, dest, pan);
+  o1.start(time);
+  o2.start(time);
+  lfo.start(time);
+  o1.stop(time + dur + 0.05);
+  o2.stop(time + dur + 0.05);
+  lfo.stop(time + dur + 0.05);
+}
+
+function windGust(ctx, dest, time, dur = 2.4, gain = 0.018, pan = 0) {
+  noiseBurst(ctx, dest, time, dur, gain, 'bandpass', 480, 760, 0.55, pan);
+}
+
+function heartbeat(ctx, dest, time, gain = 0.04, pan = 0) {
+  taiko(ctx, dest, time, gain, pan, 0.58);
+  taiko(ctx, dest, time + 0.18, gain * 0.55, pan, 0.52);
+}
+
 function bell(ctx, dest, time, freq, dur = 1.4, gain = 0.04, pan = 0) {
   const partials = [[1, 1], [2.01, 0.46], [2.98, 0.2], [4.12, 0.11]];
   for (let i = 0; i < partials.length; i++) {
@@ -223,178 +332,201 @@ function riser(ctx, dest, time, dur = 0.8, gain = 0.08, pan = 0) {
   noiseBurst(ctx, dest, time, dur, gain, 'bandpass', 240, 4200, 1.2, pan);
 }
 
-const MENU_CHORDS = [
+const ROOTS = [38, 34, 38, 33, 38, 34, 43, 33];
+const CHORDS = [
   [50, 53, 57],
   [46, 50, 53],
-  [41, 45, 48],
-  [48, 52, 55],
   [50, 53, 57],
-  [43, 46, 50],
-  [46, 50, 53],
-  [45, 48, 52]
-];
-
-const MENU_MEL = [
-  [[0, 74], [3, 77], [6, 81], [8, 79], [11, 77], [14, 74]],
-  [[0, 77], [4, 81], [8, 84], [12, 81], [14, 79]],
-  [[0, 77], [3, 81], [6, 84], [8, 86], [11, 84], [14, 81]],
-  [[0, 79], [4, 77], [8, 74], [12, 72], [14, 74]],
-  [[0, 74], [3, 77], [6, 81], [8, 84], [11, 81], [14, 79]],
-  [[0, 77], [4, 79], [8, 81], [12, 79], [14, 77]],
-  [[0, 74], [4, 77], [8, 81], [12, 84], [14, 86]],
-  [[0, 81], [4, 79], [8, 77], [12, 74], [14, 72]]
-].map((list) => Object.fromEntries(list));
-
-const BATTLE_CHORDS = [
-  [50, 53, 57],
-  [46, 50, 53],
-  [41, 45, 48],
-  [48, 52, 55],
+  [45, 48, 52],
   [50, 53, 57],
   [46, 50, 53],
   [43, 46, 50],
   [45, 48, 52]
 ];
 
-const BATTLE_MEL = [
-  [[0, 74], [2, 77], [4, 81], [6, 79], [8, 77], [10, 74], [12, 77], [14, 81]],
-  [[0, 77], [2, 81], [4, 84], [6, 81], [8, 79], [10, 77], [12, 74], [14, 77]],
-  [[0, 72], [2, 77], [4, 81], [6, 84], [8, 81], [10, 79], [12, 77], [14, 74]],
-  [[0, 79], [2, 81], [4, 79], [6, 77], [8, 74], [10, 72], [12, 74], [14, 77]],
-  [[0, 74], [2, 77], [4, 81], [6, 84], [8, 81], [10, 79], [12, 77], [14, 74]],
-  [[0, 77], [2, 79], [4, 81], [6, 84], [8, 86], [10, 84], [12, 81], [14, 79]],
-  [[0, 74], [2, 77], [4, 79], [6, 81], [8, 79], [10, 77], [12, 74], [14, 72]],
-  [[0, 81], [2, 84], [4, 86], [6, 84], [8, 81], [10, 79], [12, 77], [14, 74]]
-].map((list) => Object.fromEntries(list));
-
-const HOT_CHORDS = [
-  [50, 53, 57],
-  [46, 50, 53],
-  [41, 45, 48],
-  [45, 49, 52],
-  [50, 53, 57],
-  [46, 50, 53],
-  [43, 46, 50],
-  [45, 49, 52]
+const MENU_MOTIF = [
+  { 0: 62, 5: 65, 8: 64, 10: 62, 13: 57 },
+  { 0: 58, 4: 57, 8: 53, 12: 52, 15: 53 },
+  { 0: 62, 4: 67, 8: 65, 12: 63 },
+  { 0: 57, 6: 60, 10: 59, 14: 57 },
+  { 0: 62, 4: 69, 8: 67, 12: 65, 14: 64 },
+  { 0: 63, 4: 62, 8: 58, 12: 57 },
+  { 0: 55, 4: 58, 8: 62, 12: 65 },
+  { 0: 64, 4: 65, 8: 63, 12: 62, 14: 60 }
 ];
 
-const FINAL_CHORDS = [
-  [50, 53, 57],
-  [51, 54, 58],
-  [46, 50, 53],
-  [45, 49, 52],
-  [50, 53, 57],
-  [51, 54, 58],
-  [43, 46, 50],
-  [45, 49, 52]
+const DIZI_MENU = [null, 64, 57, 62, null, 60, 55, 57];
+
+const BATTLE_ARP = [
+  [62, 65, 57, 60, 57, 55, 53, 50],
+  [58, 62, 53, 57, 53, 51, 50, 46],
+  [62, 65, 69, 65, 64, 62, 60, 57],
+  [57, 60, 64, 67, 64, 62, 60, 57],
+  [62, 65, 69, 72, 69, 67, 65, 62],
+  [58, 62, 65, 69, 65, 63, 62, 58],
+  [55, 58, 62, 65, 62, 60, 58, 55],
+  [57, 60, 64, 67, 69, 67, 64, 60]
 ];
+
+const BATTLE_ERHU = [null, 57, null, 60, null, 58, null, 64];
+const BATTLE_DIZI = [null, null, 69, null, null, null, 65, null];
+const HOT_ERHU = [69, 70, 67, 69, 72, 70, 67, 69];
+const HOT_DIZI = [null, 74, null, 72, null, 75, null, 70];
+const FINAL_ARP = BATTLE_ARP.map((row) => row.map((n) => n - 12));
+const FINAL_ERHU = [74, 75, 72, 74, 77, 75, 72, 70];
+const FINAL_DIZI = [null, 79, null, 77, null, 75, null, 72];
 
 const TRACKS = {
   menu: {
-    bpm: 74,
+    bpm: 66,
     bars: 8,
-    volume: 0.82,
+    volume: 0.8,
     step(ctx, out, i, time) {
       const beat = 60 / this.bpm;
       const bar = Math.floor(i / 16) % this.bars;
       const s = i % 16;
-      const chord = MENU_CHORDS[bar];
+      const root = ROOTS[bar];
+      const chord = CHORDS[bar];
       if (s === 0) {
-        chord.forEach((m, k) => padNote(ctx, out, time, mtof(m + 12), beat * 4.2, 0.022, k % 2 ? 0.22 : -0.22));
-        bassNote(ctx, out, time, mtof(chord[0] - 12), beat * 2.4, 0.07);
-        taiko(ctx, out, time, 0.03, -0.12, 0.78);
+        bassNote(ctx, out, time, mtof(root), beat * 4.15, 0.052, -0.12);
+        if (bar % 2 === 0) {
+          padNote(ctx, out, time, mtof(chord[0]), beat * 4, 0.012, -0.25);
+          padNote(ctx, out, time, mtof(chord[2] + 12), beat * 4, 0.009, 0.25);
+        }
+        if (bar === 0 || bar === 4) heartbeat(ctx, out, time, 0.018, -0.2);
+        if (bar === 0) bell(ctx, out, time, mtof(74), 1.8, 0.018, 0.25);
+        if (bar === 2 || bar === 6) windGust(ctx, out, time, 2.6, 0.012, bar === 2 ? -0.4 : 0.4);
       }
-      if (s === 8) {
-        bassNote(ctx, out, time, mtof(chord[0] - 5), beat * 1.4, 0.042);
-        taiko(ctx, out, time, 0.018, 0.08, 0.72);
+      if (s === 8) bassNote(ctx, out, time, mtof(root + 7), beat * 1.5, 0.024, 0.1);
+      const n = MENU_MOTIF[bar][s];
+      if (n) guqin(ctx, out, time, mtof(n), 0.85, 0.038, s % 3 ? 0.14 : -0.14, s === 0 ? 0.008 : 0);
+      if (s === 0) {
+        const dz = DIZI_MENU[bar];
+        if (dz) dizi(ctx, out, time, mtof(dz), beat * 3, 0.018, bar % 2 ? 0.2 : -0.2);
       }
-      if (s === 4 || s === 12) shaker(ctx, out, time, 0.012, s === 4 ? -0.3 : 0.3);
-      const n = MENU_MEL[bar][s];
-      if (n) pluck(ctx, out, time, mtof(n), 0.48, 0.055, s % 2 ? 0.14 : -0.14);
-      if (s === 0 && bar % 4 === 0) bell(ctx, out, time, mtof(chord[2] + 24), 1.7, 0.024, 0.3);
+      if (bar === 7 && s === 10) {
+        tone(ctx, out, time, mtof(75), beat * 2.2, 0.008, 'sine', 0.28, 0.05);
+      }
     }
   },
   battle: {
-    bpm: 112,
+    bpm: 100,
     bars: 8,
     volume: 0.9,
     step(ctx, out, i, time) {
       const beat = 60 / this.bpm;
       const bar = Math.floor(i / 16) % this.bars;
       const s = i % 16;
-      const chord = BATTLE_CHORDS[bar];
+      const root = ROOTS[bar];
+      const chord = CHORDS[bar];
       if (s === 0) {
-        chord.forEach((m, k) => padNote(ctx, out, time, mtof(m + 12), beat * 3.9, 0.021, k % 2 ? 0.25 : -0.25));
-        taiko(ctx, out, time, 0.075, -0.1, 0.92);
+        bassNote(ctx, out, time, mtof(root), beat * 4.1, 0.058, -0.1);
+        padNote(ctx, out, time, mtof(chord[0]), beat * 3.9, 0.011, -0.22);
+        padNote(ctx, out, time, mtof(chord[2] + 12), beat * 3.9, 0.008, 0.22);
+        taiko(ctx, out, time, 0.07, -0.1, 0.9);
+        if (bar % 2 === 0) heartbeat(ctx, out, time, 0.028, -0.18);
+        if (bar === 0 || bar === 4) gong(ctx, out, time, 0.018, -0.15);
       }
-      if (s === 6 || s === 14) taiko(ctx, out, time, 0.05, 0.12, 0.78);
-      if (s === 8) taiko(ctx, out, time, 0.055, 0.05, 0.88);
-      if (s === 4 || s === 12) rim(ctx, out, time, 0.03, s === 4 ? -0.28 : 0.28);
-      if (s % 2 === 0) shaker(ctx, out, time, 0.012, s % 4 ? 0.22 : -0.22);
-      if (s === 0 || s === 3 || s === 6 || s === 8 || s === 11 || s === 14) {
-        const lift = s === 6 || s === 14 ? 7 : 0;
-        bassNote(ctx, out, time, mtof(chord[0] - 12 + lift), 0.23, 0.055);
+      if (s === 8) {
+        bassNote(ctx, out, time, mtof(root + 7), beat * 1.4, 0.028, 0.1);
+        taiko(ctx, out, time, 0.035, 0.08, 0.84);
       }
-      const n = BATTLE_MEL[bar][s];
-      if (n) pluck(ctx, out, time, mtof(n), 0.3, 0.05, s % 4 ? 0.12 : -0.12);
-      if (s === 0 && bar % 4 === 0) bell(ctx, out, time, mtof(chord[2] + 24), 1.2, 0.022, 0.25);
+      if (s === 6 || s === 14) taiko(ctx, out, time, 0.04, 0.12, 0.78);
+      if (s === 3 || s === 11) taiko(ctx, out, time, 0.025, -0.16, 0.72);
+      if (s === 4 || s === 12) rim(ctx, out, time, 0.022, s === 4 ? -0.26 : 0.26);
+      if (s % 2 === 0) {
+        guqin(ctx, out, time, mtof(BATTLE_ARP[bar][s / 2]), 0.32, 0.034, s % 4 ? 0.14 : -0.14);
+      }
+      if (s === 0) {
+        const eh = BATTLE_ERHU[bar];
+        if (eh) erhu(ctx, out, time, mtof(eh), beat * 2.8, 0.022, bar % 2 ? 0.2 : -0.2);
+        const dz = BATTLE_DIZI[bar];
+        if (dz) dizi(ctx, out, time, mtof(dz), beat * 2.2, 0.016, bar % 2 ? 0.22 : -0.22);
+      }
+      if (bar === 7 && s === 10) {
+        tone(ctx, out, time, mtof(75), beat * 1.8, 0.007, 'sine', 0.24, 0.05);
+      }
     }
   },
   hot: {
-    bpm: 136,
+    bpm: 124,
     bars: 8,
     volume: 0.98,
     step(ctx, out, i, time) {
       const beat = 60 / this.bpm;
       const bar = Math.floor(i / 16) % this.bars;
       const s = i % 16;
-      const chord = HOT_CHORDS[bar];
+      const root = ROOTS[bar];
+      const chord = CHORDS[bar];
       if (s === 0) {
-        chord.forEach((m, k) => padNote(ctx, out, time, mtof(m + 12), beat * 3.8, 0.024, k % 2 ? 0.28 : -0.28));
-        gong(ctx, out, time, bar % 4 === 0 ? 0.032 : 0.018, -0.1);
+        bassNote(ctx, out, time, mtof(root), beat * 4.05, 0.065, -0.1);
+        padNote(ctx, out, time, mtof(chord[0]), beat * 3.8, 0.013, -0.25);
+        padNote(ctx, out, time, mtof(chord[2] + 12), beat * 3.8, 0.009, 0.25);
+        heartbeat(ctx, out, time, 0.035, -0.16);
+        if (bar === 0 || bar === 4) gong(ctx, out, time, 0.025, -0.12);
       }
-      if (s === 0 || s === 4 || s === 8 || s === 12) taiko(ctx, out, time, 0.09, s % 8 ? 0.12 : -0.12, 1.02);
-      if (s === 6 || s === 14) taiko(ctx, out, time, 0.045, 0.2, 0.82);
-      if (s === 2 || s === 6 || s === 10) rim(ctx, out, time, 0.035, s === 6 ? 0.25 : -0.25);
-      if (s % 2 === 0) shaker(ctx, out, time, 0.015, s % 4 ? 0.28 : -0.28);
+      if (s === 0 || s === 3 || s === 6 || s === 8 || s === 11 || s === 14) {
+        taiko(ctx, out, time, 0.072, s % 4 ? 0.1 : -0.12, 1.0);
+      }
+      if (s === 4 || s === 12) rim(ctx, out, time, 0.03, s === 4 ? -0.28 : 0.28);
       if (s % 2 === 0) {
-        const idx = (s / 2 + bar) % chord.length;
-        bassNote(ctx, out, time, mtof(chord[0] - 12 + (s % 8 === 0 ? 0 : 12)), 0.18, 0.06);
-        pluck(ctx, out, time, mtof(chord[idx] + 24), 0.2, 0.04, s % 4 ? 0.18 : -0.18);
+        bassNote(ctx, out, time, mtof(root + (s % 8 === 0 ? 0 : 12)), 0.12, 0.04, 0.1);
+        guqin(ctx, out, time, mtof(BATTLE_ARP[bar][s / 2]), 0.24, 0.04, s % 4 ? 0.18 : -0.18);
+        if (s % 4 === 2) {
+          guqin(ctx, out, time + 0.015, mtof(BATTLE_ARP[bar][s / 2] + 12), 0.2, 0.018, 0.24);
+        }
       }
-      if (s === 0 || s === 7 || s === 10) bell(ctx, out, time, mtof(chord[2] + 24), 0.7, 0.018, 0.2);
-      if (s === 15) brassStab(ctx, out, time, mtof(chord[0] + 12), 0.16, 0.026, -0.1);
+      if (s === 0) {
+        erhu(ctx, out, time, mtof(HOT_ERHU[bar]), beat * 2.6, 0.027, bar % 2 ? 0.2 : -0.2);
+      }
+      if (s === 8) {
+        const dz = HOT_DIZI[bar];
+        if (dz) dizi(ctx, out, time, mtof(dz), beat * 1.6, 0.018, bar % 2 ? 0.24 : -0.24);
+      }
+      if ((bar === 3 || bar === 7) && s === 10) {
+        tone(ctx, out, time, mtof(75), beat * 1.4, 0.008, 'sine', 0.28, 0.04);
+      }
     }
   },
   final: {
-    bpm: 152,
+    bpm: 142,
     bars: 8,
-    volume: 1.02,
+    volume: 1.04,
     step(ctx, out, i, time) {
       const beat = 60 / this.bpm;
       const bar = Math.floor(i / 16) % this.bars;
       const s = i % 16;
-      const chord = FINAL_CHORDS[bar];
+      const root = ROOTS[bar];
+      const chord = CHORDS[bar];
       if (s === 0) {
-        bassNote(ctx, out, time, mtof(chord[0] - 24), beat * 4.1, 0.085);
-        chord.forEach((m, k) => padNote(ctx, out, time, mtof(m + 12), beat * 3.9, 0.02, k % 2 ? 0.3 : -0.3));
-        gong(ctx, out, time, bar % 4 === 0 ? 0.055 : 0.025, 0.1);
-        noiseBurst(ctx, out, time, 0.5, 0.045, 'highpass', 2600, 1800, 0.7, -0.2);
+        bassNote(ctx, out, time, mtof(root), beat * 4.05, 0.07, -0.12);
+        bassNote(ctx, out, time, mtof(root - 12), beat * 4.05, 0.038, 0.08);
+        padNote(ctx, out, time, mtof(chord[0] + 12), beat * 3.9, 0.015, -0.28);
+        padNote(ctx, out, time, mtof(chord[2] + 12), beat * 3.9, 0.011, 0.28);
+        heartbeat(ctx, out, time, 0.045, -0.14);
+        if (bar === 0 || bar === 4) gong(ctx, out, time, 0.04, 0.08);
+        if (bar === 0) bell(ctx, out, time, mtof(74), 1.6, 0.02, 0.3);
       }
-      if (s === 0 || s === 4 || s === 8 || s === 12) taiko(ctx, out, time, 0.12, s % 8 ? 0.14 : -0.14, 1.02);
-      if (s === 6 || s === 14) taiko(ctx, out, time, 0.065, 0.2, 0.8);
-      if (s === 2 || s === 10) rim(ctx, out, time, 0.04, -0.25);
-      if (s % 2 === 0) shaker(ctx, out, time, 0.018, s % 4 ? 0.3 : -0.3);
-      if (s === 0 || s === 6 || s === 8 || s === 14) {
-        brassStab(ctx, out, time, mtof(chord[0] + 12), 0.26, 0.04, -0.15);
-        brassStab(ctx, out, time + 0.012, mtof(chord[1] + 12), 0.24, 0.028, 0.15);
-      }
+      if (s === 0 || s === 4 || s === 8 || s === 12) taiko(ctx, out, time, 0.11, s % 8 ? 0.14 : -0.14, 1.0);
+      if (s === 6 || s === 14) taiko(ctx, out, time, 0.06, 0.2, 0.8);
+      if (s === 2 || s === 10) rim(ctx, out, time, 0.035, -0.24);
       if (s % 2 === 0) {
-        const idx = (s / 2 + bar * 2) % chord.length;
-        bassNote(ctx, out, time, mtof(chord[0] - 12 + (s % 8 === 0 ? 0 : 7)), 0.14, 0.05);
-        pluck(ctx, out, time, mtof(chord[idx] + 24 + 12), 0.16, 0.045, s % 4 ? 0.22 : -0.22);
+        guqin(ctx, out, time, mtof(FINAL_ARP[bar][s / 2]), 0.26, 0.044, s % 4 ? 0.2 : -0.2);
       }
-      if (s === 0 && bar % 2 === 0) bell(ctx, out, time, mtof(chord[2] + 24), 1.1, 0.026, 0.3);
+      if (s === 0) {
+        erhu(ctx, out, time, mtof(FINAL_ERHU[bar]), beat * 3, 0.032, bar % 2 ? 0.22 : -0.22);
+      }
+      if (s === 8) {
+        const dz = FINAL_DIZI[bar];
+        if (dz) dizi(ctx, out, time, mtof(dz), beat * 1.8, 0.02, bar % 2 ? 0.24 : -0.24);
+      }
+      if (s === 0 || s === 8) {
+        brassStab(ctx, out, time, mtof(root + 12), 0.26, 0.032, -0.16);
+        brassStab(ctx, out, time + 0.015, mtof(root + 18), 0.24, 0.022, 0.16);
+      }
+      if (bar === 7 && s === 12) {
+        tone(ctx, out, time, mtof(75), beat * 1.6, 0.01, 'sine', 0.3, 0.05);
+      }
     }
   }
 };

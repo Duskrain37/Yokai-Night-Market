@@ -49,7 +49,7 @@ export const SETTINGS = {
   pillGap: 8,
   rows: [
     {
-      key: 'speed', y: 156, label: '战斗速度',
+      key: 'speed', y: 160, label: '战斗速度',
       note: '整个战局的时间流速', options: [
         { value: 1, label: '1x' },
         { value: 1.5, label: '1.5x' },
@@ -58,7 +58,16 @@ export const SETTINGS = {
       ]
     },
     {
-      key: 'healthBars', y: 212, label: '血条显示模式',
+      key: 'resolution', y: 210, label: '渲染分辨率',
+      note: '全屏输出；固定档按所选像素宽度渲染', options: [
+        { value: 'auto', label: '自适应' },
+        { value: '720', label: '720p' },
+        { value: '1080', label: '1080p' },
+        { value: '1600', label: '1600p' }
+      ]
+    },
+    {
+      key: 'healthBars', y: 260, label: '血条显示模式',
       note: '恶客头顶的血条与数字', options: [
         { value: 'off', label: '不显示' },
         { value: 'bar', label: '显示血条' },
@@ -66,28 +75,28 @@ export const SETTINGS = {
       ]
     },
     {
-      key: 'autoCollect', y: 268, label: '自动拾取香火',
+      key: 'autoCollect', y: 310, label: '自动拾取香火',
       note: '开启后无需点击香火', options: [
         { value: true, label: '开' },
         { value: false, label: '关' }
       ]
     },
     {
-      key: 'collectDelay', y: 324, label: '拾取延迟',
+      key: 'collectDelay', y: 360, label: '拾取延迟',
       note: '香火落地后的收取等待', requires: 'autoCollect', options: [
         { value: 0, label: '0 秒' },
         { value: 3, label: '3 秒' }
       ]
     },
     {
-      key: 'quickWave', y: 380, label: '快速召唤下一波',
+      key: 'quickWave', y: 410, label: '快速召唤下一波',
       note: '开启后在铲子正上方出现唤波按钮', options: [
         { value: true, label: '开' },
         { value: false, label: '关' }
       ]
     },
     {
-      key: 'difficulty', y: 436, label: '难度',
+      key: 'difficulty', y: 460, label: '难度',
       note: '出怪与血量 1× / 1.25× / 1.5×，进入对局后锁定', lockInRun: true, options: [
         { value: 'easy', label: '简单' },
         { value: 'normal', label: '普通' },
@@ -95,14 +104,14 @@ export const SETTINGS = {
       ]
     },
     {
-      key: 'cheats', y: 492, label: '作弊菜单',
+      key: 'cheats', y: 510, label: '作弊菜单',
       note: '仅局外可改，开启后局内出现作弊按钮', lockInRun: true, options: [
         { value: true, label: '开' },
         { value: false, label: '关' }
       ]
     },
     {
-      key: 'sound', y: 548, label: '音效与音乐',
+      key: 'sound', y: 560, label: '音效与音乐',
       note: '关闭后全局静音', options: [
         { value: true, label: '开' },
         { value: false, label: '关' }

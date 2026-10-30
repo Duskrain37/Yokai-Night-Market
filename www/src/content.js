@@ -39,7 +39,7 @@ export const PLANT_ORDER = [
 export const ZOMBIE_TYPES = {
   ghost: { id: 'ghost', name: '饿鬼', kind: '小僵尸', hp: 200, shell: 0, speed: 20, dps: 70, scale: 1 },
   paper: { id: 'paper', name: '纸人', kind: '特殊', hp: 200, shell: 250, speed: 20, dps: 70, scale: 1.05 },
-  mountain: { id: 'mountain', name: '山魈', kind: '重型', hp: 900, shell: 0, speed: 17, dps: 120, scale: 1.28 },
+  mountain: { id: 'mountain', name: '山魈', kind: '重型', hp: 1800, shell: 0, speed: 17, dps: 120, scale: 1.28 },
   tongue: {
     id: 'tongue', name: '长舌鬼', kind: '超小', hp: 150, shell: 0, speed: 30, dps: 80,
     reach: 62, scale: 0.98

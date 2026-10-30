@@ -106,10 +106,13 @@ function plantMotion(type, t, phase, opt) {
     sy = 1 - 0.06 * recoil + 0.01 * charge;
   } else if (type === 'wall') {
     const hurt = 1 - Math.max(0, Math.min(1, opt.hpRatio ?? 1));
-    sx = 1 + breath * 0.008;
-    sy = 1 - breath * 0.006;
-    dx = Math.sin(t * 38) * 1.6 * bite;
-    rot = Math.sin(t * 31) * 0.012 * bite + Math.sin(t * 1.4 + phase) * 0.004 * hurt;
+    const grind = Math.sin(t * 1.35 + phase);
+    const press = Math.sin(t * 0.68 + phase * 0.7);
+    sx = 1 + grind * 0.034 + press * 0.012;
+    sy = 1 - grind * 0.03 - press * 0.014;
+    dy = press * 1.4;
+    dx = grind * 1.8 + Math.sin(t * 38) * 1.6 * bite;
+    rot = grind * 0.016 + Math.sin(t * 0.8 + phase) * 0.009 + Math.sin(t * 31) * 0.012 * bite + hurt * Math.sin(t * 1.4) * 0.004;
   } else if (type === 'bell') {
     rot = Math.sin(t * 1.5 + phase) * 0.035 + Math.sin(t * 18) * 0.13 * pulse;
     dy = -2 * pulse;
@@ -310,6 +313,33 @@ function drawPlantFx(ctx, type, t, opt, baseH) {
     ctx.beginPath();
     ctx.ellipse(-16, 29, 7, 2.2, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
+  }
+  if (type === 'wall') {
+    const phase = opt.phase ?? 0;
+    ctx.save();
+    for (let i = 0; i < 3; i++) {
+      const p = ((t * 0.42 + phase + i / 3) % 1);
+      ctx.globalAlpha = (1 - p) * 0.24;
+      ctx.fillStyle = 'rgba(205,188,150,0.85)';
+      ctx.beginPath();
+      ctx.ellipse(
+        -18 + i * 16 + Math.sin(t * 1.3 + i * 2.1) * 3,
+        27 - p * 13,
+        2.2 + p * 2, 1.1 + p * 1.2,
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+    }
+    ctx.globalAlpha = 0.13 + Math.sin(t * 1.1 + phase) * 0.035;
+    ctx.strokeStyle = 'rgba(224,196,140,0.85)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 6]);
+    ctx.lineDashOffset = -t * 8;
+    ctx.beginPath();
+    ctx.ellipse(0, 25, 32, 8, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
     ctx.restore();
   }
   if (type === 'wall' && bite > 0) {
@@ -1002,9 +1032,9 @@ const ZOMBIE_MOTION = {
     chompLean: 0.035, chompAmp: 0.018, chompBob: 0.8, flutter: true
   },
   mountain: {
-    cls: 'heavy', stride: 2.0, bob: 2.4, sway: 0.035, baseRot: 0,
-    dust: 1.8, dustColor: '188,164,132', chompSpeed: 6,
-    chompLean: 0.04, chompAmp: 0.025, chompBob: 2.2, stomp: true
+    cls: 'heavy', stride: 1.5, bob: 4.8, sway: 0.065, baseRot: 0,
+    dust: 2.2, dustColor: '188,164,132', chompSpeed: 5.4,
+    chompLean: 0.055, chompAmp: 0.028, chompBob: 2.4, stomp: true
   },
   mourner: {
     cls: 'special', stride: 2.6, bob: 0.6, sway: 0.02, baseRot: 0,
@@ -1162,8 +1192,13 @@ function zombieDamageStage(opt) {
 
 function zombieMotion(type, t, phase, opt) {
   const prof = ZOMBIE_MOTION[type] || ZOMBIE_MOTION.ghost;
-  const swing = Math.sin(t * prof.stride + phase);
+  const rawSwing = Math.sin(t * prof.stride + phase);
+  const swing = type === 'mountain'
+    ? Math.sign(rawSwing) * Math.pow(Math.abs(rawSwing), 0.72)
+    : rawSwing;
   const step = Math.abs(swing);
+  let slam = 0;
+  let gaitAge = 0;
   const stage = zombieDamageStage(opt);
   let dx = 0;
   let dy = step * prof.bob;
@@ -1184,13 +1219,28 @@ function zombieMotion(type, t, phase, opt) {
     sx = 1;
     sy = 1;
   }
-  if (prof.stomp) {
+  if (type === 'mountain') {
+    const cycle = ((t * prof.stride + phase) % Math.PI + Math.PI) % Math.PI;
+    gaitAge = cycle / prof.stride;
+    slam = Math.exp(-gaitAge * 7);
+    dy = -step * 6.2 + slam * 3.8;
+    rot = prof.baseRot + swing * 0.11 + slam * 0.018;
+    sx = 1 + slam * 0.06 + step * 0.014;
+    sy = 1 - slam * 0.064 - step * 0.014;
+    dx = Math.sin(t * prof.stride * 0.5 + phase) * 2.3 + Math.sin(gaitAge * 34) * 0.8 * slam;
+  } else if (prof.stomp) {
     sx = 1 + step * 0.025;
     sy = 1 - step * 0.035;
   }
   if (opt.eating) {
     const chew = Math.sin(t * prof.chompSpeed + phase);
-    if (prof.glide) {
+    if (type === 'mountain') {
+      dx = -3.2 + chew * 1.6;
+      rot = 0.055 + chew * 0.06;
+      dy = Math.abs(chew) * 2.2;
+      sx = 1;
+      sy = 1 + chew * prof.chompAmp;
+    } else if (prof.glide) {
       dx = -1.2 + chew * 0.8;
       rot = 0.02 + chew * prof.chompLean;
       dy = 0.4 + Math.abs(chew) * prof.chompBob;
@@ -1209,6 +1259,7 @@ function zombieMotion(type, t, phase, opt) {
       dy = Math.abs(chew) * prof.chompBob;
     }
     sx = 1;
+    slam = 0;
   }
   if (stage === 2) {
     rot += Math.sin(t * prof.stride * 0.5 + phase) * 0.02;
@@ -1216,7 +1267,7 @@ function zombieMotion(type, t, phase, opt) {
     sy *= 0.985;
   }
   if (opt.stunT > 0) rot += Math.sin(t * 7) * 0.03;
-  return { dx, dy, rot, sx, sy, step, swing, prof, stage };
+  return { dx, dy, rot, sx, sy, step, swing, prof, stage, slam, gaitAge, eating: !!opt.eating };
 }
 
 function drawZombieDust(ctx, motion, t, phase, type) {
@@ -1229,6 +1280,58 @@ function drawZombieDust(ctx, motion, t, phase, type) {
     ctx.beginPath();
     ctx.ellipse(-16, 30, 20, 3.2, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
+    return;
+  }
+  if (type === 'mountain' && !motion.eating) {
+    const slam = motion.slam ?? 0;
+    if (slam < 0.015) return;
+    const age = motion.gaitAge ?? 0;
+    const k = Math.min(1, age / 0.7);
+    const fade = Math.pow(1 - k, 1.15);
+    ctx.save();
+    ctx.strokeStyle = 'rgba(206,182,142,0.9)';
+    const r = 14 + k * 58;
+    for (let i = 0; i < 3; i++) {
+      ctx.globalAlpha = (0.34 - i * 0.07) * fade;
+      ctx.lineWidth = 1.7 * (1 - k) + 0.5;
+      const a0 = 0.3 + i * 2.1 + k * 0.5;
+      const rr = r * (1 - i * 0.13);
+      ctx.beginPath();
+      ctx.ellipse(0, 33, rr, rr * 0.24, 0, a0, a0 + 1.15 - i * 0.15);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    const puff = (x, y, rx, ry, a) => {
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, rx);
+      grad.addColorStop(0, `rgba(204,182,144,${a})`);
+      grad.addColorStop(0.55, `rgba(188,164,128,${a * 0.45})`);
+      grad.addColorStop(1, 'rgba(188,164,128,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    puff(0, 28, 22 + k * 14, 7 + k * 4, 0.28 * fade);
+    for (let i = 0; i < 6; i++) {
+      const side = i < 3 ? -1 : 1;
+      const step = i % 3;
+      const x = side * (14 + step * 10 + k * 16) + Math.sin(i * 2.1) * 3;
+      const y = 31 - (i % 2) * 3 + step * 1.2;
+      puff(x, y, 10 + k * 12 + step * 2, 4 + k * 5, (0.3 + (i % 3) * 0.05) * fade);
+    }
+    for (let i = 0; i < 4; i++) {
+      const p = Math.min(1, age / 0.65);
+      puff(-24 + i * 16 + Math.sin(age * 6 + i) * 2, 27 - p * (11 + i * 3), 5 + p * 5, 2.6 + p * 3, 0.2 * (1 - p));
+    }
+    ctx.fillStyle = 'rgba(118,100,78,0.95)';
+    for (let i = 0; i < 4; i++) {
+      const p = Math.min(1, age / 0.52);
+      const ang = -Math.PI / 2 + (i - 1.5) * 0.5;
+      const sp = 34 + i * 6;
+      ctx.globalAlpha = 0.8 * (1 - p);
+      ctx.fillRect(Math.cos(ang) * sp * p, 29 + Math.sin(ang) * sp * p + 60 * p * p, 2.2, 2.2);
+    }
     ctx.restore();
     return;
   }
@@ -1265,9 +1368,10 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   ctx.translate(x, y);
   ctx.scale(s, s);
 
-  ctx.fillStyle = 'rgba(0,0,0,0.32)';
+  const groundSlam = type === 'mountain' && !opt.eating ? (motion.slam ?? 0) : 0;
+  ctx.fillStyle = type === 'mountain' ? `rgba(0,0,0,${0.26 + groundSlam * 0.18})` : 'rgba(0,0,0,0.32)';
   ctx.beginPath();
-  ctx.ellipse(0, 32, 27 * (1 + motion.step * 0.05), 7.5 * (1 - motion.step * 0.08), 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 32, 27 * (1 - motion.step * 0.06 + groundSlam * 0.2), 7.5 * (1 - motion.step * 0.03 + groundSlam * 0.14), 0, 0, Math.PI * 2);
   ctx.fill();
 
   if (opt.slowT > 0) {
@@ -1277,7 +1381,7 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
     ctx.fill();
   }
 
-  drawZombieDust(ctx, motion, t, phase);
+  drawZombieDust(ctx, motion, t, phase, type);
 
   ctx.save();
   ctx.translate(motion.dx, motion.dy);
@@ -1298,9 +1402,30 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   else sedanZombie(ctx, chomp, opt);
 
   ctx.restore();
+  if (type === 'mountain') drawZombieFrontDust(ctx, motion);
   if (motion.stage === 2) drawZombieDamageWisps(ctx, t, baseH);
   drawZombieStatus(ctx, t, opt, baseH);
   ctx.restore();
+}
+
+function drawZombieFrontDust(ctx, motion) {
+  if (motion.eating) return;
+  const slam = motion.slam ?? 0;
+  if (slam < 0.02) return;
+  const k = Math.min(1, (motion.gaitAge ?? 0) / 0.6);
+  const fade = Math.pow(1 - k, 1.3);
+  const puff = (x, y, rx, ry, a) => {
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, rx);
+    grad.addColorStop(0, `rgba(190,168,132,${a})`);
+    grad.addColorStop(1, 'rgba(190,168,132,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  puff(-27 + k * 9, 35, 9 + k * 7, 3.4 + k * 2.6, 0.24 * fade);
+  puff(25 - k * 8, 36, 8 + k * 8, 3 + k * 2.5, 0.22 * fade);
+  puff(-4, 37, 12 + k * 9, 4 + k * 3, 0.17 * fade);
 }
 
 function drawZombieDamageWisps(ctx, t, baseH) {

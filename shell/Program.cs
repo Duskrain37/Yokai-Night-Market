@@ -22,11 +22,15 @@ namespace YaoguaiNightMarket
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern IntPtr LoadLibrary(string path);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetProcessDpiAwarenessContext(IntPtr value);
+
         [STAThread]
         private static void Main(string[] args)
         {
             try
             {
+                try { SetProcessDpiAwarenessContext(new IntPtr(-4)); } catch { }
                 payloadRoot = EnsurePayload();
                 AppDomain.CurrentDomain.AssemblyResolve += ResolveEmbeddedAssembly;
                 SetDllDirectory(payloadRoot);
@@ -158,11 +162,14 @@ namespace YaoguaiNightMarket
         private readonly Panel content;
         private readonly bool debug;
         private readonly string payloadRoot;
+        private Rectangle windowedBounds;
+        private bool fullscreen;
 
         public GameWindow(bool debug, string payloadRoot)
         {
             this.debug = debug;
             this.payloadRoot = payloadRoot;
+            KeyPreview = true;
 
             Text = "\u5996\u602A\u591C\u5E02 v" + BuildInfo.Version;
             BackColor = Color.FromArgb(13, 15, 24);
@@ -195,6 +202,10 @@ namespace YaoguaiNightMarket
             devToolsItem.ShortcutKeys = Keys.F12;
             devToolsItem.Click += delegate { OpenDevTools(); };
             gameMenu.DropDownItems.Add(devToolsItem);
+
+            ToolStripMenuItem fullscreenItem = new ToolStripMenuItem("\u5168\u5C4F (F11)");
+            fullscreenItem.Click += delegate { ToggleFullscreen(); };
+            gameMenu.DropDownItems.Add(fullscreenItem);
             gameMenu.DropDownItems.Add(new ToolStripSeparator());
 
             ToolStripMenuItem exitItem = new ToolStripMenuItem("\u9000\u51FA");
@@ -218,6 +229,14 @@ namespace YaoguaiNightMarket
 
             ClientSizeChanged += delegate { LayoutContent(); };
             Shown += delegate { LayoutContent(); };
+            KeyDown += delegate(object sender, KeyEventArgs e)
+            {
+                if (e.KeyCode == Keys.F11)
+                {
+                    ToggleFullscreen();
+                    e.Handled = true;
+                }
+            };
             LayoutContent();
 
             Load += OnLoaded;
@@ -226,12 +245,45 @@ namespace YaoguaiNightMarket
 
         private void LayoutContent()
         {
-            int top = menu.Height;
+            int top = menu.Visible ? menu.Height : 0;
             content.SetBounds(
                 0,
                 top,
                 ClientSize.Width,
                 Math.Max(0, ClientSize.Height - top));
+        }
+
+        private void ToggleFullscreen()
+        {
+            if (fullscreen) ExitFullscreen();
+            else EnterFullscreen();
+        }
+
+        private void EnterFullscreen()
+        {
+            if (fullscreen || IsDisposed) return;
+            fullscreen = true;
+            windowedBounds = Bounds;
+            menu.Visible = false;
+            FormBorderStyle = FormBorderStyle.None;
+            WindowState = FormWindowState.Normal;
+            Bounds = Screen.FromControl(this).Bounds;
+            LayoutContent();
+            Activate();
+        }
+
+        private void ExitFullscreen()
+        {
+            if (!fullscreen || IsDisposed) return;
+            fullscreen = false;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            menu.Visible = true;
+            WindowState = FormWindowState.Normal;
+            if (windowedBounds.Width > 0 && windowedBounds.Height > 0)
+            {
+                Bounds = windowedBounds;
+            }
+            LayoutContent();
         }
 
         private async void ReloadPage()
@@ -293,6 +345,7 @@ namespace YaoguaiNightMarket
                 core.Settings.IsStatusBarEnabled = false;
                 core.Settings.AreBrowserAcceleratorKeysEnabled = true;
                 core.Settings.IsBuiltInErrorPageEnabled = true;
+                core.WebMessageReceived += OnWebMessage;
 
                 try
                 {
@@ -320,6 +373,30 @@ namespace YaoguaiNightMarket
                         MessageBoxIcon.Error);
                     Close();
                 }
+            }
+        }
+
+        private void OnWebMessage(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            string message;
+            try
+            {
+                message = e.WebMessageAsJson;
+            }
+            catch
+            {
+                return;
+            }
+            if (message == null) return;
+            message = message.Trim();
+            if (message.Length >= 2 && message[0] == '"' && message[message.Length - 1] == '"')
+            {
+                message = message.Substring(1, message.Length - 2);
+            }
+            if (message == "display:fullscreen")
+            {
+                if (InvokeRequired) BeginInvoke(new Action(EnterFullscreen));
+                else EnterFullscreen();
             }
         }
 
