@@ -518,7 +518,7 @@ export class Game {
   menuPrimary() {
     if (this.phase !== 'menu' || this.overlay || this.confirmNew || this.confirmBack) return;
     if (this.hasSave) this.continueRun();
-    else this.openPrep(this.selectedLevel);
+    else this.openLevels();
   }
 
   isRunShape(run) {
@@ -997,7 +997,7 @@ export class Game {
     if (this.confirmNew) {
       if (inRect(x, y, BTN.confirmYes)) {
         this.confirmNew = false;
-        this.openPrep(this.selectedLevel);
+        this.openLevels();
       } else {
         this.confirmNew = false;
       }
@@ -1028,7 +1028,7 @@ export class Game {
         else if (inRect(x, y, BTN.newRun)) this.confirmNew = true;
         else if (inRect(x, y, BTN.settingsMenuWide)) this.openSettings('menu');
       } else if (inRect(x, y, BTN.start)) {
-        this.openPrep(this.selectedLevel);
+        this.openLevels();
       } else if (inRect(x, y, BTN.settingsMenu)) {
         this.openSettings('menu');
       }

@@ -1,4 +1,4 @@
-import { PLANT_TYPES, ZOMBIE_TYPES, LEVEL } from '../content.js';
+import { PLANT_TYPES, ZOMBIE_TYPES, LEVELS, zombieTierLabel } from '../content.js';
 import { PLANT_EFFECTS } from '../game/upgrade.js';
 
 export const ALMANAC_PLANTS = [
@@ -74,8 +74,8 @@ export const ALMANAC_ZOMBIES = [
     name: '饿鬼',
     epithet: '闻着香火来的',
     story: '子时过后，街口总会多出几道影子。它们不记得生前叫什么，只记得夜市的味道。饿鬼走得慢，啃东西也不快，但它们从不在乎——反正天还长，摊子总会打烊。',
-    ability: '最普通的恶客，沿本行慢慢往前，停下啃食植物，啃食 70/秒。',
-    counter: '怕连发与范围清场；别让它磨到门口。',
+    ability: '低阶恶客：血量 90，沿本行慢慢往前，停下啃食植物，啃食 35/秒。',
+    counter: '前几波的主要杂兵；连发与范围清场都能轻松处理，别让它们磨到门口。',
     quote: '就一口，真的就一口。'
   },
   {
@@ -83,8 +83,8 @@ export const ALMANAC_ZOMBIES = [
     name: '纸人',
     epithet: '一戳就散，先拿张纸挡着',
     story: '纸人是白事铺里扎剩下的边角料，被野风吹到夜市，捡了张旧告示糊在身上，就当自己有了脸。它很爱惜那层纸壳，哪怕被竹签戳得叮当响，也要先把里头那口纸气撑住。',
-    ability: '纸壳 250 + 本体 200，速度与饿鬼相同。纸壳先碎，本体后倒。',
-    counter: '先用连发撕壳，再用铜铃拖住。',
+    ability: '中阶恶客：纸壳 250 + 本体 420，速度比饿鬼稍慢。纸壳先碎，本体后倒。',
+    counter: '先用连发撕壳，再用铜铃拖住；没有破壳前别只靠单发签筒。',
     quote: '别碰脸，脸是借来的。'
   },
   {
@@ -92,8 +92,8 @@ export const ALMANAC_ZOMBIES = [
     name: '山魈',
     epithet: '不讲道理的大块头',
     story: '山魈是从城外山上下来的。据说今年山里的果子不好，它一路闻到夜市，就没打算回去。它个头大、脾气坏，啃石磨像啃豆腐，偶尔还会停下来看看摊主有没有藏酒。',
-    ability: '重型恶客：血量 900，走得稍慢，但啃食伤害 120/秒。',
-    counter: '石磨和铜铃一起拖，单靠一株签筒顶不住。',
+    ability: '高阶恶客：血量 1800，走得慢，但啃食伤害 180/秒，能正面啃穿石磨。',
+    counter: '石磨和铜铃一起拖，再用多路签筒集火；单靠一株签筒顶不住。',
     quote: '果子呢？没有果子就啃摊子。'
   },
   {
@@ -101,7 +101,7 @@ export const ALMANAC_ZOMBIES = [
     name: '长舌鬼',
     epithet: '舌头比脚先到',
     story: '长舌鬼生前是个爱传闲话的，死后舌头没缩回去，越长越红。它走路急，吃相更急，隔着半个摊子就把舌头探过来。摊主们说，听它嚼东西的动静，比听它说话还难受。',
-    ability: '走得快，血量偏低；啃食距离比普通恶客远，约 62 像素，会在更早的位置停下开咬。',
+    ability: '低阶快手：血量 80，移动速度 30，啃食 45/秒；啃食距离约 62 像素，会在更早的位置停下开咬。',
     counter: '在它够到之前用铜铃或香炉减速，再让签筒点掉；纸伞的击退能把它推回攻击距离外。',
     quote: '我就舔一下，不咬。'
   },
@@ -110,7 +110,7 @@ export const ALMANAC_ZOMBIES = [
     name: '哭丧鬼',
     epithet: '一哭，整条街都急',
     story: '哭丧鬼原是白事铺请来的哭灵人，哭了一辈子别人的丧事，最后没人替她哭。她夜里沿着摊位慢慢走，哭声不大，却让周围的恶客都跟着心慌，脚步快得像是有人在后面催。',
-    ability: '行走慢、血量中等；每 4.5 秒哭号一次，使周围 150 像素内的恶客加速 35%，持续 2.6 秒。',
+    ability: '中阶辅助：血量 620，行走慢；每 4.5 秒哭号一次，使周围 150 像素内的恶客加速 35%，持续 2.6 秒。',
     counter: '优先点杀，别让她站在怪堆里；减速能抵消她带来的加速，范围伤害也容易顺带清掉。',
     quote: '别急，还没轮到你。'
   },
@@ -119,7 +119,7 @@ export const ALMANAC_ZOMBIES = [
     name: '抬轿鬼',
     epithet: '轿子没落，客人还在',
     story: '抬轿鬼抬着一顶褪色的红轿，轿帘后面坐着谁，没人看清过。它们走得不快，轿子却硬得很，像把一整场喜事都糊在了木头上。轿破的时候，里头的东西会自己下来走，一边走一边找原来的路。',
-    ability: '重型恶客：本体 420 耐久，另有 720 轿壳；轿壳破裂时，会从轿中跌出 2 只饿鬼，各继承 60% 血量。',
+    ability: '高阶恶客：本体 520 耐久，另有 950 轿壳；轿壳破裂时，会从轿中跌出 2 只饿鬼，各继承 60% 血量。',
     counter: '先用签筒磨轿，再用爆竹或香炉一次收掉跌出来的饿鬼；铜铃能把整队拖在门口。',
     quote: '起轿——别问去哪。'
   }
@@ -129,13 +129,17 @@ export function almanacEntries(tab) {
   return tab === 'zombie' ? ALMANAC_ZOMBIES : ALMANAC_PLANTS;
 }
 
-export function firstWaveOf(type) {
-  for (let i = 0; i < LEVEL.waves.length; i++) {
-    for (const [ztype, count] of LEVEL.waves[i].groups) {
-      if (ztype === type && count > 0) return i + 1;
+function firstAppearanceOf(type) {
+  for (const level of LEVELS) {
+    for (let i = 0; i < level.waves.length; i++) {
+      for (const [ztype, count] of level.waves[i].groups) {
+        if (ztype === type && count > 0) {
+          return `第${level.id}关·第${i + 1}波`;
+        }
+      }
     }
   }
-  return 0;
+  return '';
 }
 
 export function plantBaseStats(type) {
@@ -202,7 +206,9 @@ export function plantBaseStats(type) {
 
 export function zombieBaseStats(type) {
   const d = ZOMBIE_TYPES[type];
+  const tierTone = d.tier === 'h' ? 'atk' : d.tier === 'm' ? 'gold' : 'teal';
   const stats = [
+    { label: '阶级', value: zombieTierLabel(d.tier), tone: tierTone },
     { label: '血量', value: String(d.hp), tone: 'hp' },
     { label: '护甲', value: d.shell > 0 ? `${type === 'sedan' ? '轿壳' : '纸壳'} ${d.shell}` : '无', tone: d.shell > 0 ? 'gold' : 'neutral' },
     { label: '速度', value: String(d.speed), tone: 'time' },
@@ -216,8 +222,8 @@ export function zombieBaseStats(type) {
   } else if (type === 'sedan') {
     stats.push({ label: '破轿', value: `${d.split.count} 只饿鬼 · ${Math.round(d.split.hp * 100)}%`, tone: 'green' });
   }
-  const wave = firstWaveOf(type);
-  if (wave) stats.push({ label: '初遇', value: `第 ${wave} 波`, tone: 'teal' });
+  const appearance = firstAppearanceOf(type);
+  if (appearance) stats.push({ label: '初遇', value: appearance, tone: 'teal' });
   const traits = {
     ghost: '数量多', paper: '双层血', mountain: '重型',
     tongue: '快手', mourner: '助威', sedan: '破轿分身'

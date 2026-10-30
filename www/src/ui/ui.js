@@ -3,7 +3,7 @@ import {
   prepRosterRect, prepSlotRect, prepZombieRect,
   settingsPill, settingsRowEnabled
 } from '../layout.js';
-import { getLevel, PLANT_ORDER, PLANT_TYPES, ZOMBIE_TYPES } from '../content.js';
+import { getLevel, PLANT_ORDER, PLANT_TYPES, ZOMBIE_TYPES, ZOMBIE_TIERS, zombieTierLabel } from '../content.js';
 import { drawPlant, drawZombie } from '../render/art.js';
 import { getFan, pathStatus, petalAt } from '../game/upgrade.js';
 import { drawAlmanac } from './almanac.js';
@@ -595,12 +595,12 @@ function drawMenu(ctx, game, t) {
     ctx.font = `400 13px ${KAI}`;
     ctx.fillStyle = 'rgba(244,229,200,0.78)';
     ctx.fillText(
-      `本局关卡：${selectedLevel.name} · ${selectedLevel.tag} · 综合难度 ${selectedLevel.threat.toFixed(1)}×`,
+      `十夜自由选关 · 当前停在 ${selectedLevel.name} · 综合难度 ${selectedLevel.threat.toFixed(1)}×`,
       640, 430
     );
   }
 
-  drawButton(ctx, BTN.start, game.hasSave ? '继续上次对局' : '开张迎客', true);
+  drawButton(ctx, BTN.start, game.hasSave ? '继续上次对局' : '开始游戏', true);
   if (game.hasSave) {
     drawButton(ctx, BTN.newRun, '新开一局', false);
     drawButton(ctx, BTN.settingsMenuWide, '设置', false);
@@ -642,7 +642,7 @@ function drawMenu(ctx, game, t) {
   drawAlmanacMenuButton(ctx, game);
 
   if (game.confirmNew) {
-    drawConfirm(ctx, '新开一局？', '会覆盖上次对局的存档');
+    drawConfirm(ctx, '新开一局？', '选择关卡后开始，会覆盖上次对局的存档');
   }
 }
 
@@ -1093,9 +1093,20 @@ function drawPrepZombie(ctx, game, i, info, t) {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(`第${info.firstWave}波`, r.x + 6, r.y + 10);
+  const tierMeta = ZOMBIE_TIERS[def.tier] || ZOMBIE_TIERS.l;
+  ctx.fillStyle = 'rgba(4,8,14,0.78)';
+  rr(ctx, r.x + r.w - 20, r.y + 4, 16, 14, 4);
+  ctx.fill();
+  ctx.strokeStyle = tierMeta.color;
+  ctx.lineWidth = 1;
+  rr(ctx, r.x + r.w - 20, r.y + 4, 16, 14, 4);
+  ctx.stroke();
+  ctx.fillStyle = tierMeta.color;
+  ctx.font = `700 9px ${KAI}`;
+  ctx.textAlign = 'center';
+  ctx.fillText(tierMeta.short, r.x + r.w - 12, r.y + 11.5);
   ctx.fillStyle = 'rgba(232,211,162,0.55)';
   ctx.font = `400 10px ${KAI}`;
-  ctx.textAlign = 'center';
   ctx.fillText(def.kind, r.x + r.w / 2, r.y + r.h - 7);
 }
 
@@ -1313,7 +1324,7 @@ function drawPrepCinematic(ctx, game, t) {
         ctx.fillText(def.name, x, 542);
         ctx.fillStyle = 'rgba(232,211,162,0.55)';
         ctx.font = `400 10.5px ${KAI}`;
-        ctx.fillText(`${def.kind} · 第${info.firstWave}波`, x, 562);
+        ctx.fillText(`${zombieTierLabel(def.tier)} · ${def.kind} · 第${info.firstWave}波`, x, 562);
         ctx.globalAlpha = 1;
       }
     }

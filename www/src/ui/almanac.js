@@ -1,5 +1,5 @@
 import { ALMANAC, almanacEntryRect } from '../layout.js';
-import { ZOMBIE_TYPES } from '../content.js';
+import { ZOMBIE_TYPES, ZOMBIE_TIERS, zombieTierLabel } from '../content.js';
 import {
   almanacEntries, plantBaseStats, zombieBaseStats
 } from '../content/almanac.js';
@@ -567,14 +567,15 @@ function entryHeader(ctx, game, entry) {
   const isPlant = game.almanacTab === 'plant';
   const tagX = ALMANAC.content.x;
   const tagY = 104;
+  const tierMeta = isPlant ? null : (ZOMBIE_TIERS[ZOMBIE_TYPES[entry.type]?.tier] || ZOMBIE_TIERS.l);
   ctx.fillStyle = isPlant ? 'rgba(47,107,103,0.16)' : 'rgba(168,58,43,0.14)';
   rr(ctx, tagX, tagY, 42, 22, 4);
   ctx.fill();
-  ctx.fillStyle = isPlant ? C.teal : C.red;
+  ctx.fillStyle = isPlant ? C.teal : tierMeta.color;
   ctx.font = bold(11);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(isPlant ? '植物' : '恶客', tagX + 21, tagY + 12);
+  ctx.fillText(isPlant ? '植物' : zombieTierLabel(ZOMBIE_TYPES[entry.type]?.tier), tagX + 21, tagY + 12);
 
   ctx.textAlign = 'left';
   ctx.fillStyle = C.ink;

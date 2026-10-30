@@ -36,50 +36,114 @@ export const PLANT_ORDER = [
   'lantern', 'shooter', 'wall', 'bomb', 'bell', 'censer', 'umbrella', 'lion'
 ];
 
+export const ZOMBIE_TIERS = {
+  l: { id: 'l', label: '低阶', short: '低', color: '#7f9d7a' },
+  m: { id: 'm', label: '中阶', short: '中', color: '#c99a4a' },
+  h: { id: 'h', label: '高阶', short: '高', color: '#b5493e' }
+};
+
+export function zombieTierLabel(tier) {
+  return ZOMBIE_TIERS[tier]?.label || '';
+}
+
 export const ZOMBIE_TYPES = {
-  ghost: { id: 'ghost', name: '饿鬼', kind: '小僵尸', hp: 200, shell: 0, speed: 20, dps: 70, scale: 1 },
-  paper: { id: 'paper', name: '纸人', kind: '特殊', hp: 200, shell: 250, speed: 20, dps: 70, scale: 1.05 },
-  mountain: { id: 'mountain', name: '山魈', kind: '重型', hp: 1800, shell: 0, speed: 17, dps: 120, scale: 1.28 },
+  ghost: {
+    id: 'ghost', name: '饿鬼', kind: '小僵尸', tier: 'l',
+    hp: 90, shell: 0, speed: 21, dps: 35, scale: 1
+  },
+  paper: {
+    id: 'paper', name: '纸人', kind: '特殊', tier: 'm',
+    hp: 420, shell: 250, speed: 19, dps: 80, scale: 1.05
+  },
+  mountain: {
+    id: 'mountain', name: '山魈', kind: '重型', tier: 'h',
+    hp: 1800, shell: 0, speed: 16, dps: 180, scale: 1.28
+  },
   tongue: {
-    id: 'tongue', name: '长舌鬼', kind: '超小', hp: 150, shell: 0, speed: 30, dps: 80,
-    reach: 62, scale: 0.98
+    id: 'tongue', name: '长舌鬼', kind: '超小', tier: 'l',
+    hp: 80, shell: 0, speed: 30, dps: 45, reach: 62, scale: 0.98
   },
   mourner: {
-    id: 'mourner', name: '哭丧鬼', kind: '特殊', hp: 320, shell: 0, speed: 16, dps: 65,
-    scale: 1.06, aura: { radius: 150, interval: 4.5, haste: 1.35, duration: 2.6 }
+    id: 'mourner', name: '哭丧鬼', kind: '特殊', tier: 'm',
+    hp: 620, shell: 0, speed: 16, dps: 75, scale: 1.06,
+    aura: { radius: 150, interval: 4.5, haste: 1.35, duration: 2.6 }
   },
   sedan: {
-    id: 'sedan', name: '抬轿鬼', kind: '重型', hp: 420, shell: 720, speed: 14.5, dps: 85,
-    scale: 1.0, spriteH: 104, split: { type: 'ghost', count: 2, hp: 0.6 }
+    id: 'sedan', name: '抬轿鬼', kind: '重型', tier: 'h',
+    hp: 520, shell: 950, speed: 14, dps: 120, scale: 1.0, spriteH: 104,
+    split: { type: 'ghost', count: 2, hp: 0.6 }
   }
 };
 
-export const BASE_WAVES = [
-  { t: 16, flag: false, groups: [['ghost', 1]] },
-  { t: 34, flag: false, groups: [['ghost', 2]] },
-  { t: 52, flag: false, groups: [['ghost', 2], ['paper', 1]] },
-  { t: 70, flag: false, groups: [['ghost', 3], ['tongue', 1]] },
-  { t: 88, flag: false, groups: [['ghost', 2], ['paper', 2], ['tongue', 1]] },
-  { t: 108, flag: true, groups: [['ghost', 5], ['paper', 2], ['tongue', 2]] },
-  { t: 128, flag: false, groups: [['ghost', 3], ['paper', 2], ['mountain', 1], ['tongue', 1]] },
-  { t: 148, flag: false, groups: [['ghost', 4], ['paper', 2], ['tongue', 1], ['mourner', 1]] },
-  { t: 168, flag: false, groups: [['ghost', 3], ['paper', 2], ['mountain', 1], ['sedan', 1]] },
-  { t: 188, flag: true, groups: [['ghost', 6], ['paper', 3], ['tongue', 3], ['mourner', 1]] },
-  { t: 208, flag: false, groups: [['ghost', 5], ['paper', 3], ['mountain', 2], ['tongue', 2], ['sedan', 1]] },
-  { t: 228, flag: true, groups: [['ghost', 8], ['paper', 4], ['mountain', 2], ['tongue', 4], ['mourner', 2], ['sedan', 1]] }
-];
+// 每关 12 波；前 3 关、4-8 关、最后 2 关各用一套阶段构成。
+const WAVE_PLANS = {
+  early: [
+    { l: 1 }, { l: 2 }, { l: 2 }, { l: 3 }, { l: 3 }, { l: 4, flag: true },
+    { l: 4, m: 1 }, { l: 4, m: 1 }, { l: 5, m: 1 }, { l: 6, m: 2, flag: true },
+    { l: 6, m: 2 }, { l: 7, m: 3, flag: true }
+  ],
+  mid: [
+    { l: 2 }, { l: 3 }, { l: 3 }, { l: 4 },
+    { l: 4, m: 2 }, { l: 5, m: 3, flag: true }, { l: 5, m: 3 }, { l: 6, m: 4 },
+    { l: 5, m: 3, h: 1 }, { l: 6, m: 4, h: 1, flag: true }, { l: 7, m: 5, h: 2 }, { l: 8, m: 6, h: 3, flag: true }
+  ],
+  late: [
+    { l: 2, m: 1 }, { l: 2, m: 1 }, { l: 3, m: 1 }, { l: 3, m: 2 },
+    { l: 3, m: 2, h: 1 }, { l: 4, m: 3, h: 1, flag: true }, { l: 4, m: 3, h: 2 }, { l: 5, m: 4, h: 2 },
+    { m: 3, h: 2 }, { m: 4, h: 2, flag: true }, { m: 4, h: 3 }, { m: 5, h: 3, flag: true }
+  ]
+};
+
+function addTierGroup(groups, tier, count, wi, levelId) {
+  if (!count) return;
+  if (tier === 'l') {
+    if (wi < 3) {
+      groups.push(['ghost', count]);
+      return;
+    }
+    const tongue = count >= 2
+      ? Math.min(count, Math.floor(count * 0.35))
+      : (wi % 4 === 3 ? 1 : 0);
+    if (count - tongue > 0) groups.push(['ghost', count - tongue]);
+    if (tongue > 0) groups.push(['tongue', tongue]);
+  } else if (tier === 'm') {
+    let mourner = 0;
+    if (wi >= 7 && count >= 2) mourner = Math.min(count, Math.max(1, Math.floor(count * 0.3)));
+    else if (wi >= 10 && count === 1 && (levelId + wi) % 2 === 0) mourner = 1;
+    if (count - mourner > 0) groups.push(['paper', count - mourner]);
+    if (mourner > 0) groups.push(['mourner', mourner]);
+  } else {
+    let sedan = 0;
+    if (wi >= 8 && count >= 2) sedan = Math.min(count, Math.max(1, Math.floor(count * 0.35)));
+    if (count - sedan > 0) groups.push(['mountain', count - sedan]);
+    if (sedan > 0) groups.push(['sedan', sedan]);
+  }
+}
+
+function buildWaves(band, levelId) {
+  const plan = WAVE_PLANS[band] || WAVE_PLANS.early;
+  return plan.map((wave, wi) => {
+    const groups = [];
+    for (const tier of ['l', 'm', 'h']) addTierGroup(groups, tier, wave[tier] || 0, wi, levelId);
+    return {
+      t: 16 + wi * 18,
+      flag: !!wave.flag,
+      groups
+    };
+  });
+}
 
 const LEVEL_INFO = [
-  { name: '第一夜', tag: '开张', threat: 1.0 },
-  { name: '第二夜', tag: '熟客', threat: 1.444 },
-  { name: '第三夜', tag: '起风', threat: 1.889 },
-  { name: '第四夜', tag: '灯多', threat: 2.333 },
-  { name: '第五夜', tag: '山雨', threat: 2.778 },
-  { name: '第六夜', tag: '满街', threat: 3.222 },
-  { name: '第七夜', tag: '问路', threat: 3.667 },
-  { name: '第八夜', tag: '不眠', threat: 4.111 },
-  { name: '第九夜', tag: '月近', threat: 4.556 },
-  { name: '第十夜', tag: '天亮前', threat: 5.0 }
+  { name: '第一夜', tag: '开张', threat: 1.0, band: 'early' },
+  { name: '第二夜', tag: '熟客', threat: 1.444, band: 'early' },
+  { name: '第三夜', tag: '起风', threat: 1.889, band: 'early' },
+  { name: '第四夜', tag: '灯多', threat: 2.333, band: 'mid' },
+  { name: '第五夜', tag: '山雨', threat: 2.778, band: 'mid' },
+  { name: '第六夜', tag: '满街', threat: 3.222, band: 'mid' },
+  { name: '第七夜', tag: '问路', threat: 3.667, band: 'mid' },
+  { name: '第八夜', tag: '不眠', threat: 4.111, band: 'mid' },
+  { name: '第九夜', tag: '月近', threat: 4.556, band: 'late' },
+  { name: '第十夜', tag: '天亮前', threat: 5.0, band: 'late' }
 ];
 
 export const LEVELS = LEVEL_INFO.map((info, i) => ({
@@ -87,13 +151,12 @@ export const LEVELS = LEVEL_INFO.map((info, i) => ({
   name: info.name,
   tag: info.tag,
   threat: info.threat,
+  band: info.band,
   startSun: 100,
-  waves: BASE_WAVES
+  waves: buildWaves(info.band, i + 1)
 }));
 
 export function getLevel(id) {
   return LEVELS.find((level) => level.id === id) || LEVELS[0];
 }
-
-export const LEVEL = LEVELS[0];
 
