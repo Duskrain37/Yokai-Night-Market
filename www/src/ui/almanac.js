@@ -187,12 +187,19 @@ function tierStats(type, pathId, tier) {
   if (type === 'lantern') {
     if (pathId === 1) return `单次产量 ${e.value[tier]}`;
     if (pathId === 2) return `产出间隔 ${e.interval[tier]} 秒`;
-    return `被啃反伤 ${e.reflect[tier]} / 秒`;
+    const range = tier === 3 ? '整行' : `前方 ${e.buffRange[tier]} 格`;
+    return `${range} · 友军伤害 +${Math.round(e.buffDamage[tier] * 100)}%`;
   }
   if (type === 'wall') {
-    if (pathId === 1) return `耐久 ${e.hp[tier]}`;
+    if (pathId === 1) {
+      const extra = e.healWhileEaten[tier] ? ' · 被啃也恢复' : '';
+      return `每秒恢复 ${e.heal[tier]} 生命${extra}`;
+    }
     if (pathId === 2) return `被啃反伤 ${e.reflect[tier]} / 秒`;
-    return `破碎伤害 ${e.blast[tier]}`;
+    let text = `碎石 ${e.gravelDamage[tier]} 伤害 / ${e.gravelInterval} 秒`;
+    if (e.vuln[tier]) text += ' · 10% 易伤 3 秒';
+    if (e.knockCells[tier]) text += ` · 击退 ${e.knockCells[tier]} 格 / 大型双倍`;
+    return text;
   }
   if (type === 'censer') {
     if (pathId === 1) return `香雾伤害 ${e.damage[tier]}`;
@@ -200,24 +207,32 @@ function tierStats(type, pathId, tier) {
     return `减速 ${Math.round(e.slowFactor[tier] * 100)}% · 持续 ${e.slowDuration[tier]} 秒`;
   }
   if (type === 'umbrella') {
-    if (pathId === 1) return `庇护减伤 ${Math.round(e.guard[tier] * 100)}%`;
-    if (pathId === 2) return `回旋间隔 ${e.blowInterval[tier]} 秒 · 推开 ${e.blowDist[tier]} 像素`;
-    return `相邻修复 ${e.regen[tier]} / 秒`;
+    if (pathId === 1) return `收妖速度 +${Math.round(e.chewSpeed[tier] * 100)}%`;
+    if (pathId === 2) return `收妖完成产 ${e.sun[tier]} 香火`;
+    return `收妖期间减伤 ${Math.round(e.chewGuard[tier] * 100)}%`;
   }
   if (type === 'lion') {
-    if (pathId === 1) return `撞头伤害 ${e.damage[tier]}`;
+    if (pathId === 1) {
+      const extra = tier === 3 ? ' · 击退 +50%' : '';
+      return `撞头伤害 ${e.damage[tier]}${extra}`;
+    }
     if (pathId === 2) return `攻击间隔 ${e.interval[tier]} 秒 · 眩晕 ${Math.round(e.stunChance[tier] * 100)}%`;
     return `命中回复 ${e.heal[tier]} 耐久`;
   }
-  if (pathId === 1) return `摇铃间隔 ${e.interval[tier]} 秒`;
-  if (pathId === 2) {
-    return `减速 ${Math.round((1 - e.slowFactor[tier]) * 100)}% · 持续 ${e.slowDuration[tier]} 秒`;
+  if (pathId === 1) {
+    const slow = Math.round((1 - e.slowFactor[tier]) * 100);
+    return `摇铃间隔 ${e.interval[tier]} 秒 · 减速 ${slow}%`;
   }
-  let text = `摇铃伤害 ${e.damage[tier]}`;
-  if (e.slowExtend[tier]) text += ` · 减速延长 ${e.slowExtend[tier]} 秒`;
+  if (pathId === 2) {
+    const range = tier === 3 ? '整行' : '前方 1 格';
+    const pct = Math.round((1 - e.slowFactor[1]) * e.hasteFactor[tier] * 100);
+    return `${range} · 友军攻速 +${pct}%`;
+  }
+  const range = tier === 1 ? '前方 4 格' : '整行';
+  let text = `${range} · 伤害 ${e.damage[tier]}`;
+  if (e.rootChance[tier]) text += ` · 20% 定身 ${e.rootDuration} 秒`;
   return text;
 }
-
 function pathSection(ctx, type, path, x, y, maxWidth) {
   const tint = path.color + '22';
   ctx.fillStyle = tint;
@@ -320,9 +335,12 @@ function buildPlantContent(ctx, entry) {
   y = heading(ctx, '进化', 0, y);
   const tree = UPGRADE_TREES[entry.type];
   if (!tree) {
+    const text = entry.type === 'mushroom'
+      ? '坟头菇是埋进土里的灰烬陷阱，长成后只等那一脚。它没有第二条路可走，炸完便连菇带土一起散了。'
+      : '爆竹是一响就散的灰烬之物，点着了就只能等它炸完，没有第二条路可走。';
     y = writeText(
       ctx,
-      '爆竹是一响就散的灰烬之物，点着了就只能等它炸完，没有第二条路可走。',
+      text,
       0, y + 2, 700,
       { font: body(14), color: C.story, lineHeight: 24 }
     );
@@ -379,15 +397,17 @@ function buildZombieContent(ctx, entry) {
   return footerNote(ctx, y);
 }
 
-function ensureContent(tab, index) {
-  const key = tab + ':' + index;
+function ensureContent(tab, index, scale = 1) {
+  const safeScale = Math.min(3, Math.max(1, scale));
+  const key = `${tab}:${index}:${safeScale}`;
   if (contentCache && contentCache.key === key) return contentCache;
 
   const entry = almanacEntries(tab)[index];
   const canvas = document.createElement('canvas');
-  canvas.width = 700;
-  canvas.height = 2400;
+  canvas.width = Math.ceil(700 * safeScale);
+  canvas.height = Math.ceil(2400 * safeScale);
   const ctx = canvas.getContext('2d');
+  ctx.scale(safeScale, safeScale);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
   const height = tab === 'plant'
@@ -395,8 +415,9 @@ function ensureContent(tab, index) {
     : buildZombieContent(ctx, entry);
   contentCache = {
     key,
+    scale: safeScale,
     canvas,
-    height: Math.max(1, Math.min(canvas.height, Math.ceil(height)))
+    height: Math.max(1, Math.min(2400, Math.ceil(height)))
   };
   return contentCache;
 }
@@ -607,13 +628,14 @@ function entryHeader(ctx, game, entry) {
 
 function drawContent(ctx, game, cache, scroll) {
   const c = ALMANAC.content;
+  const scale = cache.scale || 1;
   ctx.save();
   ctx.beginPath();
   ctx.rect(c.x, c.y, c.w, c.h);
   ctx.clip();
   ctx.drawImage(
     cache.canvas,
-    0, scroll, c.w, c.h,
+    0, Math.round(scroll * scale), Math.round(c.w * scale), Math.round(c.h * scale),
     c.x, c.y, c.w, c.h
   );
 
@@ -664,7 +686,7 @@ export function drawAlmanac(ctx, game) {
   drawList(ctx, game, entries);
   entryHeader(ctx, game, entry);
 
-  const cache = ensureContent(tab, game.almanacIndex);
+  const cache = ensureContent(tab, game.almanacIndex, ctx.getTransform().a || 1);
   game.almanacMaxScroll = Math.max(0, cache.height - ALMANAC.content.h);
   game.almanacScroll = Math.max(0, Math.min(game.almanacMaxScroll, game.almanacScroll));
   const scroll = game.almanacScroll;
@@ -675,7 +697,7 @@ export function drawAlmanac(ctx, game) {
   ctx.font = body(11);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText('滚轮 / ↑↓ 翻阅 · Esc 返回', 120, 638);
+  ctx.fillText('滚轮 / ↑↓ 翻阅 · Esc 返回', 120, 652);
   ctx.fillStyle = 'rgba(90,70,48,0.5)';
   ctx.textAlign = 'right';
   ctx.fillText(

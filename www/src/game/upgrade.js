@@ -47,21 +47,21 @@ export const UPGRADE_TREES = {
       ]
     },
     {
-      id: 3, name: '灯焰', color: '#b35a2e',
+      id: 3, name: '红火', color: '#d4552e',
       tiers: [
-        { name: '烫手', desc: '被啃时每秒反伤敌人 20', cost: 75 },
-        { name: '火舌', desc: '反伤提升到 40/秒', cost: 150 },
-        { name: '燎原', desc: '反伤提升到 60/秒', cost: 250 }
+        { name: '旺友', desc: '增幅前方 1 格友军，伤害 +20%', cost: 75 },
+        { name: '连旺', desc: '增幅范围扩展到前方 3 格，伤害 +20%', cost: 150 },
+        { name: '满街红火', desc: '增幅整行友军，伤害 +25%', cost: 250 }
       ]
     }
   ],
   wall: [
     {
-      id: 1, name: '厚壁', color: '#6f7d84',
+      id: 1, name: '自愈', color: '#6f7d84',
       tiers: [
-        { name: '加厚', desc: '耐久 3000 → 4000', cost: 75 },
-        { name: '磐石', desc: '耐久提升到 5500', cost: 150 },
-        { name: '山岳', desc: '耐久提升到 7500', cost: 250 }
+        { name: '渗养', desc: '未被啃食时每秒恢复 20 生命', cost: 75 },
+        { name: '石心', desc: '未被啃食时每秒恢复 40 生命', cost: 150 },
+        { name: '不坏', desc: '被啃食时也能每秒恢复 40 生命', cost: 250 }
       ]
     },
     {
@@ -73,11 +73,11 @@ export const UPGRADE_TREES = {
       ]
     },
     {
-      id: 3, name: '碎磨', color: GOLD,
+      id: 3, name: '碎石', color: GOLD,
       tiers: [
-        { name: '碎石', desc: '破碎时对周围敌人造成 300 伤害', cost: 75 },
-        { name: '崩石', desc: '破碎伤害提升到 600', cost: 150 },
-        { name: '石雨', desc: '破碎伤害提升到 1000', cost: 250 }
+        { name: '磨石', desc: '每 2.8 秒向本行前方射出一块碎石，伤害 20', cost: 75 },
+        { name: '石屑', desc: '碎石命中使目标获得 10% 易伤，持续 3 秒', cost: 150 },
+        { name: '飞石', desc: '碎石击退非大型单位 0.4 格；对大型单位改为伤害加倍', cost: 250 }
       ]
     }
   ],
@@ -86,24 +86,24 @@ export const UPGRADE_TREES = {
       id: 1, name: '急铃', color: RED,
       tiers: [
         { name: '快摇', desc: '摇铃间隔 2.5 秒 → 2 秒', cost: 75 },
-        { name: '连响', desc: '摇铃间隔缩短到 1.6 秒', cost: 150 },
-        { name: '惊魂', desc: '摇铃间隔缩短到 1.2 秒', cost: 250 }
+        { name: '连响', desc: '摇铃间隔缩短到 1.5 秒', cost: 150 },
+        { name: '惊魂', desc: '减速效果增强到 40%', cost: 250 }
       ]
     },
     {
-      id: 2, name: '回响', color: TEAL,
+      id: 2, name: '和鸣', color: TEAL,
       tiers: [
-        { name: '长音', desc: '减速持续 3 秒 → 4 秒', cost: 75 },
-        { name: '沉音', desc: '减速持续 5 秒，效果提升到 60%', cost: 150 },
-        { name: '定魂', desc: '减速效果提升到 70%', cost: 250 }
+        { name: '应声', desc: '摇铃也增幅身前一格友方，攻速 +减速值的一半', cost: 75 },
+        { name: '共振', desc: '攻速增幅提升到等同于减速值', cost: 150 },
+        { name: '满堂', desc: '增幅范围扩展到整行友军', cost: 250 }
       ]
     },
     {
-      id: 3, name: '余音', color: GOLD,
+      id: 3, name: '荡魂', color: GOLD,
       tiers: [
-        { name: '余音', desc: '摇铃时对前方敌人造成 15 伤害', cost: 75 },
-        { name: '裂铃', desc: '摇铃伤害提升到 25', cost: 150 },
-        { name: '摄魂', desc: '摇铃伤害 40，并延长减速 2 秒', cost: 250 }
+        { name: '声浪', desc: '摇铃对前方 4 格敌人造成 40 伤害', cost: 75 },
+        { name: '贯街', desc: '伤害范围扩展到整行', cost: 150 },
+        { name: '定魄', desc: '攻击有 20% 概率定身 0.4 秒，对大型敌人无效', cost: 250 }
       ]
     }
   ],
@@ -135,27 +135,27 @@ export const UPGRADE_TREES = {
   ],
   umbrella: [
     {
-      id: 1, name: '伞骨', color: TEAL,
+      id: 1, name: '收伞', color: RED,
       tiers: [
-        { name: '加固', desc: '相邻植物所受啃食伤害降低 15% → 30%', cost: 75 },
-        { name: '密骨', desc: '庇护减伤提升到 40%', cost: 150 },
-        { name: '铁骨', desc: '庇护减伤提升到 50%', cost: 250 }
+        { name: '快收', desc: '收妖速度加快 10%', cost: 75 },
+        { name: '卷云', desc: '收妖速度加快 20%', cost: 150 },
+        { name: '一伞收', desc: '收妖速度加快 40%', cost: 250 }
       ]
     },
     {
-      id: 2, name: '回旋', color: RED,
+      id: 2, name: '还愿', color: GOLD,
       tiers: [
-        { name: '疾风', desc: '每 4.6 秒撑伞，把本行近处敌人推开 55 像素', cost: 75 },
-        { name: '旋风', desc: '回旋间隔 3.8 秒，推开 70 像素', cost: 150 },
-        { name: '罡风', desc: '回旋间隔 3 秒，推开 85 像素', cost: 250 }
+        { name: '回香', desc: '收妖完成后产出 50 香火', cost: 75 },
+        { name: '厚礼', desc: '收妖完成后产出 100 香火', cost: 150 },
+        { name: '满愿', desc: '收妖完成后产出 225 香火', cost: 250 }
       ]
     },
     {
-      id: 3, name: '雨露', color: GOLD,
+      id: 3, name: '护纸', color: TEAL,
       tiers: [
-        { name: '润物', desc: '相邻植物每秒回复 8 点耐久', cost: 75 },
-        { name: '甘霖', desc: '修复提升到每秒 14 点', cost: 150 },
-        { name: '回春', desc: '修复提升到每秒 22 点', cost: 250 }
+        { name: '紧纸', desc: '收妖期间受到伤害降低 25%', cost: 75 },
+        { name: '油纸', desc: '收妖期间受到伤害降低 50%', cost: 150 },
+        { name: '不破', desc: '收妖期间受到伤害降低 75%', cost: 250 }
       ]
     }
   ],
@@ -165,15 +165,15 @@ export const UPGRADE_TREES = {
       tiers: [
         { name: '开脸', desc: '撞头伤害 60 → 90', cost: 75 },
         { name: '怒目', desc: '撞头伤害提升到 125', cost: 150 },
-        { name: '吞煞', desc: '撞头伤害提升到 170', cost: 250 }
+        { name: '吞煞', desc: '撞头伤害提升到 170，击退距离增加 50%', cost: 250 }
       ]
     },
     {
       id: 2, name: '步法', color: TEAL,
       tiers: [
-        { name: '踩桩', desc: '攻击间隔 1.35 秒 → 1.15 秒，15% 概率撞晕 0.65 秒', cost: 75 },
-        { name: '腾挪', desc: '攻击间隔缩短到 0.95 秒，眩晕概率 25%', cost: 150 },
-        { name: '扑食', desc: '攻击间隔缩短到 0.75 秒，眩晕概率 35%', cost: 250 }
+        { name: '踩桩', desc: '攻击间隔 1.35 秒 → 1.15 秒', cost: 75 },
+        { name: '腾挪', desc: '攻击间隔缩短到 0.95 秒', cost: 150 },
+        { name: '扑食', desc: '攻击间隔缩短到 0.75 秒，25% 概率撞晕 0.65 秒', cost: 250 }
       ]
     },
     {
@@ -294,19 +294,30 @@ export const PLANT_EFFECTS = {
   lantern: {
     value: [25, 35, 50, 75],
     interval: [8, 7, 6, 5],
-    reflect: [0, 20, 40, 60]
+    buffRange: [0, 1, 3, 99],
+    buffDamage: [0, 0.2, 0.2, 0.25]
   },
   wall: {
-    hp: [3000, 4000, 5500, 7500],
+    heal: [0, 20, 40, 40],
+    healWhileEaten: [false, false, false, true],
     reflect: [0, 15, 30, 50],
-    blast: [0, 300, 600, 1000]
+    gravel: [0, 1, 1, 1],
+    gravelDamage: [0, 20, 20, 20],
+    gravelInterval: 2.8,
+    vuln: [0, 0, 0.1, 0.1],
+    vulnDuration: 3,
+    knockCells: [0, 0, 0, 0.4]
   },
   bell: {
-    interval: [2.5, 2.0, 1.6, 1.2],
-    slowDuration: [3, 4, 5, 5],
-    slowFactor: [0.5, 0.5, 0.4, 0.3],
-    damage: [0, 15, 25, 40],
-    slowExtend: [0, 0, 0, 2]
+    interval: [2.5, 2.0, 1.5, 1.5],
+    slowDuration: 1.5,
+    slowFactor: [0.75, 0.75, 0.75, 0.6],
+    hasteRange: [0, 1, 1, 99],
+    hasteFactor: [0, 0.5, 1, 1],
+    damage: [0, 40, 40, 40],
+    damageRange: [0, 4, 99, 99],
+    rootChance: [0, 0, 0, 0.2],
+    rootDuration: 0.4
   },
   censer: {
     interval: 3.0,
@@ -316,18 +327,20 @@ export const PLANT_EFFECTS = {
     slowDuration: [0, 2, 2.5, 3]
   },
   umbrella: {
-    guard: [0.15, 0.3, 0.4, 0.5],
-    blowInterval: [5.5, 4.6, 3.8, 3.0],
-    blowDist: [46, 55, 70, 85],
-    regen: [0, 8, 14, 22]
+    chewSpeed: [0, 0.1, 0.2, 0.4],
+    sun: [0, 50, 100, 225],
+    chewGuard: [0, 0.25, 0.5, 0.75],
+    largeDamage: 40,
+    largeInterval: 2.0
   },
   lion: {
     damage: [60, 90, 125, 170],
     interval: [1.35, 1.15, 0.95, 0.75],
-    stunChance: [0, 0.15, 0.25, 0.35],
+    stunChance: [0, 0, 0, 0.25],
     stunDuration: 0.65,
     heal: [0, 25, 45, 70],
     reach: 110,
-    knock: 18
+    knockCells: 0.2,
+    knockBonus: [1, 1, 1, 1.5]
   }
 };

@@ -22,14 +22,13 @@ export function drawPlant(ctx, type, x, y, t, opt = {}) {
   }
   const bobAmp = {
     lantern: 3.2, shooter: 1.4, wall: 0.45, bomb: 0.7,
-    bell: 0.7, censer: 1.1, umbrella: 1.3, lion: 1.0
+    bell: 0.7, censer: 1.1, umbrella: 1.3, lion: 1.0, mushroom: 0.5
   }[type] ?? 2;
   const bobSpeed = {
     lantern: 1.55, shooter: 2.4, wall: 0.95, bomb: 3.1,
-    bell: 1.15, censer: 1.5, umbrella: 1.8, lion: 1.3
+    bell: 1.15, censer: 1.5, umbrella: 1.8, lion: 1.3, mushroom: 0.9
   }[type] ?? 2.2;
   const bob = Math.sin(t * bobSpeed + phase) * bobAmp;
-  if (type === 'umbrella' && (opt.up?.[1] ?? 0) > 0) drawUmbrellaWard(ctx, t, opt);
   if (type === 'censer') drawCenserGlow(ctx, t);
   const sprite = assets.plants[type];
   if (sprite) {
@@ -44,28 +43,59 @@ export function drawPlant(ctx, type, x, y, t, opt = {}) {
   else if (type === 'censer') censerPlant(ctx, t, bob);
   else if (type === 'umbrella') umbrellaPlant(ctx, t, bob, opt);
   else if (type === 'lion') lionPlant(ctx, t, bob, opt);
+  else if (type === 'mushroom') mushroomPlant(ctx, t, bob, opt);
+  drawPlantAura(ctx, t, opt);
   ctx.restore();
 }
 
-function drawUmbrellaWard(ctx, t, opt) {
-  const pulse = 0.5 + Math.sin(t * 1.8) * 0.08;
-  const r = 66;
+function drawPlantAura(ctx, t, opt) {
+  const buff = opt.buff || 0;
+  const haste = opt.haste || 0;
+  if (buff <= 0 && haste <= 0) return;
   ctx.save();
-  const g = ctx.createRadialGradient(0, 4, 12, 0, 4, r);
-  g.addColorStop(0, 'rgba(220,150,130,0.10)');
-  g.addColorStop(0.7, 'rgba(200,110,95,0.07)');
-  g.addColorStop(1, 'rgba(200,110,95,0)');
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(0, 4, r, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = `rgba(230,170,140,${0.18 * pulse})`;
-  ctx.lineWidth = 1.2;
-  ctx.setLineDash([5, 7]);
-  ctx.beginPath();
-  ctx.arc(0, 4, r - 6, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  if (buff > 0) {
+    const pulse = 0.65 + Math.sin(t * 5.2) * 0.15;
+    ctx.strokeStyle = `rgba(236,118,64,${0.34 + buff * 1.2})`;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(0, 26, 25, 7.5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let i = 0; i < 3; i++) {
+      const k = (t * 0.55 + i / 3) % 1;
+      ctx.globalAlpha = (1 - k) * 0.65;
+      ctx.fillStyle = i % 2 ? '#ffca7a' : '#e86845';
+      ctx.beginPath();
+      ctx.arc(Math.sin(t * 2 + i * 2.1) * 13, 18 - k * 34, 1.8 + k * 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 0.18 + pulse * 0.1;
+    ctx.setLineDash([4, 6]);
+    ctx.lineDashOffset = -t * 18;
+    ctx.strokeStyle = 'rgba(255,190,120,0.9)';
+    ctx.beginPath();
+    ctx.ellipse(0, 24, 28, 8.5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if (haste > 0) {
+    ctx.globalAlpha = 0.55;
+    ctx.strokeStyle = 'rgba(126,205,208,0.9)';
+    ctx.lineWidth = 1.4;
+    for (let i = 0; i < 3; i++) {
+      const a = t * 2.2 + i * (Math.PI * 2 / 3);
+      ctx.beginPath();
+      ctx.arc(0, -6, 31, a, a + 0.55);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = '#a9e0dd';
+    for (let i = 0; i < 2; i++) {
+      const a = -t * 2.7 + i * Math.PI;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * 20, -18 + Math.sin(a) * 8, 1.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
   ctx.restore();
 }
 
@@ -125,10 +155,19 @@ function plantMotion(type, t, phase, opt) {
     dy = 2.5 * charge - 2.5 * pulse;
     rot = Math.sin(t * 1.2 + phase) * 0.01;
   } else if (type === 'umbrella') {
-    rot = Math.sin(t * 1.7 + phase) * 0.025 + Math.sin(t * 20) * 0.08 * pulse;
-    sx = 1 + 0.06 * pulse;
-    sy = 1 + 0.02 * pulse;
-    dy = -2 * pulse;
+    const chew = Math.max(0, Math.min(1, opt.chew ?? 0));
+    rot = Math.sin(t * 1.7 + phase) * 0.025 + Math.sin(t * 20) * 0.08 * pulse + Math.sin(t * 9) * 0.035 * chew;
+    sx = 1 - 0.08 * chew + 0.06 * pulse;
+    sy = 1 + 0.05 * chew + 0.02 * pulse;
+    dy = -2 * pulse + chew * 2;
+  } else if (type === 'mushroom') {
+    const arm = Math.max(0, Math.min(1, opt.arm ?? 1));
+    const armed = !!opt.armed;
+    const pop = armed ? 1 : 0.3 + arm * 0.7;
+    sx = pop + (armed ? Math.sin(t * 4.2) * 0.02 : 0);
+    sy = pop + (armed ? Math.sin(t * 4.2) * 0.015 : 0);
+    dy = (1 - pop) * 12;
+    rot = Math.sin(t * 1.3 + phase) * 0.012;
   } else if (type === 'lion') {
     dx = 9 * recoil - 3 * charge;
     dy = -1.5 * charge;
@@ -272,26 +311,61 @@ function drawPlantFx(ctx, type, t, opt, baseH) {
     }
     ctx.restore();
   }
-  if (type === 'umbrella' && pulse > 0) {
-    const k = pulse / 0.6;
-    const lock = Math.min(1, k);
+  if (type === 'umbrella' && (pulse > 0 || (opt.chew || 0) > 0)) {
+    const k = Math.max(pulse / 0.6, opt.chew || 0);
     ctx.save();
-    ctx.globalAlpha = lock * 0.32;
-    const dome = ctx.createRadialGradient(0, -8, 8, 0, -8, 54);
-    dome.addColorStop(0, 'rgba(248,206,176,0.35)');
-    dome.addColorStop(0.7, 'rgba(226,142,120,0.18)');
-    dome.addColorStop(1, 'rgba(226,142,120,0)');
-    ctx.fillStyle = dome;
-    ctx.beginPath();
-    ctx.arc(0, -8, 54, Math.PI, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = lock * 0.55;
-    ctx.strokeStyle = 'rgba(240,190,160,0.9)';
-    ctx.lineWidth = 1.6;
+    ctx.globalAlpha = Math.min(1, k) * 0.55;
+    ctx.strokeStyle = 'rgba(236,190,116,0.95)';
+    ctx.lineWidth = 1.4;
     for (let i = 0; i < 3; i++) {
+      const a = t * 2.4 + i * 2.1;
       ctx.beginPath();
-      ctx.arc(8, -8 + i * 7, 26 + i * 6, -0.6, 0.7);
+      ctx.arc(0, -8, 34 + i * 5, a, a + 0.8);
       ctx.stroke();
+    }
+    ctx.globalAlpha = Math.min(1, k) * 0.8;
+    ctx.fillStyle = '#f0d49a';
+    for (let i = 0; i < 4; i++) {
+      const p2 = (t * 0.8 + i / 4) % 1;
+      ctx.save();
+      ctx.translate(Math.sin(t * 2 + i * 2.2) * 20, 10 - p2 * 34);
+      ctx.rotate(t * 2 + i);
+      ctx.fillRect(-3, -5, 6, 10);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  if (type === 'mushroom' && (opt.arm ?? 1) < 1 && !opt.armed) {
+    ctx.save();
+    ctx.globalAlpha = 0.22 + Math.sin(t * 3.2) * 0.08;
+    ctx.fillStyle = 'rgba(150,220,150,0.75)';
+    for (let i = 0; i < 3; i++) {
+      const p2 = (t * 0.6 + i / 3) % 1;
+      ctx.beginPath();
+      ctx.arc(Math.sin(t + i * 2) * 12, 16 - p2 * 26, 2 + p2 * 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  if (type === 'mushroom' && opt.armed) {
+    const glow = 0.55 + Math.sin(t * 5.5) * 0.2;
+    ctx.save();
+    ctx.globalAlpha = 0.28 + glow * 0.22;
+    ctx.strokeStyle = 'rgba(158,224,140,0.9)';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([3, 5]);
+    ctx.lineDashOffset = -t * 16;
+    ctx.beginPath();
+    ctx.ellipse(0, 25, 30, 8, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = '#d8ef9a';
+    for (let i = 0; i < 3; i++) {
+      const a = t * 2.4 + i * 2.1;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * 18, -34 + Math.sin(a) * 5, 1.6, 0, Math.PI * 2);
+      ctx.fill();
     }
     ctx.restore();
   }
@@ -896,6 +970,48 @@ function umbrellaPlant(ctx, t, bob, opt) {
   rr(ctx, -4, 22, 8, 6, 2);
   ctx.fill();
   ctx.stroke();
+  ctx.restore();
+}
+
+function mushroomPlant(ctx, t, bob, opt) {
+  ctx.save();
+  ctx.translate(0, bob);
+  ctx.fillStyle = '#463528';
+  ctx.beginPath();
+  ctx.ellipse(0, 26, 34, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#d9c9a2';
+  ctx.strokeStyle = '#241a12';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 12, 24, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#c9b184';
+  ctx.beginPath();
+  ctx.ellipse(0, -23, 32, 15, 0, Math.PI, Math.PI * 2);
+  ctx.quadraticCurveTo(20, -9, 0, -8);
+  ctx.quadraticCurveTo(-20, -9, -32, -23);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#a8442f';
+  ctx.fillRect(-3, -20, 6, 20);
+  ctx.fillStyle = '#241a12';
+  ctx.beginPath();
+  ctx.arc(-7, -2, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(7, -2, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+  if (opt.armed) {
+    ctx.globalAlpha = 0.4 + Math.sin(t * 5) * 0.2;
+    ctx.strokeStyle = '#9fe08f';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.ellipse(0, 22, 26, 7, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 

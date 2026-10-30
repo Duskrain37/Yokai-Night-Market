@@ -16,6 +16,20 @@ canvas {
   touch-action: none;
 }
 
+#bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #060608;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+}
+
 #loading {
   position: fixed;
   inset: 0;

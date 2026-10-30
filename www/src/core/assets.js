@@ -11,7 +11,8 @@ const ASSET_PATHS = {
     bell: './assets/sprites/bell.png',
     censer: './assets/sprites/censer.png',
     umbrella: './assets/sprites/umbrella.png',
-    lion: './assets/sprites/lion.png'
+    lion: './assets/sprites/lion.png',
+    mushroom: './assets/sprites/mushroom.png'
   },
   zombies: {
     ghost: './assets/sprites/ghost.png',

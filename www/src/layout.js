@@ -59,7 +59,7 @@ export const SETTINGS = {
     },
     {
       key: 'resolution', y: 210, label: '渲染分辨率',
-      note: '全屏输出；固定档按所选像素宽度渲染', options: [
+      note: '自适应最高 1920 宽，优先 60 帧；固定档按所选宽度', options: [
         { value: 'auto', label: '自适应' },
         { value: '720', label: '720p' },
         { value: '1080', label: '1080p' },
@@ -169,7 +169,7 @@ export const ALMANAC = {
     { key: 'plant', label: '草木志', rect: { x: 120, y: 112, w: 104, h: 34 } },
     { key: 'zombie', label: '恶客录', rect: { x: 232, y: 112, w: 104, h: 34 } }
   ],
-  list: { x: 112, y: 166, w: 232, rowH: 52, gap: 5 },
+  list: { x: 112, y: 166, w: 232, rowH: 48, gap: 4 },
   right: { x: 374, y: 92, w: 796, h: 566 },
   content: { x: 398, y: 196, w: 700, h: 444 },
   scrollbar: { x: 1112, y: 196, w: 10, h: 444 }

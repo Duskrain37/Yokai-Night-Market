@@ -7,7 +7,7 @@ export const ALMANAC_PLANTS = [
     name: '红灯笼',
     epithet: '摊前第一盏',
     story: '收摊以后，别的物件都睡了，只有它还亮着。灯芯是摊主从河灯会上换来的，据说照过谁的回头路。它不爱说话，只在你数香火时晃一下，像在提醒：账可以慢点算，灯不能灭。',
-    ability: '每隔 8 秒吐出一团香火，首次 5 秒；每团 25 点，落地后可收取。被啃时会用灯油烫伤对方。',
+    ability: '每隔 8 秒吐出一团香火，首次 5 秒；每团 25 点，落地后可收取。进化出的红火会增幅身前友军，使其伤害提高 20%/25%。',
     quote: '灯亮着，摊子就还在。'
   },
   {
@@ -23,7 +23,7 @@ export const ALMANAC_PLANTS = [
     name: '石磨',
     epithet: '不肯挪窝的老石头',
     story: '石磨在夜市口蹲了很多年，磨过豆子、磨过辣椒，也磨过几个不长眼的小贼的鞋底。它不爱说话，磨齿一响，整条街就知道今晚有人要吃亏。摊主给它系过一条红绳，后来被它自己磨断了。',
-    ability: '耐久 3000 的肉盾，替同行挡下啃食。进化后能反伤、把耐久堆到 7500，碎掉时还会崩出一圈石屑。',
+    ability: '耐久 3000 的肉盾，替同行挡下啃食。进化后可自愈、反伤；三路还能磨出碎石，像签筒一样射击，并让命中者易伤或击退。',
     quote: '想过去？先问磨齿。'
   },
   {
@@ -35,11 +35,19 @@ export const ALMANAC_PLANTS = [
     quote: '别劝，劝就是炸。'
   },
   {
+    type: 'mushroom',
+    name: '坟头菇',
+    epithet: '坟头土里长出来的',
+    story: '夜市后巷的坟头土最养菇。它埋下去时不声不响，伞盖下压着两张旧符，像替谁守着最后一口气。等它鼓起来，谁踩上去，它就把攒了半宿的鬼火全喷出来，连自己一起烧没。',
+    ability: '灰烬陷阱：埋下后需 14 秒长成；长成后恶客踏入即喷发鬼火，造成 1800 伤害并同归于尽。一次性，不能升阶。',
+    quote: '别踩，下面埋着东西。'
+  },
+  {
     type: 'bell',
     name: '铜铃',
     epithet: '先声夺人',
     story: '铜铃挂在摊棚角上，平时只是摆设。直到有一晚，饿鬼踩着铃影过来，它突然自己响了。声音不大，却让整条街的恶客都慢了半拍。从那以后它有了差事：别人动手之前，先由它开口。',
-    ability: '每 2.5 秒摇铃，减速本行前方敌人 50%，持续 3 秒。进化后摇得更快、减得更狠，还能用铃声伤人。',
+    ability: '每 2.5 秒摇铃，减速本行前方敌人 25%，持续 1.5 秒。进化后可加快摇铃、让减速增到 40%，也能用铃声增幅友军攻速或杀伤敌人。',
     quote: '先听个响，再谈别的。'
   },
   {
@@ -53,9 +61,9 @@ export const ALMANAC_PLANTS = [
   {
     type: 'umbrella',
     name: '纸伞',
-    epithet: '守摊娘的旧伞',
-    story: '这把油纸伞替摊娘挡过三年夜雨，伞面上画的海棠早褪了色。收摊后它总自己撑开，把邻近的摊子罩在影子里。有人说那是怕雨，也有人说，是怕谁被夜里的客人啃坏了。',
-    ability: '撑伞护住相邻植物，使其所受啃食伤害降低 15%；每 5.5 秒回旋一次，把本行近处的敌人推开 46 像素。进化后可加深庇护、增强击退，并持续修复相邻植物。',
+    epithet: '收得下夜客，也收得下香火',
+    story: '这把油纸伞替摊娘挡过三年夜雨，伞面上画的海棠早褪了色。后来夜市里多了一种说法：撑开它挡雨，收起它收妖。伞骨一合，饿鬼纸人就被卷进伞腹；再撑开时，只剩一团香火落在摊前。',
+    ability: '耐久 900，约为普通植物的三倍。非大型恶客靠近即被收入伞中，随后收妖 6 秒；大型恶客撑不进伞，只能被伞骨击打，每次 40 伤害。进化可加快收妖、收妖后产香火，或减少收妖期间受到的伤害。',
     quote: '伞下这寸地，归我管。'
   },
   {
@@ -63,7 +71,7 @@ export const ALMANAC_PLANTS = [
     name: '醒狮',
     epithet: '初一请来的狮头',
     story: '年初一舞狮队从摊前过，把这只旧狮头落在了货架底下。摊主嫌它占地方，几次想扔，最后都留了下来。入夜后它会自己抖毛，听见恶客的脚步就低头撞过去，撞完了还要甩甩鬃毛，像在等一声叫好。',
-    ability: '高耐久近身守卫：敌人靠近到 110 像素内时，每 1.35 秒撞头一次，造成 60 伤害并小幅击退。进化后可眩晕敌人，并在命中时回复自身耐久。',
+    ability: '高耐久近身守卫：敌人靠近到 110 像素内时，每 1.35 秒撞头一次，造成 60 伤害并击退 0.2 格。进化后三路可增加击退距离与眩晕，并在命中时回复自身耐久。',
     quote: '狮子不咬人，狮子只撞。'
   }
 ];
@@ -102,7 +110,7 @@ export const ALMANAC_ZOMBIES = [
     epithet: '舌头比脚先到',
     story: '长舌鬼生前是个爱传闲话的，死后舌头没缩回去，越长越红。它走路急，吃相更急，隔着半个摊子就把舌头探过来。摊主们说，听它嚼东西的动静，比听它说话还难受。',
     ability: '低阶快手：血量 80，移动速度 30，啃食 45/秒；啃食距离约 62 像素，会在更早的位置停下开咬。',
-    counter: '在它够到之前用铜铃或香炉减速，再让签筒点掉；纸伞的击退能把它推回攻击距离外。',
+    counter: '在它够到之前用铜铃或香炉减速，再让签筒点掉；纸伞能把它收进伞腹，但别让它先啃到伞面。',
     quote: '我就舔一下，不咬。'
   },
   {
@@ -163,9 +171,16 @@ export function plantBaseStats(type) {
     );
   } else if (type === 'wall') {
     stats.push(
-      { label: '攻击', value: '无', tone: 'neutral' },
+      { label: '攻击', value: '无（进化后碎石）', tone: 'neutral' },
       { label: '定位', value: '肉盾', tone: 'green' },
       { label: '占格', value: '1 格', tone: 'neutral' }
+    );
+  } else if (type === 'mushroom') {
+    stats.push(
+      { label: '长成时间', value: `${d.mine.arm} 秒`, tone: 'time' },
+      { label: '鬼火伤害', value: String(d.mine.damage), tone: 'atk' },
+      { label: '类别', value: '灰烬 · 一次性', tone: 'cost' },
+      { label: '触发', value: '踩中即爆', tone: 'green' }
     );
   } else if (type === 'bomb') {
     stats.push(
@@ -177,7 +192,7 @@ export function plantBaseStats(type) {
   } else if (type === 'bell') {
     stats.push(
       { label: '摇铃间隔', value: `${d.pulse.interval} 秒`, tone: 'time' },
-      { label: '减速', value: '50%', tone: 'teal' },
+      { label: '减速', value: '25%', tone: 'teal' },
       { label: '持续', value: `${d.pulse.slow} 秒`, tone: 'time' },
       { label: '范围', value: '本行前方', tone: 'neutral' }
     );
@@ -189,16 +204,16 @@ export function plantBaseStats(type) {
     );
   } else if (type === 'umbrella') {
     stats.push(
-      { label: '庇护减伤', value: `${Math.round(PLANT_EFFECTS.umbrella.guard[0] * 100)}%`, tone: 'teal' },
-      { label: '回旋间隔', value: `${PLANT_EFFECTS.umbrella.blowInterval[0]} 秒`, tone: 'time' },
-      { label: '推开距离', value: `${PLANT_EFFECTS.umbrella.blowDist[0]} 像素`, tone: 'neutral' }
+      { label: '吞噬', value: '非大型即死', tone: 'green' },
+      { label: '咀嚼', value: `${d.chomp.chew} 秒`, tone: 'time' },
+      { label: '对大型', value: `${d.chomp.largeDamage} 伤害`, tone: 'atk' }
     );
   } else if (type === 'lion') {
     stats.push(
       { label: '撞头伤害', value: String(PLANT_EFFECTS.lion.damage[0]), tone: 'atk' },
       { label: '攻击间隔', value: `${PLANT_EFFECTS.lion.interval[0]} 秒`, tone: 'time' },
       { label: '攻击距离', value: String(PLANT_EFFECTS.lion.reach), tone: 'neutral' },
-      { label: '击退', value: `${PLANT_EFFECTS.lion.knock} 像素`, tone: 'teal' }
+      { label: '击退', value: `${PLANT_EFFECTS.lion.knockCells} 格`, tone: 'teal' }
     );
   }
   return stats;

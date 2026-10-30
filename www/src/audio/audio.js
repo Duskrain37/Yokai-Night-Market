@@ -99,104 +99,282 @@ function pluck(ctx, dest, time, freq, dur = 0.4, gain = 0.06, pan = 0) {
   o2.stop(time + dur + 0.03);
 }
 
-function guqin(ctx, dest, time, freq, dur = 0.9, gain = 0.045, pan = 0, bend = 0) {
-  const f = ctx.createBiquadFilter();
-  f.type = 'lowpass';
-  f.Q.value = 1.1;
-  f.frequency.setValueAtTime(1700, time);
-  f.frequency.exponentialRampToValueAtTime(360, time + dur);
+const waveCache = new WeakMap();
+
+const PARTIALS = {
+  reed: [1, 0.62, 0.46, 0.38, 0.3, 0.24, 0.18, 0.13, 0.09, 0.06, 0.04, 0.03],
+  lowReed: [1, 0.52, 0.3, 0.18, 0.1, 0.06, 0.035, 0.02, 0.012, 0.007, 0.004, 0.002],
+  flute: [1, 0.2, 0.1, 0.05, 0.025, 0.012, 0.008, 0.004, 0.003, 0.002, 0.001, 0],
+  bowed: [1, 0.7, 0.5, 0.36, 0.26, 0.19, 0.14, 0.1, 0.07, 0.05, 0.035, 0.02],
+  pluck: [1, 0.55, 0.34, 0.22, 0.14, 0.09, 0.06, 0.04, 0.025, 0.015, 0.01, 0.005]
+};
+
+function periodic(ctx, key) {
+  let cache = waveCache.get(ctx);
+  if (!cache) {
+    cache = new Map();
+    waveCache.set(ctx, cache);
+  }
+  if (cache.has(key)) return cache.get(key);
+  const partials = PARTIALS[key] || PARTIALS.flute;
+  const n = partials.length + 1;
+  const real = new Float32Array(n);
+  const imag = new Float32Array(n);
+  for (let i = 0; i < partials.length; i++) imag[i + 1] = partials[i];
+  const wave = ctx.createPeriodicWave(real, imag, { disableNormalization: false });
+  cache.set(key, wave);
+  return wave;
+}
+
+function envelope(ctx, time, dur, gain, attack = 0.01, hold = 0.85, release = 0.12) {
   const g = ctx.createGain();
+  const atk = Math.min(attack, Math.max(0.012, dur * 0.45));
+  const rel = Math.min(release, Math.max(0.03, dur * 0.3));
+  const sus = Math.max(time + atk, time + dur - rel);
   g.gain.setValueAtTime(0.0001, time);
-  g.gain.linearRampToValueAtTime(gain, time + 0.006);
+  g.gain.linearRampToValueAtTime(gain, time + atk);
+  g.gain.setValueAtTime(gain * hold, sus);
   g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  return g;
+}
+
+function guqin(ctx, dest, time, freq, dur = 0.9, gain = 0.045, pan = 0, bend = 0) {
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.Q.value = 0.85;
+  lp.frequency.setValueAtTime(1800, time);
+  lp.frequency.exponentialRampToValueAtTime(360, time + dur);
+  const g = envelope(ctx, time, dur, gain, 0.005, 0.65, 0.1);
   const a = ctx.createOscillator();
-  a.type = 'triangle';
-  a.frequency.setValueAtTime(freq * (1 + bend), time);
-  a.frequency.exponentialRampToValueAtTime(freq, time + 0.12);
+  a.setPeriodicWave(periodic(ctx, 'pluck'));
+  a.detune.value = -3;
+  a.frequency.setValueAtTime(freq * (1 + bend + 0.006), time);
+  a.frequency.exponentialRampToValueAtTime(freq * (1 + bend), time + 0.09);
   const b = ctx.createOscillator();
-  b.type = 'sawtooth';
-  b.frequency.setValueAtTime(freq * (1 + bend), time);
-  b.frequency.exponentialRampToValueAtTime(freq, time + 0.12);
+  b.setPeriodicWave(periodic(ctx, 'pluck'));
   b.detune.value = 5;
-  a.connect(f);
-  b.connect(f);
-  f.connect(g);
+  b.frequency.setValueAtTime(freq * (1 + bend + 0.006), time);
+  b.frequency.exponentialRampToValueAtTime(freq * (1 + bend), time + 0.09);
+  a.connect(lp);
+  b.connect(lp);
+  lp.connect(g);
   withPan(ctx, g, dest, pan);
   a.start(time);
   b.start(time);
   a.stop(time + dur + 0.04);
   b.stop(time + dur + 0.04);
-  noiseBurst(ctx, dest, time, 0.035, gain * 0.24, 'highpass', 2400, 1600, 0.9, pan);
+  noiseBurst(ctx, dest, time, 0.028, gain * 0.2, 'highpass', 2500, 1600, 0.8, pan);
+}
+
+function pipa(ctx, dest, time, freq, dur = 0.55, gain = 0.035, pan = 0) {
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.Q.value = 0.9;
+  lp.frequency.setValueAtTime(4200, time);
+  lp.frequency.exponentialRampToValueAtTime(700, time + dur);
+  const g = envelope(ctx, time, dur, gain, 0.003, 0.5, 0.08);
+  const a = ctx.createOscillator();
+  a.setPeriodicWave(periodic(ctx, 'pluck'));
+  a.detune.value = -4;
+  a.frequency.setValueAtTime(freq * 1.012, time);
+  a.frequency.exponentialRampToValueAtTime(freq, time + 0.05);
+  const b = ctx.createOscillator();
+  b.setPeriodicWave(periodic(ctx, 'pluck'));
+  b.detune.value = 6;
+  b.frequency.setValueAtTime(freq * 1.012, time);
+  b.frequency.exponentialRampToValueAtTime(freq, time + 0.05);
+  a.connect(lp);
+  b.connect(lp);
+  lp.connect(g);
+  withPan(ctx, g, dest, pan);
+  a.start(time);
+  b.start(time);
+  a.stop(time + dur + 0.03);
+  b.stop(time + dur + 0.03);
+  noiseBurst(ctx, dest, time, 0.018, gain * 0.35, 'highpass', 3200, 2200, 0.7, pan);
 }
 
 function dizi(ctx, dest, time, freq, dur = 1.4, gain = 0.03, pan = 0) {
-  const f = ctx.createBiquadFilter();
-  f.type = 'lowpass';
-  f.frequency.value = 2200;
-  f.Q.value = 0.8;
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0.0001, time);
-  g.gain.linearRampToValueAtTime(gain, time + 0.1);
-  g.gain.setValueAtTime(gain * 0.82, time + dur * 0.7);
-  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 2800;
+  lp.Q.value = 0.6;
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 230;
+  const g = envelope(ctx, time, dur, gain, 0.1, 0.82, 0.18);
   const o = ctx.createOscillator();
-  o.type = 'triangle';
-  o.frequency.value = freq;
+  o.setPeriodicWave(periodic(ctx, 'flute'));
+  o.frequency.setValueAtTime(freq * 0.992, time);
+  o.frequency.linearRampToValueAtTime(freq, time + 0.12);
   const lfo = ctx.createOscillator();
-  lfo.frequency.value = 4.8;
+  lfo.frequency.value = 5.1;
   const lfoGain = ctx.createGain();
-  lfoGain.gain.value = freq * 0.006;
+  lfoGain.gain.setValueAtTime(0.0001, time);
+  lfoGain.gain.linearRampToValueAtTime(freq * 0.006, time + 0.35);
   lfo.connect(lfoGain);
   lfoGain.connect(o.frequency);
-  o.connect(f);
-  f.connect(g);
+  o.connect(hp);
+  hp.connect(lp);
+  lp.connect(g);
   withPan(ctx, g, dest, pan);
   o.start(time);
   lfo.start(time);
   o.stop(time + dur + 0.05);
   lfo.stop(time + dur + 0.05);
-  noiseBurst(ctx, dest, time, dur * 0.85, gain * 0.2, 'bandpass', freq * 1.8, freq * 1.3, 0.7, pan);
+  noiseBurst(ctx, dest, time, Math.min(dur * 0.8, 0.9), gain * 0.24, 'bandpass', freq * 2.1, freq * 1.4, 0.65, pan);
+  noiseBurst(ctx, dest, time, 0.05, gain * 0.16, 'highpass', 3000, 2200, 0.8, pan);
+}
+
+function xiao(ctx, dest, time, freq, dur = 1.6, gain = 0.026, pan = 0) {
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 1650;
+  lp.Q.value = 0.55;
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 150;
+  const g = envelope(ctx, time, dur, gain, 0.16, 0.8, 0.2);
+  const o = ctx.createOscillator();
+  o.setPeriodicWave(periodic(ctx, 'flute'));
+  o.frequency.setValueAtTime(freq * 0.99, time);
+  o.frequency.linearRampToValueAtTime(freq, time + 0.2);
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = 4.2;
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.setValueAtTime(0.0001, time);
+  lfoGain.gain.linearRampToValueAtTime(freq * 0.007, time + 0.45);
+  lfo.connect(lfoGain);
+  lfoGain.connect(o.frequency);
+  o.connect(hp);
+  hp.connect(lp);
+  lp.connect(g);
+  withPan(ctx, g, dest, pan);
+  o.start(time);
+  lfo.start(time);
+  o.stop(time + dur + 0.06);
+  lfo.stop(time + dur + 0.06);
+  noiseBurst(ctx, dest, time, Math.min(dur * 0.85, 1.1), gain * 0.3, 'bandpass', freq * 1.8, freq * 1.25, 0.55, pan);
+  noiseBurst(ctx, dest, time, 0.07, gain * 0.12, 'bandpass', 2600, 1800, 0.7, pan);
 }
 
 function erhu(ctx, dest, time, freq, dur = 1.6, gain = 0.028, pan = 0) {
-  const f = ctx.createBiquadFilter();
-  f.type = 'lowpass';
-  f.frequency.value = 1250;
-  f.Q.value = 1.8;
   const hp = ctx.createBiquadFilter();
   hp.type = 'highpass';
   hp.frequency.value = 170;
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0.0001, time);
-  g.gain.linearRampToValueAtTime(gain, time + 0.18);
-  g.gain.setValueAtTime(gain * 0.86, time + dur * 0.72);
-  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
-  const o1 = ctx.createOscillator();
-  o1.type = 'sawtooth';
-  o1.frequency.value = freq;
-  o1.detune.value = -6;
-  const o2 = ctx.createOscillator();
-  o2.type = 'sawtooth';
-  o2.frequency.value = freq;
-  o2.detune.value = 7;
+  const body = ctx.createBiquadFilter();
+  body.type = 'peaking';
+  body.frequency.value = 680;
+  body.Q.value = 1.2;
+  body.gain.value = 4;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 2300;
+  lp.Q.value = 0.7;
+  const g = envelope(ctx, time, dur, gain, 0.13, 0.86, 0.18);
+  const a = ctx.createOscillator();
+  a.setPeriodicWave(periodic(ctx, 'bowed'));
+  a.detune.value = -7;
+  a.frequency.setValueAtTime(freq * 0.993, time);
+  a.frequency.linearRampToValueAtTime(freq, time + 0.16);
+  const b = ctx.createOscillator();
+  b.setPeriodicWave(periodic(ctx, 'bowed'));
+  b.detune.value = 7;
+  b.frequency.setValueAtTime(freq * 0.993, time);
+  b.frequency.linearRampToValueAtTime(freq, time + 0.16);
   const lfo = ctx.createOscillator();
-  lfo.frequency.value = 5.1;
+  lfo.frequency.value = 5.0;
   const lfoGain = ctx.createGain();
-  lfoGain.gain.value = freq * 0.008;
+  lfoGain.gain.setValueAtTime(0.0001, time);
+  lfoGain.gain.linearRampToValueAtTime(freq * 0.007, time + 0.32);
   lfo.connect(lfoGain);
-  lfoGain.connect(o1.frequency);
-  lfoGain.connect(o2.frequency);
-  o1.connect(hp);
-  o2.connect(hp);
-  hp.connect(f);
-  f.connect(g);
+  lfoGain.connect(a.frequency);
+  lfoGain.connect(b.frequency);
+  a.connect(hp);
+  b.connect(hp);
+  hp.connect(body);
+  body.connect(lp);
+  lp.connect(g);
   withPan(ctx, g, dest, pan);
-  o1.start(time);
-  o2.start(time);
+  a.start(time);
+  b.start(time);
   lfo.start(time);
-  o1.stop(time + dur + 0.05);
-  o2.stop(time + dur + 0.05);
-  lfo.stop(time + dur + 0.05);
+  a.stop(time + dur + 0.06);
+  b.stop(time + dur + 0.06);
+  lfo.stop(time + dur + 0.06);
+  noiseBurst(ctx, dest, time, Math.min(dur * 0.7, 1.2), gain * 0.12, 'bandpass', 2400, 1700, 0.8, pan);
+}
+
+function sheng(ctx, dest, time, freq, dur = 1.2, gain = 0.028, pan = 0) {
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 220;
+  const body = ctx.createBiquadFilter();
+  body.type = 'peaking';
+  body.frequency.value = 1500;
+  body.Q.value = 1.1;
+  body.gain.value = 3;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 3400;
+  lp.Q.value = 0.65;
+  const g = envelope(ctx, time, dur, gain, 0.075, 0.83, 0.14);
+  const a = ctx.createOscillator();
+  a.setPeriodicWave(periodic(ctx, 'reed'));
+  a.detune.value = -5;
+  a.frequency.setValueAtTime(freq * 0.996, time);
+  a.frequency.linearRampToValueAtTime(freq, time + 0.08);
+  const b = ctx.createOscillator();
+  b.setPeriodicWave(periodic(ctx, 'reed'));
+  b.detune.value = 6;
+  b.frequency.setValueAtTime(freq * 0.996, time);
+  b.frequency.linearRampToValueAtTime(freq, time + 0.08);
+  a.connect(hp);
+  b.connect(hp);
+  hp.connect(body);
+  body.connect(lp);
+  lp.connect(g);
+  withPan(ctx, g, dest, pan);
+  a.start(time);
+  b.start(time);
+  a.stop(time + dur + 0.05);
+  b.stop(time + dur + 0.05);
+  noiseBurst(ctx, dest, time, Math.min(dur * 0.75, 0.8), gain * 0.18, 'bandpass', freq * 3.0, freq * 2.1, 0.6, pan);
+}
+
+function lowReed(ctx, dest, time, freq, dur = 2.0, gain = 0.045, pan = 0) {
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 38;
+  const body = ctx.createBiquadFilter();
+  body.type = 'peaking';
+  body.frequency.value = 150;
+  body.Q.value = 1.1;
+  body.gain.value = 3;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 420;
+  lp.Q.value = 0.6;
+  const g = envelope(ctx, time, dur, gain, 0.1, 0.88, 0.2);
+  const a = ctx.createOscillator();
+  a.setPeriodicWave(periodic(ctx, 'lowReed'));
+  a.detune.value = -6;
+  const b = ctx.createOscillator();
+  b.setPeriodicWave(periodic(ctx, 'lowReed'));
+  b.detune.value = 7;
+  a.frequency.value = freq;
+  b.frequency.value = freq;
+  a.connect(hp);
+  b.connect(hp);
+  hp.connect(body);
+  body.connect(lp);
+  lp.connect(g);
+  withPan(ctx, g, dest, pan);
+  a.start(time);
+  b.start(time);
+  a.stop(time + dur + 0.06);
+  b.stop(time + dur + 0.06);
+  noiseBurst(ctx, dest, time, Math.min(dur * 0.8, 1.2), gain * 0.16, 'lowpass', 520, 190, 0.6, pan);
 }
 
 function windGust(ctx, dest, time, dur = 2.4, gain = 0.018, pan = 0) {
@@ -216,78 +394,35 @@ function bell(ctx, dest, time, freq, dur = 1.4, gain = 0.04, pan = 0) {
   }
 }
 
-function padNote(ctx, dest, time, freq, dur, gain, pan = 0) {
-  const f = ctx.createBiquadFilter();
-  f.type = 'lowpass';
-  f.frequency.value = 720;
-  f.Q.value = 0.4;
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0.0001, time);
-  g.gain.linearRampToValueAtTime(gain, time + Math.min(0.5, dur * 0.22));
-  g.gain.setValueAtTime(gain, time + dur * 0.72);
-  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
-  const a = ctx.createOscillator();
-  a.type = 'sawtooth';
-  a.frequency.value = freq;
-  a.detune.value = -6;
-  const b = ctx.createOscillator();
-  b.type = 'sawtooth';
-  b.frequency.value = freq;
-  b.detune.value = 7;
-  a.connect(f);
-  b.connect(f);
-  f.connect(g);
-  withPan(ctx, g, dest, pan);
-  a.start(time);
-  b.start(time);
-  a.stop(time + dur + 0.05);
-  b.stop(time + dur + 0.05);
-}
-
-function bassNote(ctx, dest, time, freq, dur = 0.4, gain = 0.06, pan = 0) {
-  const f = ctx.createBiquadFilter();
-  f.type = 'lowpass';
-  f.frequency.value = 280;
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0.0001, time);
-  g.gain.linearRampToValueAtTime(gain, time + 0.008);
-  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
-  const o = ctx.createOscillator();
-  o.type = 'sine';
-  o.frequency.value = freq;
-  const o2 = ctx.createOscillator();
-  o2.type = 'triangle';
-  o2.frequency.value = freq;
-  o2.detune.value = -4;
-  o.connect(f);
-  o2.connect(f);
-  f.connect(g);
-  withPan(ctx, g, dest, pan);
-  o.start(time);
-  o2.start(time);
-  o.stop(time + dur + 0.03);
-  o2.stop(time + dur + 0.03);
-}
-
 function taiko(ctx, dest, time, gain = 0.08, pan = 0, pitch = 1) {
-  const o = ctx.createOscillator();
-  o.type = 'sine';
-  o.frequency.setValueAtTime(118 * pitch, time);
-  o.frequency.exponentialRampToValueAtTime(42 * pitch, time + 0.24);
+  const a = ctx.createOscillator();
+  a.type = 'sine';
+  a.frequency.setValueAtTime(112 * pitch, time);
+  a.frequency.exponentialRampToValueAtTime(46 * pitch, time + 0.22);
+  const b = ctx.createOscillator();
+  b.type = 'sine';
+  b.frequency.setValueAtTime(172 * pitch, time);
+  b.frequency.exponentialRampToValueAtTime(92 * pitch, time + 0.12);
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.0001, time);
   g.gain.linearRampToValueAtTime(gain, time + 0.005);
-  g.gain.exponentialRampToValueAtTime(0.0001, time + 0.36);
-  o.connect(g);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + 0.38);
+  const gb = ctx.createGain();
+  gb.gain.value = 0.32;
+  a.connect(g);
+  b.connect(gb);
+  gb.connect(g);
   withPan(ctx, g, dest, pan);
-  o.start(time);
-  o.stop(time + 0.4);
-  noiseBurst(ctx, dest, time, 0.07, gain * 0.28, 'lowpass', 420, 180, 0.7, pan);
+  a.start(time);
+  b.start(time);
+  a.stop(time + 0.42);
+  b.stop(time + 0.42);
+  noiseBurst(ctx, dest, time, 0.08, gain * 0.3, 'lowpass', 520, 170, 0.7, pan);
 }
 
 function rim(ctx, dest, time, gain = 0.03, pan = 0) {
-  tone(ctx, dest, time, 1760, 0.035, gain, 'triangle', pan, 0.002, 1450);
-  noiseBurst(ctx, dest, time, 0.035, gain * 0.45, 'highpass', 2200, 1800, 0.8, pan);
+  noiseBurst(ctx, dest, time, 0.035, gain * 0.8, 'bandpass', 2200, 1500, 5.5, pan);
+  noiseBurst(ctx, dest, time + 0.008, 0.028, gain * 0.55, 'bandpass', 980, 760, 7, pan);
 }
 
 function shaker(ctx, dest, time, gain = 0.014, pan = 0) {
@@ -299,33 +434,6 @@ function gong(ctx, dest, time, gain = 0.05, pan = 0) {
   tone(ctx, dest, time + 0.01, 123, 1.8, gain * 0.55, 'sine', pan + 0.2, 0.01, 108);
   tone(ctx, dest, time + 0.02, 171, 1.4, gain * 0.3, 'sine', pan - 0.2, 0.01, 150);
   noiseBurst(ctx, dest, time, 1.2, gain * 0.3, 'lowpass', 800, 220, 0.6, pan);
-}
-
-function brassStab(ctx, dest, time, freq, dur = 0.22, gain = 0.035, pan = 0) {
-  const f = ctx.createBiquadFilter();
-  f.type = 'lowpass';
-  f.frequency.setValueAtTime(1500, time);
-  f.frequency.exponentialRampToValueAtTime(500, time + dur);
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0.0001, time);
-  g.gain.linearRampToValueAtTime(gain, time + 0.012);
-  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
-  const a = ctx.createOscillator();
-  a.type = 'sawtooth';
-  a.frequency.value = freq;
-  a.detune.value = -5;
-  const b = ctx.createOscillator();
-  b.type = 'square';
-  b.frequency.value = freq;
-  b.detune.value = 5;
-  a.connect(f);
-  b.connect(f);
-  f.connect(g);
-  withPan(ctx, g, dest, pan);
-  a.start(time);
-  b.start(time);
-  a.stop(time + dur + 0.03);
-  b.stop(time + dur + 0.03);
 }
 
 function riser(ctx, dest, time, dur = 0.8, gain = 0.08, pan = 0) {
@@ -388,25 +496,23 @@ const TRACKS = {
       const root = ROOTS[bar];
       const chord = CHORDS[bar];
       if (s === 0) {
-        bassNote(ctx, out, time, mtof(root), beat * 4.15, 0.052, -0.12);
-        if (bar % 2 === 0) {
-          padNote(ctx, out, time, mtof(chord[0]), beat * 4, 0.012, -0.25);
-          padNote(ctx, out, time, mtof(chord[2] + 12), beat * 4, 0.009, 0.25);
-        }
-        if (bar === 0 || bar === 4) heartbeat(ctx, out, time, 0.018, -0.2);
-        if (bar === 0) bell(ctx, out, time, mtof(74), 1.8, 0.018, 0.25);
+        lowReed(ctx, out, time, mtof(root), beat * 4.2, 0.046, -0.12);
+        sheng(ctx, out, time, mtof(chord[0]), beat * 3.9, 0.011, -0.28);
+        sheng(ctx, out, time + 0.03, mtof(chord[2] + 12), beat * 3.9, 0.008, 0.28);
+        if (bar % 2 === 0) heartbeat(ctx, out, time, 0.015, -0.2);
+        if (bar === 0) bell(ctx, out, time, mtof(74), 1.8, 0.016, 0.25);
         if (bar === 2 || bar === 6) windGust(ctx, out, time, 2.6, 0.012, bar === 2 ? -0.4 : 0.4);
+        if (bar === 4) pipa(ctx, out, time, mtof(69), 0.9, 0.012, 0.2);
       }
-      if (s === 8) bassNote(ctx, out, time, mtof(root + 7), beat * 1.5, 0.024, 0.1);
+      if (s === 8) lowReed(ctx, out, time, mtof(root + 7), beat * 1.5, 0.022, 0.1);
+      if (s === 12) pipa(ctx, out, time, mtof(MENU_MOTIF[bar][0] + 12), 0.55, 0.01, -0.24);
       const n = MENU_MOTIF[bar][s];
       if (n) guqin(ctx, out, time, mtof(n), 0.85, 0.038, s % 3 ? 0.14 : -0.14, s === 0 ? 0.008 : 0);
       if (s === 0) {
-        const dz = DIZI_MENU[bar];
-        if (dz) dizi(ctx, out, time, mtof(dz), beat * 3, 0.018, bar % 2 ? 0.2 : -0.2);
+        const x = DIZI_MENU[bar] || 62;
+        xiao(ctx, out, time, mtof(x), beat * 3, 0.019, bar % 2 ? 0.2 : -0.2);
       }
-      if (bar === 7 && s === 10) {
-        tone(ctx, out, time, mtof(75), beat * 2.2, 0.008, 'sine', 0.28, 0.05);
-      }
+      if (bar === 7 && s === 10) erhu(ctx, out, time, mtof(75), beat * 2.2, 0.012, 0.24);
     }
   },
   battle: {
@@ -420,15 +526,16 @@ const TRACKS = {
       const root = ROOTS[bar];
       const chord = CHORDS[bar];
       if (s === 0) {
-        bassNote(ctx, out, time, mtof(root), beat * 4.1, 0.058, -0.1);
-        padNote(ctx, out, time, mtof(chord[0]), beat * 3.9, 0.011, -0.22);
-        padNote(ctx, out, time, mtof(chord[2] + 12), beat * 3.9, 0.008, 0.22);
+        lowReed(ctx, out, time, mtof(root), beat * 4.1, 0.052, -0.1);
+        sheng(ctx, out, time, mtof(chord[0]), beat * 3.8, 0.01, -0.22);
+        sheng(ctx, out, time + 0.02, mtof(chord[2] + 12), beat * 3.8, 0.007, 0.22);
         taiko(ctx, out, time, 0.07, -0.1, 0.9);
-        if (bar % 2 === 0) heartbeat(ctx, out, time, 0.028, -0.18);
+        if (bar % 2 === 0) heartbeat(ctx, out, time, 0.026, -0.18);
         if (bar === 0 || bar === 4) gong(ctx, out, time, 0.018, -0.15);
+        if (bar === 4) pipa(ctx, out, time, mtof(69), 0.8, 0.012, 0.26);
       }
       if (s === 8) {
-        bassNote(ctx, out, time, mtof(root + 7), beat * 1.4, 0.028, 0.1);
+        lowReed(ctx, out, time, mtof(root + 7), beat * 1.4, 0.026, 0.1);
         taiko(ctx, out, time, 0.035, 0.08, 0.84);
       }
       if (s === 6 || s === 14) taiko(ctx, out, time, 0.04, 0.12, 0.78);
@@ -441,11 +548,9 @@ const TRACKS = {
         const eh = BATTLE_ERHU[bar];
         if (eh) erhu(ctx, out, time, mtof(eh), beat * 2.8, 0.022, bar % 2 ? 0.2 : -0.2);
         const dz = BATTLE_DIZI[bar];
-        if (dz) dizi(ctx, out, time, mtof(dz), beat * 2.2, 0.016, bar % 2 ? 0.22 : -0.22);
+        if (dz) xiao(ctx, out, time, mtof(dz), beat * 2.2, 0.017, bar % 2 ? 0.22 : -0.22);
       }
-      if (bar === 7 && s === 10) {
-        tone(ctx, out, time, mtof(75), beat * 1.8, 0.007, 'sine', 0.24, 0.05);
-      }
+      if (bar === 7 && s === 10) xiao(ctx, out, time, mtof(75), beat * 1.8, 0.01, 0.24);
     }
   },
   hot: {
@@ -459,33 +564,29 @@ const TRACKS = {
       const root = ROOTS[bar];
       const chord = CHORDS[bar];
       if (s === 0) {
-        bassNote(ctx, out, time, mtof(root), beat * 4.05, 0.065, -0.1);
-        padNote(ctx, out, time, mtof(chord[0]), beat * 3.8, 0.013, -0.25);
-        padNote(ctx, out, time, mtof(chord[2] + 12), beat * 3.8, 0.009, 0.25);
-        heartbeat(ctx, out, time, 0.035, -0.16);
+        lowReed(ctx, out, time, mtof(root), beat * 4.05, 0.058, -0.1);
+        sheng(ctx, out, time, mtof(chord[0]), beat * 3.7, 0.012, -0.25);
+        sheng(ctx, out, time + 0.02, mtof(chord[2] + 12), beat * 3.7, 0.008, 0.25);
+        heartbeat(ctx, out, time, 0.032, -0.16);
         if (bar === 0 || bar === 4) gong(ctx, out, time, 0.025, -0.12);
       }
       if (s === 0 || s === 3 || s === 6 || s === 8 || s === 11 || s === 14) {
-        taiko(ctx, out, time, 0.072, s % 4 ? 0.1 : -0.12, 1.0);
+        taiko(ctx, out, time, 0.07, s % 4 ? 0.1 : -0.12, 1.0);
       }
       if (s === 4 || s === 12) rim(ctx, out, time, 0.03, s === 4 ? -0.28 : 0.28);
+      if (s === 4 || s === 12) pipa(ctx, out, time, mtof(BATTLE_ARP[bar][2]), 0.45, 0.018, s === 4 ? -0.24 : 0.24);
       if (s % 2 === 0) {
-        bassNote(ctx, out, time, mtof(root + (s % 8 === 0 ? 0 : 12)), 0.12, 0.04, 0.1);
         guqin(ctx, out, time, mtof(BATTLE_ARP[bar][s / 2]), 0.24, 0.04, s % 4 ? 0.18 : -0.18);
         if (s % 4 === 2) {
           guqin(ctx, out, time + 0.015, mtof(BATTLE_ARP[bar][s / 2] + 12), 0.2, 0.018, 0.24);
         }
       }
-      if (s === 0) {
-        erhu(ctx, out, time, mtof(HOT_ERHU[bar]), beat * 2.6, 0.027, bar % 2 ? 0.2 : -0.2);
-      }
+      if (s === 0) erhu(ctx, out, time, mtof(HOT_ERHU[bar]), beat * 2.6, 0.027, bar % 2 ? 0.2 : -0.2);
       if (s === 8) {
         const dz = HOT_DIZI[bar];
         if (dz) dizi(ctx, out, time, mtof(dz), beat * 1.6, 0.018, bar % 2 ? 0.24 : -0.24);
       }
-      if ((bar === 3 || bar === 7) && s === 10) {
-        tone(ctx, out, time, mtof(75), beat * 1.4, 0.008, 'sine', 0.28, 0.04);
-      }
+      if ((bar === 3 || bar === 7) && s === 10) xiao(ctx, out, time, mtof(75), beat * 1.4, 0.01, 0.28);
     }
   },
   final: {
@@ -499,37 +600,30 @@ const TRACKS = {
       const root = ROOTS[bar];
       const chord = CHORDS[bar];
       if (s === 0) {
-        bassNote(ctx, out, time, mtof(root), beat * 4.05, 0.07, -0.12);
-        bassNote(ctx, out, time, mtof(root - 12), beat * 4.05, 0.038, 0.08);
-        padNote(ctx, out, time, mtof(chord[0] + 12), beat * 3.9, 0.015, -0.28);
-        padNote(ctx, out, time, mtof(chord[2] + 12), beat * 3.9, 0.011, 0.28);
-        heartbeat(ctx, out, time, 0.045, -0.14);
+        lowReed(ctx, out, time, mtof(root), beat * 4.05, 0.066, -0.12);
+        lowReed(ctx, out, time + 0.02, mtof(root + 12), beat * 4.05, 0.022, 0.12);
+        sheng(ctx, out, time, mtof(chord[0] + 12), beat * 3.8, 0.013, -0.28);
+        sheng(ctx, out, time + 0.02, mtof(chord[2] + 12), beat * 3.8, 0.009, 0.28);
+        heartbeat(ctx, out, time, 0.042, -0.14);
         if (bar === 0 || bar === 4) gong(ctx, out, time, 0.04, 0.08);
-        if (bar === 0) bell(ctx, out, time, mtof(74), 1.6, 0.02, 0.3);
+        if (bar === 0) bell(ctx, out, time, mtof(74), 1.6, 0.018, 0.3);
+        sheng(ctx, out, time, mtof(root + 12), 0.24, 0.03, -0.16);
+        sheng(ctx, out, time + 0.03, mtof(root + 18), 0.22, 0.02, 0.16);
       }
-      if (s === 0 || s === 4 || s === 8 || s === 12) taiko(ctx, out, time, 0.11, s % 8 ? 0.14 : -0.14, 1.0);
-      if (s === 6 || s === 14) taiko(ctx, out, time, 0.06, 0.2, 0.8);
-      if (s === 2 || s === 10) rim(ctx, out, time, 0.035, -0.24);
-      if (s % 2 === 0) {
-        guqin(ctx, out, time, mtof(FINAL_ARP[bar][s / 2]), 0.26, 0.044, s % 4 ? 0.2 : -0.2);
-      }
-      if (s === 0) {
-        erhu(ctx, out, time, mtof(FINAL_ERHU[bar]), beat * 3, 0.032, bar % 2 ? 0.22 : -0.22);
-      }
+      if (s === 0 || s === 4 || s === 8 || s === 12) taiko(ctx, out, time, 0.105, s % 8 ? 0.14 : -0.14, 1.0);
+      if (s === 6 || s === 14) taiko(ctx, out, time, 0.055, 0.2, 0.8);
+      if (s === 2 || s === 10) rim(ctx, out, time, 0.032, -0.24);
+      if (s % 2 === 0) guqin(ctx, out, time, mtof(FINAL_ARP[bar][s / 2]), 0.26, 0.044, s % 4 ? 0.2 : -0.2);
+      if (s === 0) erhu(ctx, out, time, mtof(FINAL_ERHU[bar]), beat * 3, 0.032, bar % 2 ? 0.22 : -0.22);
       if (s === 8) {
         const dz = FINAL_DIZI[bar];
         if (dz) dizi(ctx, out, time, mtof(dz), beat * 1.8, 0.02, bar % 2 ? 0.24 : -0.24);
       }
-      if (s === 0 || s === 8) {
-        brassStab(ctx, out, time, mtof(root + 12), 0.26, 0.032, -0.16);
-        brassStab(ctx, out, time + 0.015, mtof(root + 18), 0.24, 0.022, 0.16);
-      }
-      if (bar === 7 && s === 12) {
-        tone(ctx, out, time, mtof(75), beat * 1.6, 0.01, 'sine', 0.3, 0.05);
-      }
+      if (bar === 7 && s === 12) xiao(ctx, out, time, mtof(75), beat * 1.6, 0.012, 0.3);
     }
   }
 };
+
 
 class AudioEngine {
   constructor() {
@@ -757,6 +851,11 @@ class AudioEngine {
       case 'umbrella':
         noiseBurst(this.ctx, out, time, 0.2, 0.04, 'bandpass', 2100, 900, 1.2, pan);
         tone(this.ctx, out, time, 520, 0.13, 0.018, 'triangle', pan, 0.003, 760);
+        break;
+      case 'chomp':
+        noiseBurst(this.ctx, out, time, 0.12, 0.05, 'lowpass', 900, 220, 0.8, pan);
+        tone(this.ctx, out, time, 150, 0.16, 0.04, 'triangle', pan, 0.003, 58);
+        noiseBurst(this.ctx, out, time + 0.08, 0.08, 0.03, 'bandpass', 1400, 700, 1, pan);
         break;
       case 'lion':
         taiko(this.ctx, out, time, 0.075, pan, 0.75);

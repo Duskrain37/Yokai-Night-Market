@@ -1,6 +1,6 @@
 import { BOARD, BOARD_H, BOARD_W, VIEW, cellCenter } from '../layout.js';
 import { drawMower, drawPlant, drawZombie } from './art.js';
-import { drawUI } from '../ui/ui.js';
+import { drawUI, drawMenuBackdrop } from '../ui/ui.js';
 import { upgradeDots } from '../game/upgrade.js';
 import { assets } from '../core/assets.js';
 
@@ -16,7 +16,9 @@ function rr(ctx, x, y, w, h, r) {
 export class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
+    this.bgCanvas = document.getElementById('bg');
+    this.ctx = canvas.getContext('2d', { alpha: true });
+    if (this.bgCanvas) this.bgCtx = this.bgCanvas.getContext('2d', { alpha: false });
     this.resMode = 'auto';
     this.dpr = 1;
     this.cssW = 0;
@@ -46,8 +48,9 @@ export class Renderer {
     const w = window.innerWidth;
     const h = window.innerHeight;
     const fixedWidth = { 720: 1280, 1080: 1920, 1600: 2560 }[this.resMode] || 0;
-    const bw = fixedWidth || Math.round(w * dpr);
-    const bh = fixedWidth ? Math.max(1, Math.round(fixedWidth * h / w)) : Math.round(h * dpr);
+    const autoWidth = Math.min(Math.round(w * dpr), 1920);
+    const bw = fixedWidth || autoWidth;
+    const bh = Math.max(1, Math.round(bw * h / w));
     this.dpr = dpr;
     this.cssW = w;
     this.cssH = h;
@@ -57,6 +60,12 @@ export class Renderer {
     this.canvas.height = bh;
     this.canvas.style.width = w + 'px';
     this.canvas.style.height = h + 'px';
+    if (this.bgCanvas) {
+      this.bgCanvas.width = bw;
+      this.bgCanvas.height = bh;
+      this.bgCanvas.style.width = w + 'px';
+      this.bgCanvas.style.height = h + 'px';
+    }
     this.scale = Math.min(bw / VIEW.w, bh / VIEW.h);
     this.ox = (bw - VIEW.w * this.scale) / 2;
     this.oy = (bh - VIEW.h * this.scale) / 2;
@@ -87,10 +96,8 @@ export class Renderer {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
+    this.composeBackground(game);
     ctx.clearRect(0, 0, this.canvasW, this.canvasH);
-    ctx.fillStyle = '#060608';
-    ctx.fillRect(0, 0, this.canvasW, this.canvasH);
-    this.drawLetterboxBackdrop(ctx, game);
 
     ctx.translate(this.ox, this.oy);
     ctx.scale(this.scale, this.scale);
@@ -103,33 +110,73 @@ export class Renderer {
     if (game.shake > 0) {
       ctx.translate(Math.sin(t * 74) * game.shake * 0.8, Math.cos(t * 63) * game.shake * 0.6);
     }
-    this.drawBackground(ctx, t);
-    this.drawWorld(ctx, game, t);
+    if (game.phase !== 'menu') {
+      this.drawPetals(ctx, t);
+      this.drawWorld(ctx, game, t);
+    }
     ctx.restore();
 
     drawUI(ctx, game, t);
   }
 
+  composeBackground(game) {
+    if (!this.bgCtx) return;
+    const mode = game.phase === 'menu' ? 'menu' : 'game';
+    const key = `${mode}:${this.scale.toFixed(4)}:${this.canvasW}x${this.canvasH}:${this.ox}x${this.oy}`;
+    if (this._bgKey === key) return;
+    this._bgKey = key;
+    const bg = this.bgCtx;
+    bg.setTransform(1, 0, 0, 1, 0, 0);
+    bg.clearRect(0, 0, this.canvasW, this.canvasH);
+    bg.fillStyle = '#060608';
+    bg.fillRect(0, 0, this.canvasW, this.canvasH);
+    if (mode === 'menu') {
+      bg.save();
+      bg.translate(this.ox, this.oy);
+      bg.scale(this.scale, this.scale);
+      drawMenuBackdrop(bg);
+      bg.restore();
+    } else {
+      const layer = this.sceneLayer();
+      bg.drawImage(layer, this.ox, this.oy, VIEW.w * this.scale, VIEW.h * this.scale);
+    }
+    this.drawLetterboxBackdrop(bg, game);
+  }
+
+  sceneLayer() {
+    const key = `${this.scale.toFixed(4)}:${VIEW.w}x${VIEW.h}`;
+    if (this._sceneLayer && this._sceneLayer.key === key) return this._sceneLayer.canvas;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(VIEW.w * this.scale);
+    canvas.height = Math.ceil(VIEW.h * this.scale);
+    const layer = canvas.getContext('2d');
+    layer.scale(this.scale, this.scale);
+    this.drawBackgroundBase(layer);
+    this.drawBoard(layer);
+    this._sceneLayer = { key, canvas };
+    return canvas;
+  }
+
   drawLetterboxBackdrop(ctx, game) {
-    const contentW = VIEW.w * this.scale;
     const contentH = VIEW.h * this.scale;
-    if (contentW >= this.canvasW - 1 && contentH >= this.canvasH - 1) return;
-    const boardLike = game.phase !== 'menu' || game.overlay === 'prep';
-    const bg = boardLike ? assets.backgrounds.board : assets.backgrounds.menu;
-    if (!bg) return;
-    const s = Math.max(this.canvasW / bg.width, this.canvasH / bg.height);
-    const w = bg.width * s;
-    const h = bg.height * s;
+    const top = Math.max(0, this.oy);
+    const bottom = Math.max(0, this.canvasH - (this.oy + contentH));
+    if (top <= 0 && bottom <= 0) return;
     ctx.save();
-    ctx.globalAlpha = 0.72;
-    ctx.drawImage(bg, (this.canvasW - w) / 2, (this.canvasH - h) / 2, w, h);
-    ctx.restore();
-    const veil = ctx.createLinearGradient(0, 0, 0, this.canvasH);
-    veil.addColorStop(0, 'rgba(2,4,9,0.62)');
-    veil.addColorStop(0.5, 'rgba(3,5,10,0.44)');
-    veil.addColorStop(1, 'rgba(2,3,7,0.68)');
-    ctx.fillStyle = veil;
-    ctx.fillRect(0, 0, this.canvasW, this.canvasH);
+    if (top > 0) {
+      const g = ctx.createLinearGradient(0, 0, 0, top);
+      g.addColorStop(0, 'rgba(2,4,9,0.96)');
+      g.addColorStop(1, 'rgba(5,8,15,0.82)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, this.canvasW, top);
+    }
+    if (bottom > 0) {
+      const g = ctx.createLinearGradient(0, this.canvasH - bottom, 0, this.canvasH);
+      g.addColorStop(0, 'rgba(5,8,15,0.82)');
+      g.addColorStop(1, 'rgba(2,4,9,0.96)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, this.canvasH - bottom, this.canvasW, bottom);
+    }
     ctx.strokeStyle = 'rgba(226,192,122,0.14)';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -138,9 +185,10 @@ export class Renderer {
     ctx.moveTo(0, this.oy + contentH - 0.5);
     ctx.lineTo(this.canvasW, this.oy + contentH - 0.5);
     ctx.stroke();
+    ctx.restore();
   }
 
-  drawBackground(ctx, t) {
+  drawBackgroundBase(ctx) {
     const bg = assets.backgrounds.board;
     if (bg) {
       const scale = Math.max(VIEW.w / bg.width, VIEW.h / bg.height);
@@ -168,7 +216,6 @@ export class Renderer {
       ctx.fillStyle = warm;
       ctx.fillRect(0, 0, VIEW.w, VIEW.h);
 
-      this.drawPetals(ctx, t);
       return;
     }
 
@@ -387,8 +434,6 @@ export class Renderer {
   }
 
   drawWorld(ctx, game, t) {
-    this.drawBoard(ctx);
-
     for (const m of game.mowers) {
       drawMower(ctx, m.x, ROW_Y[m.row] + 10, t, m);
     }
@@ -404,7 +449,12 @@ export class Renderer {
           biteT: p.biteT,
           fuse: p.def.bomb ? Math.min(1, p.timer / p.def.bomb.fuse) : 0,
           hpRatio: p.maxHp ? p.hp / p.maxHp : 1,
-          up: p.upgrades
+          up: p.upgrades,
+          buff: p.buffDamage || 0,
+          haste: p.haste || 0,
+          chew: p.chewMax > 0 ? Math.max(0, 1 - p.chewT / p.chewMax) : 0,
+          armed: !!p.armed,
+          arm: p.def.mine ? Math.min(1, (p.armT || 0) / p.def.mine.arm) : 1
         });
         const dots = upgradeDots(p);
         if (dots.length) this.drawUpgradePips(ctx, p, dots);
@@ -431,11 +481,41 @@ export class Renderer {
         if (game.settings.healthBars !== 'off') {
           this.drawHpBar(ctx, z, game.settings.healthBars);
         }
+        if (z.vulnT > 0) {
+          ctx.save();
+          ctx.globalAlpha = 0.35 + Math.sin(t * 6 + z.phase) * 0.12;
+          ctx.strokeStyle = 'rgba(182,112,190,0.9)';
+          ctx.lineWidth = 1.4;
+          ctx.setLineDash([4, 5]);
+          ctx.lineDashOffset = -t * 14;
+          ctx.beginPath();
+          ctx.ellipse(z.x, z.y + 24, 24, 7, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
       }
     }
 
     for (const p of game.projectiles) {
       ctx.save();
+      if (p.gravel) {
+        ctx.translate(p.x, p.y);
+        ctx.rotate(Math.atan2(0, 1) + Math.sin(p.x * 0.1) * 0.4);
+        ctx.fillStyle = '#b8aa92';
+        ctx.strokeStyle = '#6d6255';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-6, -4);
+        ctx.lineTo(4, -5);
+        ctx.lineTo(7, 2);
+        ctx.lineTo(1, 6);
+        ctx.lineTo(-5, 4);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        continue;
+      }
       if (p.big) {
         const glow = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 24);
         glow.addColorStop(0, 'rgba(255,225,150,0.55)');

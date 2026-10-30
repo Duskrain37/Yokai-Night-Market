@@ -640,7 +640,11 @@ export class Game {
         timer: num(p.timer),
         phase: num(p.phase),
         upgrades: { ...p.upgrades },
-        adjFlip: num(p.adjFlip)
+        adjFlip: num(p.adjFlip),
+        armT: num(p.armT),
+        armed: !!p.armed,
+        chewT: num(p.chewT),
+        chewMax: num(p.chewMax)
       })),
       zombies: this.zombies.filter((z) => !z.dead).map((z) => ({
         type: z.type,
@@ -665,7 +669,10 @@ export class Game {
         speed: num(p.speed),
         damage: num(p.damage),
         big: !!p.big,
-        slow: num(p.slow)
+        slow: num(p.slow),
+        gravel: !!p.gravel,
+        vuln: num(p.vuln),
+        knock: num(p.knock)
       })),
       orbs: this.orbs.filter((o) => !o.dead).map((o) => ({
         x: num(o.x),
@@ -749,7 +756,7 @@ export class Game {
       if (seen.has(key)) continue;
       const def = PLANT_TYPES[raw.type];
       const pos = cellCenter(c, r);
-      const maxCap = raw.type === 'wall' ? 7500 : def.hp;
+      const maxCap = def.hp;
       const maxHp = Math.max(1, Math.min(maxCap, num(raw.maxHp, def.hp)));
       const p = {
         def, type: raw.type, c, r, x: pos.x, y: pos.y,
@@ -762,6 +769,12 @@ export class Game {
         charge: 0,
         biteT: 0,
         dead: false,
+        buffDamage: 0,
+        haste: 0,
+        chewT: Math.max(0, num(raw.chewT)),
+        chewMax: Math.max(0, num(raw.chewMax)),
+        armT: Math.max(0, num(raw.armT)),
+        armed: !!raw.armed,
         upgrades: initUpgrades(),
         adjFlip: Math.max(0, Math.floor(num(raw.adjFlip)))
       };
@@ -798,6 +811,8 @@ export class Game {
         slowT: Math.max(0, num(raw.slowT)),
         slowFactor: Math.max(0.2, Math.min(1, num(raw.slowFactor, 0.5))),
         stunT: Math.max(0, num(raw.stunT)),
+        vulnT: 0,
+        vuln: 0,
         rageT: Math.max(0, num(raw.rageT)),
         rageMult: Math.max(1, num(raw.rageMult, 1)),
         auraT: def.aura ? Math.max(0, num(raw.auraT, def.aura.interval)) : 0,
@@ -824,6 +839,9 @@ export class Game {
         damage: Math.max(1, num(raw.damage, 20)),
         big: !!raw.big,
         slow: Math.max(0, num(raw.slow)),
+        gravel: !!raw.gravel,
+        vuln: Math.max(0, num(raw.vuln)),
+        knock: Math.max(0, num(raw.knock)),
         dead: false
       });
     }
@@ -1246,12 +1264,6 @@ export class Game {
     this.sun -= st.cost;
     plant.upgrades[pathId] = st.nextTier;
 
-    if (plant.type === 'wall' && pathId === 1) {
-      const nextMax = PLANT_EFFECTS.wall.hp[st.nextTier];
-      plant.hp += nextMax - plant.maxHp;
-      plant.maxHp = nextMax;
-    }
-
     this.floaters.push({
       x: plant.x, y: plant.y - 66,
       text: `${pathId}-${st.nextTier} ${st.name}`,
@@ -1259,6 +1271,7 @@ export class Game {
     });
     this.spark(plant.x, plant.y - 18, st.path.color, 12);
     this.shake = Math.max(this.shake, 3);
+    this.refreshPlantBuffs();
     audio.sfx('upgrade');
   }
 
@@ -1273,17 +1286,15 @@ export class Game {
       hp: def.hp, maxHp: def.hp, timer: 0,
       phase: Math.random() * Math.PI * 2,
       recoil: 0, pulse: 0, charge: 0, biteT: 0, dead: false,
+      buffDamage: 0, haste: 0, chewT: 0, chewMax: 0, armT: 0, armed: false,
       upgrades: initUpgrades(),
       adjFlip: 0
     };
     if (def.produce) p.timer = def.produce.interval - def.produce.first;
     else if (def.shot) p.timer = def.shot.interval;
-    if (type === 'wall') {
-      p.maxHp = PLANT_EFFECTS.wall.hp[tierOf(p, 1)];
-      p.hp = p.maxHp;
-    }
     this.plants.push(p);
     this.cells[r][c] = p;
+    this.refreshPlantBuffs();
     return p;
   }
 
@@ -1404,6 +1415,8 @@ export class Game {
       slowT: 0,
       slowFactor: 0.5,
       stunT: 0,
+      vulnT: 0,
+      vuln: 0,
       rageT: 0,
       rageMult: 1,
       auraT: def.aura ? 0.8 + Math.random() * def.aura.interval : 0,
@@ -1449,9 +1462,9 @@ export class Game {
   }
 
   bellSlow(p) {
-    const t = tierOf(p, 2);
+    const t = tierOf(p, 1);
     return {
-      duration: PLANT_EFFECTS.bell.slowDuration[t],
+      duration: PLANT_EFFECTS.bell.slowDuration,
       factor: PLANT_EFFECTS.bell.slowFactor[t]
     };
   }
@@ -1460,7 +1473,53 @@ export class Game {
     return PLANT_EFFECTS.bell.damage[tierOf(p, 3)];
   }
 
+  isLarge(z) {
+    return !!(z && z.def && z.def.large);
+  }
+
+  plantDamage(p, base) {
+    return base * (1 + (p?.buffDamage || 0));
+  }
+
+  plantHaste(p) {
+    return p?.haste || 0;
+  }
+
+  refreshPlantBuffs() {
+    for (const p of this.plants) {
+      if (p.dead) continue;
+      p.buffDamage = 0;
+      p.haste = 0;
+    }
+    for (const source of this.plants) {
+      if (source.dead) continue;
+      if (source.type === 'lantern') {
+        const tier = tierOf(source, 3);
+        if (tier <= 0) continue;
+        const range = PLANT_EFFECTS.lantern.buffRange[tier];
+        const value = PLANT_EFFECTS.lantern.buffDamage[tier];
+        for (const target of this.plants) {
+          if (target.dead || target === source || target.r !== source.r) continue;
+          if (tier < 3 && (target.c <= source.c || target.c - source.c > range)) continue;
+          target.buffDamage = Math.max(target.buffDamage, value);
+        }
+      } else if (source.type === 'bell') {
+        const tier = tierOf(source, 2);
+        if (tier <= 0) continue;
+        const range = PLANT_EFFECTS.bell.hasteRange[tier];
+        const slowPct = 1 - this.bellSlow(source).factor;
+        const value = slowPct * PLANT_EFFECTS.bell.hasteFactor[tier];
+        for (const target of this.plants) {
+          if (target.dead || target === source || target.r !== source.r) continue;
+          if (tier < 3 && (target.c <= source.c || target.c - source.c > range)) continue;
+          target.haste = Math.max(target.haste, value);
+        }
+      }
+    }
+  }
+
   updatePlants(dt) {
+    this.refreshPlantBuffs();
     for (const p of this.plants) {
       if (p.dead) continue;
       p.recoil = Math.max(0, p.recoil - dt * 3);
@@ -1489,30 +1548,36 @@ export class Game {
       } else if (def.shot) {
         p.timer += dt;
         const target = this.laneTarget(p);
+        const interval = def.shot.interval / (1 + p.haste);
         if (target) {
-          if (p.timer >= def.shot.interval) {
-            p.timer -= def.shot.interval;
+          if (p.timer >= interval) {
+            p.timer -= interval;
             p.recoil = 1;
             this.fireVolley(p);
           } else {
-            p.charge = Math.min(1, p.timer / def.shot.interval);
+            p.charge = Math.min(1, p.timer / interval);
           }
         } else {
-          p.timer = Math.min(p.timer, def.shot.interval);
+          p.timer = Math.min(p.timer, interval);
         }
       } else if (def.pulse) {
-        const interval = this.bellInterval(p);
+        const interval = this.bellInterval(p) / (1 + p.haste);
         p.timer += dt;
         if (p.timer >= interval) {
           let hitAny = false;
           const dmg = this.bellDamage(p);
           const slow = this.bellSlow(p);
+          const damageRange = PLANT_EFFECTS.bell.damageRange[tierOf(p, 3)];
+          const rootChance = PLANT_EFFECTS.bell.rootChance[tierOf(p, 3)];
           for (const z of this.zombies) {
             if (z.dead || z.row !== p.r || z.x <= p.x - 8) continue;
             this.applySlow(z, slow.duration, slow.factor);
-            const extend = PLANT_EFFECTS.bell.slowExtend[tierOf(p, 3)];
-            if (extend) z.slowT = Math.min(10, z.slowT + extend);
-            if (dmg > 0) this.damageZombie(z, dmg);
+            if (dmg > 0 && (damageRange >= 99 || z.x - p.x <= damageRange * BOARD.cw)) {
+              this.damageZombie(z, this.plantDamage(p, dmg));
+              if (rootChance > 0 && !this.isLarge(z) && Math.random() < rootChance) {
+                this.applyStun(z, PLANT_EFFECTS.bell.rootDuration);
+              }
+            }
             hitAny = true;
           }
           if (hitAny) {
@@ -1521,7 +1586,7 @@ export class Game {
             audio.sfx('bell', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
             this.particles.push({
               x: p.x, y: p.y - 6, vx: 0, vy: 0,
-              life: 0.5, maxLife: 0.5, size: 26,
+              life: 0.5, maxLife: 0.5, size: damageRange >= 99 ? 74 : damageRange > 1 ? 48 : 26,
               color: '#8fd0da', kind: 'ring'
             });
           } else {
@@ -1529,25 +1594,53 @@ export class Game {
           }
         }
       } else if (def.censer) {
+        const interval = PLANT_EFFECTS.censer.interval / (1 + p.haste);
         p.timer += dt;
-        p.charge = Math.min(1, p.timer / PLANT_EFFECTS.censer.interval);
-        if (p.timer >= PLANT_EFFECTS.censer.interval) {
-          p.timer -= PLANT_EFFECTS.censer.interval;
+        p.charge = Math.min(1, p.timer / interval);
+        if (p.timer >= interval) {
+          p.timer -= interval;
           p.charge = 0;
           this.censerPulse(p);
         }
-      } else if (def.umbrella) {
-        p.timer += dt;
-        const interval = PLANT_EFFECTS.umbrella.blowInterval[tierOf(p, 2)];
-        if (p.timer >= interval) {
-          p.timer -= interval;
-          this.umbrellaBlow(p);
+      } else if (def.chomp) {
+        if (p.chewT > 0) {
+          p.chewT = Math.max(0, p.chewT - dt);
+          p.charge = p.chewMax > 0 ? 1 - p.chewT / p.chewMax : 0;
+          if (p.chewT <= 0) {
+            const sun = PLANT_EFFECTS.umbrella.sun[tierOf(p, 2)];
+            if (sun > 0) {
+              this.orbs.push({
+                x: p.x + (Math.random() - 0.5) * 26,
+                y: p.y - 24,
+                targetY: p.y - 24,
+                landed: true,
+                life: 9,
+                value: sun,
+                phase: Math.random() * Math.PI * 2
+              });
+            }
+            p.pulse = 0.5;
+            p.charge = 0;
+          }
+        } else {
+          p.timer += dt;
+          const target = this.flytrapTarget(p);
+          if (target) {
+            const base = this.isLarge(target) ? PLANT_EFFECTS.umbrella.largeInterval : 0.35;
+            const interval = base / (1 + p.haste);
+            p.charge = Math.min(1, p.timer / interval);
+            if (p.timer >= interval) {
+              p.timer = 0;
+              p.charge = 0;
+              this.flytrapBite(p, target);
+            }
+          } else {
+            p.timer = Math.min(p.timer, 0.35);
+          }
         }
-        const regen = PLANT_EFFECTS.umbrella.regen[tierOf(p, 3)];
-        if (regen > 0) this.umbrellaHeal(p, regen * dt);
       } else if (def.melee) {
         p.timer += dt;
-        const interval = PLANT_EFFECTS.lion.interval[tierOf(p, 2)];
+        const interval = PLANT_EFFECTS.lion.interval[tierOf(p, 2)] / (1 + p.haste);
         const target = this.lionTarget(p);
         if (target) {
           p.charge = Math.min(1, p.timer / interval);
@@ -1559,10 +1652,56 @@ export class Game {
         } else {
           p.timer = Math.min(p.timer, interval);
         }
+      } else if (def.mine) {
+        if (!p.armed) {
+          p.armT += dt;
+          if (p.armT >= def.mine.arm) {
+            p.armed = true;
+            p.pulse = 0.5;
+          }
+        } else {
+          const target = this.mineTarget(p);
+          if (target) this.mineExplode(p, target);
+        }
+      } else if (p.type === 'wall') {
+        this.updateWall(p, dt);
       } else if (def.bomb) {
         p.timer += dt;
         if (p.timer >= def.bomb.fuse) this.explode(p);
       }
+    }
+  }
+
+  updateWall(p, dt) {
+    const healTier = tierOf(p, 1);
+    if (healTier > 0 && p.hp < p.maxHp && (healTier >= 3 || p.biteT <= 0)) {
+      p.hp = Math.min(p.maxHp, p.hp + PLANT_EFFECTS.wall.heal[healTier] * dt);
+      if (Math.random() < dt * 1.8) {
+        this.particles.push({
+          x: p.x + (Math.random() - 0.5) * 24,
+          y: p.y - 4 - Math.random() * 18,
+          vx: (Math.random() - 0.5) * 10,
+          vy: -18 - Math.random() * 20,
+          life: 0.5, maxLife: 0.5,
+          size: 1.6 + Math.random() * 1.6,
+          color: '#9fc7a4', kind: 'circle'
+        });
+      }
+    }
+    const tier = tierOf(p, 3);
+    if (tier <= 0) return;
+    p.timer += dt;
+    const interval = PLANT_EFFECTS.wall.gravelInterval / (1 + p.haste);
+    const target = this.laneTarget(p);
+    if (target) {
+      p.charge = Math.min(1, p.timer / interval);
+      if (p.timer >= interval) {
+        p.timer -= interval;
+        p.charge = 0;
+        this.fireGravel(p, tier);
+      }
+    } else {
+      p.timer = Math.min(p.timer, interval);
     }
   }
 
@@ -1583,7 +1722,7 @@ export class Game {
     for (const z of this.zombies) {
       if (z.dead) continue;
       if (Math.hypot(z.x - p.x, z.y - p.y) > fx.radius) continue;
-      this.damageZombie(z, fx.damage);
+      this.damageZombie(z, this.plantDamage(p, fx.damage));
       if (fx.slowFactor > 0) this.applySlow(z, fx.slowDuration, fx.slowFactor);
       hitAny = true;
     }
@@ -1607,63 +1746,95 @@ export class Game {
     if (hitAny) this.shake = Math.max(this.shake, 2);
   }
 
-  umbrellaGuard(target) {
-    let guard = 0;
-    for (const p of this.plants) {
-      if (p.dead || p.type !== 'umbrella' || p === target) continue;
-      if (Math.abs(p.c - target.c) > 1 || Math.abs(p.r - target.r) > 1) continue;
-      guard = Math.max(guard, PLANT_EFFECTS.umbrella.guard[tierOf(p, 1)]);
+  plantGuard(target) {
+    if (target.type === 'umbrella' && target.chewT > 0) {
+      return PLANT_EFFECTS.umbrella.chewGuard[tierOf(target, 3)] || 0;
     }
-    return guard;
+    return 0;
   }
 
-  umbrellaBlow(p) {
-    audio.sfx('umbrella', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
-    const dist = PLANT_EFFECTS.umbrella.blowDist[tierOf(p, 2)];
-    const reach = p.def.umbrella.reach;
-    let hitAny = false;
+  flytrapTarget(p) {
+    const reach = p.def.chomp.reach;
+    let best = null;
     for (const z of this.zombies) {
       if (z.dead || z.row !== p.r) continue;
-      if (z.x < p.x - 12 || z.x > p.x + reach) continue;
-      z.x = Math.min(1360, z.x + dist);
-      hitAny = true;
+      if (z.x < p.x - 14 || z.x - p.x > reach) continue;
+      if (!best || z.x < best.x) best = z;
     }
-    p.pulse = 0.6;
-    this.particles.push({
-      x: p.x, y: p.y - 2, vx: 0, vy: 0,
-      life: 0.5, maxLife: 0.5, size: 20,
-      color: 'rgba(220,150,130,0.75)', kind: 'ring'
-    });
-    if (hitAny) {
-      for (let i = 0; i < 6; i++) {
-        this.particles.push({
-          x: p.x + 18 + i * 8, y: p.y - 18 + (i % 2) * 8,
-          vx: 80 + Math.random() * 40, vy: -10 + Math.random() * 20,
-          life: 0.4, maxLife: 0.4,
-          size: 2 + Math.random() * 2,
-          color: '#e0b49a', kind: 'circle'
-        });
-      }
-    }
+    return best;
   }
 
-  umbrellaHeal(p, amount) {
-    for (const other of this.plants) {
-      if (other.dead || other === p) continue;
-      if (Math.abs(p.c - other.c) > 1 || Math.abs(p.r - other.r) > 1) continue;
-      if (other.hp >= other.maxHp) continue;
-      other.hp = Math.min(other.maxHp, other.hp + amount);
-      if (Math.random() < 0.035) {
-        this.particles.push({
-          x: other.x + (Math.random() - 0.5) * 18,
-          y: other.y - 2,
-          vx: (Math.random() - 0.5) * 16,
-          vy: -28 - Math.random() * 18,
-          life: 0.5, maxLife: 0.5,
-          size: 2.2, color: '#8fbf9a', kind: 'circle'
-        });
-      }
+  flytrapBite(p, target) {
+    audio.sfx('chomp', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    p.recoil = 1;
+    p.pulse = 0.5;
+    if (this.isLarge(target)) {
+      this.damageZombie(target, this.plantDamage(p, p.def.chomp.largeDamage));
+      this.spark(p.x + 22, p.y - 22, '#7a8f55', 5);
+      return;
     }
+    this.killZombie(target);
+    const speed = PLANT_EFFECTS.umbrella.chewSpeed[tierOf(p, 1)] || 0;
+    p.chewMax = p.def.chomp.chew * (1 - speed);
+    p.chewT = p.chewMax;
+    this.floaters.push({
+      x: p.x, y: p.y - 74, text: '收了',
+      color: '#cfe0a0', life: 1.0, maxLife: 1.0, size: 16
+    });
+  }
+
+  mineTarget(p) {
+    for (const z of this.zombies) {
+      if (z.dead || z.row !== p.r) continue;
+      if (z.x >= p.x - 16 && z.x - p.x <= 44) return z;
+    }
+    return null;
+  }
+
+  mineExplode(p, target) {
+    p.dead = true;
+    this.cells[p.r][p.c] = null;
+    audio.sfx('explode', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    this.damageZombie(target, this.plantDamage(p, p.def.mine.damage));
+    for (let i = 0; i < 22; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = 70 + Math.random() * 190;
+      this.particles.push({
+        x: p.x, y: p.y,
+        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 45,
+        life: 0.4 + Math.random() * 0.4, maxLife: 0.8,
+        size: 2.5 + Math.random() * 4,
+        color: Math.random() < 0.5 ? '#b58a52' : '#e0c087',
+        kind: 'shard'
+      });
+    }
+    this.shake = Math.max(this.shake, 9);
+  }
+
+  fireGravel(p, tier) {
+    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    const vuln = PLANT_EFFECTS.wall.vuln[tier] || 0;
+    const knock = PLANT_EFFECTS.wall.knockCells[tier] || 0;
+    this.projectiles.push({
+      x: p.x + 24,
+      y: p.y - 10,
+      row: p.r,
+      speed: 430,
+      damage: this.plantDamage(p, PLANT_EFFECTS.wall.gravelDamage[tier]),
+      big: false,
+      slow: 0,
+      gravel: true,
+      vuln,
+      knock,
+      dead: false
+    });
+    p.recoil = 0.8;
+  }
+
+  applyVulnerable(z, duration, amount) {
+    if (z.dead || duration <= 0 || amount <= 0) return;
+    z.vulnT = Math.max(z.vulnT || 0, duration);
+    z.vuln = Math.max(z.vuln || 0, amount);
   }
 
   lionTarget(p) {
@@ -1679,15 +1850,17 @@ export class Game {
 
   lionStrike(p, target) {
     audio.sfx('lion', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
-    const dmg = PLANT_EFFECTS.lion.damage[tierOf(p, 1)];
+    const dmg = this.plantDamage(p, PLANT_EFFECTS.lion.damage[tierOf(p, 1)]);
     const stunChance = PLANT_EFFECTS.lion.stunChance[tierOf(p, 2)];
     const heal = PLANT_EFFECTS.lion.heal[tierOf(p, 3)];
+    const knock = PLANT_EFFECTS.lion.knockCells * BOARD.cw *
+      (PLANT_EFFECTS.lion.knockBonus[tierOf(p, 1)] || 1);
     this.damageZombie(target, dmg);
     if (!target.dead) {
       if (stunChance > 0 && Math.random() < stunChance) {
         this.applyStun(target, PLANT_EFFECTS.lion.stunDuration);
       }
-      target.x = Math.min(1360, target.x + PLANT_EFFECTS.lion.knock);
+      target.x = Math.min(1360, target.x + knock);
     }
     if (heal > 0) p.hp = Math.min(p.maxHp, p.hp + heal);
     p.recoil = 1;
@@ -1715,7 +1888,7 @@ export class Game {
 
   fireVolley(p) {
     const def = p.def;
-    const base = def.shot.damage;
+    const base = this.plantDamage(p, def.shot.damage);
     audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     const count = PLANT_EFFECTS.shooter.volley[tierOf(p, 1)] || 1;
     const crit = PLANT_EFFECTS.shooter.critChance[tierOf(p, 3)] || 0;
@@ -1768,7 +1941,7 @@ export class Game {
     for (const z of this.zombies) {
       if (z.dead) continue;
       if (Math.hypot(z.x - p.x, z.y - p.y) <= radius) {
-        this.damageZombie(z, p.def.bomb.damage);
+        this.damageZombie(z, this.plantDamage(p, p.def.bomb.damage));
       }
     }
     for (let i = 0; i < 30; i++) {
@@ -1784,31 +1957,6 @@ export class Game {
       });
     }
     this.shake = Math.max(this.shake, 14);
-  }
-
-  wallBlast(p) {
-    const dmg = PLANT_EFFECTS.wall.blast[tierOf(p, 3)];
-    if (!dmg) return;
-    audio.sfx('wall', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
-    for (const z of this.zombies) {
-      if (z.dead) continue;
-      if (Math.hypot(z.x - p.x, z.y - p.y) <= 160) {
-        this.damageZombie(z, dmg);
-      }
-    }
-    for (let i = 0; i < 22; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const sp = 60 + Math.random() * 220;
-      this.particles.push({
-        x: p.x, y: p.y,
-        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40,
-        life: 0.4 + Math.random() * 0.5, maxLife: 0.9,
-        size: 3 + Math.random() * 5,
-        color: ['#a5a092', '#8b877b', '#d8c79a'][i % 3],
-        kind: 'shard'
-      });
-    }
-    this.shake = Math.max(this.shake, 10);
   }
 
   eatTarget(z) {
@@ -1854,6 +2002,7 @@ export class Game {
       if (z.dead) continue;
       if (z.hurt > 0) z.hurt = Math.max(0, z.hurt - dt);
       if (z.slowT > 0) z.slowT = Math.max(0, z.slowT - dt);
+      if (z.vulnT > 0) z.vulnT = Math.max(0, z.vulnT - dt);
       if (z.rageT > 0) z.rageT = Math.max(0, z.rageT - dt);
       if (z.auraPulse > 0) z.auraPulse = Math.max(0, z.auraPulse - dt);
 
@@ -1891,15 +2040,12 @@ export class Game {
           z.eatSndT = 0.34 + Math.random() * 0.16;
         }
         target.biteT = 0.2;
-        const guard = this.umbrellaGuard(target);
+        const guard = this.plantGuard(target);
         target.hp -= z.def.dps * (1 - guard) * dt;
 
-        if (target.type === 'lantern') {
-          const reflect = PLANT_EFFECTS.lantern.reflect[tierOf(target, 3)];
-          if (reflect > 0) this.damageZombie(z, reflect * dt);
-        } else if (target.type === 'wall') {
+        if (target.type === 'wall') {
           const reflect = PLANT_EFFECTS.wall.reflect[tierOf(target, 2)];
-          if (reflect > 0) this.damageZombie(z, reflect * dt);
+          if (reflect > 0) this.damageZombie(z, this.plantDamage(target, reflect * dt));
         }
 
         if (target.hp <= 0) this.killPlant(target);
@@ -1957,9 +2103,20 @@ export class Game {
       }
       if (hit) {
         p.dead = true;
-        this.damageZombie(hit, p.damage);
+        const large = this.isLarge(hit);
+        const dmg = p.knock && large ? p.damage * 2 : p.damage;
+        this.damageZombie(hit, dmg);
+        if (p.vuln) this.applyVulnerable(hit, PLANT_EFFECTS.wall.vulnDuration, p.vuln);
+        if (p.knock && !large && !hit.dead) {
+          hit.x = Math.min(1360, hit.x + p.knock * BOARD.cw);
+          this.particles.push({
+            x: hit.x, y: hit.y + 8, vx: 0, vy: 0,
+            life: 0.4, maxLife: 0.4, size: 18,
+            color: 'rgba(200,180,140,0.65)', kind: 'ring'
+          });
+        }
         if (p.slow) this.applySlow(hit, p.slow, 0.5);
-        this.spark(p.x, p.y, p.big ? '#ffe9a8' : '#f0dca8', p.big ? 8 : 3);
+        this.spark(p.x, p.y, p.big ? '#ffe9a8' : p.gravel ? '#b9a98c' : '#f0dca8', p.big ? 8 : 3);
       } else if (p.x > 1340) {
         p.dead = true;
       }
@@ -1972,6 +2129,7 @@ export class Game {
     if (amount >= 8) audio.sfx('hit', { type: z.type, pan });
     const hadShell = z.shell > 0;
     let dmg = amount;
+    if (z.vulnT > 0 && z.vuln > 0) dmg *= 1 + z.vuln;
     if (z.shell > 0) {
       const absorbed = Math.min(z.shell, dmg);
       z.shell -= absorbed;
@@ -2045,7 +2203,6 @@ export class Game {
     if (p.type !== 'wall' || silent) {
       audio.sfx('plantDown', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     }
-    if (!silent && p.type === 'wall') this.wallBlast(p);
     for (let i = 0; i < 8; i++) {
       this.particles.push({
         x: p.x + (Math.random() - 0.5) * 24,

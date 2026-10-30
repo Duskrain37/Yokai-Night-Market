@@ -47,7 +47,7 @@ export function drawUI(ctx, game, t) {
     return;
   }
 
-  drawHud(ctx, game, t);
+  drawHudCached(ctx, game, t);
   if (game.phase === 'playing' && game.menu) drawFan(ctx, game);
   if (game.phase === 'paused' || game.phase === 'won' || game.phase === 'lost') {
     drawOverlay(ctx, game);
@@ -55,6 +55,29 @@ export function drawUI(ctx, game, t) {
   if (game.overlay === 'settings') drawSettings(ctx, game);
   if (game.overlay === 'cheat') drawCheatPanel(ctx, game);
   if (game.overlay === 'almanac') drawAlmanac(ctx, game);
+}
+
+let hudCache = null;
+
+function drawHudCached(ctx, game, t) {
+  const scale = Math.max(1, Math.min(3, ctx.getTransform().a || 1));
+  const key = scale.toFixed(3);
+  if (!hudCache || hudCache.key !== key) {
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(1280 * scale);
+    canvas.height = Math.ceil(200 * scale);
+    hudCache = { key, canvas, ctx: canvas.getContext('2d'), last: -1 };
+  }
+  if (t - hudCache.last >= 0.12) {
+    const g = hudCache.ctx;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, hudCache.canvas.width, hudCache.canvas.height);
+    g.scale(scale, scale);
+    g.translate(0, -20);
+    drawHud(g, game, t);
+    hudCache.last = t;
+  }
+  ctx.drawImage(hudCache.canvas, 0, 20, 1280, 200);
 }
 
 function drawHud(ctx, game, t) {
@@ -490,39 +513,50 @@ function drawBanner(ctx, game) {
   ctx.restore();
 }
 
-function drawMenu(ctx, game, t) {
-  const bg = assets.backgrounds.menu;
-  if (bg) {
-    const scale = Math.max(VIEW.w / bg.width, VIEW.h / bg.height);
-    const w = bg.width * scale;
-    const h = bg.height * scale;
-    ctx.drawImage(bg, (VIEW.w - w) / 2, (VIEW.h - h) / 2, w, h);
-  } else {
-    ctx.fillStyle = '#0a0d16';
-    ctx.fillRect(0, 0, VIEW.w, VIEW.h);
+let menuBackdropCache = null;
+
+export function drawMenuBackdrop(ctx) {
+  const scale = Math.max(1, Math.min(3, ctx.getTransform().a || 1));
+  if (!menuBackdropCache || menuBackdropCache.scale !== scale) {
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(VIEW.w * scale);
+    canvas.height = Math.ceil(VIEW.h * scale);
+    const g = canvas.getContext('2d');
+    g.scale(scale, scale);
+    const bg = assets.backgrounds.menu;
+    if (bg) {
+      const s = Math.max(VIEW.w / bg.width, VIEW.h / bg.height);
+      const w = bg.width * s;
+      const h = bg.height * s;
+      g.drawImage(bg, (VIEW.w - w) / 2, (VIEW.h - h) / 2, w, h);
+    } else {
+      g.fillStyle = '#0a0d16';
+      g.fillRect(0, 0, VIEW.w, VIEW.h);
+    }
+    const shade = g.createLinearGradient(0, 0, 0, VIEW.h);
+    shade.addColorStop(0, 'rgba(5,8,16,0.52)');
+    shade.addColorStop(0.34, 'rgba(6,9,18,0.28)');
+    shade.addColorStop(0.72, 'rgba(5,8,16,0.48)');
+    shade.addColorStop(1, 'rgba(4,6,12,0.9)');
+    g.fillStyle = shade;
+    g.fillRect(0, 0, VIEW.w, VIEW.h);
+    const halo = g.createRadialGradient(640, 300, 60, 640, 300, 520);
+    halo.addColorStop(0, 'rgba(4,6,12,0.62)');
+    halo.addColorStop(0.55, 'rgba(4,6,12,0.25)');
+    halo.addColorStop(1, 'rgba(4,6,12,0)');
+    g.fillStyle = halo;
+    g.fillRect(0, 40, VIEW.w, 600);
+    const vignette = g.createRadialGradient(640, 360, 280, 640, 360, 820);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(2,4,9,0.66)');
+    g.fillStyle = vignette;
+    g.fillRect(0, 0, VIEW.w, VIEW.h);
+    menuBackdropCache = { scale, canvas };
   }
+  ctx.drawImage(menuBackdropCache.canvas, 0, 0, VIEW.w, VIEW.h);
+}
 
-  const shade = ctx.createLinearGradient(0, 0, 0, VIEW.h);
-  shade.addColorStop(0, 'rgba(5,8,16,0.52)');
-  shade.addColorStop(0.34, 'rgba(6,9,18,0.28)');
-  shade.addColorStop(0.72, 'rgba(5,8,16,0.48)');
-  shade.addColorStop(1, 'rgba(4,6,12,0.9)');
-  ctx.fillStyle = shade;
-  ctx.fillRect(0, 0, VIEW.w, VIEW.h);
-
-  const halo = ctx.createRadialGradient(640, 300, 60, 640, 300, 520);
-  halo.addColorStop(0, 'rgba(4,6,12,0.62)');
-  halo.addColorStop(0.55, 'rgba(4,6,12,0.25)');
-  halo.addColorStop(1, 'rgba(4,6,12,0)');
-  ctx.fillStyle = halo;
-  ctx.fillRect(0, 40, VIEW.w, 600);
-
-  const vignette = ctx.createRadialGradient(640, 360, 280, 640, 360, 820);
-  vignette.addColorStop(0, 'rgba(0,0,0,0)');
-  vignette.addColorStop(1, 'rgba(2,4,9,0.66)');
-  ctx.fillStyle = vignette;
-  ctx.fillRect(0, 0, VIEW.w, VIEW.h);
-
+function drawMenu(ctx, game, t) {
   drawMenuPetals(ctx, t);
 
   ctx.textAlign = 'center';

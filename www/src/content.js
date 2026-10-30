@@ -16,24 +16,28 @@ export const PLANT_TYPES = {
   },
   bell: {
     id: 'bell', name: '铜铃', role: '辅助', cost: 125, cooldown: 20, hp: 300, tint: '#c79a3b',
-    pulse: { interval: 2.5, slow: 3 }
+    pulse: { interval: 2.5, slow: 1.5 }
   },
   censer: {
     id: 'censer', name: '香炉', role: '范围', cost: 150, cooldown: 18, hp: 340, tint: '#8a6f4d',
     spriteH: 84, censer: { interval: 3.0, radius: 140 }
   },
   umbrella: {
-    id: 'umbrella', name: '纸伞', role: '辅助', cost: 100, cooldown: 16, hp: 480, tint: '#b5493e',
-    spriteH: 90, umbrella: { interval: 5.5, knock: 46, reach: 150 }
+    id: 'umbrella', name: '纸伞', role: '收妖', cost: 100, cooldown: 16, hp: 900, tint: '#b5493e',
+    spriteH: 98, chomp: { reach: 74, chew: 6.0, largeDamage: 40, largeInterval: 2.0 }
   },
   lion: {
     id: 'lion', name: '醒狮', role: '近战', cost: 150, cooldown: 20, hp: 1200, tint: '#c9472f',
     spriteH: 92, melee: { reach: 110 }
+  },
+  mushroom: {
+    id: 'mushroom', name: '坟头菇', role: '灰烬', cost: 25, cooldown: 20, hp: 300, tint: '#7d8a5c',
+    spriteH: 76, mine: { arm: 14, damage: 1800 }
   }
 };
 
 export const PLANT_ORDER = [
-  'lantern', 'shooter', 'wall', 'bomb', 'bell', 'censer', 'umbrella', 'lion'
+  'lantern', 'shooter', 'wall', 'bomb', 'mushroom', 'bell', 'censer', 'umbrella', 'lion'
 ];
 
 export const ZOMBIE_TIERS = {
@@ -56,7 +60,7 @@ export const ZOMBIE_TYPES = {
     hp: 420, shell: 250, speed: 19, dps: 80, scale: 1.05
   },
   mountain: {
-    id: 'mountain', name: '山魈', kind: '重型', tier: 'h',
+    id: 'mountain', name: '山魈', kind: '重型', tier: 'h', large: true,
     hp: 1800, shell: 0, speed: 16, dps: 180, scale: 1.28
   },
   tongue: {
@@ -69,7 +73,7 @@ export const ZOMBIE_TYPES = {
     aura: { radius: 150, interval: 4.5, haste: 1.35, duration: 2.6 }
   },
   sedan: {
-    id: 'sedan', name: '抬轿鬼', kind: '重型', tier: 'h',
+    id: 'sedan', name: '抬轿鬼', kind: '重型', tier: 'h', large: true,
     hp: 520, shell: 950, speed: 14, dps: 120, scale: 1.0, spriteH: 104,
     split: { type: 'ghost', count: 2, hp: 0.6 }
   }
