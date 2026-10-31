@@ -27,3 +27,7 @@
 - 单文件 exe 内嵌 www、WebView2 托管库与加载器；仍使用系统的 WebView2 Runtime。
 - 存档与设置位置跟随 WebView2 用户目录（LocalAppData\YaoguaiNightMarket\WebView2）。
 - 本版同步推送 GitHub 分支 v0.2.3（含 release 单文件 exe、源码与更新说明）。
+
+封包信息
+- 单文件 exe：妖怪夜市v0.2.3.exe，payload 1203fcfb522f，sha256 a87e4adf…24a62d62，22,542,848 字节；win64 包 2 项、源码包 61 项。
+- GitHub 分支 v0.2.3 已推送（47f3b65），含 release 单文件 exe、www 源码与更新说明。
