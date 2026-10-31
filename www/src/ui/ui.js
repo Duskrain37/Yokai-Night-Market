@@ -1,5 +1,5 @@
 import {
-  BTN, PREP, PREP_CINEMA, SETTINGS, VIEW, cardRect, inRect,
+  BOARD, BTN, PREP, PREP_CINEMA, SETTINGS, TUTORIAL_UI, VIEW, cardRect, cellCenter, inRect,
   prepRosterRect, prepSlotRect, prepZombieRect,
   settingsPill, settingsRowEnabled
 } from '../layout.js';
@@ -49,6 +49,7 @@ export function drawUI(ctx, game, t) {
 
   drawHudCached(ctx, game, t);
   if (game.phase === 'playing' && game.menu) drawFan(ctx, game);
+  if (game.tutorial && game.phase === 'playing') drawTutorial(ctx, game, t);
   if (game.phase === 'paused' || game.phase === 'won' || game.phase === 'lost') {
     drawOverlay(ctx, game);
   }
@@ -163,7 +164,7 @@ function drawHud(ctx, game, t) {
   drawProgress(ctx, game);
   drawPauseButton(ctx, game);
 
-  if (game.phase === 'playing') {
+  if (game.phase === 'playing' && !game.tutorial) {
     drawShovelButton(ctx, game);
     if (game.settings.quickWave) drawQuickWaveButton(ctx, game);
     if (game.runCheats) drawCheatButton(ctx, game);
@@ -290,6 +291,34 @@ function drawCards(ctx, game, t) {
 
 function drawProgress(ctx, game) {
   const pr = { x: 816, y: 80, w: 248, h: 18 };
+  if (game.tutorial) {
+    const idx = { collect: 0, plant: 1, upgrade: 2, battle: 2, finishing: 2, done: 3 }[game.tutorial.step] ?? 0;
+    const stepNo = Math.min(3, idx + 1);
+    const ratio = [0.12, 0.4, 0.68, 0.94][Math.min(3, idx)];
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = `400 11.5px ${KAI}`;
+    ctx.fillStyle = 'rgba(240,220,180,0.7)';
+    ctx.fillText(`新手教程 · 第 ${stepNo} / 3 步 · ×${speedLabel(game.tutorial ? 1 : game.settings.speed)}`, pr.x, pr.y - 9);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = 'rgba(7,11,20,0.72)';
+    rr(ctx, pr.x, pr.y, pr.w, pr.h, 9);
+    ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(226,192,122,0.28)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    const g = ctx.createLinearGradient(pr.x, 0, pr.x + pr.w, 0);
+    g.addColorStop(0, '#c9543a');
+    g.addColorStop(0.65, '#e8a24b');
+    g.addColorStop(1, '#f4d88f');
+    ctx.fillStyle = g;
+    rr(ctx, pr.x + 2, pr.y + 2, Math.max(2, (pr.w - 4) * ratio), pr.h - 4, 7);
+    ctx.fill();
+    return;
+  }
   const waves = game.level.waves;
   const lastT = waves[waves.length - 1].t;
   const ratio = clamp01(Math.max(game.time / lastT, game.waveIndex / game.waveTotal));
@@ -674,6 +703,7 @@ function drawMenu(ctx, game, t) {
 
   drawLevelsMenuButton(ctx, game);
   drawAlmanacMenuButton(ctx, game);
+  drawTutorialMenuButton(ctx, game);
 
   if (game.confirmNew) {
     drawConfirm(ctx, '新开一局？', '选择关卡后开始，会覆盖上次对局的存档');
@@ -775,6 +805,238 @@ function drawAlmanacMenuButton(ctx, game) {
   ctx.fillText('B', b.x + b.w - 10, b.y + 21);
 }
 
+function drawTutorialMenuButton(ctx, game) {
+  const b = BTN.tutorialMenu;
+  const hover = inRect(game.mouse.x, game.mouse.y, b);
+  drawCornerButtonBase(ctx, b, hover);
+
+  const x = b.x + 14;
+  const y = b.y + 11;
+  ctx.strokeStyle = '#e2c07a';
+  ctx.lineWidth = 1.3;
+  rr(ctx, x, y, 15, 20, 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 3, y + 6);
+  ctx.lineTo(x + 12, y + 6);
+  ctx.moveTo(x + 3, y + 11);
+  ctx.lineTo(x + 12, y + 11);
+  ctx.moveTo(x + 3, y + 16);
+  ctx.lineTo(x + 9, y + 16);
+  ctx.stroke();
+  ctx.fillStyle = '#c8402f';
+  ctx.beginPath();
+  ctx.arc(x + 20, y + 26, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f3dca6';
+  ctx.font = '700 8px ' + KAI;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('学', x + 20, y + 26.5);
+
+  ctx.fillStyle = '#f0dfb8';
+  ctx.font = `700 14px ${KAI}`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('新手教程', b.x + 38, b.y + 21);
+  ctx.fillStyle = 'rgba(232,211,162,0.45)';
+  ctx.font = `400 10px ${KAI}`;
+  ctx.textAlign = 'right';
+  ctx.fillText('入门', b.x + b.w - 9, b.y + 21);
+}
+
+function drawTutorial(ctx, game, t) {
+  const tut = game.tutorial;
+  if (!tut) return;
+  const pulse = 0.5 + Math.sin(t * 4.2) * 0.5;
+
+  if (tut.step === 'collect' && tut.orb) {
+    const o = tut.orb;
+    ctx.save();
+    ctx.strokeStyle = `rgba(255,224,150,${0.55 + pulse * 0.35})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.lineDashOffset = -t * 22;
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, 26 + pulse * 4, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    tutorialTag(ctx, '点这里', o.x, o.y - 40);
+  }
+
+  if (tut.step === 'plant') {
+    const cr = cardRect(0, game.cards.length);
+    ctx.save();
+    ctx.strokeStyle = `rgba(244,209,138,${0.5 + pulse * 0.4})`;
+    ctx.lineWidth = 2.2;
+    ctx.setLineDash([6, 5]);
+    ctx.lineDashOffset = -t * 18;
+    rr(ctx, cr.x - 3, cr.y - 3, cr.w + 6, cr.h + 6, 12);
+    ctx.stroke();
+    ctx.restore();
+    tutorialTag(ctx, '选牌子', cr.x + cr.w / 2, cr.y + cr.h + 17);
+
+    const cell = cellCenter(4, 2);
+    const cx = cell.x - BOARD.cw / 2 + 3;
+    const cy = cell.y - BOARD.ch / 2 + 3;
+    const cw = BOARD.cw - 6;
+    const ch = BOARD.ch - 6;
+    ctx.save();
+    ctx.fillStyle = 'rgba(244,209,138,0.08)';
+    rr(ctx, cx, cy, cw, ch, 8);
+    ctx.fill();
+    ctx.strokeStyle = `rgba(244,209,138,${0.5 + pulse * 0.4})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 5]);
+    ctx.lineDashOffset = -t * 18;
+    rr(ctx, cx, cy, cw, ch, 8);
+    ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha = 0.24;
+    drawPlant(ctx, 'shooter', cell.x, cell.y, t, { noShadow: true });
+    ctx.restore();
+    tutorialTag(ctx, '种这里', cell.x, cell.y - 60);
+  }
+
+  if (tut.step === 'upgrade') {
+    const p = tut.shooter;
+    if (p && !p.dead) {
+      ctx.save();
+      ctx.strokeStyle = `rgba(244,209,138,${0.55 + pulse * 0.35})`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
+      ctx.lineDashOffset = -t * 18;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y - 18, 38 + pulse * 3, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      if (game.menu && game.menu.plant === p) {
+        const fan = getFan(p);
+        if (fan) {
+          for (const petal of fan.petals) {
+            ctx.save();
+            ctx.strokeStyle = `rgba(244,209,138,${0.45 + pulse * 0.35})`;
+            ctx.lineWidth = 1.8;
+            ctx.setLineDash([5, 4]);
+            ctx.lineDashOffset = -t * 16;
+            rr(ctx, petal.x - petal.w / 2 - 2, petal.y - petal.h / 2 - 2, petal.w + 4, petal.h + 4, 10);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+      } else {
+        tutorialTag(ctx, '点它升阶', p.x, Math.max(192, p.y - 68));
+      }
+    }
+  }
+
+  if ((tut.step === 'battle' || tut.step === 'finishing') && tut.zombie && !tut.zombie.dead) {
+    const z = tut.zombie;
+    ctx.save();
+    ctx.strokeStyle = `rgba(220,96,72,${0.45 + pulse * 0.3})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.lineDashOffset = -t * 18;
+    ctx.beginPath();
+    ctx.arc(z.x, z.y - 16, 34 + pulse * 3, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    tutorialTag(ctx, '看签筒', z.x, Math.max(192, z.y - 96));
+  }
+
+  const info = {
+    collect: ['第一步 · 收香火', '点一下红灯笼吐出的香火。香火是夜市里的钱。'],
+    plant: ['第二步 · 种植物', '先点签筒牌子，再点发光的格子把它种下。'],
+    upgrade: ['第三步 · 升阶', '点一下签筒，再从三条路里选一条，花 75 香火升阶。'],
+    battle: ['第三步 · 守住', '恶客来了。签筒会自己出手，等它倒下。'],
+    finishing: ['第三步 · 守住', '打得好。收摊，回封面。']
+  }[tut.step] || ['新手教程', '跟着提示走。'];
+  const idx = { collect: 0, plant: 1, upgrade: 2, battle: 2, finishing: 2 }[tut.step] ?? 0;
+  const p = TUTORIAL_UI.panel;
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 5;
+  const g = ctx.createLinearGradient(0, p.y, 0, p.y + p.h);
+  g.addColorStop(0, 'rgba(17,25,42,0.94)');
+  g.addColorStop(1, 'rgba(8,13,24,0.94)');
+  ctx.fillStyle = g;
+  rr(ctx, p.x, p.y, p.w, p.h, 12);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(226,192,122,0.5)';
+  ctx.lineWidth = 1.2;
+  rr(ctx, p.x, p.y, p.w, p.h, 12);
+  ctx.stroke();
+
+  ctx.fillStyle = '#c8402f';
+  rr(ctx, p.x + 1, p.y + 10, 3, p.h - 20, 2);
+  ctx.fill();
+  ctx.fillStyle = '#c8402f';
+  ctx.beginPath();
+  ctx.arc(p.x + 32, p.y + p.h / 2, 17, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(243,220,166,0.8)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#f8e8c2';
+  ctx.font = `700 17px ${DISPLAY}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(String(idx + 1), p.x + 32, p.y + p.h / 2 + 1);
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#f3dca6';
+  ctx.font = `700 15px ${KAI}`;
+  ctx.fillText(info[0], p.x + 58, p.y + 19);
+  ctx.fillStyle = 'rgba(238,222,190,0.8)';
+  ctx.font = `400 12.5px ${KAI}`;
+  ctx.fillText(info[1], p.x + 58, p.y + 39);
+
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.arc(p.x + p.w - 154 + i * 13, p.y + p.h / 2, 3.2, 0, Math.PI * 2);
+    ctx.fillStyle = i < idx ? 'rgba(244,209,138,0.85)' : i === idx ? '#f6d98d' : 'rgba(244,209,138,0.22)';
+    ctx.fill();
+  }
+
+  const s = TUTORIAL_UI.skip;
+  const hover = inRect(game.mouse.x, game.mouse.y, s);
+  ctx.fillStyle = hover ? 'rgba(244,209,138,0.14)' : 'rgba(255,255,255,0.04)';
+  rr(ctx, s.x, s.y, s.w, s.h, 8);
+  ctx.fill();
+  ctx.strokeStyle = hover ? 'rgba(244,209,138,0.7)' : 'rgba(226,192,122,0.28)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = hover ? '#f6d98d' : 'rgba(232,211,162,0.68)';
+  ctx.font = `400 11px ${KAI}`;
+  ctx.textAlign = 'center';
+  ctx.fillText('退出教程', s.x + s.w / 2, s.y + s.h / 2 + 1);
+}
+
+function tutorialTag(ctx, text, x, y, color = '#f6d98d') {
+  ctx.save();
+  ctx.font = `700 12px ${KAI}`;
+  const w = ctx.measureText(text).width + 18;
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur = 8;
+  ctx.fillStyle = 'rgba(10,14,24,0.9)';
+  rr(ctx, x - w / 2, y - 11, w, 22, 8);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = 'rgba(244,209,138,0.5)';
+  ctx.lineWidth = 1;
+  rr(ctx, x - w / 2, y - 11, w, 22, 8);
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y + 0.5);
+  ctx.restore();
+}
+
 function drawGlassPanel(ctx, r, radius = 16) {
   ctx.save();
   ctx.shadowColor = 'rgba(0,0,0,0.5)';
@@ -833,25 +1095,50 @@ function drawOverlay(ctx, game) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
+  if (game.phase === 'won' && game.tutorial && game.tutorial.step === 'done') {
+    ctx.font = `700 44px ${DISPLAY}`;
+    ctx.fillStyle = '#f2d79b';
+    ctx.fillText('第一课 · 收摊', 640, 348);
+    ctx.font = `400 16px ${KAI}`;
+    ctx.fillStyle = 'rgba(235,218,184,0.72)';
+    ctx.fillText('香火收了，签筒种下，也升了阶。', 640, 398);
+    ctx.fillStyle = 'rgba(240,220,180,0.55)';
+    ctx.font = `400 14px ${KAI}`;
+    ctx.fillText('十夜还长，慢慢守。', 640, 430);
+    drawButton(ctx, BTN.overlay, '再练一次', true);
+    drawButton(ctx, BTN.toMenu, '回封面', false);
+    return;
+  }
+
   if (game.phase === 'paused') {
     ctx.font = `700 46px ${DISPLAY}`;
     ctx.fillStyle = '#efe0bd';
     ctx.fillText('暂歇', 640, 298);
     ctx.font = `400 16px ${KAI}`;
     ctx.fillStyle = 'rgba(235,218,184,0.6)';
-    ctx.fillText(`${game.level.name} · ${difficultyLabel(game.runDifficulty)} · 本局锁定`, 640, 338);
+    ctx.fillText(
+      game.tutorial ? '新手教程 · 第一课 · 随时可退' : `${game.level.name} · ${difficultyLabel(game.runDifficulty)} · 本局锁定`,
+      640, 338
+    );
 
     drawButton(ctx, BTN.resume, '继续守夜', true);
     drawButton(ctx, BTN.pauseSettings, '设置', false);
-    drawButton(ctx, BTN.restart, '重新开张', false);
+    drawButton(ctx, BTN.restart, game.tutorial ? '从头再学' : '重新开张', false);
     drawButton(ctx, BTN.backMenu, '回封面', false);
     drawButton(ctx, BTN.pauseAlmanac, '图鉴', false);
 
     ctx.font = `400 11px ${KAI}`;
     ctx.fillStyle = 'rgba(235,218,184,0.4)';
-    ctx.fillText('难度与作弊仅能在封面调整 · 对局自动存档', 640, 578);
+    ctx.fillText(
+      game.tutorial ? '教程不写入存档 · 退出不会覆盖已有对局' : '难度与作弊仅能在封面调整 · 对局自动存档',
+      640, 578
+    );
     if (game.confirmBack) {
-      drawConfirm(ctx, '回到封面？', '本局会自动存档，可从封面继续');
+      drawConfirm(
+        ctx,
+        game.tutorial ? '退出教程？' : '回到封面？',
+        game.tutorial ? '教程进度不会保存，已有对局不受影响' : '本局会自动存档，可从封面继续'
+      );
     }
     return;
   }
@@ -1003,48 +1290,48 @@ function drawPrepRosterCard(ctx, game, i, def, t) {
   ctx.restore();
 
   const cx = r.x + r.w / 2;
-  const cy = r.y + 50;
-  const glow = ctx.createRadialGradient(cx, cy, 3, cx, cy, 30);
+  const cy = r.y + 38;
+  const glow = ctx.createRadialGradient(cx, cy, 3, cx, cy, 24);
   glow.addColorStop(0, def.tint + '32');
   glow.addColorStop(1, def.tint + '00');
   ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 24, 0, Math.PI * 2);
   ctx.fill();
-  drawPlant(ctx, def.id, cx, cy, t, { scale: 0.56, noShadow: true });
+  drawPlant(ctx, def.id, cx, cy, t, { scale: 0.34, noShadow: true });
 
   ctx.fillStyle = 'rgba(36,24,16,0.9)';
-  rr(ctx, r.x + 6, r.y + 6, 40, 17, 8);
+  rr(ctx, r.x + 5, r.y + 4, 34, 14, 7);
   ctx.fill();
   ctx.fillStyle = '#ffd98a';
   ctx.beginPath();
-  ctx.arc(r.x + 13, r.y + 14.5, 3, 0, Math.PI * 2);
+  ctx.arc(r.x + 11, r.y + 11, 2.5, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = '#f7e7c6';
-  ctx.font = `700 11px ${KAI}`;
+  ctx.font = `700 10px ${KAI}`;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText(String(def.cost), r.x + 19, r.y + 15);
+  ctx.fillText(String(def.cost), r.x + 16, r.y + 11.5);
 
   if (selected) {
     ctx.fillStyle = 'rgba(247,210,134,0.95)';
     ctx.beginPath();
-    ctx.arc(r.x + r.w - 12, r.y + 13, 8, 0, Math.PI * 2);
+    ctx.arc(r.x + r.w - 10, r.y + 11, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#402a18';
-    ctx.lineWidth = 1.6;
+    ctx.lineWidth = 1.4;
     ctx.beginPath();
-    ctx.moveTo(r.x + r.w - 16, r.y + 13);
-    ctx.lineTo(r.x + r.w - 13, r.y + 16);
-    ctx.lineTo(r.x + r.w - 8, r.y + 9);
+    ctx.moveTo(r.x + r.w - 13, r.y + 11);
+    ctx.lineTo(r.x + r.w - 10, r.y + 14);
+    ctx.lineTo(r.x + r.w - 6, r.y + 8);
     ctx.stroke();
   }
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = selected ? '#f6e4bd' : 'rgba(236,216,178,0.66)';
-  ctx.font = `700 11.5px ${KAI}`;
-  ctx.fillText(def.role, cx, r.y + 91);
+  ctx.font = `700 10px ${KAI}`;
+  ctx.fillText(def.role, cx, r.y + 68);
 }
 
 function drawPrepSlot(ctx, game, i, t) {
@@ -1497,7 +1784,7 @@ function drawPrep(ctx, game, t) {
   ctx.fillStyle = 'rgba(232,211,162,0.45)';
   ctx.font = `400 10.5px ${KAI}`;
   ctx.textAlign = 'right';
-  ctx.fillText('左键加入/移出 · 右键查图鉴', 986, 248);
+  ctx.fillText('左键加入/移出 · 右键查图鉴', 864, 248);
   ctx.textAlign = 'left';
   for (let i = 0; i < PLANT_ORDER.length; i++) {
     drawPrepRosterCard(ctx, game, i, PLANT_TYPES[PLANT_ORDER[i]], t);
@@ -1510,12 +1797,12 @@ function drawPrep(ctx, game, t) {
   ctx.font = `700 15px ${KAI}`;
   ctx.fillText(
     noPlants ? '出战栏 0/10 · 至少带 1 株' : `出战栏 ${prep.selected.length}/${10}`,
-    294, 404
+    294, 442
   );
   ctx.fillStyle = 'rgba(232,211,162,0.45)';
   ctx.font = `400 10.5px ${KAI}`;
   ctx.textAlign = 'right';
-  ctx.fillText('点击已选植物可移除', 986, 404);
+  ctx.fillText('点击已选植物可移除', 986, 442);
   ctx.textAlign = 'left';
   for (let i = 0; i < 10; i++) {
     drawPrepSlot(ctx, game, i, t);

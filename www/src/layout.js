@@ -24,6 +24,7 @@ export const BTN = {
   confirmYes: { x: 470, y: 404, w: 160, h: 44 },
   confirmNo: { x: 650, y: 404, w: 160, h: 44 },
   pauseAlmanac: { x: 540, y: 510, w: 200, h: 44 },
+  tutorialMenu: { x: 780, y: 60, w: 140, h: 42 },
   almanacMenu: { x: 1090, y: 60, w: 130, h: 42 },
   levelsMenu: { x: 940, y: 60, w: 130, h: 42 },
   pause: { x: 1176, y: 52, w: 52, h: 52 },
@@ -169,18 +170,21 @@ export const ALMANAC = {
     { key: 'plant', label: '草木志', rect: { x: 120, y: 112, w: 104, h: 34 } },
     { key: 'zombie', label: '恶客录', rect: { x: 232, y: 112, w: 104, h: 34 } }
   ],
-  list: { x: 112, y: 166, w: 232, rowH: 48, gap: 4 },
+  list: { x: 112, y: 166, w: 232, rowH: 36, gap: 4, cols: 2, colW: 110, gapX: 6 },
   right: { x: 374, y: 92, w: 796, h: 566 },
   content: { x: 398, y: 196, w: 700, h: 444 },
   scrollbar: { x: 1112, y: 196, w: 10, h: 444 }
 };
 
 export function almanacEntryRect(i) {
+  const list = ALMANAC.list;
+  const col = i % list.cols;
+  const row = Math.floor(i / list.cols);
   return {
-    x: ALMANAC.list.x,
-    y: ALMANAC.list.y + i * (ALMANAC.list.rowH + ALMANAC.list.gap),
-    w: ALMANAC.list.w,
-    h: ALMANAC.list.rowH
+    x: list.x + col * (list.colW + list.gapX),
+    y: list.y + row * (list.rowH + list.gap),
+    w: list.colW,
+    h: list.rowH
   };
 }
 
@@ -210,14 +214,19 @@ export const PREP_CINEMA = {
   fadeStart: 5.05
 };
 
+export const TUTORIAL_UI = {
+  panel: { x: 238, y: 646, w: 792, h: 56 },
+  skip: { x: 946, y: 654, w: 74, h: 40 }
+};
+
 export const PREP = {
   panel: { x: 70, y: 34, w: 1140, h: 652 },
   back: { x: 462, y: 606, w: 150, h: 46 },
   confirm: { x: 636, y: 606, w: 182, h: 46 },
   threatBar: { x: 104, y: 150, w: 300, h: 12 },
-  roster: { x: 294, y: 270, cols: 8, cardW: 78, cardH: 104, gap: 10 },
-  slots: { x: 294, y: 430, cols: 10, cardW: 62, cardH: 86, gap: 8 },
-  zombies: { x: 700, y: 148, cols: 6, cellW: 68, cellH: 90, gap: 14 },
+  roster: { x: 294, y: 266, cols: 8, rows: 2, cardW: 66, cardH: 78, gap: 6, gapY: 4 },
+  slots: { x: 294, y: 458, cols: 10, cardW: 62, cardH: 86, gap: 8 },
+  zombies: { x: 872, y: 148, cols: 4, rows: 3, cellW: 68, cellH: 86, gap: 14, gapY: 4 },
   warning: { x: 390, y: 196, w: 500, h: 280 },
   warningYes: { x: 418, y: 402, w: 200, h: 46 },
   warningNo: { x: 662, y: 402, w: 200, h: 46 },
@@ -226,9 +235,11 @@ export const PREP = {
 
 export function prepRosterRect(i) {
   const g = PREP.roster;
+  const col = i % g.cols;
+  const row = Math.floor(i / g.cols);
   return {
-    x: g.x + i * (g.cardW + g.gap),
-    y: g.y,
+    x: g.x + col * (g.cardW + g.gap),
+    y: g.y + row * (g.cardH + g.gapY),
     w: g.cardW,
     h: g.cardH
   };
@@ -246,9 +257,11 @@ export function prepSlotRect(i) {
 
 export function prepZombieRect(i) {
   const g = PREP.zombies;
+  const col = i % g.cols;
+  const row = Math.floor(i / g.cols);
   return {
-    x: g.x + i * (g.cellW + g.gap),
-    y: g.y,
+    x: g.x + col * (g.cellW + g.gap),
+    y: g.y + row * (g.cellH + g.gapY),
     w: g.cellW,
     h: g.cellH
   };

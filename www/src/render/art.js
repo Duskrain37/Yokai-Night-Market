@@ -1,5 +1,8 @@
 import { assets } from '../core/assets.js';
 import { PLANT_TYPES, ZOMBIE_TYPES } from '../content.js';
+import {
+  drawShell, drawShellFront, shellPlant, catPlant, lobberPlant, torchPlant, starPlant, needlePlant, judgePlant, drawNewZombie
+} from './newart.js';
 
 function rr(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -22,13 +25,16 @@ export function drawPlant(ctx, type, x, y, t, opt = {}) {
   }
   const bobAmp = {
     lantern: 3.2, shooter: 1.4, wall: 0.45, bomb: 0.7,
-    bell: 0.7, censer: 1.1, umbrella: 1.3, lion: 1.0, mushroom: 0.5
+    bell: 0.7, censer: 1.1, umbrella: 1.3, lion: 1.0, mushroom: 0.5,
+    cat: 1.6, lobber: 1.0, torch: 0.8, star: 1.5, needle: 0.6, judge: 0.8
   }[type] ?? 2;
   const bobSpeed = {
     lantern: 1.55, shooter: 2.4, wall: 0.95, bomb: 3.1,
-    bell: 1.15, censer: 1.5, umbrella: 1.8, lion: 1.3, mushroom: 0.9
+    bell: 1.15, censer: 1.5, umbrella: 1.8, lion: 1.3, mushroom: 0.9,
+    cat: 1.9, lobber: 1.6, torch: 2.2, star: 1.3, needle: 1.7, judge: 1.0
   }[type] ?? 2.2;
   const bob = Math.sin(t * bobSpeed + phase) * bobAmp;
+  if (opt.shell) drawShell(ctx, opt.shell, t);
   if (type === 'censer') drawCenserGlow(ctx, t);
   const sprite = assets.plants[type];
   if (sprite) {
@@ -44,6 +50,14 @@ export function drawPlant(ctx, type, x, y, t, opt = {}) {
   else if (type === 'umbrella') umbrellaPlant(ctx, t, bob, opt);
   else if (type === 'lion') lionPlant(ctx, t, bob, opt);
   else if (type === 'mushroom') mushroomPlant(ctx, t, bob, opt);
+  else if (type === 'shell') shellPlant(ctx, t, bob);
+  else if (type === 'cat') catPlant(ctx, t, bob, opt);
+  else if (type === 'lobber') lobberPlant(ctx, t, bob, opt);
+  else if (type === 'torch') torchPlant(ctx, t, bob, opt);
+  else if (type === 'star') starPlant(ctx, t, bob, opt);
+  else if (type === 'needle') needlePlant(ctx, t, bob, opt);
+  else if (type === 'judge') judgePlant(ctx, t, bob, opt);
+  if (opt.shell) drawShellFront(ctx, opt.shell, t);
   drawPlantAura(ctx, t, opt);
   ctx.restore();
 }
@@ -1128,6 +1142,42 @@ const DAMAGE_ZONES = {
     chunks: [[0.13, 0.55, 0.06], [0.88, 0.6, 0.06]],
     holes: null,
     tear: [0.36, 0.44, 0.6, 0.66]
+  },
+  straw: {
+    stains: [[0.38, 0.6, 0.075], [0.66, 0.62, 0.06]],
+    scratches: [[0.24, 0.4, 0.36, 0.62], [0.66, 0.42, 0.78, 0.64]],
+    chunks: [[0.12, 0.62, 0.065], [0.9, 0.66, 0.055]],
+    holes: [[0.4, 0.68, 0.1], [0.67, 0.7, 0.08]]
+  },
+  stonehat: {
+    stains: [[0.34, 0.58, 0.08], [0.68, 0.6, 0.07]],
+    scratches: [[0.2, 0.4, 0.34, 0.62], [0.65, 0.38, 0.8, 0.62]],
+    chunks: [[0.1, 0.58, 0.07], [0.9, 0.62, 0.06]],
+    holes: [[0.38, 0.66, 0.1], [0.68, 0.7, 0.08]]
+  },
+  bucket: {
+    stains: [[0.4, 0.56, 0.075], [0.64, 0.64, 0.065]],
+    scratches: [[0.24, 0.4, 0.36, 0.62], [0.64, 0.4, 0.78, 0.62]],
+    chunks: [[0.12, 0.56, 0.065], [0.89, 0.6, 0.06]],
+    holes: [[0.42, 0.68, 0.1], [0.66, 0.7, 0.08]]
+  },
+  vault: {
+    stains: [[0.36, 0.62, 0.075], [0.66, 0.6, 0.06]],
+    scratches: [[0.22, 0.42, 0.34, 0.64], [0.66, 0.4, 0.78, 0.64]],
+    chunks: [[0.1, 0.64, 0.06], [0.9, 0.68, 0.055]],
+    holes: [[0.4, 0.7, 0.09], [0.66, 0.72, 0.075]]
+  },
+  artisan: {
+    stains: [[0.36, 0.54, 0.075], [0.64, 0.6, 0.065]],
+    scratches: [[0.26, 0.38, 0.38, 0.6], [0.62, 0.4, 0.76, 0.62]],
+    chunks: [[0.12, 0.6, 0.07], [0.88, 0.62, 0.06]],
+    holes: [[0.4, 0.64, 0.095], [0.66, 0.68, 0.08]]
+  },
+  ironjudge: {
+    stains: [[0.32, 0.56, 0.085], [0.68, 0.6, 0.075]],
+    scratches: [[0.2, 0.36, 0.34, 0.6], [0.66, 0.38, 0.8, 0.62]],
+    chunks: [[0.1, 0.56, 0.075], [0.9, 0.6, 0.065]],
+    holes: [[0.36, 0.66, 0.105], [0.68, 0.7, 0.085]]
   }
 };
 
@@ -1161,6 +1211,36 @@ const ZOMBIE_MOTION = {
     cls: 'heavy', stride: 2.2, bob: 2.3, sway: 0.045, baseRot: 0,
     dust: 1.5, dustColor: '192,168,136', chompSpeed: 7,
     chompLean: 0.03, chompAmp: 0.022, chompBob: 2.0, stomp: true
+  },
+  straw: {
+    cls: 'small', stride: 5.2, bob: 2.4, sway: 0.06, baseRot: 0.01,
+    dust: 0.8, dustColor: '198,176,128', chompSpeed: 11,
+    chompLean: 0.045, chompAmp: 0.02, chompBob: 0.9
+  },
+  stonehat: {
+    cls: 'special', stride: 3.4, bob: 1.6, sway: 0.035, baseRot: 0.02,
+    dust: 1.2, dustColor: '176,172,160', chompSpeed: 8,
+    chompLean: 0.04, chompAmp: 0.018, chompBob: 1.0
+  },
+  bucket: {
+    cls: 'heavy', stride: 2.8, bob: 1.4, sway: 0.03, baseRot: 0.01,
+    dust: 1.4, dustColor: '160,164,166', chompSpeed: 7,
+    chompLean: 0.035, chompAmp: 0.02, chompBob: 1.2, stomp: true
+  },
+  vault: {
+    cls: 'ultra', stride: 9.0, bob: 2.2, sway: 0.1, baseRot: 0.03,
+    dust: 0.7, dustColor: '198,170,120', chompSpeed: 14,
+    chompLean: 0.07, chompAmp: 0.025, chompBob: 1.3, scuttle: true
+  },
+  artisan: {
+    cls: 'special', stride: 2.8, bob: 1.0, sway: 0.025, baseRot: 0,
+    dust: 0.4, dustColor: '206,192,160', chompSpeed: 6,
+    chompLean: 0.025, chompAmp: 0.015, chompBob: 0.8, glide: true
+  },
+  ironjudge: {
+    cls: 'heavy', stride: 1.8, bob: 2.0, sway: 0.04, baseRot: 0,
+    dust: 1.8, dustColor: '160,158,150', chompSpeed: 5.6,
+    chompLean: 0.05, chompAmp: 0.025, chompBob: 2.0, stomp: true
   }
 };
 
@@ -1301,8 +1381,12 @@ function damagedZombieSprite(type, img, stage) {
 function zombieDamageStage(opt) {
   const hpFig = Math.max(0, Math.min(1, opt.hpRatio ?? 1));
   let stage = hpFig > 0.62 ? 0 : hpFig > 0.3 ? 1 : 2;
-  if ((opt.shellRatio ?? 1) < 0.35) stage = Math.max(stage, 1);
-  if (opt.shellBroken) stage = Math.max(stage, 2);
+  const armorNow = opt.armor ?? opt.def?.armor ?? 0;
+  const armorMax = opt.maxArmor ?? opt.def?.armor ?? 0;
+  if (armorMax > 0 && ((opt.armorRatio ?? 1) < 0.35 || armorNow <= 0)) {
+    stage = Math.max(stage, 1);
+  }
+  if (armorMax > 0 && armorNow <= 0) stage = Math.max(stage, 2);
   return stage;
 }
 
@@ -1477,8 +1561,17 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   const phase = opt.phase ?? 0;
   const def = opt.def ?? ZOMBIE_TYPES[type];
   const baseH = def?.spriteH ?? 96;
-  const motion = zombieMotion(type, t, phase, opt);
   const sprite = assets.zombies[type];
+  const death = Math.max(0, Math.min(1, opt.death || 0));
+  if (death > 0) {
+    drawZombieDeath(ctx, type, x, y, t, opt, def, baseH, sprite, death);
+    return;
+  }
+  const motion = zombieMotion(type, t, phase, opt);
+  if (opt.vaultArc) {
+    motion.dy -= opt.vaultArc * 58;
+    motion.rot -= opt.vaultArc * 0.18;
+  }
   const chomp = opt.eating ? Math.sin(t * 10 + phase) * 2.4 : 0;
 
   ctx.save();
@@ -1516,12 +1609,309 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   else if (type === 'mountain') mountainZombie(ctx, chomp);
   else if (type === 'tongue') tongueZombie(ctx, chomp);
   else if (type === 'mourner') mournerZombie(ctx, chomp, t);
-  else sedanZombie(ctx, chomp, opt);
+  else if (type === 'sedan') sedanZombie(ctx, chomp, opt);
+  else drawNewZombie(ctx, type, chomp, opt);
 
+  drawZombieArmor(ctx, type, opt, baseH);
   ctx.restore();
   if (type === 'mountain') drawZombieFrontDust(ctx, motion);
   if (motion.stage === 2) drawZombieDamageWisps(ctx, t, baseH);
   drawZombieStatus(ctx, t, opt, baseH);
+  ctx.restore();
+}
+
+function drawZombieArmor(ctx, type, opt, baseH) {
+  const armor = opt.armor ?? (ZOMBIE_TYPES[type]?.armor || 0);
+  const max = opt.maxArmor ?? (ZOMBIE_TYPES[type]?.armor || 0);
+  if (armor <= 0 || max <= 0) return;
+  const armorType = opt.armorType || ZOMBIE_TYPES[type]?.armorType;
+  if (!armorType || armorType === 'paper' || armorType === 'sedan') return;
+  const ratio = Math.max(0, Math.min(1, armor / max));
+  const headFactor = armorType === 'straw' || armorType === 'charm'
+    ? 0.8
+    : armorType === 'mask' ? 0.84 : 0.9;
+  const headY = 34 - baseH * headFactor;
+  const death = Math.max(0, Math.min(1, opt.death || 0));
+  ctx.save();
+  if (death > 0) {
+    if (armorType === 'straw') {
+      ctx.translate(-death * 16, death * 26);
+      ctx.rotate(death * 1.1);
+    } else if (armorType === 'stonehat') {
+      ctx.translate(0, death * 22);
+      ctx.rotate(death * 0.25);
+    } else if (armorType === 'urn') {
+      ctx.translate(death * 20, death * 14);
+      ctx.rotate(death * 1.5);
+    } else if (armorType === 'bucket') {
+      ctx.translate(death * 18, death * 12);
+      ctx.rotate(death * 1.8);
+    } else if (armorType === 'mask') {
+      ctx.translate(0, death * 12);
+      ctx.rotate(death * 0.15);
+    } else if (armorType === 'charm') {
+      ctx.globalAlpha = 1 - death;
+    }
+  }
+  if (armorType === 'straw') {
+    ctx.fillStyle = ratio > 0.35 ? '#c9a45e' : '#a8824a';
+    ctx.strokeStyle = '#6d4c28';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-15, headY + 7);
+    ctx.lineTo(15, headY + 7);
+    ctx.lineTo(7, headY - 7);
+    ctx.lineTo(-7, headY - 7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(110,76,40,0.55)';
+    ctx.lineWidth = 1;
+    for (let i = -1; i <= 1; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * 5, headY - 6);
+      ctx.lineTo(i * 7, headY + 6);
+      ctx.stroke();
+    }
+  } else if (armorType === 'stonehat') {
+    ctx.fillStyle = ratio > 0.35 ? '#a8a69a' : '#7c7a70';
+    ctx.strokeStyle = '#5f5d55';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(-14, headY + 8);
+    ctx.lineTo(-7, headY - 10);
+    ctx.lineTo(7, headY - 10);
+    ctx.lineTo(14, headY + 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(80,78,70,0.5)';
+    ctx.beginPath();
+    ctx.moveTo(-9, headY + 1);
+    ctx.lineTo(9, headY + 1);
+    ctx.stroke();
+  } else if (armorType === 'urn') {
+    const clay = ctx.createLinearGradient(-14, 0, 14, 0);
+    clay.addColorStop(0, '#8b5a38');
+    clay.addColorStop(0.5, ratio > 0.35 ? '#b07a4e' : '#8d603f');
+    clay.addColorStop(1, '#6f462e');
+    ctx.fillStyle = clay;
+    ctx.strokeStyle = '#4d2e1f';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(-13, headY - 12);
+    ctx.quadraticCurveTo(-16, headY + 2, -15, headY + 12);
+    ctx.lineTo(15, headY + 12);
+    ctx.quadraticCurveTo(16, headY + 2, 13, headY - 12);
+    ctx.quadraticCurveTo(6, headY - 17, 0, headY - 16);
+    ctx.quadraticCurveTo(-6, headY - 17, -13, headY - 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(230,200,160,0.35)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(-14, headY + 8);
+    ctx.lineTo(14, headY + 8);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(55,32,20,0.75)';
+    ctx.beginPath();
+    ctx.moveTo(-7, headY - 10);
+    ctx.lineTo(-3, headY - 2);
+    ctx.lineTo(-8, headY + 5);
+    ctx.moveTo(8, headY - 6);
+    ctx.lineTo(4, headY + 2);
+    ctx.lineTo(9, headY + 9);
+    ctx.stroke();
+  } else if (armorType === 'bucket') {
+    ctx.fillStyle = ratio > 0.35 ? '#8f999b' : '#6c7476';
+    ctx.strokeStyle = '#4f585a';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(-14, headY + 9);
+    ctx.lineTo(-11, headY - 13);
+    ctx.lineTo(11, headY - 13);
+    ctx.lineTo(14, headY + 9);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(220,230,230,0.35)';
+    ctx.beginPath();
+    ctx.moveTo(-12, headY - 1);
+    ctx.lineTo(12, headY - 1);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(60,66,68,0.6)';
+    ctx.beginPath();
+    ctx.moveTo(-13, headY + 6);
+    ctx.lineTo(13, headY + 6);
+    ctx.stroke();
+  } else if (armorType === 'mask') {
+    const iron = ctx.createLinearGradient(0, headY - 16, 0, headY + 20);
+    iron.addColorStop(0, '#5e636a');
+    iron.addColorStop(0.55, ratio > 0.35 ? '#3c4046' : '#303338');
+    iron.addColorStop(1, '#232629');
+    ctx.fillStyle = '#2b2e32';
+    ctx.strokeStyle = '#4a4e52';
+    ctx.lineWidth = 1.4;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(side * 13, headY - 8);
+      ctx.quadraticCurveTo(side * 22, headY - 15, side * 19, headY - 24);
+      ctx.quadraticCurveTo(side * 12, headY - 19, side * 8, headY - 12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = iron;
+    ctx.strokeStyle = ratio > 0.35 ? '#c9a35a' : '#7c6436';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-13, headY - 10);
+    ctx.quadraticCurveTo(0, headY - 17, 13, headY - 10);
+    ctx.lineTo(12, headY + 6);
+    ctx.quadraticCurveTo(9, headY + 16, 0, headY + 21);
+    ctx.quadraticCurveTo(-9, headY + 16, -12, headY + 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(201,163,90,0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-10, headY - 5);
+    ctx.lineTo(-2, headY - 2);
+    ctx.moveTo(10, headY - 5);
+    ctx.lineTo(2, headY - 2);
+    ctx.stroke();
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,150,50,0.9)';
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = '#ffb347';
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(side * 9, headY + 1);
+      ctx.lineTo(side * 3.5, headY + 3.2);
+      ctx.lineTo(side * 4.5, headY + 5.6);
+      ctx.lineTo(side * 9.5, headY + 3.6);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(20,22,24,0.7)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(0, headY + 3);
+    ctx.lineTo(-2.5, headY + 9);
+    ctx.lineTo(2.5, headY + 9);
+    ctx.stroke();
+    ctx.fillStyle = '#151618';
+    ctx.beginPath();
+    ctx.roundRect(-7, headY + 11, 14, 5, 2);
+    ctx.fill();
+    ctx.fillStyle = '#efe6cd';
+    for (let i = 0; i < 3; i++) {
+      const fx = -4.5 + i * 4.5;
+      ctx.beginPath();
+      ctx.moveTo(fx - 1.4, headY + 11);
+      ctx.lineTo(fx, headY + 16);
+      ctx.lineTo(fx + 1.4, headY + 11);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (armorType === 'charm') {
+    ctx.strokeStyle = 'rgba(232,216,166,0.85)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-16 + i * 10, headY + 4);
+      ctx.lineTo(-12 + i * 10, 18);
+      ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(226,204,150,0.8)';
+    ctx.font = '700 9px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('甲', 0, headY + 22);
+  }
+  if (ratio < 0.35) {
+    ctx.strokeStyle = 'rgba(30,24,18,0.7)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-12, headY - 10);
+    ctx.lineTo(-4, headY);
+    ctx.lineTo(-8, headY + 10);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawZombieDeath(ctx, type, x, y, t, opt, def, baseH, sprite, death) {
+  const s = (opt.scale ?? 1) * (def?.scale ?? 1);
+  const style = def?.deathStyle || type;
+  let rot = 0;
+  let dy = 0;
+  let sx = 1;
+  let sy = 1;
+  let alpha = 1;
+  if (style === 'ghost') {
+    dy = -death * 34;
+    alpha = 1 - death;
+    sx = 1 - death * 0.12;
+    sy = 1 - death * 0.18;
+  } else if (style === 'paper' || style === 'artisan') {
+    rot = death * 0.6;
+    sx = 1 + death * 0.18;
+    sy = 1 - death * 0.4;
+    alpha = 1 - death * 0.35;
+    dy = death * 4;
+  } else if (style === 'tongue') {
+    rot = -death * 0.9;
+    dy = death * 8;
+    sy = 1 - death * 0.22;
+  } else if (style === 'mountain' || style === 'sedan' || style === 'ironjudge') {
+    rot = death * 1.28;
+    dy = death * 4;
+    alpha = 1 - Math.max(0, death - 0.8) * 0.8;
+  } else if (style === 'vault') {
+    rot = -death * 1.0;
+    dy = death * 5;
+  } else if (style === 'mourner') {
+    rot = death * 0.35;
+    dy = death * 6;
+    alpha = 1 - death * 0.55;
+  } else {
+    rot = death * 0.95;
+    dy = death * 5;
+    sy = 1 - death * 0.08;
+  }
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s, s);
+  ctx.fillStyle = `rgba(0,0,0,${0.3 * (1 - death * 0.6)})`;
+  ctx.beginPath();
+  ctx.ellipse(0, 32, 27, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  if (def?.large) {
+    ctx.fillStyle = `rgba(170,150,120,${0.22 * death})`;
+    ctx.beginPath();
+    ctx.ellipse(0, 34, 30 + death * 22, 8 + death * 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = alpha;
+  ctx.translate(0, 34);
+  ctx.rotate(rot);
+  ctx.scale(sx, sy);
+  ctx.translate(0, -34 + dy);
+  if (sprite) {
+    const img = damagedZombieSprite(type, sprite, 2);
+    const w = baseH * (img.width / img.height);
+    ctx.drawImage(img, -w / 2, 34 - baseH, w, baseH);
+  } else if (style === 'ghost') ghostZombie(ctx, 0);
+  else if (style === 'paper') paperZombie(ctx, 0, opt);
+  else if (style === 'mountain') mountainZombie(ctx, 0);
+  else if (style === 'tongue') tongueZombie(ctx, 0);
+  else if (style === 'mourner') mournerZombie(ctx, 0, t);
+  else if (style === 'sedan') sedanZombie(ctx, 0, opt);
+  else drawNewZombie(ctx, type, 0, opt);
+  drawZombieArmor(ctx, type, opt, baseH);
   ctx.restore();
 }
 
@@ -1607,6 +1997,33 @@ function drawZombieStatus(ctx, t, opt, baseH) {
       ctx.fill();
       ctx.restore();
     }
+  }
+  if (opt.burnT > 0) {
+    for (let i = 0; i < 3; i++) {
+      const p = (t * 1.6 + i * 0.33) % 1;
+      ctx.globalAlpha = (1 - p) * 0.7;
+      ctx.fillStyle = i % 2 ? '#ffb45e' : '#ff7a3c';
+      ctx.beginPath();
+      ctx.arc(Math.sin(t * 4 + i * 2) * 14, -p * 44 - 4, 2 + p * 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (opt.supportPulse > 0) {
+    const a = opt.supportPulse / 0.85;
+    ctx.strokeStyle = `rgba(236,214,156,${0.55 * a})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 2, 26 + (1 - a) * 30, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  if (opt.armorPulse > 0) {
+    const a = Math.min(1, opt.armorPulse / 0.9);
+    ctx.strokeStyle = `rgba(160,210,190,${0.45 * a})`;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.ellipse(0, 28, 30 + (1 - a) * 18, 8 + (1 - a) * 4, 0, 0, Math.PI * 2);
+    ctx.stroke();
   }
 }
 
@@ -1753,7 +2170,7 @@ function sedanZombie(ctx, chomp, opt) {
   ctx.beginPath();
   ctx.roundRect(-12, -14, 24, 20, 3);
   ctx.fill();
-  const intact = (opt.shell ?? 0) > 0;
+  const intact = (opt.armor ?? 0) > 0;
   if (intact) {
     ctx.fillStyle = '#c9a15c';
     for (const hx of [-20, 20]) {
@@ -1846,7 +2263,7 @@ function ghostZombie(ctx, chomp) {
 }
 
 function paperZombie(ctx, chomp, opt) {
-  const intact = (opt.shell ?? 0) > 0;
+  const intact = (opt.armor ?? 0) > 0;
   if (intact) {
     ctx.fillStyle = '#f1e9d5';
     ctx.strokeStyle = '#191210';

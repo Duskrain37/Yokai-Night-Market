@@ -454,34 +454,43 @@ export class Renderer {
           haste: p.haste || 0,
           chew: p.chewMax > 0 ? Math.max(0, 1 - p.chewT / p.chewMax) : 0,
           armed: !!p.armed,
-          arm: p.def.mine ? Math.min(1, (p.armT || 0) / p.def.mine.arm) : 1
+          arm: p.def.mine ? Math.min(1, (p.armT || 0) / p.def.mine.arm) : 1,
+          shell: p.shell || null
         });
         const dots = upgradeDots(p);
         if (dots.length) this.drawUpgradePips(ctx, p, dots);
+        if (p.shell) this.drawShellBar(ctx, p);
       }
       const zombies = game.zombies.filter((z) => z.row === r).sort((a, b) => a.x - b.x);
       for (const z of zombies) {
         const zx = z.x + (z.hurt > 0 ? Math.sin(t * 80) * 2 : 0);
-        const zTotal = Math.max(0, z.hp + z.shell);
-        const zMax = Math.max(1, z.maxHp || z.def.hp + z.def.shell);
+        const zMax = Math.max(1, z.maxHp || z.def.hp);
         drawZombie(ctx, z.type, zx, z.y, t, {
           phase: z.phase,
           eating: z.eating,
           slowT: z.slowT,
-          shell: z.shell,
-          shellRatio: z.maxShell > 0 ? z.shell / z.maxShell : 1,
-          shellBroken: z.maxShell > 0 && z.shell <= 0,
-          hpRatio: zTotal / zMax,
+          armor: z.armor,
+          maxArmor: z.maxArmor,
+          armorRatio: z.maxArmor > 0 ? z.armor / z.maxArmor : 1,
+          armorType: z.armorType,
+          armorPulse: z.armorPulse,
+          supportPulse: z.supportPulse,
+          burnT: z.burnT,
+          hpRatio: z.hp / zMax,
           hurt: z.hurt,
           stunT: z.stunT,
           rageT: z.rageT,
           auraPulse: z.auraPulse,
+          dying: z.dying,
+          death: z.dying ? Math.min(1, z.deathT / z.deathDur) : 0,
+          deathDur: z.deathDur,
+          vaultArc: z.vaultArc,
           def: z.def
         });
-        if (game.settings.healthBars !== 'off') {
+        if (!z.dying && game.settings.healthBars !== 'off') {
           this.drawHpBar(ctx, z, game.settings.healthBars);
         }
-        if (z.vulnT > 0) {
+        if (!z.dying && z.vulnT > 0) {
           ctx.save();
           ctx.globalAlpha = 0.35 + Math.sin(t * 6 + z.phase) * 0.12;
           ctx.strokeStyle = 'rgba(182,112,190,0.9)';
@@ -498,6 +507,107 @@ export class Renderer {
 
     for (const p of game.projectiles) {
       ctx.save();
+      if (p.homing) {
+        const glow = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 16);
+        glow.addColorStop(0, 'rgba(255,226,160,0.92)');
+        glow.addColorStop(0.45, 'rgba(255,150,70,0.5)');
+        glow.addColorStop(1, 'rgba(255,120,50,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffe6b0';
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, 5, 3.4, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,170,90,0.55)';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(p.x - 12, p.y + 4);
+        ctx.quadraticCurveTo(p.x - 22, p.y - 4, p.x - 28, p.y + 2);
+        ctx.stroke();
+        ctx.restore();
+        continue;
+      }
+      if (p.lob) {
+        const groundY = ROW_Y[p.row] + 30;
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        ctx.beginPath();
+        ctx.ellipse(p.x, groundY, 8, 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        const glow = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 13);
+        glow.addColorStop(0, 'rgba(255,244,214,0.8)');
+        glow.addColorStop(1, 'rgba(230,200,150,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#f4ead2';
+        ctx.strokeStyle = '#b79a6a';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(232,214,170,0.9)';
+        ctx.beginPath();
+        ctx.arc(p.x - 2, p.y - 2, 1.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        continue;
+      }
+      if (p.star) {
+        const glow = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 14);
+        glow.addColorStop(0, 'rgba(255,240,190,0.85)');
+        glow.addColorStop(1, 'rgba(240,190,90,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(t * 6);
+        ctx.fillStyle = '#ffe9a6';
+        ctx.strokeStyle = 'rgba(255,190,90,0.7)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let i = 0; i < 10; i++) {
+          const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+          const r = i % 2 === 0 ? 7 : 3;
+          const px = Math.cos(a) * r;
+          const py = Math.sin(a) * r;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+        continue;
+      }
+      if (p.needle) {
+        ctx.translate(p.x, p.y);
+        ctx.strokeStyle = 'rgba(255,248,220,0.9)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-12, 0);
+        ctx.lineTo(9, 0);
+        ctx.stroke();
+        ctx.fillStyle = '#e7d18f';
+        ctx.beginPath();
+        ctx.moveTo(13, 0);
+        ctx.lineTo(8, -3);
+        ctx.lineTo(8, 3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(220,200,150,0.35)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-18, 2);
+        ctx.lineTo(-11, 2);
+        ctx.stroke();
+        ctx.restore();
+        continue;
+      }
       if (p.gravel) {
         ctx.translate(p.x, p.y);
         ctx.rotate(Math.atan2(0, 1) + Math.sin(p.x * 0.1) * 0.4);
@@ -648,11 +758,14 @@ export class Renderer {
   }
 
   drawHpBar(ctx, z, mode) {
-    const total = Math.max(0, z.hp + z.shell);
-    const max = Math.max(1, z.maxHp || z.def.hp + z.def.shell);
-    const ratio = Math.max(0, Math.min(1, total / max));
+    const maxHp = Math.max(1, z.maxHp || z.def.hp);
+    const hp = Math.max(0, Math.min(maxHp, z.hp));
+    const ratio = hp / maxHp;
+    const maxArmor = Math.max(0, z.maxArmor || 0);
+    const armor = Math.max(0, Math.min(maxArmor, z.armor || 0));
+    const armorRatio = maxArmor > 0 ? armor / maxArmor : 0;
     const s = z.def.scale ?? 1;
-    const w = z.type === 'sedan' ? 58 : 48;
+    const w = z.type === 'sedan' || z.def.large ? 58 : 48;
     const h = 7;
     const x = z.x - w / 2;
     let y = z.y - 58 * s;
@@ -660,7 +773,24 @@ export class Renderer {
       const baseH = z.def.spriteH ?? 96;
       y = z.y + (34 - baseH) * s - 12;
     }
-    y = Math.max(184, y);
+    y = Math.max(maxArmor > 0 ? 194 : 184, y);
+
+    if (maxArmor > 0) {
+      const ay = y - 6;
+      ctx.save();
+      ctx.fillStyle = 'rgba(7,10,18,0.8)';
+      rr(ctx, x - 1, ay - 1, w + 2, 5, 3);
+      ctx.fill();
+      ctx.restore();
+      if (armorRatio > 0) {
+        const ag = ctx.createLinearGradient(x, ay, x + w, ay);
+        ag.addColorStop(0, '#f2d58a');
+        ag.addColorStop(1, '#b07b36');
+        ctx.fillStyle = ag;
+        rr(ctx, x, ay, Math.max(1, w * armorRatio), 3, 2);
+        ctx.fill();
+      }
+    }
 
     ctx.save();
     ctx.shadowColor = 'rgba(0,0,0,0.45)';
@@ -676,13 +806,8 @@ export class Renderer {
 
     if (ratio > 0) {
       const grad = ctx.createLinearGradient(x, y, x + w, y);
-      if (z.shell > 0) {
-        grad.addColorStop(0, '#ffe6a2');
-        grad.addColorStop(1, '#cf9135');
-      } else {
-        grad.addColorStop(0, '#ff9d7c');
-        grad.addColorStop(1, '#b52f2b');
-      }
+      grad.addColorStop(0, '#ff9d7c');
+      grad.addColorStop(1, '#b52f2b');
       ctx.fillStyle = grad;
       rr(ctx, x, y, Math.max(2, w * ratio), h, 4);
       ctx.fill();
@@ -691,13 +816,16 @@ export class Renderer {
     }
 
     if (mode === 'barText') {
-      const label = Math.ceil(total) + ' / ' + Math.ceil(max);
-      ctx.font = '700 9px "Microsoft YaHei UI","Microsoft YaHei",sans-serif';
+      const label = maxArmor > 0
+        ? `${Math.ceil(hp)}/${maxHp} · 甲${Math.ceil(armor)}/${maxArmor}`
+        : `${Math.ceil(hp)} / ${maxHp}`;
+      ctx.font = '700 8.5px "Microsoft YaHei UI","Microsoft YaHei",sans-serif';
       const tw = ctx.measureText(label).width;
       const cw = tw + 10;
       const cx = Math.max(x + w + 4, Math.min(1280 - cw - 4, x + w + 6));
-      ctx.fillStyle = 'rgba(7,10,18,0.82)';
-      rr(ctx, cx, y - 4, cw, 14, 5);
+      const cy = maxArmor > 0 ? y - 8 : y - 4;
+      ctx.fillStyle = 'rgba(7,10,18,0.84)';
+      rr(ctx, cx, cy, cw, 14, 5);
       ctx.fill();
       ctx.strokeStyle = 'rgba(235,205,145,0.3)';
       ctx.lineWidth = 1;
@@ -705,12 +833,27 @@ export class Renderer {
       ctx.fillStyle = '#f6e8c8';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(label, cx + cw / 2, y + 3);
+      ctx.fillText(label, cx + cw / 2, cy + 7);
     }
   }
 
-  drawUpgradePips(ctx, p, dots) {
-    const w = 8 + dots.length * 7;
+  drawShellBar(ctx, p) {
+    const ratio = Math.max(0, Math.min(1, p.shell.hp / p.shell.maxHp));
+    const w = 42;
+    const h = 4;
+    const x = p.x - w / 2;
+    const y = p.y + 37;
+    ctx.save();
+    ctx.fillStyle = 'rgba(7,12,16,0.78)';
+    rr(ctx, x - 1, y - 1, w + 2, h + 2, 3);
+    ctx.fill();
+    ctx.fillStyle = ratio > 0.35 ? '#8fb27a' : '#b8894c';
+    rr(ctx, x, y, Math.max(1, w * ratio), h, 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawUpgradePips(ctx, p, dots) {    const w = 8 + dots.length * 7;
     const x = p.x - w / 2;
     const y = p.y + 28;
     ctx.fillStyle = 'rgba(12,9,8,0.5)';

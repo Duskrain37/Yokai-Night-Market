@@ -73,6 +73,62 @@ export const ALMANAC_PLANTS = [
     story: '年初一舞狮队从摊前过，把这只旧狮头落在了货架底下。摊主嫌它占地方，几次想扔，最后都留了下来。入夜后它会自己抖毛，听见恶客的脚步就低头撞过去，撞完了还要甩甩鬃毛，像在等一声叫好。',
     ability: '高耐久近身守卫：敌人靠近到 110 像素内时，每 1.35 秒撞头一次，造成 60 伤害并击退 0.2 格。进化后三路可增加击退距离与眩晕，并在命中时回复自身耐久。',
     quote: '狮子不咬人，狮子只撞。'
+  },
+  {
+    type: 'cat',
+    name: '狐尾灯',
+    epithet: '追着最近那口气走',
+    story: '夜市西头的旧灯架上挂着一截狐尾形状的灯芯。摊主说，那是只走丢的狐妖留下的最后一点火。它不照路，只照人：谁身上的阴气最重，尾火就朝谁飘过去，绕一圈再回来，像狐狸在确认猎物还在不在。',
+    ability: '每隔 1.6 秒放出一团尾火，自动追向全场上距离最近的恶客，可跨行。每团 15 伤害；进化可增加尾火数量、伤害，三级尾火命中后还会再追一个目标。尾火附带的易伤与减速不叠加，只取最高值。',
+    quote: '别回头，它已经看见你了。'
+  },
+  {
+    type: 'shell',
+    name: '龟甲罩',
+    epithet: '老龟留下的半间屋',
+    story: '河滩上捡来的老龟甲，壳口磨得发亮。摊主把它罩在怕风的物件上，后来发现恶客啃壳比啃摊子还费劲。壳里那株植物照常做事，只是从此多了一层沉默的屋顶。',
+    ability: '只能罩在已种下的植物上，为其提供 1400 点护罩耐久。恶客会先啃龟甲，壳碎后里面的植物仍在。不能升阶，铲除时连壳一起收走。',
+    quote: '壳在，摊就在。'
+  },
+  {
+    type: 'lobber',
+    name: '汤圆仔',
+    epithet: '一碗会自己动手的宵夜',
+    story: '甜品摊收工后，锅里总剩几颗汤圆。它们吸了夜市的水汽，慢慢长出小手小脚，最见不得街尾有恶客站着。汤圆仔不会走，只会把同伴一颗颗抛出去，弧线落得又准又黏。',
+    ability: '每隔 2.6 秒向本行最右边的恶客抛出一颗汤圆，走抛物线，落地造成 40 伤害并优先砸护具。进化可加伤害、加快投掷，或让落点附带减速。',
+    quote: '趁热，别躲。'
+  },
+  {
+    type: 'torch',
+    name: '炭火盆',
+    epithet: '整条街的火都借它一口',
+    story: '夜市收摊前，摊主会把各家的炭火并进这只旧铜盆。火苗不高，却认路：签筒的竹签、汤圆的糖壳、狐尾的尾火从旁边过，都会被它舔上一口，飞出去时带着一层暖光。',
+    ability: '不主动攻击。只要火盆还在，所有友方射弹伤害 +50%；进化可把增幅提高到 +80%/105%/130%，并让射弹附带灼烧或减速。同类增幅不叠加，只取最高值。',
+    quote: '火不分家，光借你一半。'
+  },
+  {
+    type: 'star',
+    name: '五路巡灯',
+    epithet: '一盏灯照五条街',
+    story: '庙会拆台时落下的五角巡灯，骨架是五根旧竹篾，灯面上画着五条街。点起来以后，它不肯只照自己摊前，总要朝五条街各送一道灯焰，像在替谁巡夜。',
+    ability: '每隔 2.6 秒，向每一条有恶客的街道各射出一道灯焰，优先命中该行前方最近的敌人，每道 12 伤害。进化可加伤害、缩短间隔，或让灯焰附带易伤。',
+    quote: '五条街，都得亮着。'
+  },
+  {
+    type: 'needle',
+    name: '透骨针',
+    epithet: '纸扎铺里最硬的一根',
+    story: '纸扎铺的针线盒底压着一根黑铁针，缝过纸人，也缝过不该缝的东西。它不认纸壳、不认陶瓮，只认皮囊底下那口气。摊主说，针尖凉，是因为它走过的路都比别处深。',
+    ability: '优先攻击本行带护具的恶客，射出的骨针无视护具，直接扣本体血量。每 1.7 秒一针，14 伤害；进化可加伤害、加快出针或附加易伤。',
+    quote: '壳再厚，也隔不住一口气。'
+  },
+  {
+    type: 'judge',
+    name: '钟馗像',
+    epithet: '挂在门后的那双眼',
+    story: '旧货摊最里面挂着一幅钟馗像，画工不算好，眼睛却像一直睁着。夜市闹得最凶那晚，画里的人忽然抬了抬袖子，街口的恶客就退了三步。第二天摊主给它添了一炷香，再没摘下来。',
+    ability: '每隔 6 秒睁眼，望向本行 260 像素内最近的恶客，造成 30 伤害并击退 0.4 格。进化可加击退距离、缩短显灵间隔或提高伤害。',
+    quote: '这条街，看着我。'
   }
 ];
 
@@ -127,9 +183,63 @@ export const ALMANAC_ZOMBIES = [
     name: '抬轿鬼',
     epithet: '轿子没落，客人还在',
     story: '抬轿鬼抬着一顶褪色的红轿，轿帘后面坐着谁，没人看清过。它们走得不快，轿子却硬得很，像把一整场喜事都糊在了木头上。轿破的时候，里头的东西会自己下来走，一边走一边找原来的路。',
-    ability: '高阶恶客：本体 520 耐久，另有 950 轿壳；轿壳破裂时，会从轿中跌出 2 只饿鬼，各继承 60% 血量。',
-    counter: '先用签筒磨轿，再用爆竹或香炉一次收掉跌出来的饿鬼；铜铃能把整队拖在门口。',
+    ability: '高阶恶客：本体 520 耐久，另有 950 轿壳；攻击先打轿壳。轿壳破裂时，会从轿中跌出 2 只饿鬼，各继承 60% 血量。',
+    counter: '先用签筒磨轿，再用爆竹或香炉一次收掉跌出来的饿鬼；铜铃能把整队拖在门口。透骨针可以绕过轿壳直接伤本体，但伤害不高，适合收尾。',
     quote: '起轿——别问去哪。'
+  },
+  {
+    type: 'straw',
+    name: '斗笠鬼',
+    epithet: '破斗笠遮半张脸',
+    story: '斗笠鬼生前是赶夜路的挑夫，死后还记着那顶破斗笠。斗笠压得很低，只露出半张嘴，走路一晃一晃，像担子还在肩上。谁要掀它的斗笠，它就先啃谁家的摊脚。',
+    ability: '低阶恶客：本体 90 血量，斗笠护具 90；攻击先扣斗笠，再扣本体。速度 22，啃食 35/秒。',
+    counter: '斗笠只是薄薄一层，连发签筒很快就能打掉；骨针可以跳过斗笠直接杀本体。',
+    quote: '别掀，风大。'
+  },
+  {
+    type: 'stonehat',
+    name: '石帽鬼',
+    epithet: '把碑帽戴在头上',
+    story: '石帽鬼从乱葬岗来，头上扣着半块碑帽，压得脖子歪向一边。它走得不快，可那顶石帽替它挨过不少竹签。石帽碎了以后，它反倒走得更急，像终于卸下了什么。',
+    ability: '中阶恶客：本体 240 血量，石帽护具 320；速度 18，啃食 75/秒。护具破碎后仍会继续前进。',
+    counter: '先集中火力碎帽，再补刀；透骨针无视石帽，能省下破帽时间。',
+    quote: '碑上没名字，帽子有。'
+  },
+  {
+    type: 'bucket',
+    name: '瓮头鬼',
+    epithet: '陶瓮扣头，油盐不进',
+    story: '瓮头鬼从酒坊废墟里捡来一只裂口陶瓮，扣在头上就再没摘过。瓮里闷着它自己的回声，敲起来嗡嗡响。它走得很慢，却极有耐心，像认定夜市欠它一笔旧账。',
+    ability: '中阶重甲：本体 300 血量，陶瓮护具 620；速度 15，啃食 90/秒。陶瓮极硬，普通射弹要先磨掉护具。',
+    counter: '用高伤害或易伤集火破瓮；透骨针绕过陶瓮，但单发伤害低，最好和签筒混编。',
+    quote: '瓮里有酒吗？有，我。'
+  },
+  {
+    type: 'vault',
+    name: '跳幡鬼',
+    epithet: '幡杆一撑，跳过第一摊',
+    story: '跳幡鬼原是个送葬班子的学徒，死后还攥着那根引魂幡杆。它遇到第一株植物会撑幡跳过，落地后幡杆一扔，才老老实实开始啃。那一跳不高，却总让人措手不及。',
+    ability: '中阶特殊：本体 280 血量，无护具；第一次遇到植物会撑幡跳过它，落地后速度从 30 降到 18。跳过时不啃食。',
+    counter: '在它落点后方再补一株植物，或用铜铃在它起跳前减速；透骨针可以直接消耗它的本体。',
+    quote: '借过，借过。'
+  },
+  {
+    type: 'artisan',
+    name: '纸扎匠',
+    epithet: '给小鬼糊一身纸甲',
+    story: '纸扎匠背着一整架糊好的纸甲，走起路来哗啦响。它不急着啃摊子，先给街上的小鬼一人发一副纸甲，像在替谁办一场迟到的差事。纸甲不值钱，却能让饿鬼多挨好几下。',
+    ability: '高阶辅助：本体 1100 血量，无护具，体型大。每 7.5 秒给 240 像素内最多 2 只低阶恶客发 200 点纸甲；纸甲与已有护具不叠加，只取更厚的一层。',
+    counter: '优先点杀纸扎匠，别让它反复发甲；透骨针可以直接伤它本体，狐尾灯也能跨行追它。',
+    quote: '穿上，体面点走。'
+  },
+  {
+    type: 'ironjudge',
+    name: '铁面判官',
+    epithet: '铁面之下，没有冤魂',
+    story: '铁面判官从城隍庙的偏殿里走出来，脸上那副铁面具锈得看不出表情。它每一步都像在敲惊堂木，走过的地方，摊板会轻轻发颤。没人知道它要审谁，只知道它从不空手回去。',
+    ability: '高阶重甲：本体 1000 血量，铁面护具 800，体型大；速度 12，啃食 150/秒。普通攻击要先破铁面，护具破碎后本体仍极硬。',
+    counter: '铁面判官是硬仗：先用易伤与高伤射弹破面，再让透骨针收本体；铜铃和纸伞能拖住它的脚步。',
+    quote: '跪下，报上名来。'
   }
 ];
 
@@ -215,6 +325,51 @@ export function plantBaseStats(type) {
       { label: '攻击距离', value: String(PLANT_EFFECTS.lion.reach), tone: 'neutral' },
       { label: '击退', value: `${PLANT_EFFECTS.lion.knockCells} 格`, tone: 'teal' }
     );
+  } else if (type === 'cat') {
+    stats.push(
+      { label: '攻击间隔', value: `${d.homing.interval} 秒`, tone: 'time' },
+      { label: '尾火伤害', value: String(d.homing.damage), tone: 'atk' },
+      { label: '索敌', value: '全场绝对最近', tone: 'teal' },
+      { label: '特性', value: '跨行追踪', tone: 'green' }
+    );
+  } else if (type === 'shell') {
+    stats.push(
+      { label: '护罩耐久', value: String(PLANT_EFFECTS.shell.hp), tone: 'hp' },
+      { label: '占格', value: '罩在植物上', tone: 'neutral' },
+      { label: '类别', value: '护罩 · 不可升阶', tone: 'cost' }
+    );
+  } else if (type === 'lobber') {
+    stats.push(
+      { label: '攻击间隔', value: `${d.lob.interval} 秒`, tone: 'time' },
+      { label: '汤圆伤害', value: String(d.lob.damage), tone: 'atk' },
+      { label: '目标', value: '本行最右', tone: 'teal' },
+      { label: '轨迹', value: '抛物线', tone: 'green' }
+    );
+  } else if (type === 'torch') {
+    stats.push(
+      { label: '射弹增幅', value: '+50% 伤害', tone: 'atk' },
+      { label: '范围', value: '所有友方射弹', tone: 'neutral' },
+      { label: '规则', value: '同类不叠加', tone: 'teal' }
+    );
+  } else if (type === 'star') {
+    stats.push(
+      { label: '发灯间隔', value: `${d.star.interval} 秒`, tone: 'time' },
+      { label: '每道伤害', value: String(d.star.damage), tone: 'atk' },
+      { label: '范围', value: '五路各一道', tone: 'teal' }
+    );
+  } else if (type === 'needle') {
+    stats.push(
+      { label: '出针间隔', value: `${d.needle.interval} 秒`, tone: 'time' },
+      { label: '本体伤害', value: String(d.needle.damage), tone: 'atk' },
+      { label: '特性', value: '无视护具', tone: 'green' }
+    );
+  } else if (type === 'judge') {
+    stats.push(
+      { label: '显灵间隔', value: `${d.judge.interval} 秒`, tone: 'time' },
+      { label: '显灵伤害', value: String(d.judge.damage), tone: 'atk' },
+      { label: '范围', value: `${d.judge.reach} 像素`, tone: 'neutral' },
+      { label: '击退', value: `${d.judge.knockCells} 格`, tone: 'teal' }
+    );
   }
   return stats;
 }
@@ -222,10 +377,11 @@ export function plantBaseStats(type) {
 export function zombieBaseStats(type) {
   const d = ZOMBIE_TYPES[type];
   const tierTone = d.tier === 'h' ? 'atk' : d.tier === 'm' ? 'gold' : 'teal';
+  const armorName = d.armorName || '护具';
   const stats = [
     { label: '阶级', value: zombieTierLabel(d.tier), tone: tierTone },
-    { label: '血量', value: String(d.hp), tone: 'hp' },
-    { label: '护甲', value: d.shell > 0 ? `${type === 'sedan' ? '轿壳' : '纸壳'} ${d.shell}` : '无', tone: d.shell > 0 ? 'gold' : 'neutral' },
+    { label: '本体血量', value: String(d.hp), tone: 'hp' },
+    { label: '护具', value: d.armor > 0 ? `${armorName} ${d.armor}` : '无', tone: d.armor > 0 ? 'gold' : 'neutral' },
     { label: '速度', value: String(d.speed), tone: 'time' },
     { label: '啃食', value: `${d.dps} / 秒`, tone: 'atk' }
   ];
@@ -236,12 +392,22 @@ export function zombieBaseStats(type) {
     stats.push({ label: '加速', value: `+${Math.round((d.aura.haste - 1) * 100)}% / ${d.aura.duration} 秒`, tone: 'orange' });
   } else if (type === 'sedan') {
     stats.push({ label: '破轿', value: `${d.split.count} 只饿鬼 · ${Math.round(d.split.hp * 100)}%`, tone: 'green' });
+  } else if (type === 'vault') {
+    stats.push({ label: '跳幡', value: `跳过首株 · 落地速度 ${d.vault.speedAfter}`, tone: 'green' });
+  } else if (type === 'artisan') {
+    stats.push({ label: '发甲间隔', value: `${d.support.interval} 秒`, tone: 'time' });
+    stats.push({ label: '发甲', value: `${d.support.armor} 护具 · 最多 ${d.support.targets} 只低阶`, tone: 'gold' });
+    stats.push({ label: '发甲半径', value: String(d.support.radius), tone: 'neutral' });
+  } else if (type === 'ironjudge') {
+    stats.push({ label: '体型', value: '大型 · 尸体停留 1 秒', tone: 'atk' });
   }
   const appearance = firstAppearanceOf(type);
   if (appearance) stats.push({ label: '初遇', value: appearance, tone: 'teal' });
   const traits = {
-    ghost: '数量多', paper: '双层血', mountain: '重型',
-    tongue: '快手', mourner: '助威', sedan: '破轿分身'
+    ghost: '数量多', paper: '纸壳护具', mountain: '重型',
+    tongue: '快手', mourner: '助威', sedan: '破轿分身',
+    straw: '斗笠护具', stonehat: '石帽护具', bucket: '陶瓮重甲',
+    vault: '跳幡跳过首株', artisan: '分发纸甲', ironjudge: '铁面重甲'
   };
   stats.push({
     label: '特性',

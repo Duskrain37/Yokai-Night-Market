@@ -12,7 +12,13 @@ const ASSET_PATHS = {
     censer: './assets/sprites/censer.png',
     umbrella: './assets/sprites/umbrella.png',
     lion: './assets/sprites/lion.png',
-    mushroom: './assets/sprites/mushroom.png'
+    mushroom: './assets/sprites/mushroom.png',
+    cat: './assets/sprites/cat.png',
+    lobber: './assets/sprites/lobber.png',
+    torch: './assets/sprites/torch.png',
+    star: './assets/sprites/star.png',
+    needle: './assets/sprites/needle.png',
+    judge: './assets/sprites/judge.png'
   },
   zombies: {
     ghost: './assets/sprites/ghost.png',
@@ -20,7 +26,13 @@ const ASSET_PATHS = {
     mountain: './assets/sprites/mountain.png',
     tongue: './assets/sprites/tongue.png',
     mourner: './assets/sprites/mourner.png',
-    sedan: './assets/sprites/sedan.png'
+    sedan: './assets/sprites/sedan.png',
+    straw: './assets/sprites/straw.png',
+    stonehat: './assets/sprites/stonehat.png',
+    bucket: './assets/sprites/bucket.png',
+    vault: './assets/sprites/vault.png',
+    artisan: './assets/sprites/artisan.png',
+    ironjudge: './assets/sprites/ironjudge.png'
   },
   guardian: './assets/sprites/guardian.png'
 };

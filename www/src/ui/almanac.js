@@ -3,6 +3,7 @@ import { ZOMBIE_TYPES, ZOMBIE_TIERS, zombieTierLabel } from '../content.js';
 import {
   almanacEntries, plantBaseStats, zombieBaseStats
 } from '../content/almanac.js';
+import { PLANT_TYPES } from '../content.js';
 import { UPGRADE_TREES, PLANT_EFFECTS } from '../game/upgrade.js';
 import { drawPlant, drawZombie } from '../render/art.js';
 
@@ -204,7 +205,7 @@ function tierStats(type, pathId, tier) {
   if (type === 'censer') {
     if (pathId === 1) return `香雾伤害 ${e.damage[tier]}`;
     if (pathId === 2) return `香雾半径 ${e.radius[tier]}`;
-    return `减速 ${Math.round(e.slowFactor[tier] * 100)}% · 持续 ${e.slowDuration[tier]} 秒`;
+    return `减速 ${Math.round(e.slow[tier] * 100)}% · 持续 ${e.slowDuration[tier]} 秒`;
   }
   if (type === 'umbrella') {
     if (pathId === 1) return `收妖速度 +${Math.round(e.chewSpeed[tier] * 100)}%`;
@@ -219,13 +220,48 @@ function tierStats(type, pathId, tier) {
     if (pathId === 2) return `攻击间隔 ${e.interval[tier]} 秒 · 眩晕 ${Math.round(e.stunChance[tier] * 100)}%`;
     return `命中回复 ${e.heal[tier]} 耐久`;
   }
+  if (type === 'cat') {
+    if (pathId === 1) return `尾火数量 ${e.count[tier]}`;
+    if (pathId === 2) {
+      const extra = e.hits[tier] > 1 ? ' · 命中后再追一个' : '';
+      return `尾火伤害 ${e.damage[tier]}${extra}`;
+    }
+    let text = `易伤 ${Math.round(e.vuln[tier] * 100)}% · 2 秒`;
+    if (e.slow[tier]) text += ` · 减速 ${Math.round(e.slow[tier] * 100)}% 1.5 秒`;
+    return text;
+  }
+  if (type === 'lobber') {
+    if (pathId === 1) return `汤圆伤害 ${e.damage[tier]}`;
+    if (pathId === 2) return `投掷间隔 ${e.interval[tier]} 秒`;
+    return `落点减速 ${Math.round(e.slowFactor[tier] * 100)}% · 2 秒`;
+  }
+  if (type === 'torch') {
+    if (pathId === 1) return `射弹伤害 +${Math.round(e.buff[tier] * 100)}%`;
+    if (pathId === 2) return `灼烧 ${e.burn[tier]} / 秒 · ${e.burnDuration} 秒`;
+    return `射弹减速 ${Math.round(e.slow[tier] * 100)}% · ${e.slowDuration} 秒`;
+  }
+  if (type === 'star') {
+    if (pathId === 1) return `每道灯焰 ${e.damage[tier]}`;
+    if (pathId === 2) return `发灯间隔 ${e.interval[tier]} 秒`;
+    return `易伤 ${Math.round(e.vuln[tier] * 100)}% · ${e.vulnDuration} 秒`;
+  }
+  if (type === 'needle') {
+    if (pathId === 1) return `穿甲伤害 ${e.damage[tier]}`;
+    if (pathId === 2) return `出针间隔 ${e.interval[tier]} 秒`;
+    return `易伤 ${Math.round(e.vuln[tier] * 100)}% · ${e.vulnDuration} 秒`;
+  }
+  if (type === 'judge') {
+    if (pathId === 1) return `击退 ${e.knockCells[tier]} 格`;
+    if (pathId === 2) return `显灵间隔 ${e.interval[tier]} 秒`;
+    return `显灵伤害 ${e.damage[tier]}`;
+  }
   if (pathId === 1) {
-    const slow = Math.round((1 - e.slowFactor[tier]) * 100);
+    const slow = Math.round(e.slow[tier] * 100);
     return `摇铃间隔 ${e.interval[tier]} 秒 · 减速 ${slow}%`;
   }
   if (pathId === 2) {
     const range = tier === 3 ? '整行' : '前方 1 格';
-    const pct = Math.round((1 - e.slowFactor[1]) * e.hasteFactor[tier] * 100);
+    const pct = Math.round(e.slow[1] * e.hasteFactor[tier] * 100);
     return `${range} · 友军攻速 +${pct}%`;
   }
   const range = tier === 1 ? '前方 4 格' : '整行';
@@ -337,7 +373,9 @@ function buildPlantContent(ctx, entry) {
   if (!tree) {
     const text = entry.type === 'mushroom'
       ? '坟头菇是埋进土里的灰烬陷阱，长成后只等那一脚。它没有第二条路可走，炸完便连菇带土一起散了。'
-      : '爆竹是一响就散的灰烬之物，点着了就只能等它炸完，没有第二条路可走。';
+      : entry.type === 'shell'
+        ? '龟甲罩只是一层护罩，罩上去便替里面的植物挡风挡咬。它自己不会长，也不会进阶，壳碎之后便算尽了职。'
+        : '爆竹是一响就散的灰烬之物，点着了就只能等它炸完，没有第二条路可走。';
     y = writeText(
       ctx,
       text,
@@ -554,33 +592,36 @@ function drawList(ctx, game, entries) {
     const selected = i === game.almanacIndex;
     if (selected) {
       ctx.fillStyle = C.paper;
-      rr(ctx, r.x, r.y, r.w, r.h, 6);
+      rr(ctx, r.x, r.y, r.w, r.h, 5);
       ctx.fill();
       ctx.strokeStyle = C.paperEdge;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.4;
       ctx.stroke();
     }
 
     if (game.almanacTab === 'plant') {
-      drawPlant(ctx, entry.type, r.x + 30, r.y + 44, 0, {
-        scale: 0.28,
+      drawPlant(ctx, entry.type, r.x + 20, r.y + 24, 0, {
+        scale: 0.2,
         noShadow: true
       });
     } else {
-      drawZombie(ctx, entry.type, r.x + 30, r.y + 40, 0, {
+      drawZombie(ctx, entry.type, r.x + 20, r.y + 21, 0, {
         def: ZOMBIE_TYPES[entry.type],
-        scale: 0.24
+        scale: 0.18
       });
     }
 
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = selected ? C.ink : C.goldLight;
-    ctx.font = bold(14);
-    ctx.fillText(entry.name, r.x + 58, r.y + 18);
+    ctx.font = bold(12);
+    ctx.fillText(entry.name, r.x + 37, r.y + 12);
     ctx.fillStyle = selected ? C.muted : 'rgba(226,192,122,0.55)';
-    ctx.font = body(10.5);
-    ctx.fillText(entry.epithet, r.x + 58, r.y + 37);
+    ctx.font = body(9);
+    const sub = game.almanacTab === 'plant'
+      ? (PLANT_TYPES[entry.type]?.role || '')
+      : zombieTierLabel(ZOMBIE_TYPES[entry.type]?.tier);
+    ctx.fillText(sub, r.x + 37, r.y + 25);
   }
 }
 

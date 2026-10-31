@@ -119,7 +119,7 @@ function frame(now) {
     game.update(Math.min(dt, 0.1), input);
     acc = 0;
   } else {
-    acc += dt * (game.settings.speed || 1);
+    acc += dt * (game.tutorial ? 1 : (game.settings.speed || 1));
     while (acc >= STEP && steps < 8) {
       game.update(STEP, input);
       acc -= STEP;

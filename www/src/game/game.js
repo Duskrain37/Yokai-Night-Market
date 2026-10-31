@@ -1,6 +1,6 @@
-import { LEVELS, getLevel, PLANT_TYPES, PLANT_ORDER, ZOMBIE_TYPES } from '../content.js';
+import { LEVELS, getLevel, PLANT_TYPES, PLANT_ORDER, ZOMBIE_TYPES, TUTORIAL_LEVEL } from '../content.js';
 import {
-  ALMANAC, BOARD, BOARD_W, BTN, LEVELS_UI, PREP, PREP_CINEMA, SETTINGS, VIEW,
+  ALMANAC, BOARD, BOARD_W, BTN, LEVELS_UI, PREP, PREP_CINEMA, SETTINGS, TUTORIAL_UI, VIEW,
   almanacEntryRect, cardRect, cellAt, cellCenter, inRect, levelCardRect,
   prepRosterRect, prepSlotRect, prepZombieRect, settingsPill, settingsRowEnabled
 } from '../layout.js';
@@ -122,6 +122,8 @@ export class Game {
     this.confirmBack = false;
     this.confirmNew = false;
     this.almanacScroll = 0;
+    this.tutorial = null;
+    this.torch = { buff: 0, burn: 0, slow: 0, slowDuration: 1.5 };
   }
 
   startRun(levelId = this.selectedLevel, loadout = this.loadout) {
@@ -156,7 +158,124 @@ export class Game {
     return true;
   }
 
+  startTutorial() {
+    this.level = TUTORIAL_LEVEL;
+    this.runLevelId = TUTORIAL_LEVEL.id;
+    this.levelThreat = 1;
+    this.levelCountMul = 1;
+    this.levelHpMul = 1;
+    this.reset(['shooter']);
+    this.phase = 'playing';
+    this.prep = null;
+    this.runDifficulty = 'easy';
+    this.runCheats = false;
+    this.overlay = null;
+    this.overlayFrom = null;
+    this.confirmBack = false;
+    this.confirmNew = false;
+    this.menuNotice = null;
+    this.almanacReturn = null;
+    this.banner = null;
+    const lantern = this.placeFree('lantern', 0, 2);
+    if (lantern) lantern.tutorialIdle = true;
+    const ox = (lantern ? lantern.x : 282) + 78;
+    const oy = (lantern ? lantern.y : 421) - 12;
+    const orb = {
+      x: ox, y: oy - 44, targetY: oy,
+      landed: false, life: 9999, value: 25, phase: 0, tutorial: true
+    };
+    this.orbs.push(orb);
+    this.tutorial = {
+      step: 'collect',
+      t: 0,
+      orb,
+      lantern,
+      shooter: null,
+      zombie: null,
+      battleT: 0,
+      doneT: 0
+    };
+    this.selected = -1;
+    this.shovel = false;
+    this.menu = null;
+    audio.sfx('start');
+  }
+
+  exitTutorial() {
+    if (!this.tutorial) return;
+    this.tutorial = null;
+    const level = getLevel(this.selectedLevel);
+    this.level = level;
+    this.runLevelId = level.id;
+    this.levelThreat = level.threat;
+    this.levelCountMul = Math.sqrt(level.threat);
+    this.levelHpMul = Math.sqrt(level.threat);
+    this.reset();
+    this.phase = 'menu';
+    this.menuNotice = null;
+    this.refreshSaveInfo();
+  }
+
+  spawnTutorialZombie() {
+    const tut = this.tutorial;
+    if (!tut) return;
+    const shooter = tut.shooter;
+    const row = shooter ? shooter.r : 2;
+    const sx = shooter ? shooter.x : 552;
+    const x = Math.min(BOARD.x + BOARD_W - 12, Math.max(950, sx + 120));
+    const z = this.spawnZombie('ghost', row, { x });
+    if (!z) return;
+    z.hp = 120;
+    z.maxHp = 120;
+    z.speed = 14;
+    tut.zombie = z;
+    this.banner = { text: '恶客上门 · 看签筒出手', t: 2.2, max: 2.2 };
+    audio.sfx('wave');
+  }
+
+  updateTutorial(dt) {
+    const tut = this.tutorial;
+    if (!tut) return;
+    tut.t += dt;
+    if (tut.step === 'battle' && tut.battleT > 0) {
+      tut.battleT -= dt;
+      if (tut.battleT <= 0) this.spawnTutorialZombie();
+    }
+    if (tut.step === 'battle' && tut.zombie && tut.zombie.dead) {
+      tut.step = 'finishing';
+      tut.doneT = 0.9;
+      this.floaters.push({
+        x: tut.zombie.x, y: tut.zombie.y - 58, text: '干得漂亮',
+        color: '#ffe1a1', life: 1.4, maxLife: 1.4, size: 22
+      });
+    }
+    if (tut.step === 'finishing') {
+      tut.doneT -= dt;
+      if (tut.doneT <= 0) this.finishTutorial();
+    }
+  }
+
+  finishTutorial() {
+    if (!this.tutorial) return;
+    this.tutorial.step = 'done';
+    this.phase = 'won';
+    this.result = { time: this.time, kills: this.kills, sun: this.sun, tutorial: true };
+    this.banner = null;
+    this.selected = -1;
+    this.menu = null;
+    this.shovel = false;
+    this.overlay = null;
+    this.overlayFrom = null;
+    this.confirmBack = false;
+    this.confirmNew = false;
+    audio.sfx('win');
+  }
+
   toMenu() {
+    if (this.tutorial) {
+      this.exitTutorial();
+      return;
+    }
     if (this.phase === 'playing' || this.phase === 'paused') this.saveNow();
     this.reset();
     this.phase = 'menu';
@@ -571,6 +690,7 @@ export class Game {
 
   saveNow() {
     storage.saveSettings(this.settings);
+    if (this.tutorial) return;
     if (this.phase !== 'playing' && this.phase !== 'paused') return;
     const payload = storage.saveRun(this.serializeRun());
     if (payload) {
@@ -601,7 +721,7 @@ export class Game {
   }
 
   updateRecords(won) {
-    if (this.runCheats) return;
+    if (this.tutorial || this.runCheats) return;
     const r = this.records;
     r.bestWave = Math.max(r.bestWave, Math.min(this.waveIndex, this.waveTotal));
     r.bestKills = Math.max(r.bestKills, this.kills);
@@ -644,34 +764,49 @@ export class Game {
         armT: num(p.armT),
         armed: !!p.armed,
         chewT: num(p.chewT),
-        chewMax: num(p.chewMax)
+        chewMax: num(p.chewMax),
+        shell: p.shell ? { hp: num(p.shell.hp), maxHp: num(p.shell.maxHp) } : null
       })),
-      zombies: this.zombies.filter((z) => !z.dead).map((z) => ({
+      zombies: this.zombies.filter((z) => !z.dead && !z.dying).map((z) => ({
         type: z.type,
         row: z.row,
         x: num(z.x),
         hp: num(z.hp),
-        shell: num(z.shell),
         maxHp: num(z.maxHp),
-        maxShell: num(z.maxShell),
+        armor: num(z.armor),
+        maxArmor: num(z.maxArmor),
+        armorType: z.armorType || null,
+        armorName: z.armorName || null,
+        speed: num(z.speed),
         slowT: num(z.slowT),
         slowFactor: num(z.slowFactor),
         stunT: num(z.stunT),
+        burnT: num(z.burnT),
+        burnDps: num(z.burnDps),
         rageT: num(z.rageT),
         rageMult: num(z.rageMult, 1),
         auraT: num(z.auraT),
+        supportT: num(z.supportT),
+        vaulted: !!z.vaulted,
         breached: !!z.breached
       })),
-      projectiles: this.projectiles.filter((p) => !p.dead).map((p) => ({
+      projectiles: this.projectiles.filter((p) => !p.dead && !p.homing && !p.lob).map((p) => ({
         x: num(p.x),
         y: num(p.y),
         row: p.row,
         speed: num(p.speed),
         damage: num(p.damage),
         big: !!p.big,
-        slow: num(p.slow),
+        slowAmount: num(p.slowAmount),
+        slowDuration: num(p.slowDuration),
+        burn: num(p.burn),
+        burnDuration: num(p.burnDuration),
         gravel: !!p.gravel,
+        needle: !!p.needle,
+        pierceArmor: !!p.pierceArmor,
+        star: !!p.star,
         vuln: num(p.vuln),
+        vulnDuration: num(p.vulnDuration),
         knock: num(p.knock)
       })),
       orbs: this.orbs.filter((o) => !o.dead).map((o) => ({
@@ -783,6 +918,15 @@ export class Game {
           p.upgrades[k] = Math.max(0, Math.min(3, Math.floor(num(raw.upgrades[k]))));
         }
       }
+      if (raw.shell && typeof raw.shell === 'object') {
+        const shellHp = Math.max(1, Math.min(PLANT_EFFECTS.shell.hp, Math.round(num(raw.shell.hp, PLANT_EFFECTS.shell.hp))));
+        p.shell = {
+          type: 'shell', def: PLANT_TYPES.shell,
+          hp: shellHp,
+          maxHp: Math.max(shellHp, Math.min(PLANT_EFFECTS.shell.hp, Math.round(num(raw.shell.maxHp, PLANT_EFFECTS.shell.hp)))),
+          pulse: 0
+        };
+      }
       this.plants.push(p);
       this.cells[r][c] = p;
       seen.add(key);
@@ -794,9 +938,15 @@ export class Game {
       const row = Math.floor(num(raw.row, -1));
       if (row < 0 || row >= BOARD.rows) continue;
       const def = ZOMBIE_TYPES[raw.type];
-      const maxHp = Math.max(1, Math.round(num(raw.maxHp, def.hp + def.shell)));
+      const oldArmor = Number.isFinite(raw.armor) ? raw.armor : num(raw.shell);
+      let maxHp = Math.max(1, Math.round(num(raw.maxHp, def.hp)));
+      if (!Number.isFinite(raw.armor) && Number.isFinite(raw.shell)) {
+        maxHp = Math.max(1, maxHp - oldArmor);
+      }
       const hp = Math.max(1, Math.min(maxHp, Math.round(num(raw.hp, maxHp))));
-      const shell = Math.max(0, Math.min(Math.max(0, maxHp - hp), Math.round(num(raw.shell))));
+      const maxArmor = Math.max(0, Math.round(num(raw.maxArmor, num(raw.maxShell, oldArmor))));
+      const armor = Math.max(0, Math.min(maxArmor, Math.round(oldArmor)));
+      const slowFactor = Math.max(0.1, Math.min(1, num(raw.slowFactor, 1)));
       this.zombies.push({
         def,
         type: raw.type,
@@ -804,33 +954,51 @@ export class Game {
         x: Math.max(-240, num(raw.x, 1300)),
         y: ROW_Y[row] + 6,
         hp,
-        shell,
         maxHp,
-        maxShell: Math.max(0, num(raw.maxShell, shell)),
-        speed: def.speed,
+        armor,
+        maxArmor,
+        armorType: raw.armorType || def.armorType || null,
+        armorName: raw.armorName || def.armorName || null,
+        speed: Math.max(8, num(raw.speed, def.speed)),
         slowT: Math.max(0, num(raw.slowT)),
-        slowFactor: Math.max(0.2, Math.min(1, num(raw.slowFactor, 0.5))),
+        slowAmount: 1 - slowFactor,
+        slowFactor,
         stunT: Math.max(0, num(raw.stunT)),
         vulnT: 0,
         vuln: 0,
+        burnT: Math.max(0, num(raw.burnT)),
+        burnDps: Math.max(0, num(raw.burnDps)),
         rageT: Math.max(0, num(raw.rageT)),
         rageMult: Math.max(1, num(raw.rageMult, 1)),
         auraT: def.aura ? Math.max(0, num(raw.auraT, def.aura.interval)) : 0,
         auraPulse: 0,
+        supportT: def.support ? Math.max(0, num(raw.supportT, def.support.interval)) : 0,
+        supportPulse: 0,
+        armorPulse: 0,
         hurt: 0,
         eating: false,
         chomp: 0,
         anim: Math.random() * Math.PI * 2,
         phase: Math.random() * Math.PI * 2,
         breached: !!raw.breached,
-        dead: false
+        dying: false,
+        dead: false,
+        deathT: 0,
+        deathDur: def.large ? 1 : 0.5,
+        vaulted: !!raw.vaulted,
+        vaultT: 0,
+        vaultFromX: 0,
+        vaultToX: 0,
+        vaultArc: 0
       });
+      if (raw.vaulted && def.vault) this.zombies[this.zombies.length - 1].speed = def.vault.speedAfter;
     }
 
     for (const raw of run.projectiles || []) {
       if (!raw || typeof raw !== 'object') continue;
       const row = Math.floor(num(raw.row, -1));
       if (row < 0 || row >= BOARD.rows) continue;
+      const oldSlow = num(raw.slow);
       this.projectiles.push({
         x: num(raw.x),
         y: num(raw.y),
@@ -838,9 +1006,16 @@ export class Game {
         speed: Math.max(100, num(raw.speed, 520)),
         damage: Math.max(1, num(raw.damage, 20)),
         big: !!raw.big,
-        slow: Math.max(0, num(raw.slow)),
+        slowAmount: raw.slowAmount != null ? Math.max(0, num(raw.slowAmount)) : (oldSlow > 0 ? 0.5 : 0),
+        slowDuration: Math.max(0, num(raw.slowDuration, oldSlow > 0 ? oldSlow : 0)),
+        burn: Math.max(0, num(raw.burn)),
+        burnDuration: Math.max(0, num(raw.burnDuration, 2)),
         gravel: !!raw.gravel,
+        needle: !!raw.needle,
+        pierceArmor: !!raw.pierceArmor,
+        star: !!raw.star,
         vuln: Math.max(0, num(raw.vuln)),
+        vulnDuration: Math.max(0, num(raw.vulnDuration, 2)),
         knock: Math.max(0, num(raw.knock)),
         dead: false
       });
@@ -949,10 +1124,12 @@ export class Game {
     this.updateFloaters(dt);
     this.flushPendingSpawns();
     this.cleanup();
+    this.updateTutorial(dt);
 
     if (this.menu && this.menu.plant.dead) this.menu = null;
 
     if (
+      !this.tutorial &&
       this.phase === 'playing' &&
       this.waveIndex >= this.level.waves.length &&
       this.spawnQueue.length === 0 &&
@@ -1033,6 +1210,10 @@ export class Game {
     }
 
     if (this.phase === 'menu') {
+      if (inRect(x, y, BTN.tutorialMenu)) {
+        this.startTutorial();
+        return;
+      }
       if (inRect(x, y, BTN.levelsMenu)) {
         this.openLevels();
         return;
@@ -1054,6 +1235,11 @@ export class Game {
     }
 
     if (this.phase === 'won' || this.phase === 'lost') {
+      if (this.tutorial && this.tutorial.step === 'done') {
+        if (inRect(x, y, BTN.overlay)) this.startTutorial();
+        else if (inRect(x, y, BTN.toMenu)) this.exitTutorial();
+        return;
+      }
       if (inRect(x, y, BTN.overlay)) this.openPrep(this.runLevelId);
       else if (inRect(x, y, BTN.toMenu)) this.toMenu();
       return;
@@ -1062,9 +1248,18 @@ export class Game {
     if (this.phase === 'paused') {
       if (inRect(x, y, BTN.resume)) this.phase = 'playing';
       else if (inRect(x, y, BTN.pauseSettings)) this.openSettings('pause');
-      else if (inRect(x, y, BTN.restart)) this.openPrep(this.runLevelId);
+      else if (inRect(x, y, BTN.restart)) {
+        if (this.tutorial) this.startTutorial();
+        else this.openPrep(this.runLevelId);
+      }
       else if (inRect(x, y, BTN.backMenu)) this.confirmBack = true;
       else if (inRect(x, y, BTN.pauseAlmanac)) this.openAlmanac();
+      return;
+    }
+
+    if (this.tutorial && inRect(x, y, TUTORIAL_UI.skip)) {
+      audio.sfx('click');
+      this.exitTutorial();
       return;
     }
 
@@ -1074,7 +1269,7 @@ export class Game {
       return;
     }
 
-    if (inRect(x, y, BTN.shovel)) {
+    if (!this.tutorial && inRect(x, y, BTN.shovel)) {
       audio.sfx('click');
       this.shovel = !this.shovel;
       this.selected = -1;
@@ -1082,7 +1277,7 @@ export class Game {
       return;
     }
 
-    if (this.settings.quickWave && inRect(x, y, BTN.quickWave)) {
+    if (!this.tutorial && this.settings.quickWave && inRect(x, y, BTN.quickWave)) {
       audio.sfx('click');
       this.summonNextWave();
       return;
@@ -1116,6 +1311,10 @@ export class Game {
 
     for (let i = 0; i < this.cards.length; i++) {
       if (inRect(x, y, cardRect(i, this.cards.length))) {
+        if (this.tutorial && this.tutorial.step === 'collect') {
+          this.deny('先收下那团香火');
+          return;
+        }
         audio.sfx('click');
         this.selected = this.selected === i ? -1 : i;
         this.shovel = false;
@@ -1153,6 +1352,16 @@ export class Game {
     if (cell) {
       const plant = this.cells[cell.r][cell.c];
       if (plant) {
+        if (this.tutorial) {
+          if (this.tutorial.step === 'plant') {
+            this.deny('先种下签筒');
+            return;
+          }
+          if (this.tutorial.step === 'upgrade' && plant !== this.tutorial.shooter) {
+            this.deny('先给签筒升阶');
+            return;
+          }
+        }
         audio.sfx('click');
         if (pathsFor(plant).length > 0) this.menu = { plant };
         else if (plant.type === 'bomb') this.deny('爆竹是一次性的，无法升阶');
@@ -1202,7 +1411,7 @@ export class Game {
     }
     if (inRect(x, y, BTN.cheatKill)) {
       for (const z of this.zombies) {
-        if (!z.dead && z.x <= VIEW.w + 10) this.killZombie(z);
+        if (this.aliveZombie(z) && z.x <= VIEW.w + 10) this.killZombie(z);
       }
       this.cleanup();
       this.shake = Math.max(this.shake, 8);
@@ -1228,14 +1437,80 @@ export class Game {
   tryPlace(index, c, r) {
     const card = this.cards[index];
     if (!card) return;
+    if (this.tutorial) {
+      if (this.tutorial.step !== 'plant') {
+        return this.deny(this.tutorial.step === 'collect' ? '先收下那团香火' : '先跟着提示走');
+      }
+      if (card.id !== 'shooter') return this.deny('先种下签筒');
+    }
+    if (card.def.attach) {
+      const host = this.cells[r][c];
+      if (card.cd > 0) return this.deny('还没缓过手来');
+      if (this.sun < card.def.cost) return this.deny('香火不够');
+      if (!host) return this.deny('先种一株植物，再罩龟甲');
+      if (host.shell) return this.deny('这里已经罩了龟甲');
+      this.sun -= card.def.cost;
+      card.cd = card.def.cooldown;
+      this.attachShell(host);
+      this.selected = -1;
+      audio.sfx('place');
+      return;
+    }
     if (card.cd > 0) return this.deny('还没缓过手来');
     if (this.sun < card.def.cost) return this.deny('香火不够');
     if (this.cells[r][c]) return this.deny('这里已经摆了东西');
     this.sun -= card.def.cost;
     card.cd = card.def.cooldown;
-    this.placeFree(card.id, c, r);
+    const placed = this.placeFree(card.id, c, r);
     this.selected = -1;
+    if (this.tutorial && this.tutorial.step === 'plant' && placed) {
+      this.tutorial.shooter = placed;
+      this.tutorial.step = 'upgrade';
+    }
     audio.sfx('place');
+  }
+
+  attachShell(host) {
+    const hp = PLANT_EFFECTS.shell.hp;
+    host.shell = {
+      type: 'shell', def: PLANT_TYPES.shell,
+      hp, maxHp: hp, pulse: 0.6
+    };
+    this.floaters.push({
+      x: host.x, y: host.y - 60, text: '龟甲罩上了',
+      color: '#cfe0b0', life: 1.2, maxLife: 1.2, size: 16
+    });
+    this.spark(host.x, host.y - 20, '#c8d6a4', 10);
+  }
+
+  damagePlant(p, amount) {
+    if (!p || p.dead || amount <= 0) return;
+    if (p.shell && p.shell.hp > 0) {
+      p.shell.hp -= amount;
+      p.shell.pulse = 0.25;
+      if (p.shell.hp <= 0) {
+        p.shell = null;
+        audio.sfx('shell', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+        this.floaters.push({
+          x: p.x, y: p.y - 54, text: '龟甲碎了',
+          color: '#e8d6a8', life: 1.1, maxLife: 1.1, size: 15
+        });
+        for (let i = 0; i < 10; i++) {
+          this.particles.push({
+            x: p.x + (Math.random() - 0.5) * 30,
+            y: p.y - 8 - Math.random() * 26,
+            vx: (Math.random() - 0.5) * 130,
+            vy: -40 - Math.random() * 100,
+            life: 0.5 + Math.random() * 0.4, maxLife: 0.9,
+            size: 3 + Math.random() * 4,
+            color: i % 2 ? '#9e9a78' : '#d8cfae', kind: 'shard'
+          });
+        }
+      }
+      return;
+    }
+    p.hp -= amount;
+    if (p.hp <= 0) this.killPlant(p);
   }
 
   deny(text) {
@@ -1250,6 +1525,10 @@ export class Game {
     const plant = this.menu ? this.menu.plant : null;
     if (!plant || plant.dead) {
       this.menu = null;
+      return;
+    }
+    if (this.tutorial && (this.tutorial.step !== 'upgrade' || plant !== this.tutorial.shooter)) {
+      this.deny('先给签筒升阶');
       return;
     }
     const st = pathStatus(plant, pathId);
@@ -1273,13 +1552,18 @@ export class Game {
     this.shake = Math.max(this.shake, 3);
     this.refreshPlantBuffs();
     audio.sfx('upgrade');
+    if (this.tutorial && this.tutorial.step === 'upgrade' && plant === this.tutorial.shooter) {
+      this.tutorial.step = 'battle';
+      this.tutorial.battleT = 1.0;
+      this.menu = null;
+    }
   }
 
   placeFree(type, c, r) {
     if (c < 0 || c >= BOARD.cols || r < 0 || r >= BOARD.rows) return null;
     if (this.cells[r][c]) return null;
     const def = PLANT_TYPES[type];
-    if (!def) return null;
+    if (!def || def.attach) return null;
     const pos = cellCenter(c, r);
     const p = {
       def, type, c, r, x: pos.x, y: pos.y,
@@ -1322,9 +1606,14 @@ export class Game {
     });
     this.spark(orb.x, orb.y, '#ffcf7a', 6);
     audio.sfx('collect');
+    if (this.tutorial && this.tutorial.step === 'collect' && orb === this.tutorial.orb) {
+      this.tutorial.step = 'plant';
+      this.tutorial.orb = null;
+    }
   }
 
   updateEconomy(dt) {
+    if (this.tutorial) return;
     this.naturalTimer -= dt;
     if (this.naturalTimer <= 0) {
       this.naturalTimer = 8 + Math.random() * 2;
@@ -1402,32 +1691,47 @@ export class Game {
     const hpMul = this.levelHpMul * diff.hp;
     const hpFactor = Number.isFinite(opts.hpFactor) ? opts.hpFactor : 1;
     const hp = Math.max(1, Math.round(def.hp * hpMul * hpFactor));
-    const shell = Math.max(0, Math.round(def.shell * hpMul));
+    const armor = Math.max(0, Math.round((def.armor || 0) * hpMul));
     const z = {
       def, type, row,
       x: Number.isFinite(opts.x) ? opts.x : 1290 + Math.random() * 90,
       y: ROW_Y[row] + 6,
       hp,
-      shell,
-      maxHp: hp + shell,
-      maxShell: shell,
+      maxHp: hp,
+      armor,
+      maxArmor: armor,
+      armorType: def.armorType || null,
+      armorName: def.armorName || null,
       speed: def.speed,
       slowT: 0,
-      slowFactor: 0.5,
+      slowFactor: 1,
       stunT: 0,
       vulnT: 0,
       vuln: 0,
+      burnT: 0,
+      burnDps: 0,
       rageT: 0,
       rageMult: 1,
       auraT: def.aura ? 0.8 + Math.random() * def.aura.interval : 0,
       auraPulse: 0,
+      supportT: def.support ? 1.5 + Math.random() * def.support.interval : 0,
+      supportPulse: 0,
+      armorPulse: 0,
       hurt: 0,
       eating: false,
       chomp: 0,
       anim: Math.random() * Math.PI * 2,
       phase: Math.random() * Math.PI * 2,
       breached: false,
-      dead: false
+      dying: false,
+      dead: false,
+      deathT: 0,
+      deathDur: def.large ? 1 : 0.5,
+      vaulted: false,
+      vaultT: 0,
+      vaultFromX: 0,
+      vaultToX: 0,
+      vaultArc: 0
     };
     this.zombies.push(z);
     return z;
@@ -1442,9 +1746,13 @@ export class Game {
     }
   }
 
+  aliveZombie(z) {
+    return !!z && !z.dead && !z.dying;
+  }
+
   laneTarget(p) {
     for (const z of this.zombies) {
-      if (!z.dead && z.row === p.r && z.x > p.x + 6) return z;
+      if (this.aliveZombie(z) && z.row === p.r && z.x > p.x + 6) return z;
     }
     return null;
   }
@@ -1465,7 +1773,7 @@ export class Game {
     const t = tierOf(p, 1);
     return {
       duration: PLANT_EFFECTS.bell.slowDuration,
-      factor: PLANT_EFFECTS.bell.slowFactor[t]
+      amount: PLANT_EFFECTS.bell.slow[t]
     };
   }
 
@@ -1481,6 +1789,12 @@ export class Game {
     return base * (1 + (p?.buffDamage || 0));
   }
 
+  projectileDamage(p, base) {
+    const lantern = p?.buffDamage || 0;
+    const fire = this.torch?.buff || 0;
+    return base * (1 + Math.max(lantern, fire));
+  }
+
   plantHaste(p) {
     return p?.haste || 0;
   }
@@ -1491,6 +1805,7 @@ export class Game {
       p.buffDamage = 0;
       p.haste = 0;
     }
+    const torch = { buff: 0, burn: 0, slow: 0, slowDuration: 1.5 };
     for (const source of this.plants) {
       if (source.dead) continue;
       if (source.type === 'lantern') {
@@ -1507,15 +1822,23 @@ export class Game {
         const tier = tierOf(source, 2);
         if (tier <= 0) continue;
         const range = PLANT_EFFECTS.bell.hasteRange[tier];
-        const slowPct = 1 - this.bellSlow(source).factor;
+        const slowPct = this.bellSlow(source).amount;
         const value = slowPct * PLANT_EFFECTS.bell.hasteFactor[tier];
         for (const target of this.plants) {
           if (target.dead || target === source || target.r !== source.r) continue;
           if (tier < 3 && (target.c <= source.c || target.c - source.c > range)) continue;
           target.haste = Math.max(target.haste, value);
         }
+      } else if (source.type === 'torch') {
+        const t1 = tierOf(source, 1);
+        const t2 = tierOf(source, 2);
+        const t3 = tierOf(source, 3);
+        torch.buff = Math.max(torch.buff, PLANT_EFFECTS.torch.buff[t1]);
+        torch.burn = Math.max(torch.burn, PLANT_EFFECTS.torch.burn[t2]);
+        torch.slow = Math.max(torch.slow, PLANT_EFFECTS.torch.slow[t3]);
       }
     }
+    this.torch = torch;
   }
 
   updatePlants(dt) {
@@ -1528,7 +1851,7 @@ export class Game {
       p.charge = 0;
       const def = p.def;
 
-      if (def.produce) {
+      if (def.produce && !p.tutorialIdle) {
         const interval = this.lanternInterval(p);
         p.timer += dt;
         if (p.timer >= interval) {
@@ -1570,8 +1893,8 @@ export class Game {
           const damageRange = PLANT_EFFECTS.bell.damageRange[tierOf(p, 3)];
           const rootChance = PLANT_EFFECTS.bell.rootChance[tierOf(p, 3)];
           for (const z of this.zombies) {
-            if (z.dead || z.row !== p.r || z.x <= p.x - 8) continue;
-            this.applySlow(z, slow.duration, slow.factor);
+            if (!this.aliveZombie(z) || z.row !== p.r || z.x <= p.x - 8) continue;
+            this.applySlow(z, slow.duration, slow.amount);
             if (dmg > 0 && (damageRange >= 99 || z.x - p.x <= damageRange * BOARD.cw)) {
               this.damageZombie(z, this.plantDamage(p, dmg));
               if (rootChance > 0 && !this.isLarge(z) && Math.random() < rootChance) {
@@ -1663,6 +1986,78 @@ export class Game {
           const target = this.mineTarget(p);
           if (target) this.mineExplode(p, target);
         }
+      } else if (def.homing) {
+        const interval = def.homing.interval / (1 + p.haste);
+        p.timer += dt;
+        const target = this.nearestAllTarget(p);
+        if (target) {
+          p.charge = Math.min(1, p.timer / interval);
+          if (p.timer >= interval) {
+            p.timer = 0;
+            p.charge = 0;
+            this.fireCat(p);
+          }
+        } else {
+          p.timer = Math.min(p.timer, interval);
+        }
+      } else if (def.lob) {
+        const interval = PLANT_EFFECTS.lobber.interval[tierOf(p, 2)] / (1 + p.haste);
+        p.timer += dt;
+        const target = this.rightmostLaneTarget(p);
+        if (target) {
+          p.charge = Math.min(1, p.timer / interval);
+          if (p.timer >= interval) {
+            p.timer = 0;
+            p.charge = 0;
+            this.fireLob(p, target);
+          }
+        } else {
+          p.timer = Math.min(p.timer, interval);
+        }
+      } else if (def.star) {
+        const interval = PLANT_EFFECTS.star.interval[tierOf(p, 2)] / (1 + p.haste);
+        p.timer += dt;
+        const hasTarget = this.zombies.some((z) => this.aliveZombie(z) && z.x > p.x);
+        if (hasTarget) {
+          p.charge = Math.min(1, p.timer / interval);
+          if (p.timer >= interval) {
+            p.timer = 0;
+            p.charge = 0;
+            this.fireStar(p);
+          }
+        } else {
+          p.timer = Math.min(p.timer, interval);
+        }
+      } else if (def.needle) {
+        const interval = PLANT_EFFECTS.needle.interval[tierOf(p, 2)] / (1 + p.haste);
+        p.timer += dt;
+        const target = this.needleTarget(p);
+        if (target) {
+          p.charge = Math.min(1, p.timer / interval);
+          if (p.timer >= interval) {
+            p.timer = 0;
+            p.charge = 0;
+            this.fireNeedle(p);
+          }
+        } else {
+          p.timer = Math.min(p.timer, interval);
+        }
+      } else if (def.judge) {
+        const interval = PLANT_EFFECTS.judge.interval[tierOf(p, 2)] / (1 + p.haste);
+        p.timer += dt;
+        const target = this.judgeTarget(p);
+        if (target) {
+          p.charge = Math.min(1, p.timer / interval);
+          if (p.timer >= interval) {
+            p.timer = 0;
+            p.charge = 0;
+            this.judgeStrike(p, target);
+          }
+        } else {
+          p.timer = Math.min(p.timer, interval);
+        }
+      } else if (def.torch) {
+        p.pulse = 0.18 + Math.sin((this.time + p.phase) * 3.2) * 0.08;
       } else if (p.type === 'wall') {
         this.updateWall(p, dt);
       } else if (def.bomb) {
@@ -1709,7 +2104,7 @@ export class Game {
     return {
       damage: PLANT_EFFECTS.censer.damage[tierOf(plant, 1)],
       radius: PLANT_EFFECTS.censer.radius[tierOf(plant, 2)],
-      slowFactor: PLANT_EFFECTS.censer.slowFactor[tierOf(plant, 3)],
+      slowAmount: PLANT_EFFECTS.censer.slow[tierOf(plant, 3)],
       slowDuration: PLANT_EFFECTS.censer.slowDuration[tierOf(plant, 3)]
     };
   }
@@ -1720,10 +2115,10 @@ export class Game {
     audio.sfx('censer', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     let hitAny = false;
     for (const z of this.zombies) {
-      if (z.dead) continue;
+      if (!this.aliveZombie(z)) continue;
       if (Math.hypot(z.x - p.x, z.y - p.y) > fx.radius) continue;
       this.damageZombie(z, this.plantDamage(p, fx.damage));
-      if (fx.slowFactor > 0) this.applySlow(z, fx.slowDuration, fx.slowFactor);
+      if (fx.slowAmount > 0) this.applySlow(z, fx.slowDuration, fx.slowAmount);
       hitAny = true;
     }
     this.particles.push({
@@ -1757,7 +2152,7 @@ export class Game {
     const reach = p.def.chomp.reach;
     let best = null;
     for (const z of this.zombies) {
-      if (z.dead || z.row !== p.r) continue;
+      if (!this.aliveZombie(z) || z.row !== p.r) continue;
       if (z.x < p.x - 14 || z.x - p.x > reach) continue;
       if (!best || z.x < best.x) best = z;
     }
@@ -1785,7 +2180,7 @@ export class Game {
 
   mineTarget(p) {
     for (const z of this.zombies) {
-      if (z.dead || z.row !== p.r) continue;
+      if (!this.aliveZombie(z) || z.row !== p.r) continue;
       if (z.x >= p.x - 16 && z.x - p.x <= 44) return z;
     }
     return null;
@@ -1820,19 +2215,238 @@ export class Game {
       y: p.y - 10,
       row: p.r,
       speed: 430,
-      damage: this.plantDamage(p, PLANT_EFFECTS.wall.gravelDamage[tier]),
+      damage: this.projectileDamage(p, PLANT_EFFECTS.wall.gravelDamage[tier]),
       big: false,
-      slow: 0,
+      slowAmount: this.torch.slow,
+      slowDuration: 1.5,
+      burn: this.torch.burn,
+      burnDuration: 2,
       gravel: true,
       vuln,
+      vulnDuration: PLANT_EFFECTS.wall.vulnDuration,
       knock,
       dead: false
     });
     p.recoil = 0.8;
   }
 
+  nearestZombies(x, y, limit, exclude = null) {
+    const candidates = [];
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z)) continue;
+      if (exclude && exclude.has(z)) continue;
+      candidates.push({ z, d: Math.hypot(z.x - x, z.y - y) });
+    }
+    candidates.sort((a, b) => a.d - b.d);
+    return candidates.slice(0, limit).map((c) => c.z);
+  }
+
+  nearestAllTarget(p) {
+    let best = null;
+    let bestD = Infinity;
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z)) continue;
+      const d = Math.hypot(z.x - p.x, z.y - p.y);
+      if (d < bestD) {
+        bestD = d;
+        best = z;
+      }
+    }
+    return best;
+  }
+
+  rightmostLaneTarget(p) {
+    let best = null;
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z) || z.row !== p.r || z.x <= p.x + 6) continue;
+      if (!best || z.x > best.x) best = z;
+    }
+    return best;
+  }
+
+  needleTarget(p) {
+    let best = null;
+    let bestArmored = null;
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z) || z.row !== p.r || z.x <= p.x + 6) continue;
+      if (!best || z.x < best.x) best = z;
+      if (z.armor > 0 && (!bestArmored || z.x < bestArmored.x)) bestArmored = z;
+    }
+    return bestArmored || best;
+  }
+
+  judgeTarget(p) {
+    const reach = PLANT_EFFECTS.judge.reach;
+    let best = null;
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z) || z.row !== p.r) continue;
+      if (z.x < p.x - 12 || z.x - p.x > reach) continue;
+      if (!best || z.x < best.x) best = z;
+    }
+    return best;
+  }
+
+  fireCat(p) {
+    const t1 = tierOf(p, 1);
+    const t2 = tierOf(p, 2);
+    const t3 = tierOf(p, 3);
+    const count = PLANT_EFFECTS.cat.count[t1] || 1;
+    const targets = this.nearestZombies(p.x, p.y, count);
+    if (!targets.length) return false;
+    const damage = this.projectileDamage(p, PLANT_EFFECTS.cat.damage[t2]);
+    const hits = PLANT_EFFECTS.cat.hits[t2] || 1;
+    const vuln = PLANT_EFFECTS.cat.vuln[t3] || 0;
+    const catSlow = PLANT_EFFECTS.cat.slow[t3] || 0;
+    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    for (let i = 0; i < count; i++) {
+      const target = targets[i % targets.length];
+      this.projectiles.push({
+        homing: true,
+        target,
+        hitIds: [],
+        hitsLeft: hits,
+        x: p.x + 12,
+        y: p.y - 22,
+        row: target.row,
+        speed: PLANT_EFFECTS.cat.speed,
+        damage,
+        vuln,
+        vulnDuration: 2,
+        slowAmount: Math.max(catSlow, this.torch.slow),
+        slowDuration: 1.5,
+        burn: this.torch.burn,
+        burnDuration: 2,
+        dead: false
+      });
+    }
+    p.recoil = 0.7;
+    return true;
+  }
+
+  fireLob(p, target) {
+    const t1 = tierOf(p, 1);
+    const t2 = tierOf(p, 2);
+    const t3 = tierOf(p, 3);
+    const damage = this.projectileDamage(p, PLANT_EFFECTS.lobber.damage[t1]);
+    const lobSlow = PLANT_EFFECTS.lobber.slowFactor[t3] || 0;
+    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    this.projectiles.push({
+      lob: true,
+      target,
+      row: p.r,
+      x: p.x + 10,
+      y: p.y - 22,
+      sx: p.x + 10,
+      sy: p.y - 22,
+      tx: target.x,
+      ty: target.y - 14,
+      t: 0,
+      flight: p.def.lob.flight,
+      damage,
+      vuln: 0,
+      slowAmount: Math.max(lobSlow, this.torch.slow),
+      slowDuration: 2,
+      burn: this.torch.burn,
+      burnDuration: 2,
+      dead: false
+    });
+    p.recoil = 0.9;
+  }
+
+  fireStar(p) {
+    const t1 = tierOf(p, 1);
+    const t2 = tierOf(p, 2);
+    const t3 = tierOf(p, 3);
+    const damage = this.projectileDamage(p, PLANT_EFFECTS.star.damage[t1]);
+    const vuln = PLANT_EFFECTS.star.vuln[t3] || 0;
+    let any = false;
+    for (let r = 0; r < BOARD.rows; r++) {
+      const target = this.zombies.find((z) => this.aliveZombie(z) && z.row === r && z.x > p.x);
+      if (!target) continue;
+      any = true;
+      this.projectiles.push({
+        x: p.x + 20,
+        y: ROW_Y[r] - 14,
+        row: r,
+        speed: 560,
+        damage,
+        star: true,
+        vuln,
+        vulnDuration: 2,
+        slowAmount: this.torch.slow,
+        slowDuration: 1.5,
+        burn: this.torch.burn,
+        burnDuration: 2,
+        dead: false
+      });
+    }
+    if (any) {
+      audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+      p.recoil = 0.5;
+    }
+    return any;
+  }
+
+  fireNeedle(p) {
+    const t1 = tierOf(p, 1);
+    const t2 = tierOf(p, 2);
+    const t3 = tierOf(p, 3);
+    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    this.projectiles.push({
+      x: p.x + 22,
+      y: p.y - 16,
+      row: p.r,
+      speed: p.def.needle.speed,
+      damage: this.projectileDamage(p, PLANT_EFFECTS.needle.damage[t1]),
+      needle: true,
+      pierceArmor: true,
+      vuln: PLANT_EFFECTS.needle.vuln[t3] || 0,
+      vulnDuration: 2,
+      slowAmount: this.torch.slow,
+      slowDuration: 1.5,
+      burn: this.torch.burn,
+      burnDuration: 2,
+      dead: false
+    });
+    p.recoil = 0.6;
+    p.charge = 0;
+  }
+
+  judgeStrike(p, target) {
+    const t1 = tierOf(p, 1);
+    const t3 = tierOf(p, 3);
+    const damage = this.plantDamage(p, PLANT_EFFECTS.judge.damage[t3]);
+    const knock = PLANT_EFFECTS.judge.knockCells[t1] * BOARD.cw;
+    audio.sfx('bell', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    this.damageZombie(target, damage);
+    if (this.aliveZombie(target)) {
+      target.x = Math.min(1360, target.x + knock);
+    }
+    this.particles.push({
+      x: p.x, y: p.y - 30, vx: 0, vy: 0,
+      life: 0.5, maxLife: 0.5, size: 54,
+      color: 'rgba(214,116,76,0.55)', kind: 'ring'
+    });
+    this.spark(target.x, target.y - 14, '#f0c26e', 6);
+    this.shake = Math.max(this.shake, 3);
+    p.recoil = 1;
+    p.pulse = 0.5;
+  }
+
+  applyBurn(z, duration, dps) {
+    if (!this.aliveZombie(z) || duration <= 0 || dps <= 0) return;
+    z.burnT = Math.max(z.burnT || 0, duration);
+    z.burnDps = Math.max(z.burnDps || 0, dps);
+  }
+
+  applyProjectileStatuses(z, p) {
+    if (p.vuln) this.applyVulnerable(z, p.vulnDuration || 2, p.vuln);
+    if (p.burn) this.applyBurn(z, p.burnDuration || 2, p.burn);
+    if (p.slowAmount) this.applySlow(z, p.slowDuration || 1.5, p.slowAmount);
+  }
+
   applyVulnerable(z, duration, amount) {
-    if (z.dead || duration <= 0 || amount <= 0) return;
+    if (!this.aliveZombie(z) || duration <= 0 || amount <= 0) return;
     z.vulnT = Math.max(z.vulnT || 0, duration);
     z.vuln = Math.max(z.vuln || 0, amount);
   }
@@ -1841,7 +2455,7 @@ export class Game {
     const reach = PLANT_EFFECTS.lion.reach;
     let best = null;
     for (const z of this.zombies) {
-      if (z.dead || z.row !== p.r) continue;
+      if (!this.aliveZombie(z) || z.row !== p.r) continue;
       if (z.x < p.x - 12 || z.x - p.x > reach) continue;
       if (!best || z.x < best.x) best = z;
     }
@@ -1870,7 +2484,7 @@ export class Game {
   }
 
   applyStun(z, duration) {
-    if (z.dead || duration <= 0) return;
+    if (!this.aliveZombie(z) || duration <= 0) return;
     z.stunT = Math.max(z.stunT ?? 0, duration);
     z.eating = false;
     for (let i = 0; i < 4; i++) {
@@ -1888,11 +2502,11 @@ export class Game {
 
   fireVolley(p) {
     const def = p.def;
-    const base = this.plantDamage(p, def.shot.damage);
+    const base = this.projectileDamage(p, def.shot.damage);
     audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     const count = PLANT_EFFECTS.shooter.volley[tierOf(p, 1)] || 1;
     const crit = PLANT_EFFECTS.shooter.critChance[tierOf(p, 3)] || 0;
-    const slow = PLANT_EFFECTS.shooter.critSlow[tierOf(p, 3)] || 0;
+    const critSlow = PLANT_EFFECTS.shooter.critSlow[tierOf(p, 3)] || 0;
     const adjacent = tierOf(p, 2);
 
     for (let i = 0; i < count; i++) {
@@ -1904,7 +2518,10 @@ export class Game {
         speed: def.shot.speed,
         damage: big ? base * 2 : base,
         big,
-        slow,
+        slowAmount: Math.max(critSlow > 0 ? 0.5 : 0, this.torch.slow),
+        slowDuration: Math.max(critSlow, this.torch.slow > 0 ? 1.5 : 0),
+        burn: this.torch.burn,
+        burnDuration: 2,
         dead: false
       });
     }
@@ -1917,7 +2534,7 @@ export class Game {
         p.adjFlip = (p.adjFlip ?? 0) + 1;
         lanes = [lanes[p.adjFlip % 2]];
       }
-      const dmg = base * (PLANT_EFFECTS.shooter.adjacentFactor[adjacent] ?? 0.5);
+      const dmg = this.projectileDamage(p, def.shot.damage) * (PLANT_EFFECTS.shooter.adjacentFactor[adjacent] ?? 0.5);
       for (const lane of lanes) {
         this.projectiles.push({
           x: p.x + 20,
@@ -1926,7 +2543,10 @@ export class Game {
           speed: def.shot.speed,
           damage: dmg,
           big: false,
-          slow: 0,
+          slowAmount: this.torch.slow,
+          slowDuration: 1.5,
+          burn: this.torch.burn,
+          burnDuration: 2,
           dead: false
         });
       }
@@ -1939,7 +2559,7 @@ export class Game {
     audio.sfx('explode', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     const radius = p.def.bomb.radius;
     for (const z of this.zombies) {
-      if (z.dead) continue;
+      if (!this.aliveZombie(z)) continue;
       if (Math.hypot(z.x - p.x, z.y - p.y) <= radius) {
         this.damageZombie(z, this.plantDamage(p, p.def.bomb.damage));
       }
@@ -1971,10 +2591,16 @@ export class Game {
     return best;
   }
 
-  applySlow(z, duration, factor = 0.5) {
-    if (z.dead || duration <= 0) return;
-    if (z.slowT <= 0) z.slowFactor = factor;
-    else z.slowFactor = Math.min(z.slowFactor ?? factor, factor);
+  applySlow(z, duration, amount = 0.5) {
+    if (!this.aliveZombie(z) || duration <= 0) return;
+    const slow = Math.max(0, Math.min(0.9, amount));
+    if (z.slowT <= 0) {
+      z.slowAmount = slow;
+      z.slowFactor = 1 - slow;
+    } else if (slow > (z.slowAmount || 0)) {
+      z.slowAmount = slow;
+      z.slowFactor = 1 - slow;
+    }
     z.slowT = Math.max(z.slowT, duration);
   }
 
@@ -1984,7 +2610,7 @@ export class Game {
     z.auraPulse = 0.85;
     let buffed = false;
     for (const other of this.zombies) {
-      if (other.dead || other === z) continue;
+      if (!this.aliveZombie(other) || other === z) continue;
       if (Math.hypot(other.x - z.x, other.y - z.y) > aura.radius) continue;
       other.rageT = Math.max(other.rageT ?? 0, aura.duration);
       other.rageMult = Math.max(other.rageMult ?? 1, aura.haste);
@@ -2000,11 +2626,36 @@ export class Game {
   updateZombies(dt) {
     for (const z of this.zombies) {
       if (z.dead) continue;
+      if (z.dying) {
+        z.deathT += dt;
+        if (z.deathT >= z.deathDur) {
+          z.dead = true;
+          z.dying = false;
+        }
+        continue;
+      }
       if (z.hurt > 0) z.hurt = Math.max(0, z.hurt - dt);
-      if (z.slowT > 0) z.slowT = Math.max(0, z.slowT - dt);
-      if (z.vulnT > 0) z.vulnT = Math.max(0, z.vulnT - dt);
+      if (z.slowT > 0) {
+        z.slowT = Math.max(0, z.slowT - dt);
+        if (z.slowT <= 0) {
+          z.slowAmount = 0;
+          z.slowFactor = 1;
+        }
+      }
+      if (z.vulnT > 0) {
+        z.vulnT = Math.max(0, z.vulnT - dt);
+        if (z.vulnT <= 0) z.vuln = 0;
+      }
+      if (z.burnT > 0) {
+        z.burnT = Math.max(0, z.burnT - dt);
+        this.damageZombie(z, (z.burnDps || 0) * dt, { silent: true });
+        if (!this.aliveZombie(z)) continue;
+        if (z.burnT <= 0) z.burnDps = 0;
+      }
       if (z.rageT > 0) z.rageT = Math.max(0, z.rageT - dt);
       if (z.auraPulse > 0) z.auraPulse = Math.max(0, z.auraPulse - dt);
+      if (z.supportPulse > 0) z.supportPulse = Math.max(0, z.supportPulse - dt);
+      if (z.armorPulse > 0) z.armorPulse = Math.max(0, z.armorPulse - dt);
 
       if (z.stunT > 0) {
         z.stunT = Math.max(0, z.stunT - dt);
@@ -2026,6 +2677,41 @@ export class Game {
         z.auraT = Math.max(0, (z.auraT ?? 0) - dt);
         if (z.auraT <= 0) this.mournerWail(z);
       }
+      if (z.def.support) {
+        z.supportT = Math.max(0, (z.supportT ?? 0) - dt);
+        if (z.supportT <= 0) this.artisanGrant(z);
+      }
+
+      if (z.vaultT > 0) {
+        z.vaultT = Math.max(0, z.vaultT - dt);
+        const dur = z.def.vault.duration;
+        const k = 1 - z.vaultT / dur;
+        z.x = z.vaultFromX + (z.vaultToX - z.vaultFromX) * k;
+        z.vaultArc = Math.sin(Math.PI * Math.max(0, Math.min(1, k)));
+        z.eating = false;
+        if (z.vaultT <= 0) {
+          z.vaulted = true;
+          z.speed = z.def.vault.speedAfter;
+          z.vaultArc = 0;
+        }
+        continue;
+      }
+
+      if (z.def.vault && !z.vaulted) {
+        const plant = this.eatTarget(z);
+        if (plant) {
+          z.vaultFromX = z.x;
+          z.vaultToX = Math.max(BOARD.x + 8, plant.x - 42);
+          z.vaultT = z.def.vault.duration;
+          z.vaultArc = 0;
+          z.eating = false;
+          this.floaters.push({
+            x: z.x, y: z.y - 66, text: '跳幡！',
+            color: '#f0d59a', life: 0.9, maxLife: 0.9, size: 15
+          });
+          continue;
+        }
+      }
 
       const target = this.eatTarget(z);
       if (target) {
@@ -2041,14 +2727,12 @@ export class Game {
         }
         target.biteT = 0.2;
         const guard = this.plantGuard(target);
-        target.hp -= z.def.dps * (1 - guard) * dt;
+        this.damagePlant(target, z.def.dps * (1 - guard) * dt);
 
         if (target.type === 'wall') {
           const reflect = PLANT_EFFECTS.wall.reflect[tierOf(target, 2)];
           if (reflect > 0) this.damageZombie(z, this.plantDamage(target, reflect * dt));
         }
-
-        if (target.hp <= 0) this.killPlant(target);
         if (Math.random() < dt * 4) {
           this.particles.push({
             x: target.x + (Math.random() - 0.5) * 20,
@@ -2057,18 +2741,47 @@ export class Game {
             vy: -30 - Math.random() * 40,
             life: 0.5, maxLife: 0.5,
             size: 2 + Math.random() * 2,
-            color: '#d9c08a', kind: 'circle'
+            color: target.shell ? '#c7cba8' : '#d9c08a', kind: 'circle'
           });
         }
       } else {
         z.eating = false;
-        const mult = z.slowT > 0 ? (z.slowFactor ?? 0.5) : 1;
+        const mult = z.slowT > 0 ? (z.slowFactor ?? 1) : 1;
         const rage = z.rageT > 0 ? Math.max(1, z.rageMult ?? 1) : 1;
         z.x -= z.speed * mult * rage * dt;
         z.anim += dt * (mult < 1 ? 0.7 : 1) * rage;
         if (z.x < BOARD.x - 18 && !z.breached) this.breach(z);
       }
     }
+  }
+
+  artisanGrant(z) {
+    const support = z.def.support;
+    z.supportT = support.interval;
+    z.supportPulse = 0.85;
+    const hpMul = this.levelHpMul * this.difficultyMults().hp;
+    const armorValue = Math.max(40, Math.round(support.armor * hpMul));
+    const targets = this.zombies
+      .filter((o) => this.aliveZombie(o) && o !== z && o.def.tier === 'l' &&
+        Math.hypot(o.x - z.x, o.y - z.y) <= support.radius)
+      .sort((a, b) => (a.armor > 0 ? 1 : 0) - (b.armor > 0 ? 1 : 0) || a.armor - b.armor)
+      .slice(0, support.targets);
+    for (const o of targets) {
+      o.maxArmor = Math.max(o.maxArmor || 0, armorValue);
+      o.armor = Math.min(o.maxArmor, Math.max(o.armor || 0, armorValue));
+      o.armorType = 'charm';
+      o.armorName = support.name;
+      o.armorPulse = 0.9;
+      this.floaters.push({
+        x: o.x, y: o.y - 62, text: '纸甲',
+        color: '#e5d6a4', life: 1.1, maxLife: 1.1, size: 14
+      });
+    }
+    this.particles.push({
+      x: z.x, y: z.y - 20, vx: 0, vy: 0,
+      life: 0.65, maxLife: 0.65, size: 54,
+      color: targets.length ? 'rgba(224,204,150,0.55)' : 'rgba(170,160,140,0.3)', kind: 'ring'
+    });
   }
 
   breach(z) {
@@ -2090,24 +2803,124 @@ export class Game {
     }
   }
 
+  projectileCollision(p) {
+    let hit = null;
+    for (const z of this.zombies) {
+      if (z.dead || z.row !== p.row) continue;
+      if (p.x + 8 >= z.x - 24 && p.x - 8 <= z.x + 24) {
+        if (!hit || z.x < hit.x) hit = z;
+      }
+    }
+    return hit;
+  }
+
+  updateHoming(p, dt) {
+    if (!this.aliveZombie(p.target)) {
+      const next = this.nearestZombies(p.x, p.y, 1, new Set(p.hitIds || []));
+      p.target = next[0] || null;
+    }
+    if (!p.target) {
+      p.dead = true;
+      return;
+    }
+    const tx = p.target.x;
+    const ty = p.target.y - 24;
+    const dx = tx - p.x;
+    const dy = ty - p.y;
+    const d = Math.hypot(dx, dy);
+    if (d < 15) {
+      const target = p.target;
+      p.hitIds = p.hitIds || [];
+      p.hitIds.push(target);
+      this.damageZombie(target, p.damage);
+      this.applyProjectileStatuses(target, p);
+      this.spark(p.x, p.y, '#ffd08a', 5);
+      p.hitsLeft = (p.hitsLeft || 1) - 1;
+      if (p.hitsLeft > 0) {
+        const next = this.nearestZombies(p.x, p.y, 1, new Set(p.hitIds));
+        if (next[0]) {
+          p.target = next[0];
+          return;
+        }
+      }
+      p.dead = true;
+      return;
+    }
+    p.x += (dx / d) * p.speed * dt;
+    p.y += (dy / d) * p.speed * dt;
+    if (Math.random() < dt * 24) {
+      this.particles.push({
+        x: p.x, y: p.y, vx: (Math.random() - 0.5) * 16, vy: -12 - Math.random() * 16,
+        life: 0.35, maxLife: 0.35, size: 1.8 + Math.random() * 1.4,
+        color: '#ffb45e', kind: 'circle'
+      });
+    }
+    for (const z of this.zombies) {
+      if (!z.dying || Math.hypot(z.x - p.x, z.y - 24 - p.y) > 22) continue;
+      p.dead = true;
+      return;
+    }
+  }
+
+  updateLob(p, dt) {
+    if (this.aliveZombie(p.target)) {
+      p.tx = p.target.x;
+      p.ty = p.target.y - 14;
+    }
+    p.t += dt;
+    const k = Math.min(1, p.t / p.flight);
+    p.x = p.sx + (p.tx - p.sx) * k;
+    const base = p.sy + (p.ty - p.sy) * k;
+    p.y = base - 108 * 4 * k * (1 - k);
+    if (k < 1) return;
+    p.dead = true;
+    let hit = null;
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z) || z.row !== p.row) continue;
+      if (!hit || Math.abs(z.x - p.tx) < Math.abs(hit.x - p.tx)) hit = z;
+    }
+    if (!hit || Math.abs(hit.x - p.tx) > 54) {
+      for (const z of this.zombies) {
+        if (!z.dying || z.row !== p.row) continue;
+        if (Math.abs(z.x - p.tx) <= 34) break;
+      }
+      this.spark(p.x, p.y, '#e8d6a8', 4);
+      return;
+    }
+    this.damageZombie(hit, p.damage);
+    this.applyProjectileStatuses(hit, p);
+    this.spark(p.x, p.y, '#f0dca8', 7);
+    this.particles.push({
+      x: p.x, y: p.y + 8, vx: 0, vy: 0,
+      life: 0.4, maxLife: 0.4, size: 18,
+      color: 'rgba(230,210,170,0.5)', kind: 'ring'
+    });
+  }
+
   updateProjectiles(dt) {
     for (const p of this.projectiles) {
       if (p.dead) continue;
-      p.x += p.speed * dt;
-      let hit = null;
-      for (const z of this.zombies) {
-        if (z.dead || z.row !== p.row) continue;
-        if (p.x + 8 >= z.x - 24 && p.x - 8 <= z.x + 24) {
-          if (!hit || z.x < hit.x) hit = z;
-        }
+      if (p.homing) {
+        this.updateHoming(p, dt);
+        continue;
       }
+      if (p.lob) {
+        this.updateLob(p, dt);
+        continue;
+      }
+      p.x += p.speed * dt;
+      const hit = this.projectileCollision(p);
       if (hit) {
         p.dead = true;
+        if (hit.dying) {
+          this.spark(p.x, p.y, '#c9bda0', 3);
+          continue;
+        }
         const large = this.isLarge(hit);
         const dmg = p.knock && large ? p.damage * 2 : p.damage;
-        this.damageZombie(hit, dmg);
-        if (p.vuln) this.applyVulnerable(hit, PLANT_EFFECTS.wall.vulnDuration, p.vuln);
-        if (p.knock && !large && !hit.dead) {
+        this.damageZombie(hit, dmg, { armorPierce: !!p.pierceArmor });
+        this.applyProjectileStatuses(hit, p);
+        if (p.knock && !large && this.aliveZombie(hit)) {
           hit.x = Math.min(1360, hit.x + p.knock * BOARD.cw);
           this.particles.push({
             x: hit.x, y: hit.y + 8, vx: 0, vy: 0,
@@ -2115,65 +2928,86 @@ export class Game {
             color: 'rgba(200,180,140,0.65)', kind: 'ring'
           });
         }
-        if (p.slow) this.applySlow(hit, p.slow, 0.5);
-        this.spark(p.x, p.y, p.big ? '#ffe9a8' : p.gravel ? '#b9a98c' : '#f0dca8', p.big ? 8 : 3);
+        this.spark(
+          p.x, p.y,
+          p.needle ? '#f6f1de' : p.star ? '#ffe08a' : p.big ? '#ffe9a8' : p.gravel ? '#b9a98c' : '#f0dca8',
+          p.big ? 8 : 3
+        );
       } else if (p.x > 1340) {
         p.dead = true;
       }
     }
   }
 
-  damageZombie(z, amount) {
-    if (z.dead) return;
+  damageZombie(z, amount, opts = {}) {
+    if (!this.aliveZombie(z)) return 0;
     const pan = Math.max(-1, Math.min(1, (z.x - 640) / 640));
-    if (amount >= 8) audio.sfx('hit', { type: z.type, pan });
-    const hadShell = z.shell > 0;
+    if (!opts.silent && amount >= 8) audio.sfx('hit', { type: z.type, pan });
     let dmg = amount;
     if (z.vulnT > 0 && z.vuln > 0) dmg *= 1 + z.vuln;
-    if (z.shell > 0) {
-      const absorbed = Math.min(z.shell, dmg);
-      z.shell -= absorbed;
+    let dealt = 0;
+    if (!opts.armorPierce && z.armor > 0) {
+      const absorbed = Math.min(z.armor, dmg);
+      z.armor -= absorbed;
       dmg -= absorbed;
-      if (z.shell <= 0) {
-        if (hadShell) audio.sfx('shell', { pan });
-        for (let i = 0; i < 8; i++) {
-          this.particles.push({
-            x: z.x + (Math.random() - 0.5) * 24,
-            y: z.y - 20 - Math.random() * 20,
-            vx: (Math.random() - 0.5) * 120,
-            vy: -40 - Math.random() * 90,
-            life: 0.6, maxLife: 0.6,
-            size: 4 + Math.random() * 4,
-            color: '#efe6cf', kind: 'shard'
-          });
-        }
-        if (z.def.split && !z.splitDone) {
-          z.splitDone = true;
-          const split = z.def.split;
-          for (let i = 0; i < split.count; i++) {
-            this.pendingSpawns.push({
-              type: split.type,
-              row: z.row,
-              x: z.x + (i - (split.count - 1) / 2) * 20,
-              hpFactor: split.hp
-            });
-          }
-          this.floaters.push({
-            x: z.x, y: z.y - 76, text: '轿子散了！',
-            color: '#ffd0a0', life: 1.4, maxLife: 1.4, size: 17
-          });
-          this.shake = Math.max(this.shake, 6);
-        }
-      }
+      dealt += absorbed;
+      if (z.armor <= 0) this.breakArmor(z);
     }
-    z.hp -= dmg;
+    if (dmg > 0) {
+      z.hp -= dmg;
+      dealt += dmg;
+    }
     z.hurt = 0.14;
     if (z.hp <= 0) this.killZombie(z);
+    return dealt;
+  }
+
+  breakArmor(z) {
+    const pan = Math.max(-1, Math.min(1, (z.x - 640) / 640));
+    audio.sfx('shell', { pan });
+    const colors = {
+      paper: '#efe6cf', sedan: '#c77a55', straw: '#d7b26a',
+      stonehat: '#a8a69a', urn: '#b07a4e', bucket: '#9aa4a6', mask: '#7d858a', charm: '#e5d6a4'
+    };
+    const color = colors[z.armorType] || '#efe6cf';
+    for (let i = 0; i < 10; i++) {
+      this.particles.push({
+        x: z.x + (Math.random() - 0.5) * 28,
+        y: z.y - 24 - Math.random() * 22,
+        vx: (Math.random() - 0.5) * 140,
+        vy: -40 - Math.random() * 100,
+        life: 0.55, maxLife: 0.75,
+        size: 3 + Math.random() * 5,
+        color, kind: z.armorType === 'paper' || z.armorType === 'charm' ? 'shard' : 'circle'
+      });
+    }
+    if (z.def.split && !z.splitDone) {
+      z.splitDone = true;
+      const split = z.def.split;
+      for (let i = 0; i < split.count; i++) {
+        this.pendingSpawns.push({
+          type: split.type,
+          row: z.row,
+          x: z.x + (i - (split.count - 1) / 2) * 20,
+          hpFactor: split.hp
+        });
+      }
+      this.floaters.push({
+        x: z.x, y: z.y - 76, text: '轿子散了！',
+        color: '#ffd0a0', life: 1.4, maxLife: 1.4, size: 17
+      });
+      this.shake = Math.max(this.shake, 6);
+    }
   }
 
   killZombie(z) {
-    if (z.dead) return;
-    z.dead = true;
+    if (!this.aliveZombie(z)) return;
+    z.dying = true;
+    z.deathT = 0;
+    z.hp = 0;
+    z.eating = false;
+    z.stunT = 0;
+    z.breached = true;
     audio.sfx('zombieDie', { pan: Math.max(-1, Math.min(1, (z.x - 640) / 640)) });
     this.kills += 1;
     const color =
@@ -2182,7 +3016,13 @@ export class Game {
           : z.type === 'mourner' ? '#d8d2c4'
             : z.type === 'sedan' ? '#a83a2e'
               : z.type === 'tongue' ? '#87a87d'
-                : '#9fb3a2';
+                : z.type === 'straw' ? '#c9a45e'
+                  : z.type === 'stonehat' ? '#9a978b'
+                    : z.type === 'bucket' ? '#8f999b'
+                      : z.type === 'vault' ? '#a98252'
+                        : z.type === 'artisan' ? '#e8ddc1'
+                          : z.type === 'ironjudge' ? '#6f7679'
+                            : '#9fb3a2';
     for (let i = 0; i < 10; i++) {
       this.particles.push({
         x: z.x + (Math.random() - 0.5) * 26,
@@ -2194,11 +3034,13 @@ export class Game {
         color, kind: 'shard'
       });
     }
+    if (z.def.large) this.shake = Math.max(this.shake, 5);
   }
 
   killPlant(p, silent = false) {
     if (p.dead) return;
     p.dead = true;
+    p.shell = null;
     this.cells[p.r][p.c] = null;
     if (p.type !== 'wall' || silent) {
       audio.sfx('plantDown', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
@@ -2221,7 +3063,7 @@ export class Game {
       if (!m.active) continue;
       m.x += 640 * dt;
       for (const z of this.zombies) {
-        if (!z.dead && z.row === m.row && Math.abs(z.x - m.x) < 56) {
+        if (this.aliveZombie(z) && z.row === m.row && Math.abs(z.x - m.x) < 56) {
           this.killZombie(z);
         }
       }
@@ -2241,7 +3083,7 @@ export class Game {
         }
       } else {
         o.life -= dt;
-        if (this.settings.autoCollect) {
+        if (this.settings.autoCollect && !this.tutorial) {
           o.autoT = (o.autoT ?? 0) + dt;
           if (o.autoT >= this.settings.collectDelay) {
             this.collectOrb(o);
@@ -2376,6 +3218,11 @@ export class Game {
       runLevelId: this.runLevelId,
       selectedLevel: this.selectedLevel,
       levelName: this.level.name,
+      tutorial: this.tutorial ? {
+        step: this.tutorial.step,
+        shooter: !!this.tutorial.shooter,
+        zombie: !!this.tutorial.zombie
+      } : null,
       levelThreat: this.levelThreat,
       levelCountMul: this.levelCountMul,
       levelHpMul: this.levelHpMul,

@@ -184,6 +184,162 @@ export const UPGRADE_TREES = {
         { name: '瑞气', desc: '每次撞中回复 70 耐久', cost: 250 }
       ]
     }
+  ],
+  cat: [
+    {
+      id: 1, name: '多尾', color: RED,
+      tiers: [
+        { name: '双尾', desc: '一次放出 2 团尾火', cost: 75 },
+        { name: '三尾', desc: '一次放出 3 团尾火', cost: 150 },
+        { name: '四尾', desc: '一次放出 4 团尾火', cost: 250 }
+      ]
+    },
+    {
+      id: 2, name: '重尾', color: GOLD,
+      tiers: [
+        { name: '重焰', desc: '尾火伤害 20 → 26', cost: 75 },
+        { name: '烈尾', desc: '尾火伤害提升到 34', cost: 150 },
+        { name: '回魂', desc: '每团尾火命中后可再追一个目标', cost: 250 }
+      ]
+    },
+    {
+      id: 3, name: '缠魂', color: TEAL,
+      tiers: [
+        { name: '沾魂', desc: '尾火命中附带 5% 易伤，持续 2 秒', cost: 75 },
+        { name: '缠丝', desc: '易伤提升到 10%', cost: 150 },
+        { name: '锁魂', desc: '易伤提升到 20%，并使目标减速 15% 1.5 秒', cost: 250 }
+      ]
+    }
+  ],
+  lobber: [
+    {
+      id: 1, name: '馅足', color: RED,
+      tiers: [
+        { name: '大馅', desc: '汤圆伤害 40 → 55', cost: 75 },
+        { name: '双馅', desc: '汤圆伤害提升到 75', cost: 150 },
+        { name: '满馅', desc: '汤圆伤害提升到 100', cost: 250 }
+      ]
+    },
+    {
+      id: 2, name: '快手', color: TEAL,
+      tiers: [
+        { name: '快包', desc: '投掷间隔 2.6 秒 → 2.2 秒', cost: 75 },
+        { name: '连抛', desc: '投掷间隔缩短到 1.9 秒', cost: 150 },
+        { name: '如雨', desc: '投掷间隔缩短到 1.6 秒', cost: 250 }
+      ]
+    },
+    {
+      id: 3, name: '黏汤', color: GOLD,
+      tiers: [
+        { name: '糖心', desc: '落点使目标减速 20%，持续 2 秒', cost: 75 },
+        { name: '拉丝', desc: '减速提升到 30%', cost: 150 },
+        { name: '封口', desc: '减速提升到 40%', cost: 250 }
+      ]
+    }
+  ],
+  torch: [
+    {
+      id: 1, name: '旺焰', color: RED,
+      tiers: [
+        { name: '烈焰', desc: '所有射弹伤害 +80%', cost: 75 },
+        { name: '赤焰', desc: '所有射弹伤害 +105%', cost: 150 },
+        { name: '不熄', desc: '所有射弹伤害 +130%', cost: 250 }
+      ]
+    },
+    {
+      id: 2, name: '余烬', color: GOLD,
+      tiers: [
+        { name: '火屑', desc: '射弹命中附带 5 伤害/秒，持续 2 秒', cost: 75 },
+        { name: '流火', desc: '灼烧提升到 9 伤害/秒', cost: 150 },
+        { name: '燎原', desc: '灼烧提升到 14 伤害/秒', cost: 250 }
+      ]
+    },
+    {
+      id: 3, name: '火舌', color: TEAL,
+      tiers: [
+        { name: '舔焰', desc: '射弹命中使目标减速 10%，持续 1.5 秒', cost: 75 },
+        { name: '卷火', desc: '减速提升到 18%', cost: 150 },
+        { name: '火墙', desc: '减速提升到 25%', cost: 250 }
+      ]
+    }
+  ],
+  star: [
+    {
+      id: 1, name: '灯芒', color: GOLD,
+      tiers: [
+        { name: '亮街', desc: '每道灯焰伤害 12 → 18', cost: 75 },
+        { name: '长明', desc: '每道灯焰伤害提升到 26', cost: 150 },
+        { name: '满城', desc: '每道灯焰伤害提升到 36', cost: 250 }
+      ]
+    },
+    {
+      id: 2, name: '转灯', color: TEAL,
+      tiers: [
+        { name: '快转', desc: '发灯间隔 2.6 秒 → 2.2 秒', cost: 75 },
+        { name: '连转', desc: '发灯间隔缩短到 1.9 秒', cost: 150 },
+        { name: '灯轮', desc: '发灯间隔缩短到 1.6 秒', cost: 250 }
+      ]
+    },
+    {
+      id: 3, name: '灯蚀', color: RED,
+      tiers: [
+        { name: '蚀焰', desc: '灯焰命中附带 5% 易伤，持续 2 秒', cost: 75 },
+        { name: '落焰', desc: '易伤提升到 10%', cost: 150 },
+        { name: '灯瘴', desc: '易伤提升到 15%', cost: 250 }
+      ]
+    }
+  ],
+  needle: [
+    {
+      id: 1, name: '针锋', color: RED,
+      tiers: [
+        { name: '透甲', desc: '穿骨针伤害 14 → 20', cost: 75 },
+        { name: '穿骨', desc: '穿骨针伤害提升到 28', cost: 150 },
+        { name: '钉魂', desc: '穿骨针伤害提升到 38', cost: 250 }
+      ]
+    },
+    {
+      id: 2, name: '快针', color: TEAL,
+      tiers: [
+        { name: '连刺', desc: '出针间隔 1.7 秒 → 1.45 秒', cost: 75 },
+        { name: '急刺', desc: '出针间隔缩短到 1.2 秒', cost: 150 },
+        { name: '无影', desc: '出针间隔缩短到 1.0 秒', cost: 250 }
+      ]
+    },
+    {
+      id: 3, name: '破绽', color: GOLD,
+      tiers: [
+        { name: '寻隙', desc: '命中附带 5% 易伤，持续 2 秒', cost: 75 },
+        { name: '裂甲', desc: '易伤提升到 10%', cost: 150 },
+        { name: '破军', desc: '易伤提升到 15%', cost: 250 }
+      ]
+    }
+  ],
+  judge: [
+    {
+      id: 1, name: '镇宅', color: RED,
+      tiers: [
+        { name: '怒目', desc: '击退距离 0.4 格 → 0.55 格', cost: 75 },
+        { name: '显圣', desc: '击退距离提升到 0.7 格', cost: 150 },
+        { name: '巡街', desc: '击退距离提升到 0.9 格', cost: 250 }
+      ]
+    },
+    {
+      id: 2, name: '香火', color: TEAL,
+      tiers: [
+        { name: '急召', desc: '显灵间隔 6 秒 → 5.2 秒', cost: 75 },
+        { name: '连召', desc: '显灵间隔缩短到 4.4 秒', cost: 150 },
+        { name: '显灵', desc: '显灵间隔缩短到 3.6 秒', cost: 250 }
+      ]
+    },
+    {
+      id: 3, name: '判官笔', color: GOLD,
+      tiers: [
+        { name: '勾魂', desc: '显灵伤害 30 → 42', cost: 75 },
+        { name: '断罪', desc: '显灵伤害提升到 56', cost: 150 },
+        { name: '判死', desc: '显灵伤害提升到 72', cost: 250 }
+      ]
+    }
   ]
 };
 
@@ -311,7 +467,7 @@ export const PLANT_EFFECTS = {
   bell: {
     interval: [2.5, 2.0, 1.5, 1.5],
     slowDuration: 1.5,
-    slowFactor: [0.75, 0.75, 0.75, 0.6],
+    slow: [0.25, 0.25, 0.25, 0.4],
     hasteRange: [0, 1, 1, 99],
     hasteFactor: [0, 0.5, 1, 1],
     damage: [0, 40, 40, 40],
@@ -323,7 +479,7 @@ export const PLANT_EFFECTS = {
     interval: 3.0,
     damage: [45, 70, 100, 140],
     radius: [140, 160, 185, 215],
-    slowFactor: [0, 0.25, 0.35, 0.45],
+    slow: [0, 0.25, 0.35, 0.45],
     slowDuration: [0, 2, 2.5, 3]
   },
   umbrella: {
@@ -342,5 +498,51 @@ export const PLANT_EFFECTS = {
     reach: 110,
     knockCells: 0.2,
     knockBonus: [1, 1, 1, 1.5]
+  },
+  cat: {
+    interval: 1.6,
+    damage: [15, 20, 26, 34],
+    speed: 300,
+    count: [1, 2, 3, 4],
+    hits: [1, 1, 1, 2],
+    vuln: [0, 0.05, 0.1, 0.2],
+    vulnDuration: 2,
+    slow: [0, 0, 0, 0.15],
+    slowDuration: 1.5
+  },
+  lobber: {
+    interval: [2.6, 2.2, 1.9, 1.6],
+    damage: [40, 55, 75, 100],
+    flight: 0.9,
+    slowFactor: [0, 0.2, 0.3, 0.4],
+    slowDuration: 2
+  },
+  torch: {
+    buff: [0.5, 0.8, 1.05, 1.3],
+    burn: [0, 5, 9, 14],
+    burnDuration: 2,
+    slow: [0, 0.1, 0.18, 0.25],
+    slowDuration: 1.5
+  },
+  star: {
+    interval: [2.6, 2.2, 1.9, 1.6],
+    damage: [12, 18, 26, 36],
+    vuln: [0, 0.05, 0.1, 0.15],
+    vulnDuration: 2
+  },
+  needle: {
+    interval: [1.7, 1.45, 1.2, 1.0],
+    damage: [14, 20, 28, 38],
+    vuln: [0, 0.05, 0.1, 0.15],
+    vulnDuration: 2
+  },
+  judge: {
+    interval: [6, 5.2, 4.4, 3.6],
+    damage: [30, 42, 56, 72],
+    knockCells: [0.4, 0.55, 0.7, 0.9],
+    reach: 260
+  },
+  shell: {
+    hp: 1400
   }
 };
