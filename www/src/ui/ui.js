@@ -1,7 +1,7 @@
 import {
   BOARD, BTN, PREP, PREP_CINEMA, SETTINGS, TUTORIAL_UI, VIEW, cardRect, cellCenter, inRect,
   prepRosterRect, prepSlotRect, prepZombieRect,
-  settingsPill, settingsRowEnabled
+  settingsPill, settingsRowEnabled, settingsRangeRect
 } from '../layout.js';
 import { getLevel, PLANT_ORDER, PLANT_TYPES, ZOMBIE_TYPES, ZOMBIE_TIERS, zombieTierLabel } from '../content.js';
 import { drawPlant, drawZombie } from '../render/art.js';
@@ -41,13 +41,15 @@ export function drawUI(ctx, game, t) {
   if (game.phase === 'menu') {
     drawMenu(ctx, game, t);
     if (game.overlay === 'settings') drawSettings(ctx, game);
-    if (game.overlay === 'levels') drawLevels(ctx, game);
+    if (game.overlay === 'levels') drawLevels(ctx, game, t);
     if (game.overlay === 'prep') drawPrep(ctx, game, t);
     if (game.overlay === 'almanac') drawAlmanac(ctx, game);
     return;
   }
 
   drawHudCached(ctx, game, t);
+  drawBottomHelp(ctx, game);
+  drawBanner(ctx, game);
   if (game.phase === 'playing' && game.menu) drawFan(ctx, game);
   if (game.tutorial && game.phase === 'playing') drawTutorial(ctx, game, t);
   if (game.phase === 'paused' || game.phase === 'won' || game.phase === 'lost') {
@@ -169,7 +171,11 @@ function drawHud(ctx, game, t) {
     if (game.settings.quickWave) drawQuickWaveButton(ctx, game);
     if (game.runCheats) drawCheatButton(ctx, game);
   }
+}
 
+function drawBottomHelp(ctx, game) {
+  if (game.phase === 'menu') return;
+  ctx.save();
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = 'rgba(6,9,16,0.42)';
@@ -181,8 +187,7 @@ function drawHud(ctx, game, t) {
   ctx.font = `400 13px ${KAI}`;
   ctx.fillStyle = 'rgba(236,220,186,0.55)';
   ctx.fillText('点香火 · 选牌子 · 点空地放下 · 点单位升阶 · 铲子移除 · P 暂停', 640, 683);
-
-  drawBanner(ctx, game);
+  ctx.restore();
 }
 
 function drawCards(ctx, game, t) {
@@ -237,7 +242,7 @@ function drawCards(ctx, game, t) {
     ctx.arc(cx, y + 47, 28, 0, Math.PI * 2);
     ctx.fill();
 
-    drawPlant(ctx, def.id, cx, y + 49, t, { scale: tight ? 0.5 : 0.55, noShadow: true });
+    drawPlant(ctx, def.id, cx, y + 49, t, { scale: tight ? 0.5 : 0.55, noShadow: true, armed: true, arm: 1 });
 
     ctx.fillStyle = 'rgba(36,24,16,0.9)';
     rr(ctx, r.x + 5, y + 5, 40, 17, 8);
@@ -585,125 +590,366 @@ export function drawMenuBackdrop(ctx) {
   ctx.drawImage(menuBackdropCache.canvas, 0, 0, VIEW.w, VIEW.h);
 }
 
-function drawMenu(ctx, game, t) {
-  drawMenuPetals(ctx, t);
+function drawTracked(ctx, text, x, y, spacing, align, withStroke) {
+  const chars = [...text];
+  const widths = chars.map((ch) => ctx.measureText(ch).width);
+  const total = widths.reduce((sum, w) => sum + w, 0) + spacing * Math.max(0, chars.length - 1);
+  let cx = align === 'center' ? x - total / 2 : align === 'right' ? x - total : x;
+  const oldAlign = ctx.textAlign;
+  const oldBaseline = ctx.textBaseline;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i < chars.length; i++) {
+    if (withStroke) ctx.strokeText(chars[i], cx, y);
+    ctx.fillText(chars[i], cx, y);
+    cx += widths[i] + spacing;
+  }
+  ctx.textAlign = oldAlign;
+  ctx.textBaseline = oldBaseline;
+  return total;
+}
 
+function drawMenuSeal(ctx, x, y, size, text) {
+  ctx.save();
+  ctx.translate(x + size / 2, y + size / 2);
+  ctx.rotate(-0.055);
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetY = 5;
+  const g = ctx.createLinearGradient(0, -size / 2, 0, size / 2);
+  g.addColorStop(0, '#b4382b');
+  g.addColorStop(1, '#671a15');
+  ctx.fillStyle = g;
+  rr(ctx, -size / 2, -size / 2, size, size, 5);
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = '#e3bd78';
+  ctx.lineWidth = 1.5;
+  rr(ctx, -size / 2, -size / 2, size, size, 5);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(22,8,6,0.45)';
+  ctx.lineWidth = 3;
+  rr(ctx, -size / 2 + 3, -size / 2 + 3, size - 6, size - 6, 3);
+  ctx.stroke();
+  ctx.fillStyle = '#f7dfae';
+  ctx.font = `700 ${Math.round(size * 0.47)}px ${DISPLAY}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-
-  ctx.font = `900 104px ${DISPLAY}`;
-  ctx.lineWidth = 14;
-  ctx.strokeStyle = 'rgba(22,12,10,0.92)';
-  ctx.strokeText('妖怪夜市', 640, 236);
-  const titleGrad = ctx.createLinearGradient(0, 182, 0, 292);
-  titleGrad.addColorStop(0, '#fff8e6');
-  titleGrad.addColorStop(0.45, '#f3dca6');
-  titleGrad.addColorStop(1, '#c99743');
-  ctx.fillStyle = titleGrad;
-  ctx.save();
-  ctx.shadowColor = 'rgba(255,190,92,0.35)';
-  ctx.shadowBlur = 38;
-  ctx.fillText('妖怪夜市', 640, 236);
+  ctx.fillText(text, 0, 1);
   ctx.restore();
+}
 
+function drawMenuRoof(ctx, b) {
+  const { x, y, w } = b;
   ctx.save();
-  ctx.translate(888, 196);
-  ctx.rotate(-0.06);
-  ctx.fillStyle = 'rgba(158,42,32,0.94)';
-  ctx.strokeStyle = '#e7c270';
-  ctx.lineWidth = 2;
-  rr(ctx, -34, -34, 68, 68, 8);
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 4;
+  const g = ctx.createLinearGradient(0, y - 16, 0, y + 10);
+  g.addColorStop(0, '#3a2b22');
+  g.addColorStop(0.55, '#211812');
+  g.addColorStop(1, '#15100d');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(x - 16, y + 6);
+  ctx.quadraticCurveTo(x + 6, y - 9, x + 44, y - 13);
+  ctx.lineTo(x + w - 44, y - 13);
+  ctx.quadraticCurveTo(x + w - 6, y - 9, x + w + 16, y + 6);
+  ctx.lineTo(x + w + 16, y + 10);
+  ctx.quadraticCurveTo(x + w / 2, y + 1, x - 16, y + 10);
+  ctx.closePath();
   ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = 'rgba(228,191,120,0.28)';
+  ctx.lineWidth = 1;
   ctx.stroke();
-  ctx.fillStyle = '#f3dca6';
-  ctx.font = `700 24px ${DISPLAY}`;
-  ctx.fillText('守', 0, -12);
-  ctx.fillText('夜', 0, 16);
+  ctx.strokeStyle = 'rgba(230,190,120,0.42)';
+  ctx.beginPath();
+  ctx.moveTo(x + 26, y - 10);
+  ctx.lineTo(x + w - 26, y - 10);
+  ctx.stroke();
   ctx.restore();
+}
 
-  ctx.strokeStyle = 'rgba(226,192,122,0.35)';
+function drawMenuMinor(ctx, b, label, opts = {}, hover = false) {
+  ctx.save();
+  const disabled = !!opts.disabled;
+  ctx.shadowColor = hover ? 'rgba(242,199,112,0.2)' : 'rgba(0,0,0,0.35)';
+  ctx.shadowBlur = hover ? 13 : 8;
+  ctx.shadowOffsetY = 4;
+  const g = ctx.createLinearGradient(0, b.y, 0, b.y + b.h);
+  if (opts.primary && !disabled) {
+    g.addColorStop(0, '#b6402e');
+    g.addColorStop(1, '#6b1c16');
+  } else {
+    g.addColorStop(0, disabled ? 'rgba(24,33,46,0.55)' : 'rgba(31,43,58,0.9)');
+    g.addColorStop(1, disabled ? 'rgba(10,15,24,0.55)' : 'rgba(11,18,28,0.94)');
+  }
+  ctx.fillStyle = g;
+  rr(ctx, b.x, b.y, b.w, b.h, 6);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = hover ? 'rgba(244,206,126,0.75)' : disabled ? 'rgba(228,191,120,0.16)' : 'rgba(228,191,120,0.42)';
+  ctx.lineWidth = hover ? 1.5 : 1;
+  rr(ctx, b.x, b.y, b.w, b.h, 6);
+  ctx.stroke();
+  ctx.fillStyle = disabled ? 'rgba(240,223,184,0.32)' : '#f0dfb8';
+  ctx.font = `400 15px ${DISPLAY}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(label, b.x + b.w / 2, b.y + b.h / 2 + 1);
+}
+
+function drawMenuPlaque(ctx, b, label, sub, hover) {
+  const { x, y, w, h } = b;
+  drawMenuRoof(ctx, b);
+  ctx.save();
+  ctx.shadowColor = hover ? 'rgba(230,128,70,0.35)' : 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = hover ? 32 : 24;
+  ctx.shadowOffsetY = 12;
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
+  if (hover) {
+    g.addColorStop(0, '#6b271b');
+    g.addColorStop(0.55, '#43150f');
+    g.addColorStop(1, '#2b0c08');
+  } else {
+    g.addColorStop(0, '#5b2017');
+    g.addColorStop(0.52, '#39110d');
+    g.addColorStop(1, '#260b08');
+  }
+  ctx.fillStyle = g;
+  rr(ctx, x, y, w, h, 7);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = hover ? '#f0d39a' : '#d8ae67';
+  ctx.lineWidth = 2;
+  rr(ctx, x, y, w, h, 7);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,229,170,0.16)';
+  ctx.lineWidth = 1;
+  rr(ctx, x + 8, y + 8, w - 16, h - 16, 4);
+  ctx.stroke();
+
+  const glow = ctx.createRadialGradient(x + w / 2, y, 6, x + w / 2, y, w * 0.7);
+  glow.addColorStop(0, hover ? 'rgba(255,178,90,0.2)' : 'rgba(255,178,90,0.13)');
+  glow.addColorStop(1, 'rgba(255,178,90,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(x, y, w, h * 0.7);
+
+  ctx.fillStyle = '#ffecc7';
+  ctx.font = `700 38px ${DISPLAY}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(42,12,6,0.9)';
+  ctx.shadowOffsetY = 2;
+  ctx.fillText(label, x + w / 2 - 10, y + h / 2 - 7);
+  ctx.shadowColor = 'transparent';
+  ctx.fillStyle = 'rgba(240,214,168,0.55)';
+  ctx.font = `400 10.5px ${KAI}`;
+  drawTracked(ctx, sub, x + w / 2 - 10, y + h - 21, 2.6, 'center', false);
+
+  ctx.fillStyle = 'rgba(255,211,151,0.28)';
+  ctx.font = `400 44px ${DISPLAY}`;
+  ctx.textAlign = 'center';
+  ctx.fillText('入', x + w - 40, y + h / 2 - 7);
+}
+
+function drawMenuTag(ctx, b, label, sub, rot, hover) {
+  const cx = b.x + b.w / 2;
+  ctx.strokeStyle = 'rgba(214,182,126,0.5)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(330, 318);
-  ctx.lineTo(520, 318);
-  ctx.moveTo(760, 318);
-  ctx.lineTo(950, 318);
+  ctx.moveTo(cx, b.y - 15);
+  ctx.lineTo(cx, b.y + 1);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, b.y - 16, 2.6, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.font = `400 20px ${KAI}`;
-  ctx.fillStyle = 'rgba(240,225,194,0.88)';
-  ctx.fillText('子时开张 · 恶客临门 · 摊上的物件醒了', 640, 318);
-
-  const selectedLevel = getLevel(game.selectedLevel);
-  ctx.fillStyle = 'rgba(4,7,14,0.38)';
-  rr(ctx, 370, 416, 540, 28, 12);
+  ctx.save();
+  ctx.translate(cx, b.y + b.h / 2);
+  ctx.rotate(rot);
+  ctx.translate(-cx, -(b.y + b.h / 2) - (hover ? 4 : 0));
+  ctx.shadowColor = hover ? 'rgba(242,199,112,0.28)' : 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = hover ? 16 : 10;
+  ctx.shadowOffsetY = 5;
+  const g = ctx.createLinearGradient(0, b.y, 0, b.y + b.h);
+  g.addColorStop(0, hover ? '#4a3523' : '#3a2a1d');
+  g.addColorStop(1, '#1d130d');
+  ctx.fillStyle = g;
+  rr(ctx, b.x, b.y, b.w, b.h, 5);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(226,192,122,0.12)';
-  ctx.lineWidth = 1;
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = hover ? 'rgba(255,224,160,0.9)' : 'rgba(228,191,120,0.56)';
+  ctx.lineWidth = hover ? 1.6 : 1;
+  rr(ctx, b.x, b.y, b.w, b.h, 5);
   ctx.stroke();
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+  ctx.lineWidth = 1;
+  rr(ctx, b.x + 3, b.y + 3, b.w - 6, b.h - 6, 3);
+  ctx.stroke();
+
+  ctx.fillStyle = hover ? '#ffedc8' : '#f2dfb4';
+  ctx.font = `400 17px ${DISPLAY}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  drawTracked(ctx, label, cx, b.y + 25, 3, 'center', false);
+  ctx.fillStyle = 'rgba(232,206,160,0.4)';
+  ctx.font = `400 8.5px ${KAI}`;
+  drawTracked(ctx, sub, cx, b.y + 45, 0.8, 'center', false);
+  ctx.restore();
+}
+
+function drawMenuSaveCard(ctx, game) {
+  const x = 922;
+  const y = 514;
+  const w = 300;
+  const h = 150;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.6)';
+  ctx.shadowBlur = 24;
+  ctx.shadowOffsetY = 10;
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
+  g.addColorStop(0, 'rgba(30,40,52,0.92)');
+  g.addColorStop(1, 'rgba(11,17,25,0.96)');
+  ctx.fillStyle = g;
+  rr(ctx, x, y, w, h, 4);
+  ctx.fill();
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(228,191,120,0.42)';
+  ctx.lineWidth = 1;
+  rr(ctx, x, y, w, h, 4);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(228,191,120,0.18)';
+  ctx.beginPath();
+  ctx.moveTo(x + 10, y + 9);
+  ctx.lineTo(x + w - 10, y + 9);
+  ctx.moveTo(x + 10, y + h - 9);
+  ctx.lineTo(x + w - 10, y + h - 9);
+  ctx.stroke();
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#f0dcb2';
+  ctx.font = `400 18px ${DISPLAY}`;
+  ctx.fillText('今夜留灯', x + 18, y + 24);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(236,218,184,0.4)';
+  ctx.font = `400 9px ${KAI}`;
+  ctx.fillText(game.hasSave ? `SAVE ${String(game.saveMeta.levelId).padStart(2, '0')}` : 'NO SAVE', x + w - 18, y + 24);
+
+  const r = game.records;
+  ctx.textAlign = 'left';
+  ctx.font = `400 11.5px ${KAI}`;
   if (game.hasSave && game.saveMeta) {
     const m = game.saveMeta;
-    const waveText = m.wave > 0 ? `第 ${m.wave} / ${m.total} 波` : '尚未开波';
-    ctx.font = `400 13px ${KAI}`;
-    ctx.fillStyle = 'rgba(244,229,200,0.82)';
-    ctx.fillText(
-      `上次停在 第 ${m.levelId} 关 · ${waveText} · 香火 ${m.sun} · ${difficultyLabel(m.difficulty)}${m.cheats ? ' · 作弊' : ''}`,
-      640, 430
-    );
-  } else if (game.menuNotice) {
-    ctx.font = `400 13px ${KAI}`;
-    ctx.fillStyle = 'rgba(255,157,122,0.9)';
-    ctx.fillText(game.menuNotice, 640, 430);
+    const lv = getLevel(m.levelId);
+    ctx.fillStyle = 'rgba(236,220,190,0.78)';
+    ctx.fillText(`停在 ${lv.dayName} · ${lv.name}`, x + 18, y + 54);
+    ctx.fillStyle = 'rgba(236,220,190,0.7)';
+    ctx.fillText(`第 ${m.wave} / ${m.total} 波 · 香火 ${m.sun}`, x + 18, y + 75);
+    ctx.fillStyle = 'rgba(236,220,190,0.58)';
+    ctx.fillText(`难度 ${difficultyLabel(m.difficulty)} · ${m.cheats ? '作弊开' : '门神俱在'}`, x + 18, y + 96);
   } else {
-    ctx.font = `400 13px ${KAI}`;
-    ctx.fillStyle = 'rgba(244,229,200,0.78)';
-    ctx.fillText(
-      `十夜自由选关 · 当前停在 ${selectedLevel.name} · 综合难度 ${selectedLevel.threat.toFixed(1)}×`,
-      640, 430
-    );
+    ctx.fillStyle = 'rgba(236,220,190,0.75)';
+    ctx.fillText('还没有点过灯', x + 18, y + 54);
+    ctx.fillStyle = 'rgba(236,220,190,0.58)';
+    ctx.fillText('选一夜开张，进度会留在这里', x + 18, y + 75);
+    ctx.fillStyle = 'rgba(236,220,190,0.45)';
+    ctx.fillText(r.bestWave > 0 || r.wins > 0 ? `最高 第 ${Math.max(1, r.bestWave)} 波 · 通关 ${r.wins} 次` : '最佳：暂无记录', x + 18, y + 96);
   }
 
-  drawButton(ctx, BTN.start, game.hasSave ? '继续上次对局' : '开始游戏', true);
-  if (game.hasSave) {
-    drawButton(ctx, BTN.newRun, '新开一局', false);
-    drawButton(ctx, BTN.settingsMenuWide, '设置', false);
-  } else {
-    drawButton(ctx, BTN.settingsMenu, '设置', false);
+  const pct = game.hasSave && game.saveMeta
+    ? clamp01(game.saveMeta.total ? game.saveMeta.wave / game.saveMeta.total : 0)
+    : clamp01(game.progress.cleared.length / 15);
+  const barX = x + 18;
+  const barW = w - 36;
+  ctx.fillStyle = 'rgba(255,235,195,0.1)';
+  ctx.fillRect(barX, y + h - 20, barW, 3);
+  if (pct > 0) {
+    const bg = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+    bg.addColorStop(0, '#a2783c');
+    bg.addColorStop(1, '#e8bf74');
+    ctx.fillStyle = bg;
+    ctx.fillRect(barX, y + h - 20, Math.max(4, barW * pct), 3);
   }
+}
 
-  ctx.fillStyle = 'rgba(4,7,14,0.42)';
-  rr(ctx, 382, 578, 516, 58, 14);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(226,192,122,0.10)';
+function drawMenu(ctx, game, t) {
+  drawMenuPetals(ctx, t);
+  const mouse = game.mouse;
+
+  const halo = ctx.createRadialGradient(250, 150, 24, 250, 150, 360);
+  halo.addColorStop(0, 'rgba(255,176,92,0.12)');
+  halo.addColorStop(0.55, 'rgba(255,150,70,0.045)');
+  halo.addColorStop(1, 'rgba(255,150,70,0)');
+  ctx.fillStyle = halo;
+  ctx.fillRect(0, 0, 580, 340);
+
+  drawMenuSeal(ctx, 70, 62, 42, '夜');
+  const titleGrad = ctx.createLinearGradient(0, 68, 0, 154);
+  titleGrad.addColorStop(0, '#fff8e7');
+  titleGrad.addColorStop(0.52, '#f2d9a2');
+  titleGrad.addColorStop(1, '#c4913e');
+  ctx.font = `900 76px ${DISPLAY}`;
+  ctx.lineWidth = 11;
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(24,10,7,0.92)';
+  ctx.fillStyle = titleGrad;
+  ctx.save();
+  ctx.shadowColor = 'rgba(255,188,96,0.26)';
+  ctx.shadowBlur = 26;
+  drawTracked(ctx, '妖怪夜市', 126, 112, 7, 'left', true);
+  ctx.restore();
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(240,221,185,0.6)';
+  ctx.font = `400 11.5px ${KAI}`;
+  drawTracked(ctx, 'YOKAI NIGHT MARKET · 子时开张', 128, 166, 3.2, 'left', false);
+  ctx.strokeStyle = 'rgba(228,191,120,0.5)';
   ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(128, 190);
+  ctx.lineTo(456, 190);
   ctx.stroke();
 
-  ctx.font = `400 13px ${KAI}`;
-  ctx.fillStyle = 'rgba(232,216,186,0.66)';
-  ctx.fillText(
-    `${game.hasSave ? '新局：' : ''}第 ${selectedLevel.id} 关 · 难度 ${difficultyLabel(game.settings.difficulty)} · 作弊 ${game.settings.cheats ? '开' : '关'}`,
-    640, 598
-  );
+  drawMenuPlaque(ctx, BTN.start, '开始游戏', 'ENTER　夜　市', inRect(mouse.x, mouse.y, BTN.start));
+  drawMenuMinor(ctx, BTN.continueMenu, '继续上次对局', {
+    primary: game.hasSave,
+    disabled: !game.hasSave
+  }, inRect(mouse.x, mouse.y, BTN.continueMenu));
+  drawMenuMinor(ctx, BTN.newRun, '新开一局', {}, inRect(mouse.x, mouse.y, BTN.newRun));
+
+  drawMenuTag(ctx, BTN.levelsMenu, '关卡', '十五夜', -0.024, inRect(mouse.x, mouse.y, BTN.levelsMenu));
+  drawMenuTag(ctx, BTN.almanacMenu, '图鉴', '草木·恶客', 0.019, inRect(mouse.x, mouse.y, BTN.almanacMenu));
+  drawMenuTag(ctx, BTN.tutorialMenu, '教程', '第一课', -0.014, inRect(mouse.x, mouse.y, BTN.tutorialMenu));
+  drawMenuTag(ctx, BTN.settingsMenu, '设置', '声音与画面', 0.026, inRect(mouse.x, mouse.y, BTN.settingsMenu));
+
+  drawMenuSaveCard(ctx, game);
 
   const r = game.records;
   const hasRecord = r.bestWave > 0 || r.bestKills > 0 || r.wins > 0;
-  ctx.font = `400 11.5px ${KAI}`;
-  ctx.fillStyle = 'rgba(232,216,186,0.42)';
   const bestTime = r.wins > 0 && r.bestWinTime != null ? ` · 最快 ${fmt(r.bestWinTime)}` : '';
-  ctx.fillText(
-    hasRecord
-      ? `最高 第 ${Math.max(1, r.bestWave)} 波 · 击退 ${r.bestKills} · 通关 ${r.wins} 次${bestTime}`
-      : '最佳：暂无记录',
-    640, 622
-  );
-
-  ctx.font = `400 13px ${KAI}`;
-  ctx.fillStyle = 'rgba(226,212,184,0.4)';
-  ctx.fillText('点香火 · 选牌子 · 点空地放下 · 点已放置单位升阶 · P 暂停', 640, 658);
-
-  drawLevelsMenuButton(ctx, game);
-  drawAlmanacMenuButton(ctx, game);
-  drawTutorialMenuButton(ctx, game);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  if (game.menuNotice) {
+    ctx.fillStyle = 'rgba(255,157,122,0.9)';
+    ctx.font = `400 11px ${KAI}`;
+    ctx.fillText(game.menuNotice, 64, 680);
+  } else {
+    ctx.fillStyle = 'rgba(232,216,186,0.42)';
+    ctx.font = `400 10.5px ${KAI}`;
+    ctx.fillText(
+      hasRecord
+        ? `最佳 第 ${Math.max(1, r.bestWave)} 波 · 击退 ${r.bestKills} · 通关 ${r.wins} 次${bestTime}`
+        : '最佳：暂无记录',
+      64, 680
+    );
+  }
+  ctx.fillStyle = 'rgba(226,212,184,0.3)';
+  ctx.font = `400 10.5px ${KAI}`;
+  ctx.fillText('点香火 · 选牌子 · 点空地放下 · 点已放置单位升阶 · P 暂停', 64, 700);
 
   if (game.confirmNew) {
     drawConfirm(ctx, '新开一局？', '选择关卡后开始，会覆盖上次对局的存档');
@@ -729,120 +975,6 @@ function drawMenuPetals(ctx, t) {
   }
   ctx.restore();
   ctx.globalAlpha = 1;
-}
-
-function drawCornerButtonBase(ctx, b, hover) {
-  ctx.save();
-  ctx.shadowColor = hover ? 'rgba(242,199,112,0.28)' : 'rgba(0,0,0,0.35)';
-  ctx.shadowBlur = hover ? 14 : 8;
-  ctx.shadowOffsetY = 3;
-  const g = ctx.createLinearGradient(0, b.y, 0, b.y + b.h);
-  g.addColorStop(0, 'rgba(22,31,50,0.92)');
-  g.addColorStop(1, 'rgba(9,14,24,0.92)');
-  ctx.fillStyle = g;
-  rr(ctx, b.x, b.y, b.w, b.h, 9);
-  ctx.fill();
-  ctx.restore();
-  ctx.strokeStyle = hover ? 'rgba(244,206,126,0.8)' : 'rgba(226,192,122,0.32)';
-  ctx.lineWidth = hover ? 1.6 : 1;
-  ctx.stroke();
-}
-
-function drawLevelsMenuButton(ctx, game) {
-  const b = BTN.levelsMenu;
-  const level = getLevel(game.selectedLevel);
-  const hover = inRect(game.mouse.x, game.mouse.y, b);
-  drawCornerButtonBase(ctx, b, hover);
-
-  ctx.strokeStyle = '#e2c07a';
-  ctx.lineWidth = 1.3;
-  const gx = b.x + 16;
-  const gy = b.y + 12;
-  for (let row = 0; row < 2; row++) {
-    for (let col = 0; col < 2; col++) {
-      ctx.strokeRect(gx + col * 8, gy + row * 8, 6, 6);
-    }
-  }
-
-  ctx.fillStyle = '#f0dfb8';
-  ctx.font = `700 15px ${KAI}`;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('关卡', b.x + 42, b.y + 21);
-  ctx.fillStyle = 'rgba(232,211,162,0.55)';
-  ctx.font = `400 10px ${KAI}`;
-  ctx.textAlign = 'right';
-  ctx.fillText(`第${level.id}关`, b.x + b.w - 10, b.y + 21);
-}
-
-function drawAlmanacMenuButton(ctx, game) {
-  const b = BTN.almanacMenu;
-  const hover = inRect(game.mouse.x, game.mouse.y, b);
-  drawCornerButtonBase(ctx, b, hover);
-
-  const x = b.x + 16;
-  const y = b.y + 12;
-  ctx.strokeStyle = '#e2c07a';
-  ctx.lineWidth = 1.4;
-  ctx.strokeRect(x, y, 16, 18);
-  ctx.beginPath();
-  ctx.moveTo(x + 8, y);
-  ctx.lineTo(x + 8, y + 18);
-  ctx.moveTo(x + 3, y + 5);
-  ctx.lineTo(x + 6, y + 5);
-  ctx.moveTo(x + 10, y + 5);
-  ctx.lineTo(x + 13, y + 5);
-  ctx.stroke();
-
-  ctx.fillStyle = '#f0dfb8';
-  ctx.font = `700 15px ${KAI}`;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('图鉴', b.x + 42, b.y + 21);
-  ctx.fillStyle = 'rgba(232,211,162,0.45)';
-  ctx.font = `400 10px ${KAI}`;
-  ctx.textAlign = 'right';
-  ctx.fillText('B', b.x + b.w - 10, b.y + 21);
-}
-
-function drawTutorialMenuButton(ctx, game) {
-  const b = BTN.tutorialMenu;
-  const hover = inRect(game.mouse.x, game.mouse.y, b);
-  drawCornerButtonBase(ctx, b, hover);
-
-  const x = b.x + 14;
-  const y = b.y + 11;
-  ctx.strokeStyle = '#e2c07a';
-  ctx.lineWidth = 1.3;
-  rr(ctx, x, y, 15, 20, 2);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x + 3, y + 6);
-  ctx.lineTo(x + 12, y + 6);
-  ctx.moveTo(x + 3, y + 11);
-  ctx.lineTo(x + 12, y + 11);
-  ctx.moveTo(x + 3, y + 16);
-  ctx.lineTo(x + 9, y + 16);
-  ctx.stroke();
-  ctx.fillStyle = '#c8402f';
-  ctx.beginPath();
-  ctx.arc(x + 20, y + 26, 4.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#f3dca6';
-  ctx.font = '700 8px ' + KAI;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('学', x + 20, y + 26.5);
-
-  ctx.fillStyle = '#f0dfb8';
-  ctx.font = `700 14px ${KAI}`;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('新手教程', b.x + 38, b.y + 21);
-  ctx.fillStyle = 'rgba(232,211,162,0.45)';
-  ctx.font = `400 10px ${KAI}`;
-  ctx.textAlign = 'right';
-  ctx.fillText('入门', b.x + b.w - 9, b.y + 21);
 }
 
 function drawTutorial(ctx, game, t) {
@@ -1117,7 +1249,7 @@ function drawOverlay(ctx, game) {
     ctx.font = `400 16px ${KAI}`;
     ctx.fillStyle = 'rgba(235,218,184,0.6)';
     ctx.fillText(
-      game.tutorial ? '新手教程 · 第一课 · 随时可退' : `${game.level.name} · ${difficultyLabel(game.runDifficulty)} · 本局锁定`,
+      game.tutorial ? '新手教程 · 第一课 · 随时可退' : `${game.level.dayName || ''} ${game.level.name} · ${difficultyLabel(game.runDifficulty)} · 本局锁定`,
       640, 338
     );
 
@@ -1298,7 +1430,7 @@ function drawPrepRosterCard(ctx, game, i, def, t) {
   ctx.beginPath();
   ctx.arc(cx, cy, 24, 0, Math.PI * 2);
   ctx.fill();
-  drawPlant(ctx, def.id, cx, cy, t, { scale: 0.34, noShadow: true });
+  drawPlant(ctx, def.id, cx, cy, t, { scale: 0.34, noShadow: true, armed: true, arm: 1 });
 
   ctx.fillStyle = 'rgba(36,24,16,0.9)';
   rr(ctx, r.x + 5, r.y + 4, 34, 14, 7);
@@ -1378,7 +1510,7 @@ function drawPrepSlot(ctx, game, i, t) {
   ctx.fillRect(r.x, r.y, r.w, 3);
   ctx.restore();
 
-  drawPlant(ctx, id, r.x + r.w / 2, r.y + 45, t, { scale: 0.42, noShadow: true });
+  drawPlant(ctx, id, r.x + r.w / 2, r.y + 45, t, { scale: 0.42, noShadow: true, armed: true, arm: 1 });
   ctx.fillStyle = 'rgba(247,221,168,0.72)';
   ctx.font = `700 10px ${KAI}`;
   ctx.textAlign = 'left';
@@ -1407,6 +1539,7 @@ function drawPrepZombie(ctx, game, i, info, t) {
   rr(ctx, r.x, r.y, r.w, r.h, 8);
   ctx.stroke();
   drawZombie(ctx, info.type, r.x + r.w / 2, r.y + r.h - 26, t, {
+    idle: true,
     def, scale: 0.4, hpRatio: 1
   });
   ctx.fillStyle = 'rgba(244,210,146,0.72)';
@@ -1554,7 +1687,7 @@ function drawPrepCinematic(ctx, game, t) {
     ctx.fillText('摊子刚支起来，香气正热。', 640, 248);
     ctx.fillStyle = 'rgba(226,192,122,0.55)';
     ctx.font = `400 11px ${KAI}`;
-    ctx.fillText(`${level.name} · ${level.tag} · 共 ${level.waves.length} 波`, 640, 286);
+    ctx.fillText(`${level.dayName} · ${level.name} · ${level.tag} · 共 ${level.waves.length} 波`, 640, 286);
     ctx.globalAlpha = 1;
   }
 
@@ -1632,7 +1765,7 @@ function drawPrepCinematic(ctx, game, t) {
       ctx.save();
       ctx.globalAlpha = a;
       drawZombie(ctx, info.type, x, y, t, {
-        def, scale: 0.72, hpRatio: 1
+        def, scale: 0.72, hpRatio: 1, idle: true
       });
       ctx.restore();
       if (p > 0.55) {
@@ -1665,18 +1798,23 @@ function drawPrepCinematic(ctx, game, t) {
     }
   }
 
-  ctx.fillStyle = 'rgba(1,2,4,0.96)';
-  ctx.fillRect(0, 0, VIEW.w, 46);
-  ctx.fillRect(0, VIEW.h - 46, VIEW.w, 46);
-  ctx.fillStyle = 'rgba(226,192,122,0.55)';
-  ctx.font = `400 10px ${KAI}`;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('备战 · ' + level.name + ' · ' + level.tag, 54, 23);
-  ctx.textAlign = 'right';
-  ctx.fillStyle = 'rgba(232,211,162,0.5)';
-  ctx.fillText('点击跳过', 1226, VIEW.h - 23);
-  ctx.textAlign = 'left';
+  const barA = 1 - clamp01((ct - (revealStart - 0.45)) / 0.5);
+  if (barA > 0) {
+    ctx.save();
+    ctx.globalAlpha = barA;
+    ctx.fillStyle = 'rgba(1,2,4,0.96)';
+    ctx.fillRect(0, 0, VIEW.w, 46);
+    ctx.fillRect(0, VIEW.h - 46, VIEW.w, 46);
+    ctx.fillStyle = 'rgba(226,192,122,0.55)';
+    ctx.font = `400 10px ${KAI}`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('备战 · ' + level.dayName + ' · ' + level.name + ' · ' + level.tag, 54, 23);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(232,211,162,0.5)';
+    ctx.fillText('点击跳过', 1226, VIEW.h - 23);
+    ctx.restore();
+  }
   ctx.restore();
 }
 
@@ -1701,10 +1839,10 @@ function drawPrep(ctx, game, t) {
   ctx.fillText('备战', 104, 76);
   ctx.fillStyle = '#e8cea0';
   ctx.font = `700 21px ${KAI}`;
-  ctx.fillText(`${level.name} · ${level.tag}`, 210, 68);
+  ctx.fillText(`${level.dayName} · ${level.name} · ${level.tag}`, 210, 68);
   ctx.fillStyle = 'rgba(232,211,162,0.55)';
   ctx.font = `400 12px ${KAI}`;
-  ctx.fillText(`第 ${level.id} 关 · 共 ${level.waves.length} 波`, 210, 92);
+  ctx.fillText(`第 ${level.id} / 15 关 · ${level.rows} 行 · 共 ${level.waves.length} 波`, 210, 92);
 
   const chip = { x: 920, y: 52, w: 250, h: 42 };
   ctx.fillStyle = 'rgba(255,235,196,0.06)';
@@ -1849,7 +1987,7 @@ function drawSettings(ctx, game) {
     const needsAuto = row.requires && !game.settings[row.requires];
     const enabled = !runLocked && !needsAuto;
     let currentValue = game.settings[row.key];
-    if (row.lockInRun && !fromMenu) {
+    if (!fromMenu && (row.lockInRun || row.key === 'cheats')) {
       currentValue = row.key === 'cheats' ? game.runCheats : game.runDifficulty;
     }
 
@@ -1865,6 +2003,10 @@ function drawSettings(ctx, game) {
     ctx.fillStyle = enabled ? 'rgba(230,210,175,0.42)' : 'rgba(230,210,175,0.22)';
     ctx.fillText(note, SETTINGS.labelX, row.y + 21);
 
+    if (row.type === 'range') {
+      drawRange(ctx, row, currentValue, enabled, game);
+      continue;
+    }
     for (let i = 0; i < row.options.length; i++) {
       const pill = settingsPill(row, i);
       const selected = currentValue === pill.option.value;
@@ -1874,6 +2016,40 @@ function drawSettings(ctx, game) {
   }
 
   drawButton(ctx, SETTINGS.back, '返回', true);
+}
+
+function drawRange(ctx, row, value, enabled, game) {
+  const r = settingsRangeRect(row);
+  const pct = Math.max(0, Math.min(100, Number(value) || 0));
+  const knobX = r.x + (r.w * pct) / 100;
+  ctx.save();
+  ctx.globalAlpha = enabled ? 1 : 0.3;
+  ctx.fillStyle = 'rgba(8,14,22,0.8)';
+  rr(ctx, r.x, r.y, r.w, r.h, 7);
+  ctx.fill();
+  const fill = ctx.createLinearGradient(r.x, 0, r.x + r.w, 0);
+  fill.addColorStop(0, '#8d6a32');
+  fill.addColorStop(1, '#e0b868');
+  ctx.fillStyle = fill;
+  rr(ctx, r.x, r.y, Math.max(2, (r.w * pct) / 100), r.h, 7);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(226,192,122,0.38)';
+  ctx.lineWidth = 1;
+  rr(ctx, r.x, r.y, r.w, r.h, 7);
+  ctx.stroke();
+  ctx.fillStyle = '#fff0c8';
+  ctx.beginPath();
+  ctx.arc(knobX, r.y + r.h / 2, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(120,80,36,0.9)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = enabled ? '#f0dfba' : 'rgba(220,200,168,0.28)';
+  ctx.font = `700 13px ${KAI}`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`${Math.round(pct)}%`, r.x + r.w + 34, r.y + r.h / 2 + 1);
+  ctx.restore();
 }
 
 function drawPill(ctx, rect, label, selected, enabled, hover) {

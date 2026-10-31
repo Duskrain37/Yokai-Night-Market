@@ -1,10 +1,10 @@
-# 妖怪夜市 v0.2.2
+# 妖怪夜市 v0.2.3
 
 中式夜市题材的 5×9 车道塔防。当前版本包含 16 种植物、12 种恶客（低/中/高三阶）、十关自由选关、10 个出战槽位、四档渲染分辨率、全屏启动，以及笙/箫/笛/二胡/古琴/琵琶与鼓磬的实时器乐配乐。
 
 ## 直接运行
 
-- 双击 `release/妖怪夜市v0.2.2.exe`。这是单文件 exe，不需要旁边的 `www` 或 DLL。
+- 双击 `release/妖怪夜市v0.2.3.exe`。这是单文件 exe，不需要旁边的 `www` 或 DLL。
 - 首次启动会把内置资源解包到 `%LOCALAPPDATA%/YaoguaiNightMarket/runtime`。
 - 开始游戏先进入「十夜」选关，第 1—10 关可自由选择。
 - 默认全屏启动；F11 切换全屏。设置内可选自适应 / 1280×720 / 1920×1080 / 2560×1600 渲染分辨率。
@@ -33,7 +33,7 @@
 ## 重新生成单文件 exe
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File shell/build.ps1 -Version 0.2.2 -Force
+powershell -ExecutionPolicy Bypass -File shell/build.ps1 -Version 0.2.3 -Force
 ```
 
 音乐与音效为 Web Audio 实时声学建模，并非真人录音采样；尚未做人耳精调混音。

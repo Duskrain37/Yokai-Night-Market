@@ -1,8 +1,9 @@
 export function drawShell(ctx, shell, t) {
   const ratio = shell.maxHp > 0 ? Math.max(0, Math.min(1, shell.hp / shell.maxHp)) : 1;
-  const pulse = 0;
+  const pulse = Math.sin(t * 1.35) * 0.012;
   ctx.save();
-  ctx.translate(0, -10 + pulse);
+  ctx.translate(0, -10 + pulse * 18);
+  ctx.scale(1 + pulse, 1 - pulse * 0.5);
   ctx.fillStyle = 'rgba(18,26,20,0.5)';
   ctx.beginPath();
   ctx.ellipse(0, 34, 38, 8, 0, 0, Math.PI * 2);
@@ -91,7 +92,10 @@ export function drawShell(ctx, shell, t) {
 
 export function drawShellFront(ctx, shell, t) {
   const ratio = shell.maxHp > 0 ? Math.max(0, Math.min(1, shell.hp / shell.maxHp)) : 1;
+  const breathe = Math.sin(t * 1.35) * 0.012;
   ctx.save();
+  ctx.translate(0, breathe * 18);
+  ctx.scale(1 + breathe, 1 - breathe * 0.5);
   const g = ctx.createRadialGradient(-10, -30, 8, 0, -12, 50);
   g.addColorStop(0, '#87976f');
   g.addColorStop(0.55, ratio > 0.35 ? '#566647' : '#46543b');

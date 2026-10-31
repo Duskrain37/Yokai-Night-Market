@@ -484,6 +484,20 @@ const FINAL_ARP = BATTLE_ARP.map((row) => row.map((n) => n - 12));
 const FINAL_ERHU = [74, 75, 72, 74, 77, 75, 72, 70];
 const FINAL_DIZI = [null, 79, null, 77, null, 75, null, 72];
 
+const MUSIC_FILES = {
+  menu: './assets/music/menu.ogg',
+  battle: './assets/music/battle.ogg',
+  hot: './assets/music/hot.ogg',
+  final: './assets/music/final.ogg'
+};
+
+const MUSIC_VOLUMES = {
+  menu: 0.7,
+  battle: 0.82,
+  hot: 0.98,
+  final: 1
+};
+
 const TRACKS = {
   menu: {
     bpm: 66,
@@ -641,6 +655,15 @@ class AudioEngine {
     this.timer = null;
     this.started = false;
     this.trackToken = 0;
+    this.musicMode = 'file';
+    this.musicStyle = 'grand';
+    this.musicVolume = 0.7;
+    this.sfxVolume = 0.8;
+    this.musicBuffers = new Map();
+    this.musicLoads = new Map();
+    this.musicActive = null;
+    this.musicPending = null;
+    this.musicPreloaded = false;
     this.duck = new Set();
     this.last = Object.create(null);
     this.lastHit = 0;
@@ -657,6 +680,29 @@ class AudioEngine {
       const now = this.ctx.currentTime;
       this.master.gain.cancelScheduledValues(now);
       this.master.gain.setTargetAtTime(next ? 0.0001 : 0.86, now, 0.05);
+    }
+  }
+
+  setMusicStyle(style) {
+    if (style !== 'plain' && style !== 'grand') return;
+    if (style === this.musicStyle) return;
+    this.musicStyle = style;
+    this.trackToken += 1;
+    if (!this.ctx) return;
+    this.stopActiveMusic(0.35);
+    if (style === 'plain') this.startProcedural(this.track);
+    else this.startMusicFile(this.track, this.trackToken);
+  }
+
+  setMusicVolume(volume) {
+    this.musicVolume = Math.max(0, Math.min(1, Number(volume) || 0));
+    this.applyMusicGain(0.35);
+  }
+
+  setSfxVolume(volume) {
+    this.sfxVolume = Math.max(0, Math.min(1, Number(volume) || 0));
+    if (this.sfxGain && this.ctx) {
+      this.sfxGain.gain.setTargetAtTime(this.sfxVolume, this.ctx.currentTime, 0.05);
     }
   }
 
@@ -681,7 +727,7 @@ class AudioEngine {
     this.comp.connect(this.analyser);
 
     this.sfxGain = ctx.createGain();
-    this.sfxGain.gain.value = 0.8;
+    this.sfxGain.gain.value = this.sfxVolume;
     this.sfxGain.connect(this.master);
 
     this.musicIn = ctx.createGain();
@@ -710,6 +756,9 @@ class AudioEngine {
     this.started = true;
     this.timer = setInterval(() => this.tick(), 90);
     this.applyMusicGain(1.2);
+    if (this.musicStyle === 'plain') this.startProcedural(this.track);
+    else this.startMusicFile(this.track, this.trackToken);
+    this.preloadMusicFiles();
   }
 
   async unlock() {
@@ -737,14 +786,106 @@ class AudioEngine {
   }
 
   trackBase() {
-    return (TRACKS[this.track]?.volume ?? 0.6) * 1.05;
+    return (MUSIC_VOLUMES[this.track] ?? TRACKS[this.track]?.volume ?? 0.6) * 1.05;
+  }
+
+  loadMusicBuffer(id) {
+    if (this.musicBuffers.has(id)) return Promise.resolve(this.musicBuffers.get(id));
+    if (this.musicLoads.has(id)) return this.musicLoads.get(id);
+    const src = MUSIC_FILES[id];
+    if (!src || !this.ctx) return Promise.reject(new Error('music unavailable'));
+    const task = fetch(src)
+      .then((res) => {
+        if (!res.ok) throw new Error(`music ${res.status}`);
+        return res.arrayBuffer();
+      })
+      .then((data) => this.ctx.decodeAudioData(data))
+      .then((buffer) => {
+        this.musicBuffers.set(id, buffer);
+        this.musicLoads.delete(id);
+        return buffer;
+      })
+      .catch((err) => {
+        this.musicLoads.delete(id);
+        throw err;
+      });
+    this.musicLoads.set(id, task);
+    return task;
+  }
+
+  preloadMusicFiles() {
+    if (this.musicPreloaded || !this.ctx) return;
+    this.musicPreloaded = true;
+    for (const id of Object.keys(MUSIC_FILES)) {
+      this.loadMusicBuffer(id).catch(() => {});
+    }
+  }
+
+  startMusicFile(id, token) {
+    if (!this.ctx || !MUSIC_FILES[id]) {
+      this.startProcedural(id);
+      return;
+    }
+    const key = `${id}:${token}`;
+    if (this.musicPending === key) return;
+    this.musicPending = key;
+    this.loadMusicBuffer(id).then((buffer) => {
+      if (this.musicPending === key) this.musicPending = null;
+      if (token !== this.trackToken || id !== this.track || !this.ctx) return;
+      this.playMusicBuffer(id, buffer);
+    }).catch(() => {
+      if (this.musicPending === key) this.musicPending = null;
+      if (token !== this.trackToken || id !== this.track) return;
+      this.startProcedural(id);
+    });
+  }
+
+  playMusicBuffer(id, buffer) {
+    this.stopActiveMusic(0.5);
+    const source = this.ctx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    const gain = this.ctx.createGain();
+    const now = this.ctx.currentTime;
+    gain.gain.setValueAtTime(0.0001, now);
+    source.connect(gain);
+    gain.connect(this.musicIn);
+    source.start(now);
+    gain.gain.linearRampToValueAtTime(1, now + 0.9);
+    this.musicActive = { source, gain, id };
+    this.musicMode = 'file';
+    this.applyMusicGain(0.55);
+  }
+
+  stopActiveMusic(fade = 0.55) {
+    const active = this.musicActive;
+    if (!active || !this.ctx) return;
+    this.musicActive = null;
+    const now = this.ctx.currentTime;
+    const gain = active.gain.gain;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(Math.max(0.0001, gain.value), now);
+    gain.exponentialRampToValueAtTime(0.0001, now + fade);
+    try {
+      active.source.stop(now + fade + 0.08);
+    } catch {}
+  }
+
+  startProcedural(id) {
+    if (!this.ctx || !TRACKS[id]) return;
+    this.stopActiveMusic(0.25);
+    this.musicMode = 'procedural';
+    this.track = id;
+    this.step = 0;
+    this.nextTime = this.ctx.currentTime + 0.08;
+    this.applyMusicGain(0.55);
   }
 
   applyMusicGain(fade = 0.4) {
     if (!this.ctx) return;
     const now = this.ctx.currentTime;
     const ducked = this.duck.size > 0;
-    const target = this.trackBase() * (ducked ? 0.24 : 1);
+    const target = this.trackBase() * this.musicVolume * (ducked ? 0.24 : 1);
     this.musicGain.gain.cancelScheduledValues(now);
     this.musicGain.gain.setTargetAtTime(target, now, Math.max(0.03, fade / 3));
     this.musicFilter.frequency.cancelScheduledValues(now);
@@ -764,25 +905,24 @@ class AudioEngine {
   }
 
   setTrack(id) {
-    if (!TRACKS[id] || id === this.track) return;
+    if (!MUSIC_FILES[id] && !TRACKS[id]) return;
+    if (id === this.track) {
+      if (this.ctx && this.musicMode === 'file' && !this.musicActive) {
+        this.startMusicFile(id, this.trackToken);
+      }
+      return;
+    }
     this.track = id;
     this.step = 0;
     this.trackToken += 1;
-    const token = this.trackToken;
     if (!this.ctx) return;
-    const now = this.ctx.currentTime;
-    this.nextTime = now + 0.25;
-    this.musicGain.gain.cancelScheduledValues(now);
-    this.musicGain.gain.setTargetAtTime(0.0001, now, 0.07);
-    setTimeout(() => {
-      if (token !== this.trackToken || !this.ctx) return;
-      this.step = 0;
-      this.nextTime = this.ctx.currentTime + 0.05;
-      this.applyMusicGain(0.55);
-    }, 250);
+    this.stopActiveMusic(0.55);
+    if (this.musicStyle === 'plain') this.startProcedural(id);
+    else this.startMusicFile(id, this.trackToken);
   }
 
   tick() {
+    if (this.musicMode !== 'procedural') return;
     if (!this.ctx || this.ctx.state !== 'running' || !this.started) return;
     const now = this.ctx.currentTime;
     const track = TRACKS[this.track];
@@ -809,7 +949,15 @@ class AudioEngine {
       hit: 0.045,
       eat: 0.11,
       collect: 0.02,
-      zombieDie: 0.035
+      zombieDie: 0.035,
+      catShot: 0.045,
+      lobShot: 0.05,
+      starShot: 0.05,
+      needleShot: 0.035,
+      gravelShot: 0.05,
+      judgeStrike: 0.08,
+      flytrap: 0.06,
+      mine: 0.08
     }[name] || 0;
     if (gate && now - (this.last[name] || 0) < gate) return;
     if (gate) this.last[name] = now;
@@ -834,6 +982,45 @@ class AudioEngine {
       case 'shoot':
         noiseBurst(this.ctx, out, time, 0.07, 0.04, 'bandpass', 1600, 520, 1.1, pan);
         tone(this.ctx, out, time, 540, 0.07, 0.03, 'triangle', pan, 0.002, 240);
+        break;
+      case 'catShot':
+        tone(this.ctx, out, time, 760, 0.16, 0.02, 'sine', pan, 0.004, 1240);
+        tone(this.ctx, out, time + 0.02, 1140, 0.2, 0.011, 'sine', pan, 0.005, 760);
+        noiseBurst(this.ctx, out, time, 0.13, 0.016, 'highpass', 2200, 1100, 1.3, pan);
+        break;
+      case 'lobShot':
+        noiseBurst(this.ctx, out, time, 0.2, 0.026, 'bandpass', 420, 900, 1.4, pan);
+        tone(this.ctx, out, time, 190, 0.18, 0.022, 'triangle', pan, 0.006, 108);
+        tone(this.ctx, out, time + 0.24, 92, 0.14, 0.02, 'sine', pan, 0.002, 64);
+        break;
+      case 'starShot':
+        bell(this.ctx, out, time, 1320, 0.28, 0.017, pan);
+        bell(this.ctx, out, time + 0.035, 1760, 0.24, 0.011, pan);
+        tone(this.ctx, out, time, 880, 0.2, 0.01, 'sine', pan, 0.003, 1320);
+        break;
+      case 'needleShot':
+        noiseBurst(this.ctx, out, time, 0.08, 0.032, 'highpass', 5200, 2800, 1.7, pan);
+        tone(this.ctx, out, time, 1850, 0.055, 0.014, 'triangle', pan, 0.001, 920);
+        break;
+      case 'gravelShot':
+        noiseBurst(this.ctx, out, time, 0.12, 0.036, 'bandpass', 900, 300, 0.9, pan);
+        tone(this.ctx, out, time, 140, 0.1, 0.024, 'triangle', pan, 0.002, 66);
+        break;
+      case 'judgeStrike':
+        gong(this.ctx, out, time, 0.032, pan);
+        tone(this.ctx, out, time, 68, 0.44, 0.065, 'sine', pan, 0.004, 36);
+        noiseBurst(this.ctx, out, time, 0.22, 0.04, 'lowpass', 460, 120, 0.8, pan);
+        tone(this.ctx, out, time + 0.015, 430, 0.32, 0.014, 'triangle', pan, 0.004, 205);
+        break;
+      case 'flytrap':
+        noiseBurst(this.ctx, out, time, 0.13, 0.05, 'lowpass', 900, 180, 0.9, pan);
+        tone(this.ctx, out, time, 175, 0.14, 0.035, 'triangle', pan, 0.002, 72);
+        noiseBurst(this.ctx, out, time + 0.015, 0.05, 0.03, 'highpass', 2400, 1600, 1.2, pan);
+        break;
+      case 'mine':
+        noiseBurst(this.ctx, out, time, 0.3, 0.07, 'lowpass', 700, 130, 0.8, pan);
+        tone(this.ctx, out, time, 105, 0.24, 0.05, 'sine', pan, 0.003, 42);
+        noiseBurst(this.ctx, out, time + 0.04, 0.1, 0.025, 'bandpass', 1500, 600, 1.1, pan);
         break;
       case 'produce':
         bell(this.ctx, out, time, 760, 0.35, 0.025, pan);
@@ -1001,6 +1188,10 @@ class AudioEngine {
       state: this.ctx ? this.ctx.state : 'none',
       track: this.track,
       step: this.step,
+      mode: this.musicMode,
+      activeFile: this.musicActive?.id || null,
+      fileDuration: this.musicActive?.source?.buffer ? +this.musicActive.source.buffer.duration.toFixed(2) : 0,
+      loaded: [...this.musicBuffers.keys()],
       duck: [...this.duck],
       gain: this.musicGain ? +this.musicGain.gain.value.toFixed(3) : 0,
       rms: +this.readRms().toFixed(4)

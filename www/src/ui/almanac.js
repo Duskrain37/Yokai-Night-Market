@@ -602,7 +602,9 @@ function drawList(ctx, game, entries) {
     if (game.almanacTab === 'plant') {
       drawPlant(ctx, entry.type, r.x + 20, r.y + 24, 0, {
         scale: 0.2,
-        noShadow: true
+        noShadow: true,
+        armed: true,
+        arm: 1
       });
     } else {
       drawZombie(ctx, entry.type, r.x + 20, r.y + 21, 0, {
@@ -651,7 +653,7 @@ function entryHeader(ctx, game, entry) {
   const iconX = 1044;
   const iconY = 150;
   if (isPlant) {
-    drawPlant(ctx, entry.type, iconX, iconY, 0, { scale: 0.9 });
+    drawPlant(ctx, entry.type, iconX, iconY, 0, { scale: 0.9, armed: true, arm: 1 });
   } else {
     drawZombie(ctx, entry.type, iconX, iconY + 6, 0, {
       def: ZOMBIE_TYPES[entry.type],

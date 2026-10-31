@@ -46,6 +46,9 @@ export function loadSettings(defaults) {
   if (typeof s.cheats === 'boolean') out.cheats = s.cheats;
   if (typeof s.sound === 'boolean') out.sound = s.sound;
   if (['auto', '720', '1080', '1600'].includes(s.resolution)) out.resolution = s.resolution;
+  if (['plain', 'grand'].includes(s.musicStyle)) out.musicStyle = s.musicStyle;
+  if (Number.isFinite(s.musicVolume)) out.musicVolume = Math.max(0, Math.min(100, Math.round(s.musicVolume)));
+  if (Number.isFinite(s.sfxVolume)) out.sfxVolume = Math.max(0, Math.min(100, Math.round(s.sfxVolume)));
   return out;
 }
 
@@ -91,11 +94,11 @@ export function loadProgress(defaults) {
   const p = payload.progress;
   const out = { ...defaults };
   if (Number.isFinite(p.selected)) {
-    out.selected = Math.max(1, Math.min(10, Math.floor(p.selected)));
+    out.selected = Math.max(1, Math.min(15, Math.floor(p.selected)));
   }
   if (Array.isArray(p.cleared)) {
     out.cleared = p.cleared
-      .filter((n) => Number.isFinite(n) && n >= 1 && n <= 10)
+      .filter((n) => Number.isFinite(n) && n >= 1 && n <= 15)
       .map((n) => Math.floor(n));
   }
   return out;

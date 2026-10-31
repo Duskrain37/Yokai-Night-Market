@@ -9,6 +9,61 @@ function rr(ctx, x, y, w, h, r) {
   ctx.roundRect(x, y, w, h, r);
 }
 
+function lilyPlant(ctx, t, bob, opt) {
+  ctx.save();
+  ctx.translate(0, bob * 0.5);
+  ctx.fillStyle = '#224c45';
+  ctx.beginPath();
+  ctx.ellipse(0, 25, 32, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#2f6e5d';
+  ctx.beginPath();
+  ctx.ellipse(0, 20, 36, 13, 0, 0.15, Math.PI * 2 - 0.15);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(206,220,154,0.7)';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 7; i++) {
+    const a = -1.3 + i * 0.43;
+    ctx.beginPath();
+    ctx.moveTo(0, 22);
+    ctx.lineTo(Math.cos(a) * 30, 19 + Math.sin(a) * 6);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#e5dfae';
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.ellipse(-6 + i * 6, 12 - i * 2, 3.5, 7, i * 0.2 - 0.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function kelpPlant(ctx, t, bob, opt) {
+  const pull = Math.max(0, Math.min(1, opt.pullT || 0));
+  ctx.save();
+  ctx.translate(0, bob * 0.4 + pull * 3);
+  ctx.strokeStyle = '#315f53';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 6; i++) {
+    const sway = Math.sin(t * 2 + i * 1.3) * (6 + i * 1.5);
+    ctx.beginPath();
+    ctx.moveTo((i - 2.5) * 7, 28);
+    ctx.quadraticCurveTo((i - 2.5) * 9 + sway, -4, (i - 2.5) * 11 - sway * 0.4, -34 - (i % 2) * 10);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(185,232,205,0.75)';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 4; i++) {
+    const sway = Math.sin(t * 2.4 + i * 1.7) * 5;
+    ctx.beginPath();
+    ctx.moveTo((i - 1.5) * 10, 22);
+    ctx.quadraticCurveTo((i - 1.5) * 12 + sway, -8, (i - 1.5) * 14 - sway, -28);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 export function drawPlant(ctx, type, x, y, t, opt = {}) {
   const s = opt.scale ?? 1;
   const phase = opt.phase ?? 0;
@@ -57,6 +112,8 @@ export function drawPlant(ctx, type, x, y, t, opt = {}) {
   else if (type === 'star') starPlant(ctx, t, bob, opt);
   else if (type === 'needle') needlePlant(ctx, t, bob, opt);
   else if (type === 'judge') judgePlant(ctx, t, bob, opt);
+  else if (type === 'lily') lilyPlant(ctx, t, bob, opt);
+  else if (type === 'kelp') kelpPlant(ctx, t, bob, opt);
   if (opt.shell) drawShellFront(ctx, opt.shell, t);
   drawPlantAura(ctx, t, opt);
   ctx.restore();
@@ -145,7 +202,8 @@ function plantMotion(type, t, phase, opt) {
     sy = 1 + breath * 0.014 + 0.09 * pulse;
   } else if (type === 'shooter') {
     dx = -5 * recoil + 1.8 * charge;
-    rot = -0.055 * recoil + 0.03 * charge;
+    dy = Math.sin(t * 1.5 + phase) * 0.5 + 1.8 * charge;
+    rot = -0.055 * recoil + 0.03 * charge + Math.sin(t * 1.05 + phase) * 0.006;
     sx = 1 + 0.10 * recoil - 0.015 * charge;
     sy = 1 - 0.06 * recoil + 0.01 * charge;
   } else if (type === 'wall') {
@@ -173,19 +231,45 @@ function plantMotion(type, t, phase, opt) {
     rot = Math.sin(t * 1.7 + phase) * 0.025 + Math.sin(t * 20) * 0.08 * pulse + Math.sin(t * 9) * 0.035 * chew;
     sx = 1 - 0.08 * chew + 0.06 * pulse;
     sy = 1 + 0.05 * chew + 0.02 * pulse;
-    dy = -2 * pulse + chew * 2;
+    dy = -2 * pulse + chew * 2 + Math.sin(t * 1.3 + phase) * 0.7;
   } else if (type === 'mushroom') {
     const arm = Math.max(0, Math.min(1, opt.arm ?? 1));
     const armed = !!opt.armed;
-    const pop = armed ? 1 : 0.3 + arm * 0.7;
-    sx = pop + (armed ? Math.sin(t * 4.2) * 0.02 : 0);
-    sy = pop + (armed ? Math.sin(t * 4.2) * 0.015 : 0);
-    dy = (1 - pop) * 12;
-    rot = Math.sin(t * 1.3 + phase) * 0.012;
+    dy = (1 - arm) * 12;
+    if (armed) {
+      const breathe = Math.sin(t * 1.9 + phase);
+      const cap = Math.max(0, Math.sin(t * 3.2 + phase));
+      sx = 1 + breathe * 0.028 + cap * 0.02;
+      sy = 1 - breathe * 0.022 + cap * 0.012;
+      dy = Math.sin(t * 1.6 + phase) * 1.2 - cap * 1.4;
+      rot = Math.sin(t * 1.05 + phase) * 0.018;
+    } else {
+      const shiver = Math.sin(t * 5.2 + phase) * 0.6 * (1 - arm);
+      const grow = 0.62 + arm * 0.3;
+      dx = shiver;
+      dy = (1 - arm) * 12 + Math.sin(t * 1.8 + phase) * 0.35;
+      rot = shiver * 0.012;
+      sx = grow;
+      sy = grow;
+    }
+  } else if (type === 'lily') {
+    const breathe = Math.sin(t * 1.7 + phase);
+    dy = breathe * 0.9;
+    sx = 1 + breathe * 0.018;
+    sy = 1 - breathe * 0.012;
+    rot = Math.sin(t * 0.8 + phase) * 0.012;
+  } else if (type === 'kelp') {
+    const pull = Math.max(0, Math.min(1, opt.pullT || 0));
+    const sway = Math.sin(t * 2.2 + phase);
+    dx = sway * (2 + pull * 4);
+    dy = Math.cos(t * 1.8 + phase) * 1.4 - pull * 4;
+    rot = sway * 0.035 + pull * 0.08;
+    sx = 1 + pull * 0.06;
+    sy = 1 - pull * 0.04;
   } else if (type === 'lion') {
     dx = 9 * recoil - 3 * charge;
-    dy = -1.5 * charge;
-    rot = 0.055 * recoil - 0.03 * charge + Math.sin(t * 1.3 + phase) * 0.01;
+    dy = -1.5 * charge + Math.sin(t * 1.7 + phase) * 0.4;
+    rot = 0.055 * recoil - 0.03 * charge + Math.sin(t * 1.3 + phase) * 0.01 + Math.sin(t * 1.05 + phase) * 0.006;
     sx = 1 + 0.06 * recoil + 0.02 * charge;
     sy = 1 - 0.05 * recoil + 0.015 * charge;
   } else if (type === 'bomb') {
@@ -196,6 +280,44 @@ function plantMotion(type, t, phase, opt) {
     const s = 1 + fuse * 0.07;
     sx = s;
     sy = s;
+  } else if (type === 'cat') {
+    const sway = Math.sin(t * 1.65 + phase);
+    dx = Math.sin(t * 0.8 + phase) * 1.2 - 5 * recoil;
+    dy = sway * 1.6 - 2.5 * pulse;
+    rot = sway * 0.045 + Math.sin(t * 0.72 + phase) * 0.014 - 0.07 * recoil;
+    sx = 1 + 0.05 * recoil + 0.02 * pulse;
+    sy = 1 - 0.04 * recoil + 0.02 * pulse;
+  } else if (type === 'lobber') {
+    const wind = Math.max(0, Math.min(1, charge));
+    dx = -3 * recoil + 1.5 * wind;
+    dy = Math.sin(t * 1.75 + phase) * 1.2 + 2.2 * wind - 2 * pulse;
+    rot = -0.045 * wind + 0.09 * recoil + Math.sin(t * 0.9 + phase) * 0.012;
+    sx = 1 - 0.035 * wind + 0.05 * recoil;
+    sy = 1 + 0.03 * wind - 0.035 * recoil;
+  } else if (type === 'torch') {
+    const flick = Math.sin(t * 12.5 + phase) * 0.022 + Math.sin(t * 21.7 + phase * 1.7) * 0.012;
+    dx = Math.sin(t * 6.4 + phase) * 0.6;
+    dy = Math.sin(t * 3.1 + phase) * 0.8 - 1.6 * pulse;
+    rot = flick * 0.6;
+    sx = 1 + flick + 0.035 * pulse;
+    sy = 1 - flick + 0.055 * pulse;
+  } else if (type === 'star') {
+    dy = Math.sin(t * 1.4 + phase) * 2.6 - 2 * pulse;
+    rot = Math.sin(t * 0.95 + phase) * 0.035 + Math.sin(t * 16) * 0.09 * pulse;
+    sx = 1 + 0.035 * pulse + 0.03 * recoil;
+    sy = 1 + 0.035 * pulse - 0.02 * recoil;
+  } else if (type === 'needle') {
+    dx = -4 * recoil + 1.2 * charge;
+    dy = Math.sin(t * 1.6 + phase) * 0.7;
+    rot = -0.05 * recoil + 0.02 * charge;
+    sx = 1 + 0.06 * recoil - 0.01 * charge;
+    sy = 1 - 0.03 * recoil;
+  } else if (type === 'judge') {
+    dx = -3 * recoil;
+    dy = Math.sin(t * 0.9 + phase) * 1.2 - pulse;
+    rot = Math.sin(t * 0.6 + phase) * 0.018 - 0.055 * recoil;
+    sx = 1 + 0.035 * pulse + 0.02 * recoil;
+    sy = 1 - 0.025 * pulse - 0.015 * recoil;
   }
   return { dx, dy, rot, sx, sy, pivotY };
 }
@@ -275,6 +397,25 @@ function drawPlantFx(ctx, type, t, opt, baseH) {
       ctx.lineTo(Math.cos(a) * (12 + k * 8), Math.sin(a) * (12 + k * 8));
       ctx.stroke();
     }
+    ctx.globalAlpha = k * 0.9;
+    for (let i = 0; i < 2; i++) {
+      ctx.save();
+      ctx.translate(10 + i * 7, -14 - i * 8);
+      ctx.rotate(-0.55 + i * 0.8 + Math.sin(t * 9 + i) * 0.08);
+      ctx.fillStyle = i ? '#f2d28a' : '#e8c07a';
+      ctx.fillRect(-4, -9, 8, 18);
+      ctx.strokeStyle = 'rgba(150,54,38,0.85)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-4, -9, 8, 18);
+      ctx.fillStyle = '#a83a2e';
+      ctx.fillRect(-1.5, -5, 3, 10);
+      ctx.restore();
+    }
+    ctx.strokeStyle = 'rgba(255,236,180,0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, 18 + (1 - k) * 16, 0, Math.PI * 2);
+    ctx.stroke();
     ctx.restore();
   }
   if (type === 'lantern' && pulse > 0) {
@@ -347,38 +488,154 @@ function drawPlantFx(ctx, type, t, opt, baseH) {
       ctx.fillRect(-3, -5, 6, 10);
       ctx.restore();
     }
+    if (pulse > 0.1) {
+      ctx.globalAlpha = Math.min(1, pulse / 0.55) * 0.9;
+      ctx.fillStyle = '#f6ecd4';
+      ctx.beginPath();
+      ctx.moveTo(-11, -12);
+      ctx.lineTo(-5, -3);
+      ctx.lineTo(-1, -12);
+      ctx.closePath();
+      ctx.moveTo(11, -12);
+      ctx.lineTo(5, -3);
+      ctx.lineTo(1, -12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(188,62,44,0.85)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(0, 4, 12, 0.15, Math.PI - 0.15);
+      ctx.stroke();
+    }
     ctx.restore();
   }
-  if (type === 'mushroom' && (opt.arm ?? 1) < 1 && !opt.armed) {
+  if (type === 'mushroom' && !opt.armed) {
+    const arm = Math.max(0, Math.min(1, opt.arm ?? 0));
+    const breath = 0.5 + Math.sin(t * 2.4) * 0.5;
     ctx.save();
-    ctx.globalAlpha = 0.22 + Math.sin(t * 3.2) * 0.08;
-    ctx.fillStyle = 'rgba(150,220,150,0.75)';
-    for (let i = 0; i < 3; i++) {
-      const p2 = (t * 0.6 + i / 3) % 1;
+    ctx.globalAlpha = 0.14 + breath * 0.1;
+    ctx.fillStyle = 'rgba(138,176,104,0.8)';
+    ctx.beginPath();
+    ctx.ellipse(0, 30, 33, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    const soil = ctx.createLinearGradient(0, 16, 0, 34);
+    soil.addColorStop(0, '#5b4631');
+    soil.addColorStop(1, '#2a2018');
+    ctx.fillStyle = soil;
+    ctx.beginPath();
+    ctx.ellipse(0, 30, 30 + arm * 3, 13, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#453427';
+    ctx.beginPath();
+    ctx.ellipse(-7, 26, 13, 5, -0.2, 0, Math.PI * 2);
+    ctx.ellipse(11, 27, 9, 4, 0.25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#6d553c';
+    ctx.beginPath();
+    ctx.ellipse(-13, 25, 3.5, 2, 0, 0, Math.PI * 2);
+    ctx.ellipse(4, 23, 2.8, 1.7, 0, 0, Math.PI * 2);
+    ctx.ellipse(17, 29, 2.2, 1.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(28,20,14,0.7)';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(-15, 28);
+    ctx.lineTo(-6, 32);
+    ctx.moveTo(7, 27);
+    ctx.lineTo(14, 32);
+    ctx.stroke();
+    if (arm > 0.55) {
+      ctx.globalAlpha = (arm - 0.55) * 1.8;
+      ctx.strokeStyle = 'rgba(198,222,150,0.6)';
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([2, 4]);
       ctx.beginPath();
-      ctx.arc(Math.sin(t + i * 2) * 12, 16 - p2 * 26, 2 + p2 * 2, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.arc(0, 24, 20 + breath * 4, 0.15, Math.PI - 0.15);
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
     ctx.restore();
   }
   if (type === 'mushroom' && opt.armed) {
-    const glow = 0.55 + Math.sin(t * 5.5) * 0.2;
+    const glow = 0.55 + Math.sin(t * 5.5) * 0.25;
+    const breathe = 0.5 + Math.sin(t * 2.1) * 0.5;
     ctx.save();
-    ctx.globalAlpha = 0.28 + glow * 0.22;
-    ctx.strokeStyle = 'rgba(158,224,140,0.9)';
-    ctx.lineWidth = 1.4;
-    ctx.setLineDash([3, 5]);
-    ctx.lineDashOffset = -t * 16;
+    const capGlow = ctx.createRadialGradient(0, -30, 2, 0, -30, 52);
+    capGlow.addColorStop(0, `rgba(255,224,150,${0.2 + glow * 0.18})`);
+    capGlow.addColorStop(0.45, `rgba(178,220,126,${0.1 + glow * 0.12})`);
+    capGlow.addColorStop(1, 'rgba(110,160,90,0)');
+    ctx.fillStyle = capGlow;
     ctx.beginPath();
-    ctx.ellipse(0, 25, 30, 8, 0, 0, Math.PI * 2);
+    ctx.arc(0, -30, 52, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = `rgba(178,226,140,${0.38 + glow * 0.22})`;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 6]);
+    ctx.lineDashOffset = -t * 18;
+    ctx.beginPath();
+    ctx.ellipse(0, 26, 32 + breathe * 3, 9, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.globalAlpha = 0.7;
-    ctx.fillStyle = '#d8ef9a';
-    for (let i = 0; i < 3; i++) {
-      const a = t * 2.4 + i * 2.1;
+    ctx.fillStyle = `rgba(255,214,132,${0.5 + glow * 0.3})`;
+    ctx.beginPath();
+    ctx.arc(0, -32, 2.4 + glow * 1.2, 0, Math.PI * 2);
+    ctx.fill();
+    for (let i = 0; i < 6; i++) {
+      const q = (t * 0.32 + i / 6) % 1;
+      const sway = Math.sin(t * 1.7 + i * 2.2) * (7 + q * 8);
+      ctx.globalAlpha = (1 - q) * 0.55;
+      ctx.fillStyle = i % 2 ? '#e9f0b0' : '#b7d884';
       ctx.beginPath();
-      ctx.arc(Math.cos(a) * 18, -34 + Math.sin(a) * 5, 1.6, 0, Math.PI * 2);
+      ctx.arc(sway, -20 - q * 34, 1.4 + q * 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (pulse > 0) {
+      const k = 1 - Math.min(1, pulse / 0.6);
+      ctx.globalAlpha = Math.min(1, pulse / 0.6) * 0.55;
+      ctx.strokeStyle = 'rgba(238,220,146,0.9)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 5, 22 + k * 38, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  if (type === 'lily') {
+    ctx.save();
+    ctx.globalAlpha = 0.28 + Math.sin(t * 2.2) * 0.08;
+    ctx.strokeStyle = 'rgba(160,224,212,0.85)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.ellipse(0, 28, 34 + Math.sin(t * 1.6) * 3, 10, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = '#d9edc6';
+    for (let i = 0; i < 3; i++) {
+      const q = (t * 0.5 + i / 3) % 1;
+      ctx.beginPath();
+      ctx.arc(Math.sin(t + i * 2) * 20, 14 - q * 24, 1.2 + q * 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  if (type === 'kelp') {
+    const pull = Math.max(0, Math.min(1, opt.pullT || 0));
+    ctx.save();
+    ctx.globalAlpha = 0.3 + pull * 0.35;
+    const g = ctx.createRadialGradient(0, 4, 2, 0, 4, 34);
+    g.addColorStop(0, `rgba(174,232,205,${0.35 + pull * 0.3})`);
+    g.addColorStop(1, 'rgba(90,160,140,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 4, 34, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#c5ead8';
+    for (let i = 0; i < 4; i++) {
+      const q = (t * 0.8 + i / 4) % 1;
+      ctx.globalAlpha = (1 - q) * 0.6;
+      ctx.beginPath();
+      ctx.arc(Math.sin(t * 2 + i * 2) * 16, 8 - q * 30, 1.4 + q * 2, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
@@ -392,6 +649,16 @@ function drawPlantFx(ctx, type, t, opt, baseH) {
       ctx.ellipse(16 + i * 9, 28 - i * 2, 7 + i * 2, 2.6 + i, 0, 0, Math.PI * 2);
       ctx.fill();
     }
+    ctx.globalAlpha = recoil * 0.85;
+    ctx.strokeStyle = 'rgba(255,230,170,0.85)';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(12 + i * 3, -18 + i * 8);
+      ctx.quadraticCurveTo(28 + i * 5, -22 + i * 9, 38 + i * 5, -12 + i * 10);
+      ctx.stroke();
+    }
     ctx.restore();
   }
   if (type === 'lion' && charge > 0.45 && recoil < 0.2) {
@@ -401,6 +668,167 @@ function drawPlantFx(ctx, type, t, opt, baseH) {
     ctx.beginPath();
     ctx.ellipse(-16, 29, 7, 2.2, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
+  }
+  if (type === 'cat') {
+    ctx.save();
+    for (let i = 0; i < 3; i++) {
+      const p2 = (t * 0.42 + i / 3) % 1;
+      ctx.globalAlpha = (1 - p2) * 0.42;
+      ctx.fillStyle = i % 2 ? '#ffc46e' : '#ff8a4a';
+      ctx.beginPath();
+      ctx.arc(Math.sin(t * 1.8 + i * 2.4) * 18, 6 - p2 * 38, 1.6 + p2 * 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (recoil > 0.2) {
+      const k = recoil;
+      ctx.globalAlpha = k * 0.28;
+      ctx.fillStyle = '#ff9a4a';
+      ctx.beginPath();
+      ctx.arc(-2, -18, 27, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = k * 0.32;
+      ctx.fillStyle = '#fff0b0';
+      ctx.beginPath();
+      ctx.arc(-2, -18, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = k * 0.85;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,206,122,0.85)';
+      ctx.lineWidth = 4.2;
+      ctx.beginPath();
+      ctx.moveTo(-4, 18);
+      ctx.bezierCurveTo(-18, -4, 4, -34, 30 + k * 6, -42);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,248,214,0.9)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(-4, 18);
+      ctx.bezierCurveTo(-16, -3, 4, -32, 29 + k * 6, -40);
+      ctx.stroke();
+      for (let i = 0; i < 5; i++) {
+        const a = -0.9 + i * 0.36;
+        const r = 22 + (i % 3) * 7;
+        ctx.globalAlpha = k * (0.72 - i * 0.08);
+        ctx.fillStyle = i % 2 ? '#ffd88a' : '#ff8a44';
+        ctx.beginPath();
+        ctx.arc(10 + Math.cos(a) * r, -18 + Math.sin(a) * r * 0.7, 1.8 + (i % 2), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+  if (type === 'lobber') {
+    ctx.save();
+    if (charge > 0.2 && recoil < 0.3) {
+      ctx.globalAlpha = charge * 0.6;
+      const g = ctx.createRadialGradient(17, -26, 1, 17, -26, 12);
+      g.addColorStop(0, 'rgba(255,246,214,0.9)');
+      g.addColorStop(1, 'rgba(232,204,156,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(17, -26, 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (recoil > 0.15) {
+      ctx.globalAlpha = recoil * 0.55;
+      ctx.fillStyle = 'rgba(245,226,188,0.9)';
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.ellipse(18 + i * 8, -24 - i * 4, 2.2, 1.4, -0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+  if (type === 'torch') {
+    ctx.save();
+    const flame = 0.7 + Math.sin(t * 11) * 0.15 + Math.sin(t * 23) * 0.08;
+    ctx.globalAlpha = 0.22 + flame * 0.12 + pulse * 0.2;
+    const g = ctx.createRadialGradient(0, -34, 2, 0, -30, 40);
+    g.addColorStop(0, 'rgba(255,230,150,0.85)');
+    g.addColorStop(0.45, 'rgba(255,143,66,0.4)');
+    g.addColorStop(1, 'rgba(220,80,40,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, -30, 40, 0, Math.PI * 2);
+    ctx.fill();
+    for (let i = 0; i < 4; i++) {
+      const p2 = (t * 0.55 + i / 4) % 1;
+      ctx.globalAlpha = (1 - p2) * (0.4 + pulse * 0.2);
+      ctx.fillStyle = i % 2 ? '#ffd98a' : '#ff9a52';
+      ctx.beginPath();
+      ctx.arc(Math.sin(t * 2.2 + i * 2.1) * 10, -30 - p2 * 34, 1.4 + p2 * 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+  if (type === 'star') {
+    ctx.save();
+    ctx.globalAlpha = 0.3 + pulse * 0.45;
+    ctx.strokeStyle = 'rgba(255,218,132,0.9)';
+    ctx.lineWidth = 1.4;
+    const r = 28 + Math.sin(t * 2.2) * 3 + pulse * 12;
+    for (let i = 0; i < 5; i++) {
+      const a = -Math.PI / 2 + i * (Math.PI * 2 / 5) + Math.sin(t * 0.8) * 0.05;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * (r - 10), Math.sin(a) * (r - 10));
+      ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      ctx.stroke();
+    }
+    if (pulse > 0.1) {
+      ctx.globalAlpha = pulse * 0.5;
+      ctx.beginPath();
+      ctx.arc(0, -18, 16 + (1 - pulse) * 28, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  if (type === 'needle') {
+    ctx.save();
+    ctx.globalAlpha = 0.18 + charge * 0.3;
+    ctx.strokeStyle = 'rgba(238,238,220,0.8)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-12, -10);
+    ctx.lineTo(18, -24);
+    ctx.stroke();
+    if (recoil > 0.15) {
+      ctx.globalAlpha = recoil * 0.55;
+      ctx.strokeStyle = 'rgba(250,250,235,0.95)';
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(20, -22 + i * 4);
+        ctx.lineTo(38 + i * 6, -24 + i * 6);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+  if (type === 'judge') {
+    ctx.save();
+    for (let i = 0; i < 3; i++) {
+      const p2 = (t * 0.22 + i / 3) % 1;
+      ctx.globalAlpha = (1 - p2) * 0.2;
+      ctx.fillStyle = 'rgba(224,204,168,0.8)';
+      ctx.beginPath();
+      ctx.arc(Math.sin(t * 0.7 + i * 2) * 8, -48 - p2 * 26, 2 + p2 * 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    if (pulse > 0.1) {
+      ctx.globalAlpha = pulse * 0.55;
+      ctx.strokeStyle = 'rgba(255,198,108,0.9)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, -16, 30 + (1 - pulse) * 30, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(244,214,150,0.9)';
+      for (let i = 0; i < 4; i++) {
+        const a = t * 1.8 + i * (Math.PI / 2);
+        ctx.fillRect(Math.cos(a) * 34 - 2, -16 + Math.sin(a) * 22 - 4, 4, 8);
+      }
+    }
     ctx.restore();
   }
   if (type === 'wall') {
@@ -428,6 +856,21 @@ function drawPlantFx(ctx, type, t, opt, baseH) {
     ctx.ellipse(0, 25, 32, 8, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
+    ctx.restore();
+  }
+  if (type === 'wall' && recoil > 0.15) {
+    ctx.save();
+    ctx.globalAlpha = recoil * 0.7;
+    for (let i = 0; i < 3; i++) {
+      const a = -0.5 + i * 0.4;
+      ctx.fillStyle = i % 2 ? '#b9a98c' : '#d3c4a2';
+      ctx.beginPath();
+      ctx.moveTo(20 + i * 5, -10 + Math.sin(a) * 10);
+      ctx.lineTo(28 + i * 7, -14 + Math.sin(a) * 13);
+      ctx.lineTo(25 + i * 6, -4 + Math.sin(a) * 11);
+      ctx.closePath();
+      ctx.fill();
+    }
     ctx.restore();
   }
   if (type === 'wall' && bite > 0) {
@@ -1390,21 +1833,43 @@ function zombieDamageStage(opt) {
   return stage;
 }
 
+const GAIT_TUNING = {
+  ghost: { liftPx: 5.2, dropPx: 2.4, stepDx: 3.0, warp: 4.2, headBobMul: 1.5, leanFoot: 0.025, swayMul: 1.35, contactDx: 2.4 },
+  tongue: { liftPx: 4.0, dropPx: 1.6, stepDx: 4.0, warp: 3.6, headBobMul: 1.2, leanFoot: 0.028, swayMul: 1.4, contactDx: 2.8 },
+  paper: { liftPx: 3.0, dropPx: 1.2, stepDx: 2.2, warp: 3.0, headBobMul: 1.1, leanFoot: 0.018, swayMul: 1.3, contactDx: 1.6 },
+  mountain: { warp: 4.6, headBobMul: 1.8, swayMul: 1.1, contactDx: 1.5 },
+  mourner: { warp: 2.2, headBobMul: 1.2, swayMul: 1.1 },
+  sedan: { liftPx: 4.2, dropPx: 2.0, stepDx: 2.2, warp: 3.8, headBobMul: 1.0, leanFoot: 0.016, swayMul: 1.2, contactDx: 1.8 },
+  straw: { liftPx: 5.6, dropPx: 2.0, stepDx: 3.3, warp: 5.0, headBobMul: 1.8, leanFoot: 0.026, swayMul: 1.4, contactDx: 2.6 },
+  stonehat: { liftPx: 4.0, dropPx: 2.2, stepDx: 2.2, warp: 3.6, headBobMul: 0.8, leanFoot: 0.018, swayMul: 1.2, contactDx: 2.0 },
+  bucket: { liftPx: 3.8, dropPx: 2.0, stepDx: 2.2, warp: 3.2, headBobMul: 0.8, leanFoot: 0.017, swayMul: 1.2, contactDx: 2.0 },
+  vault: { liftPx: 4.0, dropPx: 1.6, stepDx: 4.2, warp: 5.2, headBobMul: 1.3, leanFoot: 0.026, swayMul: 1.4, contactDx: 3.2 },
+  artisan: { warp: 3.2, headBobMul: 1.2, swayMul: 1.15, contactDx: 1.0 },
+  ironjudge: { liftPx: 5.0, dropPx: 2.4, stepDx: 2.4, warp: 3.2, headBobMul: 0.7, leanFoot: 0.014, swayMul: 1.15, contactDx: 1.8 }
+};
+
 function zombieMotion(type, t, phase, opt) {
   const prof = ZOMBIE_MOTION[type] || ZOMBIE_MOTION.ghost;
+  const tune = GAIT_TUNING[type] || {};
   const rawSwing = Math.sin(t * prof.stride + phase);
   const swing = type === 'mountain'
     ? Math.sign(rawSwing) * Math.pow(Math.abs(rawSwing), 0.72)
     : rawSwing;
   const step = Math.abs(swing);
+  const liftPx = prof.liftPx ?? tune.liftPx ?? Math.max(1.4, prof.bob * 0.95);
+  const dropPx = prof.dropPx ?? tune.dropPx ?? Math.max(0.6, prof.bob * 0.4);
+  let contact = Math.pow(Math.max(0, 1 - step), 2.4);
+  let lift = step * liftPx;
   let slam = 0;
   let gaitAge = 0;
   const stage = zombieDamageStage(opt);
-  let dx = 0;
-  let dy = step * prof.bob;
-  let rot = prof.baseRot + swing * prof.sway;
-  let sx = 1 + step * 0.015;
-  let sy = 1 - step * 0.02;
+  let dx = swing * (prof.stepDx ?? tune.stepDx ?? 1.2) - contact * (prof.contactDx ?? tune.contactDx ?? 0);
+  let dy = -lift + contact * dropPx;
+  let rot = prof.baseRot +
+    swing * prof.sway * (prof.swayMul ?? tune.swayMul ?? 1) +
+    contact * (prof.leanFoot ?? tune.leanFoot ?? 0.012);
+  let sx = 1 + contact * 0.03 - step * 0.01;
+  let sy = 1 - contact * 0.04 + step * 0.02;
   if (prof.scuttle) {
     dx += Math.sin(t * prof.stride * 0.55 + phase) * 1.4;
     rot += Math.sin(t * prof.stride * 0.55) * 0.035;
@@ -1414,23 +1879,28 @@ function zombieMotion(type, t, phase, opt) {
     dy += Math.sin(t * 6.2 + phase) * 0.9;
   }
   if (prof.glide) {
+    dx = Math.sin(t * 0.9 + phase) * 1.2;
     dy = Math.sin(t * 1.1 + phase) * 1.2;
     rot = Math.sin(t * 0.9 + phase) * 0.02;
     sx = 1;
     sy = 1;
+    contact = 0;
+    lift = 0;
   }
   if (type === 'mountain') {
     const cycle = ((t * prof.stride + phase) % Math.PI + Math.PI) % Math.PI;
     gaitAge = cycle / prof.stride;
     slam = Math.exp(-gaitAge * 7);
-    dy = -step * 6.2 + slam * 3.8;
+    contact = slam;
+    lift = step * 6.2;
+    dy = -lift + slam * 3.8;
     rot = prof.baseRot + swing * 0.11 + slam * 0.018;
     sx = 1 + slam * 0.06 + step * 0.014;
     sy = 1 - slam * 0.064 - step * 0.014;
     dx = Math.sin(t * prof.stride * 0.5 + phase) * 2.3 + Math.sin(gaitAge * 34) * 0.8 * slam;
   } else if (prof.stomp) {
-    sx = 1 + step * 0.025;
-    sy = 1 - step * 0.035;
+    sx = 1 + contact * 0.04 - step * 0.006;
+    sy = 1 - contact * 0.05 + step * 0.014;
   }
   if (opt.eating) {
     const chew = Math.sin(t * prof.chompSpeed + phase);
@@ -1460,14 +1930,58 @@ function zombieMotion(type, t, phase, opt) {
     }
     sx = 1;
     slam = 0;
+    contact = 0;
+    lift = 0;
   }
   if (stage === 2) {
     rot += Math.sin(t * prof.stride * 0.5 + phase) * 0.02;
     dx += Math.sin(t * 2.1 + phase) * 0.8;
     sy *= 0.985;
   }
-  if (opt.stunT > 0) rot += Math.sin(t * 7) * 0.03;
-  return { dx, dy, rot, sx, sy, step, swing, prof, stage, slam, gaitAge, eating: !!opt.eating };
+  if (opt.wailT > 0) {
+    const wail = Math.sin(Math.PI * Math.max(0, Math.min(1, 1 - opt.wailT / 0.95)));
+    rot -= wail * 0.09;
+    dy -= wail * 2.2;
+    dx -= wail * 1.5;
+  }
+  if (opt.objectHop > 0) {
+    const hop = Math.sin(Math.PI * Math.max(0, Math.min(1, 1 - opt.objectHop / 0.34)));
+    dy -= hop * 7;
+    rot += hop * 0.04;
+  }
+  if (opt.stunT > 0) {
+    dx = 0;
+    dy = 0;
+    rot = Math.sin(t * 7) * 0.03;
+    contact = 0;
+    lift = 0;
+  }
+  if (opt.idle) {
+    dx = Math.sin(t * 0.8 + phase) * 1.2;
+    dy = Math.sin(t * 1.2 + phase) * 1.6;
+    rot = Math.sin(t * 0.65 + phase) * 0.02;
+    sx = 1;
+    sy = 1;
+    contact = 0;
+    lift = 0;
+  }
+  const warpBase = prof.warp ?? tune.warp ?? (prof.cls === 'heavy' ? 2.8 : prof.cls === 'ultra' ? 2.5 : 2.2);
+  let warp = warpBase * (0.35 + step * 0.8);
+  if (prof.glide) warp = warpBase * 0.55;
+  if (opt.eating) warp *= 0.25;
+  if (opt.stunT > 0) warp *= 0.35;
+  if (opt.idle) warp = 1.1;
+  if (stage === 2) warp *= 0.85;
+  const warpPhase = t * prof.stride + phase - Math.PI * 0.38;
+  const headBob = opt.idle
+    ? Math.sin(t * 1.2 + phase) * 1.2
+    : opt.eating || opt.stunT > 0
+      ? 0
+      : (-step * liftPx * 0.55 + contact * dropPx * 0.8) * (prof.headBobMul ?? tune.headBobMul ?? 1);
+  return {
+    dx, dy, rot, sx, sy, step, swing, prof, stage, slam, gaitAge,
+    eating: !!opt.eating, contact, lift, warp, warpPhase, headBob
+  };
 }
 
 function drawZombieDust(ctx, motion, t, phase, type) {
@@ -1536,9 +2050,10 @@ function drawZombieDust(ctx, motion, t, phase, type) {
     ctx.restore();
     return;
   }
-  if (motion.step < 0.45) return;
+  const contact = motion.contact ?? 0;
+  if (contact < 0.28) return;
   const size = prof.cls === 'heavy' ? 1.7 : prof.cls === 'ultra' ? 0.65 : 1;
-  const alpha = Math.min(0.35, (motion.step - 0.45) * 0.3 * prof.dust);
+  const alpha = Math.min(0.35, (contact - 0.28) * 0.42 * prof.dust);
   ctx.save();
   ctx.globalAlpha = alpha;
   ctx.fillStyle = `rgba(${prof.dustColor},0.85)`;
@@ -1567,7 +2082,8 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
     drawZombieDeath(ctx, type, x, y, t, opt, def, baseH, sprite, death);
     return;
   }
-  const motion = zombieMotion(type, t, phase, opt);
+  const gaitT = opt.animT ?? t;
+  const motion = zombieMotion(type, gaitT, phase, opt);
   if (opt.vaultArc) {
     motion.dy -= opt.vaultArc * 58;
     motion.rot -= opt.vaultArc * 0.18;
@@ -1579,9 +2095,15 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   ctx.scale(s, s);
 
   const groundSlam = type === 'mountain' && !opt.eating ? (motion.slam ?? 0) : 0;
+  const liftK = Math.min(1, (motion.lift || 0) / 9);
   ctx.fillStyle = type === 'mountain' ? `rgba(0,0,0,${0.26 + groundSlam * 0.18})` : 'rgba(0,0,0,0.32)';
   ctx.beginPath();
-  ctx.ellipse(0, 32, 27 * (1 - motion.step * 0.06 + groundSlam * 0.2), 7.5 * (1 - motion.step * 0.03 + groundSlam * 0.14), 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    0, 32,
+    27 * (1 - motion.step * 0.04 - liftK * 0.12 + groundSlam * 0.2),
+    7.5 * (1 - motion.step * 0.02 - liftK * 0.08 + groundSlam * 0.14),
+    0, 0, Math.PI * 2
+  );
   ctx.fill();
 
   if (opt.slowT > 0) {
@@ -1591,7 +2113,8 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
     ctx.fill();
   }
 
-  drawZombieDust(ctx, motion, t, phase, type);
+  drawZombieDust(ctx, motion, gaitT, phase, type);
+  if (opt.vaultArc > 0) drawVaultPole(ctx, opt, baseH, t);
 
   ctx.save();
   ctx.translate(motion.dx, motion.dy);
@@ -1603,7 +2126,7 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   if (sprite) {
     const img = motion.stage ? damagedZombieSprite(type, sprite, motion.stage) : sprite;
     const w = baseH * (img.width / img.height);
-    ctx.drawImage(img, -w / 2, 34 - baseH, w, baseH);
+    drawZombieSpriteWarped(ctx, img, w, baseH, motion);
   } else if (type === 'ghost') ghostZombie(ctx, chomp);
   else if (type === 'paper') paperZombie(ctx, chomp, opt);
   else if (type === 'mountain') mountainZombie(ctx, chomp);
@@ -1612,7 +2135,10 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   else if (type === 'sedan') sedanZombie(ctx, chomp, opt);
   else drawNewZombie(ctx, type, chomp, opt);
 
-  drawZombieArmor(ctx, type, opt, baseH);
+  const headV = 0.22;
+  const headX = Math.sin(motion.warpPhase - headV * 2.1) * motion.warp *
+    (Math.sin(Math.PI * headV) + 0.3 * (1 - headV));
+  drawZombieArmor(ctx, type, opt, baseH, motion.headBob + (opt.eating ? chomp * 0.5 : 0), opt.eating ? 0 : headX);
   ctx.restore();
   if (type === 'mountain') drawZombieFrontDust(ctx, motion);
   if (motion.stage === 2) drawZombieDamageWisps(ctx, t, baseH);
@@ -1620,7 +2146,69 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   ctx.restore();
 }
 
-function drawZombieArmor(ctx, type, opt, baseH) {
+function drawVaultPole(ctx, opt, baseH, t) {
+  const a = opt.vaultArc;
+  ctx.save();
+  ctx.globalAlpha = 0.7 + a * 0.25;
+  ctx.strokeStyle = 'rgba(238,214,154,0.34)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 7]);
+  ctx.lineDashOffset = -t * 22;
+  ctx.beginPath();
+  ctx.arc(0, -6, 44, -Math.PI * 0.85, Math.PI * 0.12);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#6a4628';
+  ctx.lineWidth = 3.6;
+  ctx.beginPath();
+  ctx.moveTo(20, 30);
+  ctx.lineTo(-12, -baseH * 0.72);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(216,178,102,0.9)';
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.moveTo(20, 30);
+  ctx.lineTo(-12, -baseH * 0.72);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(196,70,46,0.9)';
+  ctx.beginPath();
+  ctx.moveTo(-11, -baseH * 0.72);
+  ctx.lineTo(-1, -baseH * 0.70);
+  ctx.lineTo(-10, -baseH * 0.60);
+  ctx.closePath();
+  ctx.fill();
+  for (let i = 0; i < 3; i++) {
+    const k = Math.min(1, a * 1.2);
+    ctx.globalAlpha = (0.28 - i * 0.06) * (1 - k * 0.4);
+    ctx.strokeStyle = 'rgba(194,172,136,0.9)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, 25, 15 + i * 8 + k * 24, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawZombieSpriteWarped(ctx, img, w, baseH, motion) {
+  const amp = motion.warp || 0;
+  const top = 34 - baseH;
+  if (amp < 0.18) {
+    ctx.drawImage(img, -w / 2, top, w, baseH);
+    return;
+  }
+  const strips = 16;
+  const sh = img.height / strips;
+  const dh = baseH / strips;
+  for (let i = 0; i < strips; i++) {
+    const v = (i + 0.5) / strips;
+    const factor = Math.sin(Math.PI * v) + 0.3 * (1 - v);
+    const dx = Math.sin(motion.warpPhase - v * 2.1) * amp * factor;
+    ctx.drawImage(img, 0, i * sh, img.width, sh, -w / 2 + dx, top + i * dh, w, dh + 0.9);
+  }
+}
+
+function drawZombieArmor(ctx, type, opt, baseH, headBob = 0, headX = 0) {
   const armor = opt.armor ?? (ZOMBIE_TYPES[type]?.armor || 0);
   const max = opt.maxArmor ?? (ZOMBIE_TYPES[type]?.armor || 0);
   if (armor <= 0 || max <= 0) return;
@@ -1630,9 +2218,10 @@ function drawZombieArmor(ctx, type, opt, baseH) {
   const headFactor = armorType === 'straw' || armorType === 'charm'
     ? 0.8
     : armorType === 'mask' ? 0.84 : 0.9;
-  const headY = 34 - baseH * headFactor;
+  const headY = 34 - baseH * headFactor + headBob;
   const death = Math.max(0, Math.min(1, opt.death || 0));
   ctx.save();
+  if (death <= 0 && headX) ctx.translate(headX, 0);
   if (death > 0) {
     if (armorType === 'straw') {
       ctx.translate(-death * 16, death * 26);
@@ -2016,6 +2605,45 @@ function drawZombieStatus(ctx, t, opt, baseH) {
     ctx.beginPath();
     ctx.arc(0, 2, 26 + (1 - a) * 30, 0, Math.PI * 2);
     ctx.stroke();
+    ctx.fillStyle = `rgba(238,218,166,${0.65 * a})`;
+    for (let i = 0; i < 4; i++) {
+      const ang = t * 2.3 + i * Math.PI * 0.5;
+      const sx = Math.cos(ang) * 25;
+      const sy = -26 + Math.sin(ang) * 9;
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(ang + Math.PI * 0.5);
+      ctx.fillRect(-4, -7, 8, 14);
+      ctx.restore();
+    }
+  }
+  if (opt.wailT > 0) {
+    const progress = 1 - opt.wailT / 0.95;
+    const env = Math.sin(Math.PI * Math.max(0, Math.min(1, progress)));
+    const headY = 34 - baseH * 0.78;
+    ctx.save();
+    for (let i = 0; i < 3; i++) {
+      ctx.globalAlpha = env * (0.55 - i * 0.12);
+      ctx.strokeStyle = i % 2 ? 'rgba(168,218,230,0.9)' : 'rgba(220,236,238,0.8)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, headY + 8, 20 + i * 10 + progress * 34, Math.PI * 0.62, Math.PI * 1.38);
+      ctx.stroke();
+    }
+    for (let i = 0; i < 5; i++) {
+      const q = (progress * 1.2 + i / 5) % 1;
+      ctx.globalAlpha = (1 - q) * env * 0.7;
+      ctx.fillStyle = i % 2 ? '#d9eef2' : '#9ecbd8';
+      ctx.beginPath();
+      ctx.arc(-12 + Math.sin(t * 2 + i * 1.8) * 8, headY - q * 30, 1.5 + q * 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = env * 0.5;
+    ctx.fillStyle = 'rgba(24,42,48,0.8)';
+    ctx.beginPath();
+    ctx.ellipse(0, headY + 16, 4.5, 7 + env * 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
   if (opt.armorPulse > 0) {
     const a = Math.min(1, opt.armorPulse / 0.9);

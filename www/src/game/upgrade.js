@@ -241,15 +241,15 @@ export const UPGRADE_TREES = {
     {
       id: 1, name: '旺焰', color: RED,
       tiers: [
-        { name: '烈焰', desc: '所有射弹伤害 +80%', cost: 75 },
-        { name: '赤焰', desc: '所有射弹伤害 +105%', cost: 150 },
-        { name: '不熄', desc: '所有射弹伤害 +130%', cost: 250 }
+        { name: '烈焰', desc: '穿过火盆的射弹伤害 +80%', cost: 75 },
+        { name: '赤焰', desc: '穿过火盆的射弹伤害 +105%', cost: 150 },
+        { name: '不熄', desc: '穿过火盆的射弹伤害 +130%', cost: 250 }
       ]
     },
     {
       id: 2, name: '余烬', color: GOLD,
       tiers: [
-        { name: '火屑', desc: '射弹命中附带 5 伤害/秒，持续 2 秒', cost: 75 },
+        { name: '火屑', desc: '穿过的射弹命中附带 5 伤害/秒，持续 2 秒', cost: 75 },
         { name: '流火', desc: '灼烧提升到 9 伤害/秒', cost: 150 },
         { name: '燎原', desc: '灼烧提升到 14 伤害/秒', cost: 250 }
       ]
@@ -257,7 +257,7 @@ export const UPGRADE_TREES = {
     {
       id: 3, name: '火舌', color: TEAL,
       tiers: [
-        { name: '舔焰', desc: '射弹命中使目标减速 10%，持续 1.5 秒', cost: 75 },
+        { name: '舔焰', desc: '穿过的射弹命中使目标减速 10%，持续 1.5 秒', cost: 75 },
         { name: '卷火', desc: '减速提升到 18%', cost: 150 },
         { name: '火墙', desc: '减速提升到 25%', cost: 250 }
       ]

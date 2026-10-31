@@ -103,16 +103,16 @@ export const ALMANAC_PLANTS = [
     name: '炭火盆',
     epithet: '整条街的火都借它一口',
     story: '夜市收摊前，摊主会把各家的炭火并进这只旧铜盆。火苗不高，却认路：签筒的竹签、汤圆的糖壳、狐尾的尾火从旁边过，都会被它舔上一口，飞出去时带着一层暖光。',
-    ability: '不主动攻击。只要火盆还在，所有友方射弹伤害 +50%；进化可把增幅提高到 +80%/105%/130%，并让射弹附带灼烧或减速。同类增幅不叠加，只取最高值。',
+    ability: '不主动攻击。只有穿过火盆火焰的友方射弹才会被增幅：伤害 +50%，进化可提高到 +80%/105%/130%，并让穿过的射弹附带灼烧或减速。多只火盆只取最高值，不叠加；没穿过的射弹不受影响。',
     quote: '火不分家，光借你一半。'
   },
   {
     type: 'star',
     name: '五路巡灯',
-    epithet: '一盏灯照五条街',
-    story: '庙会拆台时落下的五角巡灯，骨架是五根旧竹篾，灯面上画着五条街。点起来以后，它不肯只照自己摊前，总要朝五条街各送一道灯焰，像在替谁巡夜。',
-    ability: '每隔 2.6 秒，向每一条有恶客的街道各射出一道灯焰，优先命中该行前方最近的敌人，每道 12 伤害。进化可加伤害、缩短间隔，或让灯焰附带易伤。',
-    quote: '五条街，都得亮着。'
+    epithet: '一盏灯巡五方',
+    story: '庙会拆台时落下的五角巡灯，骨架是五根旧竹篾，灯面上画着五个方位。点起来以后，它不肯只照自己摊前，总要朝五个方向各送一道灯焰，像在替谁巡夜。',
+    ability: '每隔 2.6 秒，检查正后、正上、正下、右上、右下五个方向；哪个方向有恶客，就朝哪个方向射出一道灯焰，每道 12 伤害。没有敌人的方向不会发灯。进化可加伤害、缩短间隔，或让灯焰附带易伤。',
+    quote: '五个方向，都得亮着。'
   },
   {
     type: 'needle',
@@ -129,6 +129,22 @@ export const ALMANAC_PLANTS = [
     story: '旧货摊最里面挂着一幅钟馗像，画工不算好，眼睛却像一直睁着。夜市闹得最凶那晚，画里的人忽然抬了抬袖子，街口的恶客就退了三步。第二天摊主给它添了一炷香，再没摘下来。',
     ability: '每隔 6 秒睁眼，望向本行 260 像素内最近的恶客，造成 30 伤害并击退 0.4 格。进化可加击退距离、缩短显灵间隔或提高伤害。',
     quote: '这条街，看着我。'
+  },
+  {
+    type: 'lily',
+    name: '夜莲',
+    epithet: '水面上借你一块落脚地',
+    story: '暗河里漂着几片不肯沉的夜莲，叶脉里像藏着一线灯火。老摊主把灯灰撒下去，莲叶便停在水面不动，成了给别的植物落脚的一块浮台。',
+    ability: '只能放在水面，作为其他植物的浮台；上面的植物正常生长与攻击。不可升阶。水面没有夜莲时，普通植物无法直接种下。',
+    quote: '先有叶，再有花。'
+  },
+  {
+    type: 'kelp',
+    name: '缠魂藻',
+    epithet: '这条臭水沟会自己收人',
+    story: '臭水沟底缠着一团发青的水藻，平时像一堆烂绳。等恶客踩进水面，它才突然收紧，把对方拖进河泥里。拖完这一次，藻叶也散了。',
+    ability: '只能种在水面；恶客进入 120 像素范围后，用 0.5 秒拖入水底并造成 1800 伤害，一次性消失。不可升阶。',
+    quote: '水底下，有人拉你。'
   }
 ];
 
@@ -348,14 +364,14 @@ export function plantBaseStats(type) {
   } else if (type === 'torch') {
     stats.push(
       { label: '射弹增幅', value: '+50% 伤害', tone: 'atk' },
-      { label: '范围', value: '所有友方射弹', tone: 'neutral' },
+      { label: '范围', value: '穿过火盆的射弹', tone: 'neutral' },
       { label: '规则', value: '同类不叠加', tone: 'teal' }
     );
   } else if (type === 'star') {
     stats.push(
       { label: '发灯间隔', value: `${d.star.interval} 秒`, tone: 'time' },
       { label: '每道伤害', value: String(d.star.damage), tone: 'atk' },
-      { label: '范围', value: '五路各一道', tone: 'teal' }
+      { label: '范围', value: '五个方向各一道', tone: 'teal' }
     );
   } else if (type === 'needle') {
     stats.push(
@@ -369,6 +385,19 @@ export function plantBaseStats(type) {
       { label: '显灵伤害', value: String(d.judge.damage), tone: 'atk' },
       { label: '范围', value: `${d.judge.reach} 像素`, tone: 'neutral' },
       { label: '击退', value: `${d.judge.knockCells} 格`, tone: 'teal' }
+    );
+  } else if (type === 'lily') {
+    stats.push(
+      { label: '种植水面', value: '必须', tone: 'teal' },
+      { label: '作用', value: '承载一株植物', tone: 'neutral' },
+      { label: '升阶', value: '不可升阶', tone: 'neutral' }
+    );
+  } else if (type === 'kelp') {
+    stats.push(
+      { label: '种植水面', value: '必须', tone: 'teal' },
+      { label: '拖拽时间', value: `${d.tangle.drag} 秒`, tone: 'time' },
+      { label: '伤害', value: String(d.tangle.damage), tone: 'atk' },
+      { label: '使用', value: '一次性', tone: 'neutral' }
     );
   }
   return stats;

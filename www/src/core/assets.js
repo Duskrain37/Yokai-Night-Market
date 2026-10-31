@@ -1,7 +1,14 @@
 const ASSET_PATHS = {
   backgrounds: {
     menu: './assets/bg/menu.jpg',
-    board: './assets/bg/board.jpg'
+    board: './assets/bg/board.jpg',
+    day1: './assets/bg/map-day1.jpg',
+    day2: './assets/bg/map-day2.jpg',
+    day3: './assets/bg/map-day3.jpg',
+    stone: './assets/bg/tex-stone.jpg',
+    dock: './assets/bg/tex-dock.jpg',
+    boardwalk: './assets/bg/tex-boardwalk.jpg',
+    water: './assets/bg/tex-water.jpg'
   },
   plants: {
     lantern: './assets/sprites/lantern.png',
@@ -18,7 +25,9 @@ const ASSET_PATHS = {
     torch: './assets/sprites/torch.png',
     star: './assets/sprites/star.png',
     needle: './assets/sprites/needle.png',
-    judge: './assets/sprites/judge.png'
+    judge: './assets/sprites/judge.png',
+    lily: './assets/sprites/lily.png',
+    kelp: './assets/sprites/kelp.png'
   },
   zombies: {
     ghost: './assets/sprites/ghost.png',

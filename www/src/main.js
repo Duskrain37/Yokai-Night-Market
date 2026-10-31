@@ -11,7 +11,7 @@ const canvas = document.getElementById('game');
 const game = new Game();
 const renderer = new Renderer(canvas);
 renderer.setResolution(game.settings.resolution || 'auto');
-const input = { x: 640, y: 360, clicks: [] };
+const input = { x: 640, y: 360, clicks: [], active: false };
 
 let fullscreenRequested = false;
 function requestFullscreen() {
@@ -23,6 +23,9 @@ function requestFullscreen() {
 }
 requestFullscreen();
 
+audio.setMusicStyle(game.settings.musicStyle || 'grand');
+audio.setMusicVolume((game.settings.musicVolume ?? 70) / 100);
+audio.setSfxVolume((game.settings.sfxVolume ?? 80) / 100);
 audio.setTrack('menu');
 audio.setMuted(game.settings.sound === false);
 const unlockAudio = () => { audio.unlock(); };
@@ -41,9 +44,12 @@ canvas.addEventListener('pointerdown', (e) => {
   const p = renderer.toLogical(e.clientX, e.clientY);
   input.x = p.x;
   input.y = p.y;
+  input.active = true;
   input.clicks.push({ x: p.x, y: p.y, button: e.button });
 });
 
+canvas.addEventListener('pointerup', () => { input.active = false; });
+canvas.addEventListener('pointerleave', () => { input.active = false; });
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
 canvas.addEventListener('wheel', (e) => {

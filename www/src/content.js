@@ -51,7 +51,7 @@ export const PLANT_TYPES = {
     spriteH: 78, torch: { buff: 0.5 }
   },
   star: {
-    id: 'star', name: '五路巡灯', role: '五路', cost: 175, cooldown: 22, hp: 300, tint: '#c9a84e',
+    id: 'star', name: '五路巡灯', role: '五向', cost: 175, cooldown: 22, hp: 300, tint: '#c9a84e',
     spriteH: 90, star: { interval: 2.6, damage: 12 }
   },
   needle: {
@@ -61,12 +61,23 @@ export const PLANT_TYPES = {
   judge: {
     id: 'judge', name: '钟馗像', role: '击退', cost: 150, cooldown: 20, hp: 900, tint: '#b04434',
     spriteH: 94, judge: { interval: 6.0, damage: 30, knockCells: 0.4, reach: 260 }
+  },
+  lily: {
+    id: 'lily', name: '夜莲', role: '浮台', cost: 25, cooldown: 5, hp: 260, tint: '#4f8a7a',
+    spriteH: 48, lily: true, waterOnly: true, noUpgrade: true,
+    note: '只能放在水面，作为其他植物的浮台；不可升阶'
+  },
+  kelp: {
+    id: 'kelp', name: '缠魂藻', role: '灰烬', cost: 50, cooldown: 20, hp: 300, tint: '#3f6b5a',
+    spriteH: 96, waterOnly: true, noUpgrade: true, ash: true,
+    tangle: { range: 120, drag: 0.5, damage: 1800 },
+    note: '只能种在水面；把进入范围的恶客拖入水底，一次性；不可升阶'
   }
 };
 
 export const PLANT_ORDER = [
   'lantern', 'shooter', 'wall', 'bomb', 'bell', 'censer', 'umbrella', 'lion',
-  'mushroom', 'cat', 'shell', 'lobber', 'torch', 'star', 'needle', 'judge'
+  'mushroom', 'cat', 'shell', 'lobber', 'torch', 'star', 'needle', 'judge', 'lily', 'kelp'
 ];
 
 export const ZOMBIE_TIERS = {
@@ -236,31 +247,72 @@ function buildWaves(band, levelId) {
   });
 }
 
-const LEVEL_INFO = [
-  { name: '第一夜', tag: '开张', threat: 1.0, band: 'early' },
-  { name: '第二夜', tag: '熟客', threat: 1.444, band: 'early' },
-  { name: '第三夜', tag: '起风', threat: 1.889, band: 'early' },
-  { name: '第四夜', tag: '灯多', threat: 2.333, band: 'mid' },
-  { name: '第五夜', tag: '山雨', threat: 2.778, band: 'mid' },
-  { name: '第六夜', tag: '满街', threat: 3.222, band: 'mid' },
-  { name: '第七夜', tag: '问路', threat: 3.667, band: 'mid' },
-  { name: '第八夜', tag: '不眠', threat: 4.111, band: 'mid' },
-  { name: '第九夜', tag: '月近', threat: 4.556, band: 'late' },
-  { name: '第十夜', tag: '天亮前', threat: 5.0, band: 'late' }
+export const DAYS = [
+  { id: 1, name: '第一天', sub: '夜市街', map: 'street', rows: 5 },
+  { id: 2, name: '第二天', sub: '河埠口', map: 'market', rows: 6 },
+  { id: 3, name: '第三天', sub: '暗河', map: 'water', rows: 5 }
 ];
 
-export const LEVELS = LEVEL_INFO.map((info, i) => ({
-  id: i + 1,
-  name: info.name,
-  tag: info.tag,
-  threat: info.threat,
-  band: info.band,
-  startSun: 100,
-  waves: buildWaves(info.band, i + 1)
-}));
+const DAY_LEVELS = [
+  [
+    { name: '第一夜', tag: '开张', threat: 1.0, band: 'early' },
+    { name: '第二夜', tag: '熟客', threat: 1.4, band: 'early' },
+    { name: '第三夜', tag: '起风', threat: 1.8, band: 'mid' },
+    { name: '第四夜', tag: '灯多', threat: 2.2, band: 'mid' },
+    { name: '第五夜', tag: '山雨', threat: 2.6, band: 'mid' }
+  ],
+  [
+    { name: '第一夜', tag: '河埠', threat: 3.0, band: 'mid' },
+    { name: '第二夜', tag: '潮声', threat: 3.3, band: 'mid' },
+    { name: '第三夜', tag: '木栈', threat: 3.6, band: 'late' },
+    { name: '第四夜', tag: '客舟', threat: 3.9, band: 'late' },
+    { name: '第五夜', tag: '不眠', threat: 4.2, band: 'late' }
+  ],
+  [
+    { name: '第一夜', tag: '暗河', threat: 4.4, band: 'late' },
+    { name: '第二夜', tag: '臭水', threat: 4.65, band: 'late' },
+    { name: '第三夜', tag: '浮桥', threat: 4.9, band: 'late' },
+    { name: '第四夜', tag: '水鬼', threat: 5.15, band: 'late' },
+    { name: '第五夜', tag: '天亮前', threat: 5.4, band: 'late' }
+  ]
+];
+
+const WATER_OBJECTS = [[1, 2], [1, 5], [1, 7], [3, 3], [3, 6]];
+
+export const LEVELS = [];
+for (let day = 0; day < DAYS.length; day++) {
+  for (let ni = 0; ni < 5; ni++) {
+    const info = DAY_LEVELS[day][ni];
+    const dayInfo = DAYS[day];
+    const id = day * 5 + ni + 1;
+    LEVELS.push({
+      id,
+      day: dayInfo.id,
+      dayName: dayInfo.name,
+      daySub: dayInfo.sub,
+      name: info.name,
+      tag: info.tag,
+      threat: info.threat,
+      band: info.band,
+      map: dayInfo.map,
+      rows: dayInfo.rows,
+      waterRows: dayInfo.map === 'water' ? [1, 3] : [],
+      objectCells: dayInfo.map === 'water' ? WATER_OBJECTS : [],
+      startSun: 100,
+      waves: buildWaves(info.band, id)
+    });
+  }
+}
 
 export const TUTORIAL_LEVEL = {
   id: 0,
+  day: 1,
+  dayName: '第一天',
+  daySub: '夜市街',
+  map: 'street',
+  rows: 5,
+  waterRows: [],
+  objectCells: [],
   name: '新手教程',
   tag: '第一课',
   threat: 1,

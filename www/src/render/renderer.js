@@ -3,14 +3,120 @@ import { drawMower, drawPlant, drawZombie } from './art.js';
 import { drawUI, drawMenuBackdrop } from '../ui/ui.js';
 import { upgradeDots } from '../game/upgrade.js';
 import { assets } from '../core/assets.js';
-
-const ROW_Y = Array.from({ length: BOARD.rows }, (_, r) =>
-  BOARD.y + r * BOARD.ch + BOARD.ch / 2
-);
+import { drawBoardArt, drawMapAnimation, drawMapBackdrop, drawMapForeground, mapSceneSignature } from './mapart.js';
 
 function rr(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, r);
+}
+
+let fireGlowSprite = null;
+let starGlowSprite = null;
+let fireTrailSprite = null;
+let starSprite = null;
+
+function makeRadialSprite(size, inner, mid, outer) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d');
+  const grad = g.createRadialGradient(size / 2, size / 2, 2, size / 2, size / 2, size / 2);
+  grad.addColorStop(0, inner);
+  grad.addColorStop(0.45, mid);
+  grad.addColorStop(1, outer);
+  g.fillStyle = grad;
+  g.fillRect(0, 0, size, size);
+  return c;
+}
+
+function getFireGlowSprite() {
+  if (!fireGlowSprite) fireGlowSprite = makeRadialSprite(64, 'rgba(255,246,190,0.62)', 'rgba(255,162,68,0.3)', 'rgba(255,90,40,0)');
+  return fireGlowSprite;
+}
+
+function getStarGlowSprite() {
+  if (!starGlowSprite) starGlowSprite = makeRadialSprite(64, 'rgba(255,248,206,0.95)', 'rgba(255,190,80,0.35)', 'rgba(255,180,70,0)');
+  return starGlowSprite;
+}
+
+function getFireTrailSprite() {
+  if (fireTrailSprite) return fireTrailSprite;
+  const c = document.createElement('canvas');
+  c.width = 96;
+  c.height = 56;
+  const g = c.getContext('2d');
+  const glow = g.createRadialGradient(70, 28, 2, 70, 28, 26);
+  glow.addColorStop(0, 'rgba(255,248,200,0.95)');
+  glow.addColorStop(0.4, 'rgba(255,170,70,0.45)');
+  glow.addColorStop(1, 'rgba(255,90,40,0)');
+  g.fillStyle = glow;
+  g.fillRect(0, 0, 96, 56);
+  g.globalCompositeOperation = 'lighter';
+  const flames = [
+    [68, 28, 7, 5, '#fff4c2'],
+    [57, 26, 9, 6, '#ffc35e'],
+    [46, 31, 10, 6, '#ff943e'],
+    [34, 24, 10, 5, '#ff7a36'],
+    [22, 30, 8, 4, '#d94a2d']
+  ];
+  for (const [x, y, rx, ry, color] of flames) {
+    g.fillStyle = color;
+    g.globalAlpha = 0.86;
+    g.beginPath();
+    g.ellipse(x, y, rx, ry, -0.18, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.globalAlpha = 1;
+  fireTrailSprite = c;
+  return c;
+}
+
+function getStarSprite() {
+  if (starSprite) return starSprite;
+  const c = document.createElement('canvas');
+  c.width = c.height = 40;
+  const g = c.getContext('2d');
+  g.translate(20, 20);
+  g.fillStyle = '#ffe9a6';
+  g.strokeStyle = 'rgba(255,190,90,0.75)';
+  g.lineWidth = 1.2;
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+    const r = i % 2 === 0 ? 12 : 5;
+    const sx = Math.cos(a) * r;
+    const sy = Math.sin(a) * r;
+    if (i === 0) g.moveTo(sx, sy);
+    else g.lineTo(sx, sy);
+  }
+  g.closePath();
+  g.fill();
+  g.stroke();
+  starSprite = c;
+  return c;
+}
+
+function drawFireProjectile(ctx, p, t) {
+  let angle = 0;
+  if (p.starRay) angle = Math.atan2(p.vy, p.vx);
+  else if (p.homing && p.target) angle = Math.atan2(p.target.y - 24 - p.y, p.target.x - p.x);
+  else if (p.lob) angle = Math.atan2(p.ty - p.y, p.tx - p.x);
+  const flick = 0.92 + Math.sin(t * 17 + p.x * 0.04) * 0.08;
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(angle);
+  ctx.globalAlpha = flick;
+  const s = p.big ? 1.18 : 1;
+  ctx.drawImage(getFireTrailSprite(), -72 * s, -28 * s, 96 * s, 56 * s);
+  ctx.globalAlpha = 0.95;
+  ctx.fillStyle = '#ff9a3d';
+  ctx.beginPath();
+  ctx.arc(0, 0, 5.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fff6cf';
+  ctx.beginPath();
+  ctx.arc(0, 0, 2.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 export class Renderer {
@@ -122,7 +228,10 @@ export class Renderer {
   composeBackground(game) {
     if (!this.bgCtx) return;
     const mode = game.phase === 'menu' ? 'menu' : 'game';
-    const key = `${mode}:${this.scale.toFixed(4)}:${this.canvasW}x${this.canvasH}:${this.ox}x${this.oy}`;
+    const sceneKey = mode === 'game'
+      ? `${game.level?.day || 1}:${game.rows || BOARD.rows}:${mapSceneSignature(game)}`
+      : '';
+    const key = `${mode}:${this.scale.toFixed(4)}:${this.canvasW}x${this.canvasH}:${this.ox}x${this.oy}:${sceneKey}`;
     if (this._bgKey === key) return;
     this._bgKey = key;
     const bg = this.bgCtx;
@@ -137,22 +246,22 @@ export class Renderer {
       drawMenuBackdrop(bg);
       bg.restore();
     } else {
-      const layer = this.sceneLayer();
+      const layer = this.sceneLayer(game);
       bg.drawImage(layer, this.ox, this.oy, VIEW.w * this.scale, VIEW.h * this.scale);
     }
     this.drawLetterboxBackdrop(bg, game);
   }
 
-  sceneLayer() {
-    const key = `${this.scale.toFixed(4)}:${VIEW.w}x${VIEW.h}`;
+  sceneLayer(game) {
+    const key = `${this.scale.toFixed(4)}:${VIEW.w}x${VIEW.h}:${game.level?.day || 1}:${game.rows || BOARD.rows}:${mapSceneSignature(game)}`;
     if (this._sceneLayer && this._sceneLayer.key === key) return this._sceneLayer.canvas;
     const canvas = document.createElement('canvas');
     canvas.width = Math.ceil(VIEW.w * this.scale);
     canvas.height = Math.ceil(VIEW.h * this.scale);
     const layer = canvas.getContext('2d');
     layer.scale(this.scale, this.scale);
-    this.drawBackgroundBase(layer);
-    this.drawBoard(layer);
+    drawMapBackdrop(layer, game);
+    drawBoardArt(layer, game);
     this._sceneLayer = { key, canvas };
     return canvas;
   }
@@ -188,103 +297,6 @@ export class Renderer {
     ctx.restore();
   }
 
-  drawBackgroundBase(ctx) {
-    const bg = assets.backgrounds.board;
-    if (bg) {
-      const scale = Math.max(VIEW.w / bg.width, VIEW.h / bg.height);
-      const w = bg.width * scale;
-      const h = bg.height * scale;
-      ctx.drawImage(bg, (VIEW.w - w) / 2, (VIEW.h - h) / 2, w, h);
-
-      const shade = ctx.createLinearGradient(0, 0, 0, VIEW.h);
-      shade.addColorStop(0, 'rgba(5,9,20,0.62)');
-      shade.addColorStop(0.42, 'rgba(7,11,22,0.22)');
-      shade.addColorStop(1, 'rgba(4,6,12,0.66)');
-      ctx.fillStyle = shade;
-      ctx.fillRect(0, 0, VIEW.w, VIEW.h);
-
-      const vignette = ctx.createRadialGradient(640, 360, 210, 640, 360, 780);
-      vignette.addColorStop(0, 'rgba(0,0,0,0)');
-      vignette.addColorStop(0.72, 'rgba(3,5,10,0.18)');
-      vignette.addColorStop(1, 'rgba(2,3,7,0.62)');
-      ctx.fillStyle = vignette;
-      ctx.fillRect(0, 0, VIEW.w, VIEW.h);
-
-      const warm = ctx.createRadialGradient(640, 150, 20, 640, 150, 560);
-      warm.addColorStop(0, 'rgba(255,178,88,0.10)');
-      warm.addColorStop(1, 'rgba(255,160,70,0)');
-      ctx.fillStyle = warm;
-      ctx.fillRect(0, 0, VIEW.w, VIEW.h);
-
-      return;
-    }
-
-    const g = ctx.createLinearGradient(0, 0, 0, VIEW.h);
-    g.addColorStop(0, '#0b0e16');
-    g.addColorStop(0.42, '#171d27');
-    g.addColorStop(1, '#120e12');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, VIEW.w, VIEW.h);
-
-    const mg = ctx.createRadialGradient(1100, 90, 8, 1100, 90, 170);
-    mg.addColorStop(0, 'rgba(216,226,244,0.18)');
-    mg.addColorStop(1, 'rgba(216,226,244,0)');
-    ctx.fillStyle = mg;
-    ctx.fillRect(900, 0, 380, 320);
-    ctx.fillStyle = 'rgba(230,234,244,0.25)';
-    ctx.beginPath();
-    ctx.arc(1100, 94, 32, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#0a0c11';
-    ctx.beginPath();
-    ctx.moveTo(0, 196);
-    for (let x = 0; x <= VIEW.w; x += 64) {
-      const top = 150 + ((x * 17) % 30);
-      ctx.lineTo(x + 14, top);
-      ctx.lineTo(x + 36, top + 16);
-      ctx.lineTo(x + 64, 182);
-    }
-    ctx.lineTo(VIEW.w, 210);
-    ctx.lineTo(VIEW.w, 244);
-    ctx.lineTo(0, 244);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = '#1a120f';
-    ctx.fillRect(0, 0, 226, VIEW.h);
-    ctx.strokeStyle = 'rgba(96,64,42,0.22)';
-    ctx.lineWidth = 1;
-    for (let x = 16; x < 226; x += 32) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, VIEW.h);
-      ctx.stroke();
-    }
-
-    ctx.fillStyle = '#0d0e13';
-    ctx.beginPath();
-    ctx.moveTo(1046, VIEW.h);
-    ctx.lineTo(1046, 330);
-    ctx.lineTo(1100, 300);
-    ctx.lineTo(1180, 312);
-    ctx.lineTo(1240, 284);
-    ctx.lineTo(1280, 300);
-    ctx.lineTo(1280, VIEW.h);
-    ctx.closePath();
-    ctx.fill();
-
-    this.hangingLantern(ctx, 1226, 250, t, 0.9);
-    this.hangingLantern(ctx, 1262, 408, t, 0.75);
-    this.hangingLantern(ctx, 1210, 520, t, 0.85);
-
-    const mist = ctx.createLinearGradient(0, 200, 0, 330);
-    mist.addColorStop(0, 'rgba(120,140,170,0.05)');
-    mist.addColorStop(1, 'rgba(120,140,170,0)');
-    ctx.fillStyle = mist;
-    ctx.fillRect(226, 180, 1054, 180);
-  }
-
   drawPetals(ctx, t) {
     ctx.save();
     for (let i = 0; i < 16; i++) {
@@ -306,142 +318,28 @@ export class Renderer {
     ctx.globalAlpha = 1;
   }
 
-  hangingLantern(ctx, x, y, t, s) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(s, s);
-    ctx.rotate(Math.sin(t * 1.6 + x) * 0.04);
-    ctx.strokeStyle = 'rgba(120,90,60,0.5)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(0, -80);
-    ctx.lineTo(0, -22);
-    ctx.stroke();
-
-    const g = ctx.createRadialGradient(0, 0, 3, 0, 0, 34);
-    g.addColorStop(0, 'rgba(255,170,70,0.35)');
-    g.addColorStop(1, 'rgba(255,140,50,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(0, 0, 34, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#b8342a';
-    ctx.strokeStyle = 'rgba(24,14,10,0.8)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 13, 17, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#d9a441';
-    ctx.fillRect(-6, -19, 12, 4);
-    ctx.fillRect(-6, 15, 12, 4);
-    ctx.restore();
-  }
-
-  drawBoard(ctx) {
-    const B = BOARD;
-    ctx.save();
-
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 30;
-    const frame = ctx.createLinearGradient(0, B.y - 20, 0, B.y + BOARD_H + 20);
-    frame.addColorStop(0, 'rgba(48,35,25,0.88)');
-    frame.addColorStop(0.5, 'rgba(20,16,20,0.9)');
-    frame.addColorStop(1, 'rgba(38,26,20,0.92)');
-    ctx.fillStyle = frame;
-    rr(ctx, B.x - 20, B.y - 20, BOARD_W + 40, BOARD_H + 40, 18);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = 'rgba(222,180,104,0.66)';
-    ctx.lineWidth = 1.6;
-    ctx.stroke();
-
-    ctx.fillStyle = 'rgba(8,13,24,0.58)';
-    rr(ctx, B.x - 2, B.y - 2, BOARD_W + 4, BOARD_H + 4, 12);
-    ctx.fill();
-
-    for (let r = 0; r < B.rows; r++) {
-      for (let c = 0; c < B.cols; c++) {
-        const x = B.x + c * B.cw;
-        const y = B.y + r * B.ch;
-        ctx.fillStyle = (r + c) % 2 === 0
-          ? 'rgba(11,18,31,0.50)'
-          : 'rgba(16,24,39,0.40)';
-        ctx.fillRect(x, y, B.cw, B.ch);
-        ctx.strokeStyle = 'rgba(228,192,120,0.075)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x + 0.5, y + 0.5, B.cw - 1, B.ch - 1);
-        ctx.strokeStyle = 'rgba(150,210,210,0.035)';
-        ctx.beginPath();
-        ctx.moveTo(x + 10, y + B.ch - 13);
-        ctx.lineTo(x + B.cw - 12, y + B.ch - 13);
-        ctx.stroke();
-      }
-    }
-
-    const laneGlow = ctx.createLinearGradient(0, B.y, 0, B.y + BOARD_H);
-    laneGlow.addColorStop(0, 'rgba(255,182,96,0.06)');
-    laneGlow.addColorStop(0.5, 'rgba(255,182,96,0.015)');
-    laneGlow.addColorStop(1, 'rgba(40,90,110,0.05)');
-    ctx.fillStyle = laneGlow;
-    ctx.fillRect(B.x, B.y, BOARD_W, BOARD_H);
-
-    const lg = ctx.createLinearGradient(B.x, 0, B.x + 54, 0);
-    lg.addColorStop(0, 'rgba(0,0,0,0.38)');
-    lg.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = lg;
-    ctx.fillRect(B.x, B.y, 54, BOARD_H);
-
-    const rg = ctx.createLinearGradient(B.x + BOARD_W - 110, 0, B.x + BOARD_W, 0);
-    rg.addColorStop(0, 'rgba(0,0,0,0)');
-    rg.addColorStop(1, 'rgba(0,0,0,0.38)');
-    ctx.fillStyle = rg;
-    ctx.fillRect(B.x + BOARD_W - 110, B.y, 110, BOARD_H);
-
-    const wg = ctx.createRadialGradient(
-      B.x + BOARD_W / 2, B.y, 10,
-      B.x + BOARD_W / 2, B.y, 440
-    );
-    wg.addColorStop(0, 'rgba(255,190,100,0.08)');
-    wg.addColorStop(1, 'rgba(255,180,80,0)');
-    ctx.fillStyle = wg;
-    ctx.fillRect(B.x, B.y, BOARD_W, BOARD_H);
-
-    ctx.strokeStyle = 'rgba(226,192,122,0.20)';
-    ctx.lineWidth = 1;
-    rr(ctx, B.x + 4, B.y + 4, BOARD_W - 8, BOARD_H - 8, 9);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(230,194,118,0.62)';
-    ctx.lineWidth = 2;
-    const corners = [
-      [B.x - 14, B.y - 14, 1, 1],
-      [B.x + BOARD_W + 14, B.y - 14, -1, 1],
-      [B.x - 14, B.y + BOARD_H + 14, 1, -1],
-      [B.x + BOARD_W + 14, B.y + BOARD_H + 14, -1, -1]
-    ];
-    for (const [x, y, sx, sy] of corners) {
-      ctx.beginPath();
-      ctx.moveTo(x + sx * 20, y);
-      ctx.lineTo(x, y);
-      ctx.lineTo(x, y + sy * 20);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-
   drawWorld(ctx, game, t) {
+    drawMapAnimation(ctx, game, t);
     for (const m of game.mowers) {
-      drawMower(ctx, m.x, ROW_Y[m.row] + 10, t, m);
+      drawMower(ctx, m.x, game.rowY(m.row) + 10, t, m);
     }
 
-    for (let r = 0; r < BOARD.rows; r++) {
-      const plants = game.plants.filter((p) => p.r === r).sort((a, b) => a.x - b.x);
+    const unitScale = game.unitScale || 1;
+    for (let r = 0; r < game.rows; r++) {
+      const lilies = [...game.lilies.values()].filter((p) => !p.dead && p.r === r).sort((a, b) => a.x - b.x);
+      for (const p of lilies) {
+        drawPlant(ctx, p.type, p.x, p.y, t, {
+          phase: p.phase,
+          hpRatio: p.maxHp ? p.hp / p.maxHp : 1,
+          scale: unitScale,
+          armed: true,
+          arm: 1
+        });
+      }
+      const plants = game.plants.filter((p) => !p.isLily && p.r === r).sort((a, b) => a.x - b.x);
       for (const p of plants) {
         drawPlant(ctx, p.type, p.x, p.y, t, {
+          scale: unitScale,
           phase: p.phase,
           recoil: p.recoil,
           pulse: p.pulse,
@@ -455,6 +353,7 @@ export class Renderer {
           chew: p.chewMax > 0 ? Math.max(0, 1 - p.chewT / p.chewMax) : 0,
           armed: !!p.armed,
           arm: p.def.mine ? Math.min(1, (p.armT || 0) / p.def.mine.arm) : 1,
+          pullT: p.pullT || 0,
           shell: p.shell || null
         });
         const dots = upgradeDots(p);
@@ -467,6 +366,7 @@ export class Renderer {
         const zMax = Math.max(1, z.maxHp || z.def.hp);
         drawZombie(ctx, z.type, zx, z.y, t, {
           phase: z.phase,
+          animT: z.anim,
           eating: z.eating,
           slowT: z.slowT,
           armor: z.armor,
@@ -481,11 +381,14 @@ export class Renderer {
           stunT: z.stunT,
           rageT: z.rageT,
           auraPulse: z.auraPulse,
+          wailT: z.wailT,
           dying: z.dying,
           death: z.dying ? Math.min(1, z.deathT / z.deathDur) : 0,
           deathDur: z.deathDur,
           vaultArc: z.vaultArc,
-          def: z.def
+          objectHop: z.objectHop,
+          def: z.def,
+          scale: unitScale
         });
         if (!z.dying && game.settings.healthBars !== 'off') {
           this.drawHpBar(ctx, z, game.settings.healthBars);
@@ -507,6 +410,27 @@ export class Renderer {
 
     for (const p of game.projectiles) {
       ctx.save();
+      if (p.fire) drawFireProjectile(ctx, p, t);
+      if (p.starRay) {
+        const angle = Math.atan2(p.vy, p.vx);
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(angle);
+        ctx.strokeStyle = 'rgba(255,222,138,0.42)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-28, 0);
+        ctx.lineTo(-8, 0);
+        ctx.stroke();
+        ctx.rotate(t * 7);
+        ctx.globalAlpha = 0.9;
+        ctx.drawImage(getStarGlowSprite(), -18, -18, 36, 36);
+        ctx.globalAlpha = 1;
+        ctx.drawImage(getStarSprite(), -11, -11, 22, 22);
+        ctx.restore();
+        ctx.restore();
+        continue;
+      }
       if (p.homing) {
         const glow = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 16);
         glow.addColorStop(0, 'rgba(255,226,160,0.92)');
@@ -530,7 +454,7 @@ export class Renderer {
         continue;
       }
       if (p.lob) {
-        const groundY = ROW_Y[p.row] + 30;
+        const groundY = game.rowY(p.row) + 30;
         ctx.fillStyle = 'rgba(0,0,0,0.22)';
         ctx.beginPath();
         ctx.ellipse(p.x, groundY, 8, 3, 0, 0, Math.PI * 2);
@@ -638,14 +562,14 @@ export class Renderer {
       ctx.translate(p.x, p.y);
       ctx.scale(p.big ? 1.7 : 1, p.big ? 1.7 : 1);
       ctx.rotate(-0.12);
-      ctx.strokeStyle = p.big ? '#ffe9b0' : '#e0c88f';
+      ctx.strokeStyle = p.fire ? '#ffd08a' : p.big ? '#ffe9b0' : '#e0c88f';
       ctx.lineWidth = p.big ? 4 : 3;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(-9, 0);
       ctx.lineTo(8, 0);
       ctx.stroke();
-      ctx.fillStyle = p.big ? '#d9a441' : '#b03a2c';
+      ctx.fillStyle = p.fire ? '#ff7a3c' : p.big ? '#d9a441' : '#b03a2c';
       ctx.beginPath();
       ctx.moveTo(8, 0);
       ctx.lineTo(3, -3);
@@ -713,45 +637,78 @@ export class Renderer {
       ctx.globalAlpha = 1;
     }
 
+    drawMapForeground(ctx, game, t);
+
+    if (game.phase === 'playing' && game.hoverTarget && !game.selected && !game.shovel) {
+      const hp = game.hoverTarget;
+      const label = game.hoverLabel(hp);
+      const baseH = hp.isShell ? 52 : hp.isLily ? 22 : (hp.def.spriteH || 80) * (game.unitScale || 1);
+      ctx.save();
+      ctx.strokeStyle = hp.isLily ? 'rgba(150,224,206,0.9)' : hp.isShell ? 'rgba(196,220,158,0.95)' : 'rgba(246,214,142,0.9)';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash([4, 5]);
+      ctx.lineDashOffset = -t * 12;
+      ctx.beginPath();
+      if (hp.isShell) ctx.ellipse(hp.x, hp.y - 12, 47, 39, 0, 0, Math.PI * 2);
+      else ctx.ellipse(hp.x, hp.y + (hp.isLily ? 22 : 20), hp.isLily ? 35 : 27, hp.isLily ? 10 : 7, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = '700 11px "Microsoft YaHei UI","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const ty = hp.y - baseH - 8;
+      const tw = Math.max(46, ctx.measureText(label).width + 18);
+      ctx.fillStyle = 'rgba(8,13,20,0.82)';
+      rr(ctx, hp.x - tw / 2, ty - 10, tw, 20, 6);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(226,192,122,0.3)';
+      ctx.lineWidth = 1;
+      rr(ctx, hp.x - tw / 2, ty - 10, tw, 20, 6);
+      ctx.stroke();
+      ctx.fillStyle = '#f2dfb2';
+      ctx.fillText(label, hp.x, ty + 1);
+      ctx.restore();
+    }
+
     if (game.phase === 'playing' && game.shovel && game.hover) {
       const { c, r } = game.hover;
-      const pos = cellCenter(c, r);
+      const pos = game.cellPos(c, r);
       const occupied = !!game.cells[r][c];
       ctx.fillStyle = occupied ? 'rgba(200,60,45,0.16)' : 'rgba(230,200,120,0.05)';
       ctx.fillRect(
-        pos.x - BOARD.cw / 2 + 2, pos.y - BOARD.ch / 2 + 2,
-        BOARD.cw - 4, BOARD.ch - 4
+        pos.x - BOARD.cw / 2 + 2, pos.y - game.cellH / 2 + 2,
+        BOARD.cw - 4, game.cellH - 4
       );
       ctx.strokeStyle = occupied ? 'rgba(235,110,80,0.9)' : 'rgba(240,200,120,0.35)';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 5]);
       ctx.strokeRect(
-        pos.x - BOARD.cw / 2 + 3, pos.y - BOARD.ch / 2 + 3,
-        BOARD.cw - 6, BOARD.ch - 6
+        pos.x - BOARD.cw / 2 + 3, pos.y - game.cellH / 2 + 3,
+        BOARD.cw - 6, game.cellH - 6
       );
       ctx.setLineDash([]);
     }
 
     if (game.phase === 'playing' && game.selected >= 0 && game.hover) {
       const { c, r } = game.hover;
-      const pos = cellCenter(c, r);
+      const pos = game.cellPos(c, r);
       const occupied = !!game.cells[r][c];
       ctx.fillStyle = occupied ? 'rgba(180,60,45,0.18)' : 'rgba(235,190,105,0.12)';
       ctx.fillRect(
-        pos.x - BOARD.cw / 2 + 2, pos.y - BOARD.ch / 2 + 2,
-        BOARD.cw - 4, BOARD.ch - 4
+        pos.x - BOARD.cw / 2 + 2, pos.y - game.cellH / 2 + 2,
+        BOARD.cw - 4, game.cellH - 4
       );
       ctx.strokeStyle = occupied ? 'rgba(220,90,60,0.8)' : 'rgba(240,200,120,0.85)';
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 5]);
       ctx.strokeRect(
-        pos.x - BOARD.cw / 2 + 3, pos.y - BOARD.ch / 2 + 3,
-        BOARD.cw - 6, BOARD.ch - 6
+        pos.x - BOARD.cw / 2 + 3, pos.y - game.cellH / 2 + 3,
+        BOARD.cw - 6, game.cellH - 6
       );
       ctx.setLineDash([]);
       if (!occupied) {
         ctx.globalAlpha = 0.42;
-        drawPlant(ctx, game.cards[game.selected].id, pos.x, pos.y, t, { noShadow: true });
+        drawPlant(ctx, game.cards[game.selected].id, pos.x, pos.y, t, { noShadow: true, armed: true, arm: 1, scale: unitScale });
         ctx.globalAlpha = 1;
       }
     }

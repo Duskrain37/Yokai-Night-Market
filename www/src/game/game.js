@@ -1,17 +1,13 @@
 import { LEVELS, getLevel, PLANT_TYPES, PLANT_ORDER, ZOMBIE_TYPES, TUTORIAL_LEVEL } from '../content.js';
 import {
-  ALMANAC, BOARD, BOARD_W, BTN, LEVELS_UI, PREP, PREP_CINEMA, SETTINGS, TUTORIAL_UI, VIEW,
-  almanacEntryRect, cardRect, cellAt, cellCenter, inRect, levelCardRect,
-  prepRosterRect, prepSlotRect, prepZombieRect, settingsPill, settingsRowEnabled
+  ALMANAC, BOARD, BOARD_H, BOARD_W, BTN, LEVELS_UI, PREP, PREP_CINEMA, SETTINGS, TUTORIAL_UI, VIEW,
+  almanacEntryRect, cardRect, cellAt, cellCenter, inRect, levelDayIsleRect, levelNodeRect,
+  prepRosterRect, prepSlotRect, prepZombieRect, settingsPill, settingsRowEnabled, settingsRangeRect
 } from '../layout.js';
 import { initUpgrades, pathsFor, pathStatus, petalAt, tierOf, PLANT_EFFECTS } from './upgrade.js';
 import { almanacEntries } from '../content/almanac.js';
 import * as storage from '../core/storage.js';
 import { audio } from '../audio/audio.js';
-
-const ROW_Y = Array.from({ length: BOARD.rows }, (_, r) =>
-  BOARD.y + r * BOARD.ch + BOARD.ch / 2
-);
 
 const DIFFICULTY_MULT = {
   easy: { count: 1, hp: 1 },
@@ -41,7 +37,10 @@ const DEFAULT_SETTINGS = {
   difficulty: 'easy',
   cheats: false,
   sound: true,
-  resolution: 'auto'
+  resolution: 'auto',
+  musicStyle: 'grand',
+  musicVolume: 70,
+  sfxVolume: 80
 };
 
 const DEFAULT_RECORDS = {
@@ -64,6 +63,7 @@ export class Game {
     this.records = storage.loadRecords(DEFAULT_RECORDS);
     this.progress = storage.loadProgress(DEFAULT_PROGRESS);
     this.selectedLevel = Math.max(1, Math.min(LEVELS.length, this.progress.selected || 1));
+    this.levelDay = Math.ceil(this.selectedLevel / 5);
     this.level = getLevel(this.selectedLevel);
     this.runLevelId = this.level.id;
     this.levelThreat = this.level.threat;
@@ -90,7 +90,74 @@ export class Game {
     this.refreshSaveInfo();
   }
 
+  rowY(r) {
+    return BOARD.y + r * this.cellH + this.cellH / 2;
+  }
+
+  cellPos(c, r) {
+    return {
+      x: BOARD.x + c * BOARD.cw + BOARD.cw / 2,
+      y: this.rowY(r)
+    };
+  }
+
+  cellAtPoint(x, y) {
+    if (x < BOARD.x || y < BOARD.y || x >= BOARD.x + BOARD_W || y >= BOARD.y + BOARD_H) return null;
+    const c = Math.floor((x - BOARD.x) / BOARD.cw);
+    const r = Math.floor((y - BOARD.y) / this.cellH);
+    if (c < 0 || c >= BOARD.cols || r < 0 || r >= this.rows) return null;
+    return { c, r };
+  }
+
+  makeTiles() {
+    const tiles = Array.from({ length: this.rows }, () =>
+      Array.from({ length: BOARD.cols }, () => ({ kind: 'land' }))
+    );
+    if (this.level.map === 'water') {
+      for (const r of this.level.waterRows || []) {
+        if (r < 0 || r >= this.rows) continue;
+        for (let c = 0; c < BOARD.cols; c++) tiles[r][c] = { kind: 'water', waterType: r === 1 ? 'river' : 'ditch' };
+      }
+      for (const [r, c] of this.level.objectCells || []) {
+        if (r >= 0 && r < this.rows && c >= 0 && c < BOARD.cols) {
+          tiles[r][c] = { kind: 'object', water: true, waterType: r === 1 ? 'river' : 'ditch', obj: (r + c) % 3 };
+        }
+      }
+    } else if (this.level.map === 'market') {
+      const cells = [];
+      for (let c = BOARD.cols - 4; c < BOARD.cols; c++) {
+        for (let r = 0; r < this.rows; r++) cells.push([r, c]);
+      }
+      for (let i = cells.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cells[i], cells[j]] = [cells[j], cells[i]];
+      }
+      for (let i = 0; i < Math.min(5, cells.length); i++) {
+        const [r, c] = cells[i];
+        tiles[r][c] = { kind: 'blocked', obj: i % 3 };
+      }
+    }
+    return tiles;
+  }
+
+  tileAt(c, r) {
+    return this.tiles?.[r]?.[c] || { kind: 'land' };
+  }
+
+  mainPlantAt(c, r) {
+    return this.cells?.[r]?.[c] || null;
+  }
+
+  lilyAt(c, r) {
+    return this.lilies?.get(`${r}:${c}`) || null;
+  }
+
   reset(cardIds = this.loadout) {
+    this.rows = Math.max(5, Math.min(6, this.level.rows || 5));
+    this.cellH = BOARD_H / this.rows;
+    this.unitScale = this.rows >= 6 ? 0.86 : 1;
+    this.tiles = this.makeTiles();
+    this.lilies = new Map();
     this.time = 0;
     this.sun = this.level.startSun;
     this.plants = [];
@@ -99,11 +166,11 @@ export class Game {
     this.orbs = [];
     this.particles = [];
     this.floaters = [];
-    this.cells = Array.from({ length: BOARD.rows }, () => Array(BOARD.cols).fill(null));
+    this.cells = Array.from({ length: this.rows }, () => Array(BOARD.cols).fill(null));
     this.cards = cleanLoadout(cardIds).map((id) => ({ id, def: PLANT_TYPES[id], cd: 0 }));
     this.selected = -1;
     this.shovel = false;
-    this.mowers = Array.from({ length: BOARD.rows }, (_, r) => ({
+    this.mowers = Array.from({ length: this.rows }, (_, r) => ({
       row: r, ready: true, active: false, x: BOARD.x - 32
     }));
     this.waveIndex = 0;
@@ -123,7 +190,7 @@ export class Game {
     this.confirmNew = false;
     this.almanacScroll = 0;
     this.tutorial = null;
-    this.torch = { buff: 0, burn: 0, slow: 0, slowDuration: 1.5 };
+    this.settingsSlider = null;
   }
 
   startRun(levelId = this.selectedLevel, loadout = this.loadout) {
@@ -133,6 +200,7 @@ export class Game {
     this.level = level;
     this.runLevelId = level.id;
     this.selectedLevel = level.id;
+    this.levelDay = level.day || Math.ceil(level.id / 5);
     this.levelThreat = level.threat;
     this.levelCountMul = Math.sqrt(level.threat);
     this.levelHpMul = Math.sqrt(level.threat);
@@ -147,7 +215,7 @@ export class Game {
     this.runCheats = this.settings.cheats;
     this.menuNotice = null;
     this.banner = {
-      text: `${level.name} · ${level.tag} · 守住${level.waves.length}波`,
+      text: `${level.dayName || ''} ${level.name} · ${level.tag} · 守住${level.waves.length}波`,
       t: 3,
       max: 3
     };
@@ -365,6 +433,7 @@ export class Game {
 
   openLevels() {
     if (this.phase !== 'menu') return;
+    this.levelDay = this.level.day || Math.ceil(this.selectedLevel / 5);
     if (this.overlay || this.confirmBack || this.confirmNew) return;
     this.overlay = 'levels';
     this.overlayFrom = 'menu';
@@ -372,16 +441,33 @@ export class Game {
   }
 
   handleLevelsClick(x, y) {
-    if (inRect(x, y, LEVELS_UI.back) || !inRect(x, y, LEVELS_UI.panel)) {
+    if (inRect(x, y, LEVELS_UI.back)) {
       this.closeOverlay();
       return;
     }
-    for (let i = 0; i < LEVELS.length; i++) {
-      if (inRect(x, y, levelCardRect(i))) {
-        this.selectLevel(LEVELS[i].id);
-        this.openPrep(LEVELS[i].id);
-        return;
+    for (let i = 0; i < 3; i++) {
+      if (!inRect(x, y, levelDayIsleRect(i))) continue;
+      this.levelDay = i + 1;
+      const dayLevels = LEVELS.slice(i * 5, i * 5 + 5);
+      if (!dayLevels.some((level) => level.id === this.selectedLevel)) {
+        const next = dayLevels.find((level) => !this.progress.cleared.includes(level.id)) || dayLevels[0];
+        this.selectLevel(next.id);
       }
+      return;
+    }
+    const day = this.levelDay || Math.ceil(this.selectedLevel / 5);
+    const start = (day - 1) * 5;
+    for (let i = 0; i < 5; i++) {
+      if (!inRect(x, y, levelNodeRect(i))) continue;
+      const level = LEVELS[start + i];
+      if (level) this.selectLevel(level.id);
+      return;
+    }
+    if (inRect(x, y, LEVELS_UI.enter)) {
+      const selected = LEVELS.find((level) => level.id === this.selectedLevel)
+        || LEVELS[start];
+      this.selectLevel(selected.id);
+      this.openPrep(selected.id);
     }
   }
 
@@ -404,6 +490,7 @@ export class Game {
     this.phase = 'menu';
     this.level = level;
     this.selectedLevel = level.id;
+    this.levelDay = level.day || Math.ceil(level.id / 5);
     this.levelThreat = level.threat;
     this.levelCountMul = Math.sqrt(level.threat);
     this.levelHpMul = Math.sqrt(level.threat);
@@ -750,11 +837,13 @@ export class Game {
       naturalTimer: num(this.naturalTimer),
       runDifficulty: this.runDifficulty,
       runCheats: !!this.runCheats,
+      tiles: this.tiles.map((row) => row.map((t) => ({ kind: t.kind, obj: t.obj ?? 0, water: !!t.water, waterType: t.waterType || '' }))),
       cards: this.cards.map((c) => ({ id: c.id, cd: num(c.cd) })),
       plants: this.plants.filter((p) => !p.dead).map((p) => ({
         type: p.type,
         c: p.c,
         r: p.r,
+        isLily: !!p.isLily,
         hp: num(p.hp),
         maxHp: num(p.maxHp),
         timer: num(p.timer),
@@ -805,6 +894,16 @@ export class Game {
         needle: !!p.needle,
         pierceArmor: !!p.pierceArmor,
         star: !!p.star,
+        starRay: !!p.starRay,
+        dirX: num(p.dirX),
+        dirY: num(p.dirY),
+        vx: num(p.vx),
+        vy: num(p.vy),
+        life: num(p.life),
+        fire: !!p.fire,
+        torchBuff: num(p.torchBuff),
+        lanternBuff: num(p.lanternBuff),
+        buffApplied: num(p.buffApplied),
         vuln: num(p.vuln),
         vulnDuration: num(p.vulnDuration),
         knock: num(p.knock)
@@ -840,11 +939,24 @@ export class Game {
     this.level = level;
     this.runLevelId = level.id;
     this.selectedLevel = level.id;
+    this.levelDay = level.day || Math.ceil(level.id / 5);
     this.levelThreat = level.threat;
     this.levelCountMul = Math.sqrt(level.threat);
     this.levelHpMul = Math.sqrt(level.threat);
 
     this.reset();
+    if (Array.isArray(run.tiles)) {
+      const rows = Array.isArray(run.tiles) ? Math.min(this.rows, run.tiles.length) : 0;
+      for (let r = 0; r < rows; r++) {
+        const src = run.tiles[r];
+        if (!Array.isArray(src)) continue;
+        for (let c = 0; c < Math.min(BOARD.cols, src.length); c++) {
+          const t = src[c] || {};
+          const kind = ['land', 'water', 'blocked', 'object'].includes(t.kind) ? t.kind : 'land';
+          this.tiles[r][c] = { kind, obj: Math.max(0, Math.floor(num(t.obj, 0))), water: !!t.water, waterType: t.waterType || '' };
+        }
+      }
+    }
     this.runDifficulty = ['easy', 'normal', 'hard'].includes(run.runDifficulty)
       ? run.runDifficulty
       : 'easy';
@@ -886,11 +998,12 @@ export class Game {
       if (!raw || typeof raw !== 'object' || !PLANT_TYPES[raw.type]) continue;
       const c = Math.floor(num(raw.c, -1));
       const r = Math.floor(num(raw.r, -1));
-      if (c < 0 || c >= BOARD.cols || r < 0 || r >= BOARD.rows) continue;
-      const key = r + ',' + c;
+      if (c < 0 || c >= BOARD.cols || r < 0 || r >= this.rows) continue;
+      const isLily = !!raw.isLily || raw.type === 'lily';
+      const key = (isLily ? 'L' : 'M') + r + ',' + c;
       if (seen.has(key)) continue;
       const def = PLANT_TYPES[raw.type];
-      const pos = cellCenter(c, r);
+      const pos = this.cellPos(c, r);
       const maxCap = def.hp;
       const maxHp = Math.max(1, Math.min(maxCap, num(raw.maxHp, def.hp)));
       const p = {
@@ -904,6 +1017,7 @@ export class Game {
         charge: 0,
         biteT: 0,
         dead: false,
+        isLily,
         buffDamage: 0,
         haste: 0,
         chewT: Math.max(0, num(raw.chewT)),
@@ -928,7 +1042,13 @@ export class Game {
         };
       }
       this.plants.push(p);
-      this.cells[r][c] = p;
+      if (isLily) {
+        this.lilies.set(`${r}:${c}`, p);
+      } else {
+        this.cells[r][c] = p;
+        const lily = this.lilyAt(c, r);
+        if (lily) p.lily = lily;
+      }
       seen.add(key);
     }
 
@@ -936,7 +1056,7 @@ export class Game {
       if (!raw || typeof raw !== 'object' || !ZOMBIE_TYPES[raw.type]) continue;
       if (!(num(raw.hp, 1) > 0)) continue;
       const row = Math.floor(num(raw.row, -1));
-      if (row < 0 || row >= BOARD.rows) continue;
+      if (row < 0 || row >= this.rows) continue;
       const def = ZOMBIE_TYPES[raw.type];
       const oldArmor = Number.isFinite(raw.armor) ? raw.armor : num(raw.shell);
       let maxHp = Math.max(1, Math.round(num(raw.maxHp, def.hp)));
@@ -952,7 +1072,7 @@ export class Game {
         type: raw.type,
         row,
         x: Math.max(-240, num(raw.x, 1300)),
-        y: ROW_Y[row] + 6,
+        y: this.rowY(row) + 6,
         hp,
         maxHp,
         armor,
@@ -975,6 +1095,9 @@ export class Game {
         supportT: def.support ? Math.max(0, num(raw.supportT, def.support.interval)) : 0,
         supportPulse: 0,
         armorPulse: 0,
+        wailT: 0,
+        lastObject: null,
+        objectHop: 0,
         hurt: 0,
         eating: false,
         chomp: 0,
@@ -997,7 +1120,7 @@ export class Game {
     for (const raw of run.projectiles || []) {
       if (!raw || typeof raw !== 'object') continue;
       const row = Math.floor(num(raw.row, -1));
-      if (row < 0 || row >= BOARD.rows) continue;
+      if (row < 0 || row >= this.rows) continue;
       const oldSlow = num(raw.slow);
       this.projectiles.push({
         x: num(raw.x),
@@ -1014,6 +1137,16 @@ export class Game {
         needle: !!raw.needle,
         pierceArmor: !!raw.pierceArmor,
         star: !!raw.star,
+        starRay: !!raw.starRay,
+        dirX: num(raw.dirX),
+        dirY: num(raw.dirY),
+        vx: num(raw.vx),
+        vy: num(raw.vy),
+        life: Math.max(0, num(raw.life, 5)),
+        fire: !!raw.fire,
+        torchBuff: Math.max(0, num(raw.torchBuff)),
+        lanternBuff: Math.max(0, num(raw.lanternBuff)),
+        buffApplied: Math.max(0, num(raw.buffApplied)),
         vuln: Math.max(0, num(raw.vuln)),
         vulnDuration: Math.max(0, num(raw.vulnDuration, 2)),
         knock: Math.max(0, num(raw.knock)),
@@ -1055,7 +1188,7 @@ export class Game {
       .map((e) => ({
         t: num(e.t),
         type: e.type,
-        row: Math.max(0, Math.min(BOARD.rows - 1, Math.floor(num(e.row))))
+        row: Math.max(0, Math.min(this.rows - 1, Math.floor(num(e.row))))
       }));
 
     this.phase = 'paused';
@@ -1074,7 +1207,12 @@ export class Game {
 
   update(dt, input) {
     this.mouse = { x: input.x, y: input.y };
-    this.hover = cellAt(input.x, input.y);
+    this.hover = this.cellAtPoint(input.x, input.y);
+    this.hoverTarget = this.pickPlantAt(input.x, input.y);
+    if (this.overlay === 'settings' && this.settingsSlider) {
+      if (input.active) this.setSettingsSlider(this.settingsSlider, input.x);
+      else this.settingsSlider = null;
+    }
     for (const click of input.clicks) this.handleClick(click);
     input.clicks.length = 0;
 
@@ -1222,12 +1360,15 @@ export class Game {
         this.openAlmanac();
         return;
       }
-      if (this.hasSave) {
-        if (inRect(x, y, BTN.start)) this.continueRun();
-        else if (inRect(x, y, BTN.newRun)) this.confirmNew = true;
-        else if (inRect(x, y, BTN.settingsMenuWide)) this.openSettings('menu');
-      } else if (inRect(x, y, BTN.start)) {
-        this.openLevels();
+      if (inRect(x, y, BTN.start)) {
+        if (this.hasSave) this.continueRun();
+        else this.openLevels();
+      } else if (inRect(x, y, BTN.continueMenu)) {
+        if (this.hasSave) this.continueRun();
+        else this.menuNotice = '还没有留灯，先选一夜开张';
+      } else if (inRect(x, y, BTN.newRun)) {
+        if (this.hasSave) this.confirmNew = true;
+        else this.openLevels();
       } else if (inRect(x, y, BTN.settingsMenu)) {
         this.openSettings('menu');
       }
@@ -1329,17 +1470,22 @@ export class Game {
     }
 
     if (this.shovel) {
-      const cell = cellAt(x, y);
-      if (cell) {
-        const plant = this.cells[cell.r][cell.c];
-        if (plant) this.killPlant(plant, true);
+      const target = this.pickPlantAt(x, y);
+      if (target) {
+        if (target.isShell) {
+          this.removeShell(target.host);
+        } else if (target.isLily && this.mainPlantAt(target.c, target.r)) {
+          this.deny('先移除上面的植物');
+        } else {
+          this.killPlant(target, true);
+        }
       }
       this.shovel = false;
       return;
     }
 
     if (this.selected >= 0) {
-      const cell = cellAt(x, y);
+      const cell = this.cellAtPoint(x, y);
       if (!cell) {
         this.selected = -1;
         return;
@@ -1348,9 +1494,9 @@ export class Game {
       return;
     }
 
-    const cell = cellAt(x, y);
+    const cell = this.cellAtPoint(x, y);
     if (cell) {
-      const plant = this.cells[cell.r][cell.c];
+      const plant = this.pickPlantAt(x, y);
       if (plant) {
         if (this.tutorial) {
           if (this.tutorial.step === 'plant') {
@@ -1363,11 +1509,28 @@ export class Game {
           }
         }
         audio.sfx('click');
-        if (pathsFor(plant).length > 0) this.menu = { plant };
+        if (plant.isShell) {
+          this.deny(`龟甲罩 · 不可升阶；用铲子可单独拆下`);
+        } else if (pathsFor(plant).length > 0) this.menu = { plant };
         else if (plant.type === 'bomb') this.deny('爆竹是一次性的，无法升阶');
+        else if (plant.isLily) this.deny('夜莲只是浮台，不能升阶；点上面的植物');
+        else if (plant.type === 'kelp') this.deny('缠魂藻一次即沉，无法升阶');
         else this.deny('此物无法升阶');
       }
     }
+  }
+
+  setSettingsSlider(key, x) {
+    const row = SETTINGS.rows.find((r) => r.key === key && r.type === 'range');
+    if (!row) return;
+    const rect = settingsRangeRect(row);
+    const span = Math.max(1, rect.w);
+    let pct = Math.round(Math.max(0, Math.min(1, (x - rect.x) / span)) * 100);
+    if (row.step) pct = Math.round(pct / row.step) * row.step;
+    this.settings[key] = pct;
+    storage.saveSettings(this.settings);
+    if (key === 'musicVolume') audio.setMusicVolume(pct / 100);
+    if (key === 'sfxVolume') audio.setSfxVolume(pct / 100);
   }
 
   handleSettingsClick(x, y) {
@@ -1377,6 +1540,18 @@ export class Game {
     }
 
     for (const row of SETTINGS.rows) {
+      if (row.type === 'range') {
+        const rect = settingsRangeRect(row);
+        if (x >= rect.x - 6 && x <= rect.x + rect.w + 36 && y >= rect.y - 12 && y <= rect.y + rect.h + 12) {
+          const enabled = settingsRowEnabled(row, this.overlayFrom === 'menu');
+          if (enabled) {
+            this.settingsSlider = row.key;
+            this.setSettingsSlider(row.key, x);
+          }
+          return;
+        }
+        continue;
+      }
       for (let i = 0; i < row.options.length; i++) {
         const pill = settingsPill(row, i);
         if (!inRect(x, y, pill)) continue;
@@ -1387,6 +1562,14 @@ export class Game {
           this.settings[row.key] = pill.option.value;
           storage.saveSettings(this.settings);
           if (row.key === 'sound') audio.setMuted(!pill.option.value);
+          if (row.key === 'musicStyle') audio.setMusicStyle(pill.option.value);
+          if (row.key === 'musicVolume') audio.setMusicVolume(pill.option.value / 100);
+          if (row.key === 'sfxVolume') audio.setSfxVolume(pill.option.value / 100);
+          if (row.key === 'cheats') {
+            this.runCheats = !!pill.option.value;
+            if (!this.runCheats && this.overlay === 'cheat') this.overlay = null;
+            if (this.phase === 'playing' || this.phase === 'paused') this.saveNow();
+          }
         }
         return;
       }
@@ -1458,7 +1641,8 @@ export class Game {
     }
     if (card.cd > 0) return this.deny('还没缓过手来');
     if (this.sun < card.def.cost) return this.deny('香火不够');
-    if (this.cells[r][c]) return this.deny('这里已经摆了东西');
+    const check = this.canPlaceAt(card.id, c, r);
+    if (!check.ok) return this.deny(check.reason);
     this.sun -= card.def.cost;
     card.cd = card.def.cooldown;
     const placed = this.placeFree(card.id, c, r);
@@ -1481,6 +1665,17 @@ export class Game {
       color: '#cfe0b0', life: 1.2, maxLife: 1.2, size: 16
     });
     this.spark(host.x, host.y - 20, '#c8d6a4', 10);
+  }
+
+  removeShell(host) {
+    if (!host || !host.shell) return;
+    host.shell = null;
+    this.floaters.push({
+      x: host.x, y: host.y - 52, text: '拆下龟甲罩',
+      color: '#dce7c4', life: 1.1, maxLife: 1.1, size: 15
+    });
+    this.spark(host.x, host.y - 16, '#bfd0a0', 8);
+    audio.sfx('shell');
   }
 
   damagePlant(p, amount) {
@@ -1559,12 +1754,39 @@ export class Game {
     }
   }
 
-  placeFree(type, c, r) {
-    if (c < 0 || c >= BOARD.cols || r < 0 || r >= BOARD.rows) return null;
-    if (this.cells[r][c]) return null;
+  canPlaceAt(type, c, r) {
+    if (c < 0 || c >= BOARD.cols || r < 0 || r >= this.rows) return { ok: false, reason: '这里不能种' };
     const def = PLANT_TYPES[type];
-    if (!def || def.attach) return null;
-    const pos = cellCenter(c, r);
+    if (!def || def.attach) return { ok: false, reason: '这里不能种' };
+    const tile = this.tileAt(c, r);
+    const main = this.mainPlantAt(c, r);
+    const lily = this.lilyAt(c, r);
+    if (tile.kind === 'blocked') return { ok: false, reason: '障碍挡住了，不能种' };
+    if (tile.kind === 'object') return { ok: false, reason: '这里有物件，不能种' };
+    if (def.lily) {
+      if (tile.kind !== 'water') return { ok: false, reason: '夜莲只能放在水面' };
+      if (main || lily) return { ok: false, reason: '这里已经摆了东西' };
+      return { ok: true };
+    }
+    if (def.waterOnly) {
+      if (tile.kind !== 'water') return { ok: false, reason: '缠魂藻只能种在水面' };
+      if (main || lily) return { ok: false, reason: '这里已经摆了东西' };
+      return { ok: true };
+    }
+    if (tile.kind === 'water') {
+      if (!lily) return { ok: false, reason: '水面要先放夜莲' };
+      if (main) return { ok: false, reason: '这里已经摆了东西' };
+      return { ok: true };
+    }
+    if (main) return { ok: false, reason: '这里已经摆了东西' };
+    return { ok: true };
+  }
+
+  placeFree(type, c, r) {
+    const check = this.canPlaceAt(type, c, r);
+    if (!check.ok) return null;
+    const def = PLANT_TYPES[type];
+    const pos = this.cellPos(c, r);
     const p = {
       def, type, c, r, x: pos.x, y: pos.y,
       hp: def.hp, maxHp: def.hp, timer: 0,
@@ -1576,10 +1798,51 @@ export class Game {
     };
     if (def.produce) p.timer = def.produce.interval - def.produce.first;
     else if (def.shot) p.timer = def.shot.interval;
+    if (def.lily) {
+      p.isLily = true;
+      this.lilies.set(`${r}:${c}`, p);
+    } else {
+      this.cells[r][c] = p;
+      const lily = this.lilyAt(c, r);
+      if (lily) p.lily = lily;
+    }
     this.plants.push(p);
-    this.cells[r][c] = p;
     this.refreshPlantBuffs();
     return p;
+  }
+
+  pickPlantAt(x, y) {
+    const cell = this.cellAtPoint(x, y);
+    if (!cell) return null;
+    const main = this.mainPlantAt(cell.c, cell.r);
+    const lily = this.lilyAt(cell.c, cell.r);
+    if (!main) return lily || null;
+    if (main.shell) {
+      const dx = x - main.x;
+      const dy = y - (main.y - 12);
+      const outer = (dx * dx) / (46 * 46) + (dy * dy) / (38 * 38);
+      const inner = (dx * dx) / (31 * 31) + (dy * dy) / (24 * 24);
+      if (outer <= 1 && inner > 1) {
+        return {
+          isShell: true, host: main, def: main.shell.def,
+          c: cell.c, r: cell.r, x: main.x, y: main.y,
+          hp: main.shell.hp, maxHp: main.shell.maxHp
+        };
+      }
+    }
+    if (lily) {
+      const dx = x - lily.x;
+      const dy = y - (lily.y + 20);
+      if (y > main.y + 12 && (dx * dx) / (38 * 38) + (dy * dy) / (14 * 14) <= 1) return lily;
+    }
+    return main;
+  }
+
+  hoverLabel(target) {
+    if (!target) return '';
+    if (target.isShell) return `龟甲罩 ${Math.ceil(target.hp)}/${target.maxHp}`;
+    if (target.isLily) return '夜莲';
+    return target.shell ? `${target.def.name} · 龟甲罩` : target.def.name;
   }
 
   pickOrb(x, y) {
@@ -1620,7 +1883,7 @@ export class Game {
       this.orbs.push({
         x: BOARD.x + 50 + Math.random() * (BOARD_W - 100),
         y: -24,
-        targetY: BOARD.y + 70 + Math.random() * (BOARD.ch * BOARD.rows - 120),
+        targetY: BOARD.y + 70 + Math.random() * (this.cellH * this.rows - 120),
         landed: false,
         life: 10,
         value: 25,
@@ -1644,7 +1907,7 @@ export class Game {
         this.spawnQueue.push({
           t: this.time + k * 0.38 + Math.random() * 0.25,
           type,
-          row: Math.floor(Math.random() * BOARD.rows)
+          row: Math.floor(Math.random() * this.rows)
         });
         k += 1;
       }
@@ -1695,7 +1958,7 @@ export class Game {
     const z = {
       def, type, row,
       x: Number.isFinite(opts.x) ? opts.x : 1290 + Math.random() * 90,
-      y: ROW_Y[row] + 6,
+      y: this.rowY(row) + 6,
       hp,
       maxHp: hp,
       armor,
@@ -1717,6 +1980,9 @@ export class Game {
       supportT: def.support ? 1.5 + Math.random() * def.support.interval : 0,
       supportPulse: 0,
       armorPulse: 0,
+      wailT: 0,
+      lastObject: null,
+      objectHop: 0,
       hurt: 0,
       eating: false,
       chomp: 0,
@@ -1791,8 +2057,55 @@ export class Game {
 
   projectileDamage(p, base) {
     const lantern = p?.buffDamage || 0;
-    const fire = this.torch?.buff || 0;
-    return base * (1 + Math.max(lantern, fire));
+    return base * (1 + lantern);
+  }
+
+  torchEffect(torch) {
+    const t1 = tierOf(torch, 1);
+    const t2 = tierOf(torch, 2);
+    const t3 = tierOf(torch, 3);
+    return {
+      buff: PLANT_EFFECTS.torch.buff[t1] || 0,
+      burn: PLANT_EFFECTS.torch.burn[t2] || 0,
+      slow: PLANT_EFFECTS.torch.slow[t3] || 0
+    };
+  }
+
+  applyTorchPass(p, prevX, prevY) {
+    if (p.dead) return;
+    for (const torch of this.plants) {
+      if (torch.dead || torch.type !== 'torch') continue;
+      let crossed;
+      if (p.starRay) {
+        crossed = Math.hypot(p.x - torch.x, p.y - (torch.y - 18)) < 52;
+      } else {
+        const sameLane = p.homing ? Math.abs(p.y - torch.y) < 64 : p.row === torch.r;
+        if (!sameLane) continue;
+        crossed = (prevX - torch.x) * (p.x - torch.x) <= 0;
+        if (!crossed) crossed = Math.abs(p.x - torch.x) < 12;
+      }
+      if (!crossed) continue;
+      const fx = this.torchEffect(torch);
+      if (fx.buff > (p.torchBuff || 0)) p.torchBuff = fx.buff;
+      if (fx.burn > (p.burn || 0)) {
+        p.burn = fx.burn;
+        p.burnDuration = PLANT_EFFECTS.torch.burnDuration;
+      }
+      if (fx.slow > (p.slowAmount || 0)) {
+        p.slowAmount = fx.slow;
+        p.slowDuration = PLANT_EFFECTS.torch.slowDuration;
+      }
+      const applied = Math.max(p.lanternBuff || 0, p.torchBuff || 0);
+      const current = p.buffApplied || 0;
+      if (applied > current + 1e-4) {
+        p.damage *= (1 + applied) / (1 + current);
+        p.buffApplied = applied;
+      }
+      if (fx.buff > 0 || fx.burn > 0 || fx.slow > 0) {
+        p.fire = true;
+        p.fireT = Math.max(p.fireT || 0, 0.6);
+      }
+    }
   }
 
   plantHaste(p) {
@@ -1805,7 +2118,6 @@ export class Game {
       p.buffDamage = 0;
       p.haste = 0;
     }
-    const torch = { buff: 0, burn: 0, slow: 0, slowDuration: 1.5 };
     for (const source of this.plants) {
       if (source.dead) continue;
       if (source.type === 'lantern') {
@@ -1829,16 +2141,8 @@ export class Game {
           if (tier < 3 && (target.c <= source.c || target.c - source.c > range)) continue;
           target.haste = Math.max(target.haste, value);
         }
-      } else if (source.type === 'torch') {
-        const t1 = tierOf(source, 1);
-        const t2 = tierOf(source, 2);
-        const t3 = tierOf(source, 3);
-        torch.buff = Math.max(torch.buff, PLANT_EFFECTS.torch.buff[t1]);
-        torch.burn = Math.max(torch.burn, PLANT_EFFECTS.torch.burn[t2]);
-        torch.slow = Math.max(torch.slow, PLANT_EFFECTS.torch.slow[t3]);
       }
     }
-    this.torch = torch;
   }
 
   updatePlants(dt) {
@@ -1869,19 +2173,29 @@ export class Game {
           });
         }
       } else if (def.shot) {
-        p.timer += dt;
-        const target = this.laneTarget(p);
-        const interval = def.shot.interval / (1 + p.haste);
-        if (target) {
-          if (p.timer >= interval) {
-            p.timer -= interval;
-            p.recoil = 1;
-            this.fireVolley(p);
-          } else {
-            p.charge = Math.min(1, p.timer / interval);
+        if (p.burst) {
+          p.burst.timer -= dt;
+          if (p.burst.left > 0 && p.burst.timer <= 0) {
+            this.fireVolleyShot(p);
+          }
+          if (!p.burst || p.burst.left <= 0) {
+            p.burst = null;
+            p.timer = 0;
           }
         } else {
-          p.timer = Math.min(p.timer, interval);
+          p.timer += dt;
+          const target = this.laneTarget(p);
+          const interval = def.shot.interval / (1 + p.haste);
+          if (target) {
+            if (p.timer >= interval) {
+              p.timer = 0;
+              this.startVolley(p);
+            } else {
+              p.charge = Math.min(1, p.timer / interval);
+            }
+          } else {
+            p.timer = Math.min(p.timer, interval);
+          }
         }
       } else if (def.pulse) {
         const interval = this.bellInterval(p) / (1 + p.haste);
@@ -1981,10 +2295,69 @@ export class Game {
           if (p.armT >= def.mine.arm) {
             p.armed = true;
             p.pulse = 0.5;
+            this.spark(p.x, p.y - 12, '#d8e8a5', 10);
+            for (let i = 0; i < 9; i++) {
+              const a = Math.random() * Math.PI * 2;
+              const sp = 30 + Math.random() * 70;
+              this.particles.push({
+                x: p.x + (Math.random() - 0.5) * 24,
+                y: p.y + 20,
+                vx: Math.cos(a) * sp,
+                vy: -30 - Math.random() * 65,
+                life: 0.45 + Math.random() * 0.35,
+                maxLife: 0.8,
+                size: 2.2 + Math.random() * 3,
+                color: i % 3 ? '#7d6a4a' : '#c9d99a',
+                kind: 'shard'
+              });
+            }
           }
         } else {
           const target = this.mineTarget(p);
           if (target) this.mineExplode(p, target);
+        }
+      } else if (def.tangle) {
+        p.timer += dt;
+        const target = this.tangleTarget(p);
+        if (target) {
+          p.pullT = (p.pullT || 0) + dt;
+          target.eating = false;
+          target.x += (p.x + 8 - target.x) * Math.min(1, dt * 4);
+          if (Math.random() < dt * 24) {
+            this.particles.push({
+              x: target.x + (Math.random() - 0.5) * 24,
+              y: target.y - 20 + Math.random() * 20,
+              vx: (Math.random() - 0.5) * 40,
+              vy: -18 - Math.random() * 30,
+              life: 0.4 + Math.random() * 0.3, maxLife: 0.7,
+              size: 2 + Math.random() * 2,
+              color: Math.random() < 0.5 ? '#7ea998' : '#b7d4bd',
+              kind: 'circle'
+            });
+          }
+          if (p.pullT >= def.tangle.drag) {
+            this.damageZombie(target, def.tangle.damage);
+            p.dead = true;
+            this.cells[p.r][p.c] = null;
+            for (let i = 0; i < 16; i++) {
+              const a = Math.random() * Math.PI * 2;
+              const sp = 30 + Math.random() * 110;
+              this.particles.push({
+                x: p.x, y: p.y + 8,
+                vx: Math.cos(a) * sp, vy: -40 - Math.random() * 60,
+                life: 0.5 + Math.random() * 0.4, maxLife: 0.9,
+                size: 2 + Math.random() * 4,
+                color: i % 3 ? '#5f8f7c' : '#c7e0bd',
+                kind: 'circle'
+              });
+            }
+            this.floaters.push({
+              x: p.x, y: p.y - 40, text: '沉底了',
+              color: '#bfe0cf', life: 1.2, maxLife: 1.2, size: 16
+            });
+          }
+        } else {
+          p.pullT = Math.max(0, (p.pullT || 0) - dt);
         }
       } else if (def.homing) {
         const interval = def.homing.interval / (1 + p.haste);
@@ -2160,7 +2533,7 @@ export class Game {
   }
 
   flytrapBite(p, target) {
-    audio.sfx('chomp', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    audio.sfx('flytrap', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     p.recoil = 1;
     p.pulse = 0.5;
     if (this.isLarge(target)) {
@@ -2186,10 +2559,21 @@ export class Game {
     return null;
   }
 
+  tangleTarget(p) {
+    let best = null;
+    const range = p.def.tangle?.range || 120;
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z) || z.row !== p.r) continue;
+      if (z.x < p.x - 24 || z.x > p.x + range) continue;
+      if (!best || z.x < best.x) best = z;
+    }
+    return best;
+  }
+
   mineExplode(p, target) {
     p.dead = true;
     this.cells[p.r][p.c] = null;
-    audio.sfx('explode', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    audio.sfx('mine', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     this.damageZombie(target, this.plantDamage(p, p.def.mine.damage));
     for (let i = 0; i < 22; i++) {
       const a = Math.random() * Math.PI * 2;
@@ -2207,7 +2591,7 @@ export class Game {
   }
 
   fireGravel(p, tier) {
-    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    audio.sfx('gravelShot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     const vuln = PLANT_EFFECTS.wall.vuln[tier] || 0;
     const knock = PLANT_EFFECTS.wall.knockCells[tier] || 0;
     this.projectiles.push({
@@ -2216,11 +2600,14 @@ export class Game {
       row: p.r,
       speed: 430,
       damage: this.projectileDamage(p, PLANT_EFFECTS.wall.gravelDamage[tier]),
+      lanternBuff: p.buffDamage || 0,
+      buffApplied: p.buffDamage || 0,
+      fire: false,
       big: false,
-      slowAmount: this.torch.slow,
-      slowDuration: 1.5,
-      burn: this.torch.burn,
-      burnDuration: 2,
+      slowAmount: 0,
+      slowDuration: 0,
+      burn: 0,
+      burnDuration: 0,
       gravel: true,
       vuln,
       vulnDuration: PLANT_EFFECTS.wall.vulnDuration,
@@ -2297,7 +2684,7 @@ export class Game {
     const hits = PLANT_EFFECTS.cat.hits[t2] || 1;
     const vuln = PLANT_EFFECTS.cat.vuln[t3] || 0;
     const catSlow = PLANT_EFFECTS.cat.slow[t3] || 0;
-    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    audio.sfx('catShot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     for (let i = 0; i < count; i++) {
       const target = targets[i % targets.length];
       this.projectiles.push({
@@ -2310,12 +2697,15 @@ export class Game {
         row: target.row,
         speed: PLANT_EFFECTS.cat.speed,
         damage,
+        lanternBuff: p.buffDamage || 0,
+        buffApplied: p.buffDamage || 0,
+        fire: false,
         vuln,
         vulnDuration: 2,
-        slowAmount: Math.max(catSlow, this.torch.slow),
+        slowAmount: catSlow,
         slowDuration: 1.5,
-        burn: this.torch.burn,
-        burnDuration: 2,
+        burn: 0,
+        burnDuration: 0,
         dead: false
       });
     }
@@ -2329,7 +2719,7 @@ export class Game {
     const t3 = tierOf(p, 3);
     const damage = this.projectileDamage(p, PLANT_EFFECTS.lobber.damage[t1]);
     const lobSlow = PLANT_EFFECTS.lobber.slowFactor[t3] || 0;
-    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    audio.sfx('lobShot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     this.projectiles.push({
       lob: true,
       target,
@@ -2343,14 +2733,30 @@ export class Game {
       t: 0,
       flight: p.def.lob.flight,
       damage,
+      lanternBuff: p.buffDamage || 0,
+      buffApplied: p.buffDamage || 0,
+      fire: false,
       vuln: 0,
-      slowAmount: Math.max(lobSlow, this.torch.slow),
+      slowAmount: lobSlow,
       slowDuration: 2,
-      burn: this.torch.burn,
-      burnDuration: 2,
+      burn: 0,
+      burnDuration: 0,
       dead: false
     });
     p.recoil = 0.9;
+  }
+
+  starDirectionHasTarget(x, y, dirX, dirY) {
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z)) continue;
+      const dx = z.x - x;
+      const dy = (z.y - 26) - y;
+      const along = dx * dirX + dy * dirY;
+      if (along <= 0) continue;
+      const perp = Math.abs(dx * dirY - dy * dirX);
+      if (perp <= 34) return true;
+    }
+    return false;
   }
 
   fireStar(p) {
@@ -2359,30 +2765,48 @@ export class Game {
     const t3 = tierOf(p, 3);
     const damage = this.projectileDamage(p, PLANT_EFFECTS.star.damage[t1]);
     const vuln = PLANT_EFFECTS.star.vuln[t3] || 0;
+    const originX = p.x;
+    const originY = p.y - 22;
+    const speed = 560;
+    const dirs = [
+      { dx: -1, dy: 0 },
+      { dx: 0, dy: -1 },
+      { dx: 0, dy: 1 },
+      { dx: Math.cos(Math.PI / 3), dy: -Math.sin(Math.PI / 3) },
+      { dx: Math.cos(Math.PI / 3), dy: Math.sin(Math.PI / 3) }
+    ];
     let any = false;
-    for (let r = 0; r < BOARD.rows; r++) {
-      const target = this.zombies.find((z) => this.aliveZombie(z) && z.row === r && z.x > p.x);
-      if (!target) continue;
+    for (const d of dirs) {
+      if (!this.starDirectionHasTarget(originX, originY, d.dx, d.dy)) continue;
       any = true;
       this.projectiles.push({
-        x: p.x + 20,
-        y: ROW_Y[r] - 14,
-        row: r,
-        speed: 560,
+        starRay: true,
+        dirX: d.dx,
+        dirY: d.dy,
+        vx: d.dx * speed,
+        vy: d.dy * speed,
+        x: originX + d.dx * 16,
+        y: originY + d.dy * 16,
+        row: p.r,
+        life: 5,
         damage,
+        lanternBuff: p.buffDamage || 0,
+        buffApplied: p.buffDamage || 0,
+        fire: false,
         star: true,
         vuln,
         vulnDuration: 2,
-        slowAmount: this.torch.slow,
-        slowDuration: 1.5,
-        burn: this.torch.burn,
-        burnDuration: 2,
+        slowAmount: 0,
+        slowDuration: 0,
+        burn: 0,
+        burnDuration: 0,
         dead: false
       });
     }
     if (any) {
-      audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
-      p.recoil = 0.5;
+      audio.sfx('starShot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+      p.recoil = 0.7;
+      p.pulse = 0.45;
     }
     return any;
   }
@@ -2391,21 +2815,24 @@ export class Game {
     const t1 = tierOf(p, 1);
     const t2 = tierOf(p, 2);
     const t3 = tierOf(p, 3);
-    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    audio.sfx('needleShot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     this.projectiles.push({
       x: p.x + 22,
       y: p.y - 16,
       row: p.r,
       speed: p.def.needle.speed,
       damage: this.projectileDamage(p, PLANT_EFFECTS.needle.damage[t1]),
+      lanternBuff: p.buffDamage || 0,
+      buffApplied: p.buffDamage || 0,
+      fire: false,
       needle: true,
       pierceArmor: true,
       vuln: PLANT_EFFECTS.needle.vuln[t3] || 0,
       vulnDuration: 2,
-      slowAmount: this.torch.slow,
-      slowDuration: 1.5,
-      burn: this.torch.burn,
-      burnDuration: 2,
+      slowAmount: 0,
+      slowDuration: 0,
+      burn: 0,
+      burnDuration: 0,
       dead: false
     });
     p.recoil = 0.6;
@@ -2417,7 +2844,7 @@ export class Game {
     const t3 = tierOf(p, 3);
     const damage = this.plantDamage(p, PLANT_EFFECTS.judge.damage[t3]);
     const knock = PLANT_EFFECTS.judge.knockCells[t1] * BOARD.cw;
-    audio.sfx('bell', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    audio.sfx('judgeStrike', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     this.damageZombie(target, damage);
     if (this.aliveZombie(target)) {
       target.x = Math.min(1360, target.x + knock);
@@ -2435,8 +2862,13 @@ export class Game {
 
   applyBurn(z, duration, dps) {
     if (!this.aliveZombie(z) || duration <= 0 || dps <= 0) return;
-    z.burnT = Math.max(z.burnT || 0, duration);
-    z.burnDps = Math.max(z.burnDps || 0, dps);
+    const current = z.burnT > 0 ? (z.burnDps || 0) : 0;
+    if (dps > current + 1e-4) {
+      z.burnDps = dps;
+      z.burnT = duration;
+    } else if (Math.abs(dps - current) <= 1e-4) {
+      z.burnT = Math.max(z.burnT || 0, duration);
+    }
   }
 
   applyProjectileStatuses(z, p) {
@@ -2447,8 +2879,13 @@ export class Game {
 
   applyVulnerable(z, duration, amount) {
     if (!this.aliveZombie(z) || duration <= 0 || amount <= 0) return;
-    z.vulnT = Math.max(z.vulnT || 0, duration);
-    z.vuln = Math.max(z.vuln || 0, amount);
+    const current = z.vulnT > 0 ? (z.vuln || 0) : 0;
+    if (amount > current + 1e-4) {
+      z.vuln = amount;
+      z.vulnT = duration;
+    } else if (Math.abs(amount - current) <= 1e-4) {
+      z.vulnT = Math.max(z.vulnT || 0, duration);
+    }
   }
 
   lionTarget(p) {
@@ -2500,57 +2937,83 @@ export class Game {
     }
   }
 
-  fireVolley(p) {
-    const def = p.def;
-    const base = this.projectileDamage(p, def.shot.damage);
-    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
-    const count = PLANT_EFFECTS.shooter.volley[tierOf(p, 1)] || 1;
-    const crit = PLANT_EFFECTS.shooter.critChance[tierOf(p, 3)] || 0;
-    const critSlow = PLANT_EFFECTS.shooter.critSlow[tierOf(p, 3)] || 0;
+  startVolley(p) {
     const adjacent = tierOf(p, 2);
-
-    for (let i = 0; i < count; i++) {
-      const big = i === 0 && Math.random() < crit;
-      this.projectiles.push({
-        x: p.x + 20 + i * 18,
-        y: p.y - 12 + (i % 2 === 0 ? -2 : 2),
-        row: p.r,
-        speed: def.shot.speed,
-        damage: big ? base * 2 : base,
-        big,
-        slowAmount: Math.max(critSlow > 0 ? 0.5 : 0, this.torch.slow),
-        slowDuration: Math.max(critSlow, this.torch.slow > 0 ? 1.5 : 0),
-        burn: this.torch.burn,
-        burnDuration: 2,
-        dead: false
-      });
-    }
-
+    let lanes = [];
     if (adjacent > 0) {
-      let lanes = [];
       if (p.r > 0) lanes.push(p.r - 1);
-      if (p.r < BOARD.rows - 1) lanes.push(p.r + 1);
+      if (p.r < this.rows - 1) lanes.push(p.r + 1);
       if (adjacent === 1 && lanes.length > 1) {
         p.adjFlip = (p.adjFlip ?? 0) + 1;
         lanes = [lanes[p.adjFlip % 2]];
       }
-      const dmg = this.projectileDamage(p, def.shot.damage) * (PLANT_EFFECTS.shooter.adjacentFactor[adjacent] ?? 0.5);
-      for (const lane of lanes) {
+    }
+    p.burst = {
+      left: PLANT_EFFECTS.shooter.volley[tierOf(p, 1)] || 1,
+      index: 0,
+      timer: 0,
+      adjacent,
+      lanes,
+      critChance: PLANT_EFFECTS.shooter.critChance[tierOf(p, 3)] || 0,
+      critSlow: PLANT_EFFECTS.shooter.critSlow[tierOf(p, 3)] || 0
+    };
+    this.fireVolleyShot(p);
+    if (p.burst && p.burst.left <= 0) {
+      p.burst = null;
+      p.timer = 0;
+    }
+  }
+
+  fireVolleyShot(p) {
+    const b = p.burst;
+    if (!b) return;
+    const def = p.def;
+    const index = b.index;
+    const base = this.projectileDamage(p, def.shot.damage);
+    const big = index === 0 && Math.random() < b.critChance;
+    audio.sfx('shoot', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
+    this.projectiles.push({
+      x: p.x + 20,
+      y: p.y - 12 + (index % 2 === 0 ? -2 : 2),
+      row: p.r,
+      speed: def.shot.speed,
+      damage: big ? base * 2 : base,
+      lanternBuff: p.buffDamage || 0,
+      buffApplied: p.buffDamage || 0,
+      fire: false,
+      big,
+      slowAmount: b.critSlow > 0 ? 0.5 : 0,
+      slowDuration: b.critSlow,
+      burn: 0,
+      burnDuration: 0,
+      dead: false
+    });
+    if (index === 0 && b.lanes.length) {
+      const dmg = base * (PLANT_EFFECTS.shooter.adjacentFactor[b.adjacent] ?? 0.5);
+      for (const lane of b.lanes) {
         this.projectiles.push({
           x: p.x + 20,
-          y: ROW_Y[lane] - 12,
+          y: this.rowY(lane) - 12,
           row: lane,
           speed: def.shot.speed,
           damage: dmg,
+          lanternBuff: p.buffDamage || 0,
+          buffApplied: p.buffDamage || 0,
+          fire: false,
           big: false,
-          slowAmount: this.torch.slow,
-          slowDuration: 1.5,
-          burn: this.torch.burn,
-          burnDuration: 2,
+          slowAmount: 0,
+          slowDuration: 0,
+          burn: 0,
+          burnDuration: 0,
           dead: false
         });
       }
     }
+    p.recoil = 1;
+    p.charge = 0;
+    b.index += 1;
+    b.left -= 1;
+    b.timer = 0.09;
   }
 
   explode(p) {
@@ -2584,6 +3047,7 @@ export class Game {
     let best = null;
     for (const p of this.plants) {
       if (p.dead || p.r !== z.row) continue;
+      if (p.isLily && this.mainPlantAt(p.c, p.r)) continue;
       if (p.x <= z.x + 2 && z.x - p.x <= reach) {
         if (!best || p.x > best.x) best = p;
       }
@@ -2594,26 +3058,32 @@ export class Game {
   applySlow(z, duration, amount = 0.5) {
     if (!this.aliveZombie(z) || duration <= 0) return;
     const slow = Math.max(0, Math.min(0.9, amount));
-    if (z.slowT <= 0) {
+    const current = z.slowT > 0 ? (z.slowAmount || 0) : 0;
+    if (slow > current + 1e-4) {
       z.slowAmount = slow;
       z.slowFactor = 1 - slow;
-    } else if (slow > (z.slowAmount || 0)) {
-      z.slowAmount = slow;
-      z.slowFactor = 1 - slow;
+      z.slowT = duration;
+    } else if (Math.abs(slow - current) <= 1e-4) {
+      z.slowT = Math.max(z.slowT, duration);
     }
-    z.slowT = Math.max(z.slowT, duration);
   }
 
   mournerWail(z) {
     const aura = z.def.aura;
     z.auraT = aura.interval;
     z.auraPulse = 0.85;
+    z.wailT = 0.95;
     let buffed = false;
     for (const other of this.zombies) {
       if (!this.aliveZombie(other) || other === z) continue;
       if (Math.hypot(other.x - z.x, other.y - z.y) > aura.radius) continue;
-      other.rageT = Math.max(other.rageT ?? 0, aura.duration);
-      other.rageMult = Math.max(other.rageMult ?? 1, aura.haste);
+      const current = other.rageT > 0 ? Math.max(1, other.rageMult ?? 1) : 1;
+      if (aura.haste > current + 1e-4) {
+        other.rageMult = aura.haste;
+        other.rageT = aura.duration;
+      } else if (Math.abs(aura.haste - current) <= 1e-4) {
+        other.rageT = Math.max(other.rageT ?? 0, aura.duration);
+      }
       buffed = true;
     }
     this.particles.push({
@@ -2621,6 +3091,19 @@ export class Game {
       life: 0.7, maxLife: 0.7, size: Math.max(30, aura.radius - 26),
       color: buffed ? 'rgba(196,126,102,0.4)' : 'rgba(150,130,120,0.32)', kind: 'ring'
     });
+    for (let i = 0; i < 8; i++) {
+      this.particles.push({
+        x: z.x + (Math.random() - 0.5) * 26,
+        y: z.y - 32 - Math.random() * 22,
+        vx: (Math.random() - 0.5) * 36 - 18,
+        vy: -24 - Math.random() * 30,
+        life: 0.55 + Math.random() * 0.35,
+        maxLife: 0.9,
+        size: 1.8 + Math.random() * 2.4,
+        color: i % 2 ? 'rgba(176,214,226,0.75)' : 'rgba(220,232,236,0.55)',
+        kind: 'circle'
+      });
+    }
   }
 
   updateZombies(dt) {
@@ -2656,6 +3139,7 @@ export class Game {
       if (z.auraPulse > 0) z.auraPulse = Math.max(0, z.auraPulse - dt);
       if (z.supportPulse > 0) z.supportPulse = Math.max(0, z.supportPulse - dt);
       if (z.armorPulse > 0) z.armorPulse = Math.max(0, z.armorPulse - dt);
+      if (z.wailT > 0) z.wailT = Math.max(0, z.wailT - dt);
 
       if (z.stunT > 0) {
         z.stunT = Math.max(0, z.stunT - dt);
@@ -2688,11 +3172,26 @@ export class Game {
         const k = 1 - z.vaultT / dur;
         z.x = z.vaultFromX + (z.vaultToX - z.vaultFromX) * k;
         z.vaultArc = Math.sin(Math.PI * Math.max(0, Math.min(1, k)));
+        z.anim += dt * 2.4;
         z.eating = false;
         if (z.vaultT <= 0) {
           z.vaulted = true;
           z.speed = z.def.vault.speedAfter;
           z.vaultArc = 0;
+          for (let i = 0; i < 7; i++) {
+            this.particles.push({
+              x: z.x + (Math.random() - 0.5) * 26,
+              y: z.y + 24,
+              vx: (Math.random() - 0.5) * 80,
+              vy: -20 - Math.random() * 40,
+              life: 0.4 + Math.random() * 0.3,
+              maxLife: 0.7,
+              size: 2 + Math.random() * 3,
+              color: 'rgba(184,166,132,0.8)',
+              kind: 'circle'
+            });
+          }
+          this.shake = Math.max(this.shake, 2.5);
         }
         continue;
       }
@@ -2705,6 +3204,19 @@ export class Game {
           z.vaultT = z.def.vault.duration;
           z.vaultArc = 0;
           z.eating = false;
+          for (let i = 0; i < 6; i++) {
+            this.particles.push({
+              x: z.x + (Math.random() - 0.5) * 22,
+              y: z.y + 26,
+              vx: (Math.random() - 0.5) * 90,
+              vy: -35 - Math.random() * 50,
+              life: 0.35 + Math.random() * 0.3,
+              maxLife: 0.65,
+              size: 2 + Math.random() * 3,
+              color: 'rgba(196,176,140,0.8)',
+              kind: 'circle'
+            });
+          }
           this.floaters.push({
             x: z.x, y: z.y - 66, text: '跳幡！',
             color: '#f0d59a', life: 0.9, maxLife: 0.9, size: 15
@@ -2749,7 +3261,35 @@ export class Game {
         const mult = z.slowT > 0 ? (z.slowFactor ?? 1) : 1;
         const rage = z.rageT > 0 ? Math.max(1, z.rageMult ?? 1) : 1;
         z.x -= z.speed * mult * rage * dt;
-        z.anim += dt * (mult < 1 ? 0.7 : 1) * rage;
+        z.anim += dt * mult * rage;
+        const col = Math.floor((z.x - BOARD.x) / BOARD.cw);
+        if (col >= 0 && col < BOARD.cols) {
+          const tile = this.tileAt(col, z.row);
+          if (tile.kind === 'object') {
+            const key = `${z.row}:${col}`;
+            if (z.lastObject !== key) {
+              z.lastObject = key;
+              z.x = Math.max(BOARD.x + 6, z.x - BOARD.cw * 0.62);
+              z.objectHop = 0.34;
+              for (let i = 0; i < 5; i++) {
+                this.particles.push({
+                  x: z.x + (Math.random() - 0.5) * 22,
+                  y: z.y + 22,
+                  vx: (Math.random() - 0.5) * 70,
+                  vy: -18 - Math.random() * 35,
+                  life: 0.35 + Math.random() * 0.25,
+                  maxLife: 0.6,
+                  size: 2 + Math.random() * 2.5,
+                  color: 'rgba(182,198,190,0.75)',
+                  kind: 'circle'
+                });
+              }
+            }
+          } else {
+            z.lastObject = null;
+          }
+        }
+        if (z.objectHop > 0) z.objectHop = Math.max(0, z.objectHop - dt);
         if (z.x < BOARD.x - 18 && !z.breached) this.breach(z);
       }
     }
@@ -2794,7 +3334,7 @@ export class Game {
       audio.sfx('mower', { pan: -0.9 });
       this.shake = Math.max(this.shake, 8);
       this.floaters.push({
-        x: BOARD.x + 60, y: ROW_Y[z.row] - 40,
+        x: BOARD.x + 60, y: this.rowY(z.row) - 40,
         text: '门神显灵！', color: '#ffd98a',
         life: 1.4, maxLife: 1.4, size: 18
       });
@@ -2815,6 +3355,7 @@ export class Game {
   }
 
   updateHoming(p, dt) {
+    this.applyTorchPass(p, p.x, p.y);
     if (!this.aliveZombie(p.target)) {
       const next = this.nearestZombies(p.x, p.y, 1, new Set(p.hitIds || []));
       p.target = next[0] || null;
@@ -2846,8 +3387,11 @@ export class Game {
       p.dead = true;
       return;
     }
+    const px = p.x;
+    const py = p.y;
     p.x += (dx / d) * p.speed * dt;
     p.y += (dy / d) * p.speed * dt;
+    this.applyTorchPass(p, px, py);
     if (Math.random() < dt * 24) {
       this.particles.push({
         x: p.x, y: p.y, vx: (Math.random() - 0.5) * 16, vy: -12 - Math.random() * 16,
@@ -2867,11 +3411,14 @@ export class Game {
       p.tx = p.target.x;
       p.ty = p.target.y - 14;
     }
+    const px = p.x;
+    const py = p.y;
     p.t += dt;
     const k = Math.min(1, p.t / p.flight);
     p.x = p.sx + (p.tx - p.sx) * k;
     const base = p.sy + (p.ty - p.sy) * k;
     p.y = base - 108 * 4 * k * (1 - k);
+    this.applyTorchPass(p, px, py);
     if (k < 1) return;
     p.dead = true;
     let hit = null;
@@ -2897,9 +3444,40 @@ export class Game {
     });
   }
 
+  updateStarRay(p, dt) {
+    const px = p.x;
+    const py = p.y;
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.life -= dt;
+    this.applyTorchPass(p, px, py);
+    if (p.life <= 0 || p.x < -100 || p.x > 1380 || p.y < -100 || p.y > BOARD.y + BOARD_H + 100) {
+      p.dead = true;
+      return;
+    }
+    let hit = null;
+    for (const z of this.zombies) {
+      if (!this.aliveZombie(z)) continue;
+      const dx = z.x - p.x;
+      const dy = z.y - 26 - p.y;
+      if (Math.abs(dx) <= 28 && Math.abs(dy) <= 40) {
+        if (!hit || Math.abs(z.x - p.x) < Math.abs(hit.x - p.x)) hit = z;
+      }
+    }
+    if (!hit) return;
+    p.dead = true;
+    this.damageZombie(hit, p.damage);
+    this.applyProjectileStatuses(hit, p);
+    this.spark(p.x, p.y, p.fire ? '#ffcf7a' : '#ffe08a', 5);
+  }
+
   updateProjectiles(dt) {
     for (const p of this.projectiles) {
       if (p.dead) continue;
+      if (p.starRay) {
+        this.updateStarRay(p, dt);
+        continue;
+      }
       if (p.homing) {
         this.updateHoming(p, dt);
         continue;
@@ -2908,7 +3486,9 @@ export class Game {
         this.updateLob(p, dt);
         continue;
       }
+      const px = p.x;
       p.x += p.speed * dt;
+      this.applyTorchPass(p, px, p.y);
       const hit = this.projectileCollision(p);
       if (hit) {
         p.dead = true;
@@ -3041,7 +3621,12 @@ export class Game {
     if (p.dead) return;
     p.dead = true;
     p.shell = null;
-    this.cells[p.r][p.c] = null;
+    if (p.isLily) {
+      this.lilies.delete(`${p.r}:${p.c}`);
+    } else {
+      if (this.cells[p.r]?.[p.c] === p) this.cells[p.r][p.c] = null;
+      if (p.lily) p.lily = null;
+    }
     if (p.type !== 'wall' || silent) {
       audio.sfx('plantDown', { pan: Math.max(-1, Math.min(1, (p.x - 640) / 640)) });
     }
