@@ -23,11 +23,11 @@ export const PLANT_TYPES = {
     spriteH: 84, censer: { interval: 3.0, radius: 140 }
   },
   umbrella: {
-    id: 'umbrella', name: '纸伞', role: '收妖', cost: 100, cooldown: 16, hp: 900, tint: '#b5493e',
+    id: 'umbrella', name: '纸伞', role: '收妖', cost: 150, cooldown: 16, hp: 900, tint: '#b5493e',
     spriteH: 98, chomp: { reach: 74, chew: 6.0, largeDamage: 40, largeInterval: 2.0 }
   },
   lion: {
-    id: 'lion', name: '醒狮', role: '近战', cost: 150, cooldown: 20, hp: 1200, tint: '#c9472f',
+    id: 'lion', name: '醒狮', role: '近战', cost: 200, cooldown: 20, hp: 1200, tint: '#c9472f',
     spriteH: 92, melee: { reach: 110 }
   },
   mushroom: {
@@ -36,10 +36,10 @@ export const PLANT_TYPES = {
   },
   cat: {
     id: 'cat', name: '狐尾灯', role: '追魂', cost: 175, cooldown: 20, hp: 300, tint: '#d08a3e',
-    spriteH: 90, homing: { interval: 1.6, damage: 15, speed: 300, count: 1 }
+    spriteH: 90, homing: { interval: 1.6, damage: 24, speed: 300, count: 1 }
   },
   shell: {
-    id: 'shell', name: '龟甲罩', role: '护罩', cost: 125, cooldown: 25, hp: 1400, tint: '#6f7d63',
+    id: 'shell', name: '龟甲罩', role: '护罩', cost: 100, cooldown: 25, hp: 1400, tint: '#6f7d63',
     spriteH: 98, attach: true
   },
   lobber: {
@@ -52,15 +52,15 @@ export const PLANT_TYPES = {
   },
   star: {
     id: 'star', name: '五路巡灯', role: '五向', cost: 175, cooldown: 22, hp: 300, tint: '#c9a84e',
-    spriteH: 90, star: { interval: 2.6, damage: 12 }
+    spriteH: 90, star: { interval: 2.6, damage: 16 }
   },
   needle: {
-    id: 'needle', name: '透骨针', role: '破甲', cost: 125, cooldown: 18, hp: 300, tint: '#d8d2bf',
-    spriteH: 82, needle: { interval: 1.7, damage: 14, speed: 720 }
+    id: 'needle', name: '透骨针', role: '破甲', cost: 100, cooldown: 18, hp: 300, tint: '#d8d2bf',
+    spriteH: 82, needle: { interval: 1.7, damage: 18, speed: 720 }
   },
   judge: {
     id: 'judge', name: '钟馗像', role: '击退', cost: 150, cooldown: 20, hp: 900, tint: '#b04434',
-    spriteH: 94, judge: { interval: 6.0, damage: 30, knockCells: 0.4, reach: 260 }
+    spriteH: 94, judge: { interval: 5.5, damage: 40, knockCells: 0.4, reach: 260 }
   },
   lily: {
     id: 'lily', name: '夜莲', role: '浮台', cost: 25, cooldown: 5, hp: 260, tint: '#4f8a7a',
@@ -80,8 +80,7 @@ export const PLANT_ORDER = [
   'mushroom', 'cat', 'shell', 'lobber', 'torch', 'star', 'needle', 'judge', 'lily', 'kelp'
 ];
 
-export const ZOMBIE_TIERS = {
-  l: { id: 'l', label: '低阶', short: '低', color: '#7f9d7a' },
+export const ZOMBIE_TIERS = {  l: { id: 'l', label: '低阶', short: '低', color: '#7f9d7a' },
   m: { id: 'm', label: '中阶', short: '中', color: '#c99a4a' },
   h: { id: 'h', label: '高阶', short: '高', color: '#b5493e' }
 };
@@ -151,6 +150,8 @@ export const ZOMBIE_TYPES = {
   }
 };
 
+
+export const ZOMBIE_ORDER = Object.keys(ZOMBIE_TYPES);
 
 // 每关 12 波；前 3 关、4-8 关、最后 2 关各用一套阶段构成。
 const WAVE_PLANS = {
@@ -240,7 +241,7 @@ function buildWaves(band, levelId) {
     const groups = [];
     for (const tier of ['l', 'm', 'h']) addTierGroup(groups, tier, wave[tier] || 0, wi, levelId);
     return {
-      t: 16 + wi * 18,
+      t: (wi === 0 ? 17.5 : 16) + wi * 18,
       flag: !!wave.flag,
       groups
     };
@@ -255,25 +256,25 @@ export const DAYS = [
 
 const DAY_LEVELS = [
   [
-    { name: '第一夜', tag: '开张', threat: 1.0, band: 'early' },
-    { name: '第二夜', tag: '熟客', threat: 1.4, band: 'early' },
-    { name: '第三夜', tag: '起风', threat: 1.8, band: 'mid' },
-    { name: '第四夜', tag: '灯多', threat: 2.2, band: 'mid' },
-    { name: '第五夜', tag: '山雨', threat: 2.6, band: 'mid' }
+    { name: '第一夜', tag: '开张', threat: 0.8, band: 'early' },
+    { name: '第二夜', tag: '熟客', threat: 1.0, band: 'early' },
+    { name: '第三夜', tag: '起风', threat: 1.2, band: 'mid' },
+    { name: '第四夜', tag: '灯多', threat: 1.4, band: 'mid' },
+    { name: '第五夜', tag: '山雨', threat: 1.6, band: 'mid' }
   ],
   [
-    { name: '第一夜', tag: '河埠', threat: 3.0, band: 'mid' },
-    { name: '第二夜', tag: '潮声', threat: 3.3, band: 'mid' },
-    { name: '第三夜', tag: '木栈', threat: 3.6, band: 'late' },
-    { name: '第四夜', tag: '客舟', threat: 3.9, band: 'late' },
-    { name: '第五夜', tag: '不眠', threat: 4.2, band: 'late' }
+    { name: '第一夜', tag: '河埠', threat: 1.75, band: 'mid' },
+    { name: '第二夜', tag: '潮声', threat: 1.95, band: 'mid' },
+    { name: '第三夜', tag: '木栈', threat: 2.15, band: 'late' },
+    { name: '第四夜', tag: '客舟', threat: 2.35, band: 'late' },
+    { name: '第五夜', tag: '不眠', threat: 2.55, band: 'late' }
   ],
   [
-    { name: '第一夜', tag: '暗河', threat: 4.4, band: 'late' },
-    { name: '第二夜', tag: '臭水', threat: 4.65, band: 'late' },
-    { name: '第三夜', tag: '浮桥', threat: 4.9, band: 'late' },
-    { name: '第四夜', tag: '水鬼', threat: 5.15, band: 'late' },
-    { name: '第五夜', tag: '天亮前', threat: 5.4, band: 'late' }
+    { name: '第一夜', tag: '暗河', threat: 2.65, band: 'late' },
+    { name: '第二夜', tag: '臭水', threat: 2.75, band: 'late' },
+    { name: '第三夜', tag: '浮桥', threat: 2.85, band: 'late' },
+    { name: '第四夜', tag: '水鬼', threat: 2.92, band: 'late' },
+    { name: '第五夜', tag: '天亮前', threat: 3.0, band: 'late' }
   ]
 ];
 

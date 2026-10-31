@@ -946,8 +946,8 @@ class AudioEngine {
     const out = this.sfxGain;
     const gate = {
       click: 0.03,
-      hit: 0.045,
-      eat: 0.11,
+      hit: 0.028,
+      eat: 0.05,
       collect: 0.02,
       zombieDie: 0.035,
       catShot: 0.045,
@@ -1065,17 +1065,20 @@ class AudioEngine {
       case 'hit': {
         const type = opts.type || 'ghost';
         if (type === 'paper') {
-          noiseBurst(this.ctx, out, time, 0.065, 0.045, 'highpass', 1900, 3000, 0.9, pan);
-          tone(this.ctx, out, time, 340, 0.05, 0.018, 'triangle', pan, 0.002, 220);
-        } else if (type === 'mountain' || type === 'sedan') {
-          tone(this.ctx, out, time, 135, 0.1, 0.045, 'sine', pan, 0.003, 58);
-          noiseBurst(this.ctx, out, time, 0.06, 0.03, 'lowpass', 620, 220, 0.8, pan);
+          noiseBurst(this.ctx, out, time, 0.028, 0.06, 'highpass', 3800, 2400, 1.5, pan);
+          tone(this.ctx, out, time, 520, 0.032, 0.022, 'triangle', pan, 0.001, 300);
+          noiseBurst(this.ctx, out, time + 0.01, 0.012, 0.02, 'highpass', 5400, 4000, 1.2, pan);
+        } else if (type === 'mountain' || type === 'sedan' || type === 'ironjudge') {
+          tone(this.ctx, out, time, 122, 0.075, 0.06, 'sine', pan, 0.002, 48);
+          noiseBurst(this.ctx, out, time, 0.05, 0.052, 'lowpass', 1150, 300, 0.9, pan);
+          noiseBurst(this.ctx, out, time + 0.004, 0.012, 0.026, 'highpass', 4300, 3100, 1, pan);
         } else if (type === 'mourner') {
-          tone(this.ctx, out, time, 880, 0.13, 0.022, 'sine', pan, 0.004, 320);
-          noiseBurst(this.ctx, out, time, 0.08, 0.025, 'bandpass', 1200, 700, 1.1, pan);
+          tone(this.ctx, out, time, 640, 0.05, 0.034, 'triangle', pan, 0.001, 260);
+          noiseBurst(this.ctx, out, time, 0.034, 0.042, 'bandpass', 2400, 900, 1.3, pan);
         } else {
-          noiseBurst(this.ctx, out, time, 0.055, 0.035, 'bandpass', 900, 480, 0.9, pan);
-          tone(this.ctx, out, time, 215, 0.07, 0.02, 'triangle', pan, 0.002, 140);
+          noiseBurst(this.ctx, out, time, 0.032, 0.062, 'bandpass', 2700, 700, 1.6, pan);
+          tone(this.ctx, out, time, 195, 0.045, 0.046, 'triangle', pan, 0.001, 82);
+          noiseBurst(this.ctx, out, time + 0.006, 0.01, 0.02, 'highpass', 5400, 4000, 1.2, pan);
         }
         break;
       }
@@ -1084,11 +1087,14 @@ class AudioEngine {
         noiseBurst(this.ctx, out, time, 0.22, 0.035, 'lowpass', 500, 140, 0.7, pan);
         break;
       case 'eat':
-        if (opts.plant === 'wall') {
-          noiseBurst(this.ctx, out, time, 0.085, 0.055, 'lowpass', 800, 320, 0.7, pan);
+        if (opts.plant === 'wall' || opts.shell) {
+          noiseBurst(this.ctx, out, time, 0.11, 0.075, 'lowpass', 1400, 260, 0.9, pan);
+          tone(this.ctx, out, time, 98, 0.09, 0.055, 'sine', pan, 0.002, 46);
+          noiseBurst(this.ctx, out, time + 0.008, 0.02, 0.036, 'highpass', 3800, 2800, 1.2, pan);
         } else {
-          noiseBurst(this.ctx, out, time, 0.07, 0.04, 'bandpass', 1400, 700, 1, pan);
-          tone(this.ctx, out, time, 135, 0.055, 0.024, 'triangle', pan, 0.002, 92);
+          noiseBurst(this.ctx, out, time, 0.075, 0.07, 'bandpass', 2300, 520, 1.6, pan);
+          tone(this.ctx, out, time, 155, 0.055, 0.045, 'square', pan, 0.001, 72);
+          noiseBurst(this.ctx, out, time + 0.008, 0.016, 0.03, 'highpass', 4600, 3300, 1.2, pan);
         }
         break;
       case 'deny':

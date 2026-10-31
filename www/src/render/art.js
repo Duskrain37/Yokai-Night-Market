@@ -2088,7 +2088,14 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
     motion.dy -= opt.vaultArc * 58;
     motion.rot -= opt.vaultArc * 0.18;
   }
-  const chomp = opt.eating ? Math.sin(t * 10 + phase) * 2.4 : 0;
+  const bite = Math.max(0, Math.min(1, opt.eatBite || 0));
+  if (bite > 0) {
+    motion.dx -= bite * 5.5;
+    motion.rot += bite * 0.035;
+  }
+  const chomp = opt.eating
+    ? Math.sin((opt.chompT ?? t) * 12 + phase) * 2.6 + bite * 4.2
+    : 0;
 
   ctx.save();
   ctx.translate(x, y);
@@ -2138,11 +2145,52 @@ export function drawZombie(ctx, type, x, y, t, opt = {}) {
   const headV = 0.22;
   const headX = Math.sin(motion.warpPhase - headV * 2.1) * motion.warp *
     (Math.sin(Math.PI * headV) + 0.3 * (1 - headV));
+  if (opt.eating) drawEatSnap(ctx, baseH, bite, type);
   drawZombieArmor(ctx, type, opt, baseH, motion.headBob + (opt.eating ? chomp * 0.5 : 0), opt.eating ? 0 : headX);
   ctx.restore();
   if (type === 'mountain') drawZombieFrontDust(ctx, motion);
   if (motion.stage === 2) drawZombieDamageWisps(ctx, t, baseH);
   drawZombieStatus(ctx, t, opt, baseH);
+  ctx.restore();
+}
+
+function drawEatSnap(ctx, baseH, bite, type) {
+  if (bite <= 0.03) return;
+  const heavy = type === 'mountain' || type === 'sedan';
+  const x = -baseH * (heavy ? 0.34 : 0.3);
+  const y = -baseH * (heavy ? 0.46 : 0.54);
+  const open = (1 - bite) * (heavy ? 7 : 10);
+  ctx.save();
+  ctx.translate(x, y);
+  if (heavy) ctx.scale(1.25, 1.25);
+  ctx.globalAlpha = Math.min(1, bite * 1.6);
+  ctx.fillStyle = 'rgba(26,7,5,0.8)';
+  ctx.beginPath();
+  ctx.moveTo(1, -5);
+  ctx.quadraticCurveTo(-12 - open, 0, 1, 5);
+  ctx.quadraticCurveTo(8, 0, 1, -5);
+  ctx.fill();
+  ctx.fillStyle = '#f2e2c2';
+  for (let i = 0; i < 3; i++) {
+    const tx = -4 - open * 0.5 - i * 3;
+    ctx.beginPath();
+    ctx.moveTo(tx, -4.2);
+    ctx.lineTo(tx - 2.4, -1.4);
+    ctx.lineTo(tx + 0.4, -1.4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(tx, 4.2);
+    ctx.lineTo(tx - 2.4, 1.4);
+    ctx.lineTo(tx + 0.4, 1.4);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.strokeStyle = `rgba(255,232,184,${0.5 * bite})`;
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.arc(-15, 0, 7 + (1 - bite) * 7, -1.15, 1.15);
+  ctx.stroke();
   ctx.restore();
 }
 

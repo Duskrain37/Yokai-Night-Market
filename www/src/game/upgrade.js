@@ -2,6 +2,23 @@ const RED = '#c8402f';
 const TEAL = '#4f8a86';
 const GOLD = '#c79a3b';
 
+// Tuned so every plant's strongest path gains less than it costs: a maxed unit saves grid but is slightly worse per 香火 than stacking base units.
+export const UPGRADE_COST_SCALE = {
+  shooter: 1.2,
+  lantern: 0.25,
+  wall: 0.3,
+  bell: 0.4,
+  censer: 0.78,
+  umbrella: 0.4,
+  lion: 1.3,
+  cat: 1.25,
+  lobber: 0.63,
+  torch: 0.4,
+  star: 0.5,
+  needle: 0.3,
+  judge: 0.45
+};
+
 export const UPGRADE_TREES = {
   shooter: [
     {
@@ -9,7 +26,7 @@ export const UPGRADE_TREES = {
       tiers: [
         { name: '双发', desc: '一次攻击射出两支竹签', cost: 75 },
         { name: '四发', desc: '一次攻击射出四支竹签', cost: 150 },
-        { name: '八发', desc: '一次攻击射出八支竹签', cost: 250 }
+        { name: '六发', desc: '一次攻击射出六支竹签', cost: 250 }
       ]
     },
     {
@@ -23,9 +40,9 @@ export const UPGRADE_TREES = {
     {
       id: 3, name: '重弹', color: GOLD,
       tiers: [
-        { name: '重弹', desc: '30% 概率射出一发双倍伤害的大竹签', cost: 75 },
-        { name: '重型', desc: '大竹签概率提升到 60%', cost: 150 },
-        { name: '霜重', desc: '大竹签命中后减速敌人 50%，持续 3 秒', cost: 250 }
+        { name: '重弹', desc: '10% 概率射出一发双倍伤害的大竹签', cost: 75 },
+        { name: '重型', desc: '大竹签概率提升到 20%', cost: 150 },
+        { name: '霜重', desc: '大竹签概率提升到 30%，命中后减速敌人 50%，持续 3 秒', cost: 250 }
       ]
     }
   ],
@@ -119,9 +136,9 @@ export const UPGRADE_TREES = {
     {
       id: 2, name: '烟气', color: TEAL,
       tiers: [
-        { name: '扩烟', desc: '香雾半径 140 → 160，能熏到更远的邻行', cost: 75 },
-        { name: '浓烟', desc: '香雾半径扩大到 185', cost: 150 },
-        { name: '满街', desc: '香雾半径扩大到 215', cost: 250 }
+        { name: '扩烟', desc: '香雾半径 1.6 格 → 1.8 格，能熏到更远的邻行', cost: 75 },
+        { name: '浓烟', desc: '香雾半径扩大到 2.1 格', cost: 150 },
+        { name: '满街', desc: '香雾半径扩大到 2.4 格', cost: 250 }
       ]
     },
     {
@@ -129,7 +146,7 @@ export const UPGRADE_TREES = {
       tiers: [
         { name: '静气', desc: '被香雾熏到的敌人减速 25%，持续 2 秒', cost: 75 },
         { name: '宁神', desc: '减速提升到 35%，持续 2.5 秒', cost: 150 },
-        { name: '定魄', desc: '减速提升到 45%，持续 3 秒', cost: 250 }
+        { name: '入定', desc: '减速提升到 45%，持续 3 秒', cost: 250 }
       ]
     }
   ],
@@ -163,17 +180,17 @@ export const UPGRADE_TREES = {
     {
       id: 1, name: '狮头', color: RED,
       tiers: [
-        { name: '开脸', desc: '撞头伤害 60 → 90', cost: 75 },
-        { name: '怒目', desc: '撞头伤害提升到 125', cost: 150 },
-        { name: '吞煞', desc: '撞头伤害提升到 170，击退距离增加 50%', cost: 250 }
+        { name: '开脸', desc: '撞头伤害 50 → 72', cost: 75 },
+        { name: '点睛', desc: '撞头伤害提升到 98', cost: 150 },
+        { name: '吞煞', desc: '撞头伤害提升到 130，击退距离增加 50%', cost: 250 }
       ]
     },
     {
       id: 2, name: '步法', color: TEAL,
       tiers: [
-        { name: '踩桩', desc: '攻击间隔 1.35 秒 → 1.15 秒', cost: 75 },
-        { name: '腾挪', desc: '攻击间隔缩短到 0.95 秒', cost: 150 },
-        { name: '扑食', desc: '攻击间隔缩短到 0.75 秒，25% 概率撞晕 0.65 秒', cost: 250 }
+        { name: '踩桩', desc: '攻击间隔 1.5 秒 → 1.35 秒', cost: 75 },
+        { name: '腾挪', desc: '攻击间隔缩短到 1.2 秒', cost: 150 },
+        { name: '扑食', desc: '攻击间隔缩短到 1.05 秒，25% 概率撞晕 0.65 秒', cost: 250 }
       ]
     },
     {
@@ -197,8 +214,8 @@ export const UPGRADE_TREES = {
     {
       id: 2, name: '重尾', color: GOLD,
       tiers: [
-        { name: '重焰', desc: '尾火伤害 20 → 26', cost: 75 },
-        { name: '烈尾', desc: '尾火伤害提升到 34', cost: 150 },
+        { name: '重焰', desc: '尾火伤害 24 → 26', cost: 75 },
+        { name: '烈尾', desc: '尾火伤害提升到 27', cost: 150 },
         { name: '回魂', desc: '每团尾火命中后可再追一个目标', cost: 250 }
       ]
     },
@@ -267,9 +284,9 @@ export const UPGRADE_TREES = {
     {
       id: 1, name: '灯芒', color: GOLD,
       tiers: [
-        { name: '亮街', desc: '每道灯焰伤害 12 → 18', cost: 75 },
-        { name: '长明', desc: '每道灯焰伤害提升到 26', cost: 150 },
-        { name: '满城', desc: '每道灯焰伤害提升到 36', cost: 250 }
+        { name: '亮街', desc: '每道灯焰伤害 16 → 20', cost: 75 },
+        { name: '通明', desc: '每道灯焰伤害提升到 26', cost: 150 },
+        { name: '满城', desc: '每道灯焰伤害提升到 32', cost: 250 }
       ]
     },
     {
@@ -293,9 +310,9 @@ export const UPGRADE_TREES = {
     {
       id: 1, name: '针锋', color: RED,
       tiers: [
-        { name: '透甲', desc: '穿骨针伤害 14 → 20', cost: 75 },
-        { name: '穿骨', desc: '穿骨针伤害提升到 28', cost: 150 },
-        { name: '钉魂', desc: '穿骨针伤害提升到 38', cost: 250 }
+        { name: '透甲', desc: '穿骨针伤害 18 → 23', cost: 75 },
+        { name: '穿骨', desc: '穿骨针伤害提升到 29', cost: 150 },
+        { name: '钉魂', desc: '穿骨针伤害提升到 36', cost: 250 }
       ]
     },
     {
@@ -325,18 +342,18 @@ export const UPGRADE_TREES = {
       ]
     },
     {
-      id: 2, name: '香火', color: TEAL,
+      id: 2, name: '请神', color: TEAL,
       tiers: [
-        { name: '急召', desc: '显灵间隔 6 秒 → 5.2 秒', cost: 75 },
-        { name: '连召', desc: '显灵间隔缩短到 4.4 秒', cost: 150 },
-        { name: '显灵', desc: '显灵间隔缩短到 3.6 秒', cost: 250 }
+        { name: '急召', desc: '显灵间隔 5.5 秒 → 4.8 秒', cost: 75 },
+        { name: '连召', desc: '显灵间隔缩短到 4.1 秒', cost: 150 },
+        { name: '显灵', desc: '显灵间隔缩短到 3.5 秒', cost: 250 }
       ]
     },
     {
       id: 3, name: '判官笔', color: GOLD,
       tiers: [
-        { name: '勾魂', desc: '显灵伤害 30 → 42', cost: 75 },
-        { name: '断罪', desc: '显灵伤害提升到 56', cost: 150 },
+        { name: '勾魂', desc: '显灵伤害 40 → 50', cost: 75 },
+        { name: '断罪', desc: '显灵伤害提升到 60', cost: 150 },
         { name: '判死', desc: '显灵伤害提升到 72', cost: 250 }
       ]
     }
@@ -383,13 +400,14 @@ export function pathStatus(plant, pathId) {
   }
 
   const next = path.tiers[tier];
+  const scale = UPGRADE_COST_SCALE[plant.type] ?? 1;
   return {
     ok: true,
     kind: 'next',
     path,
     tier,
     nextTier: tier + 1,
-    cost: next.cost,
+    cost: Math.max(10, Math.round((next.cost * scale) / 5) * 5),
     name: next.name,
     desc: next.desc
   };
@@ -441,10 +459,10 @@ export function upgradeDots(plant) {
 
 export const PLANT_EFFECTS = {
   shooter: {
-    volley: [1, 2, 4, 8],
+    volley: [1, 2, 4, 6],
     adjacentSides: [0, 1, 2, 2],
     adjacentFactor: [0, 0.5, 0.5, 1],
-    critChance: [0, 0.3, 0.6, 0.6],
+    critChance: [0, 0.1, 0.2, 0.3],
     critSlow: [0, 0, 0, 3]
   },
   lantern: {
@@ -490,8 +508,8 @@ export const PLANT_EFFECTS = {
     largeInterval: 2.0
   },
   lion: {
-    damage: [60, 90, 125, 170],
-    interval: [1.35, 1.15, 0.95, 0.75],
+    damage: [50, 72, 98, 130],
+    interval: [1.5, 1.35, 1.2, 1.05],
     stunChance: [0, 0, 0, 0.25],
     stunDuration: 0.65,
     heal: [0, 25, 45, 70],
@@ -501,7 +519,7 @@ export const PLANT_EFFECTS = {
   },
   cat: {
     interval: 1.6,
-    damage: [15, 20, 26, 34],
+    damage: [24, 26, 27, 28],
     speed: 300,
     count: [1, 2, 3, 4],
     hits: [1, 1, 1, 2],
@@ -526,19 +544,19 @@ export const PLANT_EFFECTS = {
   },
   star: {
     interval: [2.6, 2.2, 1.9, 1.6],
-    damage: [12, 18, 26, 36],
+    damage: [16, 20, 26, 32],
     vuln: [0, 0.05, 0.1, 0.15],
     vulnDuration: 2
   },
   needle: {
     interval: [1.7, 1.45, 1.2, 1.0],
-    damage: [14, 20, 28, 38],
+    damage: [18, 23, 29, 36],
     vuln: [0, 0.05, 0.1, 0.15],
     vulnDuration: 2
   },
   judge: {
-    interval: [6, 5.2, 4.4, 3.6],
-    damage: [30, 42, 56, 72],
+    interval: [5.5, 4.8, 4.1, 3.5],
+    damage: [40, 50, 60, 72],
     knockCells: [0.4, 0.55, 0.7, 0.9],
     reach: 260
   },

@@ -4,7 +4,7 @@ import {
   almanacEntries, plantBaseStats, zombieBaseStats
 } from '../content/almanac.js';
 import { PLANT_TYPES } from '../content.js';
-import { UPGRADE_TREES, PLANT_EFFECTS } from '../game/upgrade.js';
+import { UPGRADE_TREES, PLANT_EFFECTS, UPGRADE_COST_SCALE } from '../game/upgrade.js';
 import { drawPlant, drawZombie } from '../render/art.js';
 
 const KAI = '"KaiTi","STKaiti","Kaiti SC",serif';
@@ -40,8 +40,18 @@ function rr(ctx, x, y, w, h, r) {
   ctx.roundRect(x, y, w, h, r);
 }
 
+const KEYWORDS = [
+  '减速', '易伤', '灼烧', '增幅', '击退', '定身', '眩晕', '护具', '护罩', '本体',
+  '大型', '一次性', '不可升阶', '灰烬', '抛物线', '跨行', '水面', '浮台', '索敌',
+  '收妖', '吞噬', '反伤', '自愈', '耐久', '伤害', '香火', '冷却', '间隔', '持续',
+  '速度', '啃食', '产量', '暴击', '范围', '纸壳', '费用', '灰烬类'
+].join('|');
+
 function colorize(text, baseFont, baseColor) {
-  const re = /(\d+(?:\.\d+)?(?:\s?(?:%|秒|点|格|发|次|道))?|减速|反伤|伤害|耐久|香火|暴击|范围|纸壳|护甲|啃食|冷却|间隔|持续|费用|灰烬)/g;
+  const re = new RegExp(
+    `(\\d+(?:\\.\\d+)?(?:\\s?(?:%|秒|点|格|发|次|道|/\\s?秒))?|${KEYWORDS})`,
+    'g'
+  );
   const segments = [];
   let last = 0;
   for (const m of text.matchAll(re)) {
@@ -60,6 +70,60 @@ function colorize(text, baseFont, baseColor) {
     segments.push({ text: text.slice(last), color: baseColor, font: baseFont });
   }
   return segments;
+}
+
+function wrapRich(ctx, segments, maxWidth) {
+  const lines = [];
+  let line = [];
+  let width = 0;
+  for (const seg of segments) {
+    ctx.font = seg.font;
+    for (const ch of seg.text) {
+      if (ch === '\n') {
+        lines.push(line);
+        line = [];
+        width = 0;
+        continue;
+      }
+      const w = ctx.measureText(ch).width;
+      if (width + w > maxWidth) {
+        lines.push(line);
+        line = [];
+        width = 0;
+      }
+      line.push({ ch, color: seg.color, font: seg.font });
+      width += w;
+    }
+  }
+  lines.push(line);
+  return lines;
+}
+
+function callout(ctx, x, y, maxWidth, segments, opts = {}) {
+  const lineHeight = opts.lineHeight || 24;
+  const padY = opts.padY || 12;
+  const padX = opts.padX || 16;
+  const lines = wrapRich(ctx, segments, maxWidth - padX * 2);
+  const height = lines.length * lineHeight + padY * 2 - 4;
+  ctx.fillStyle = opts.bg || 'rgba(154,115,38,0.10)';
+  rr(ctx, x, y, maxWidth, height, 6);
+  ctx.fill();
+  ctx.fillStyle = opts.accent || C.gold;
+  ctx.fillRect(x, y + 6, 3, height - 12);
+  let ty = y + padY;
+  for (const line of lines) {
+    let tx = x + padX;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
+    for (const cell of line) {
+      ctx.font = cell.font;
+      ctx.fillStyle = cell.color;
+      ctx.fillText(cell.ch, tx, ty);
+      tx += ctx.measureText(cell.ch).width;
+    }
+    ty += lineHeight;
+  }
+  return y + height + (opts.gap ?? 12);
 }
 
 function writeRich(ctx, segments, x, y, maxWidth, lineHeight) {
@@ -144,6 +208,7 @@ function statGrid(ctx, stats, x, y, maxWidth) {
     time: C.teal,
     atk: C.red,
     gold: C.gold,
+    desc: C.ink,
     green: C.green,
     teal: C.teal,
     orange: C.orange,
@@ -204,7 +269,7 @@ function tierStats(type, pathId, tier) {
   }
   if (type === 'censer') {
     if (pathId === 1) return `香雾伤害 ${e.damage[tier]}`;
-    if (pathId === 2) return `香雾半径 ${e.radius[tier]}`;
+    if (pathId === 2) return `香雾半径 ${(e.radius[tier] / 88).toFixed(1)} 格`;
     return `减速 ${Math.round(e.slow[tier] * 100)}% · 持续 ${e.slowDuration[tier]} 秒`;
   }
   if (type === 'umbrella') {
@@ -306,7 +371,9 @@ function pathSection(ctx, type, path, x, y, maxWidth) {
     ctx.font = bold(13);
     ctx.textAlign = 'right';
     ctx.fillStyle = C.orange;
-    const costText = tier.cost + ' 香火';
+    const scale = UPGRADE_COST_SCALE[type] ?? 1;
+    const cost = Math.max(10, Math.round((tier.cost * scale) / 5) * 5);
+    const costText = cost + ' 香火';
     ctx.fillText(costText, x + maxWidth, y + 1);
     const cw = ctx.measureText(costText).width;
     ctx.beginPath();
@@ -371,14 +438,16 @@ function buildPlantContent(ctx, entry) {
   y = heading(ctx, '进化', 0, y);
   const tree = UPGRADE_TREES[entry.type];
   if (!tree) {
-    const text = entry.type === 'mushroom'
-      ? '坟头菇是埋进土里的灰烬陷阱，长成后只等那一脚。它没有第二条路可走，炸完便连菇带土一起散了。'
-      : entry.type === 'shell'
-        ? '龟甲罩只是一层护罩，罩上去便替里面的植物挡风挡咬。它自己不会长，也不会进阶，壳碎之后便算尽了职。'
-        : '爆竹是一响就散的灰烬之物，点着了就只能等它炸完，没有第二条路可走。';
+    const notes = {
+      mushroom: '坟头菇是埋进土里的灰烬陷阱，长成后只等那一脚。它没有第二条路可走，炸完便连菇带土一起散了。',
+      shell: '龟甲罩只是一层护罩，罩上去便替里面的植物挡风挡咬。它自己不会长，也不会进阶，壳碎之后便算尽了职。',
+      lily: '夜莲只是一块浮台，漂在水面上替同行落脚。它不走阶，也不还手，水面上的位置全靠它托着。',
+      kelp: '缠魂藻只有一拽的力气：拖下去一个，藻叶便散在泥里。它没有第二条路可走，也不会有。',
+      bomb: '爆竹是一响就散的灰烬之物，点着了就只能等它炸完，没有第二条路可走。'
+    };
     y = writeText(
       ctx,
-      text,
+      notes[entry.type] || notes.bomb,
       0, y + 2, 700,
       { font: body(14), color: C.story, lineHeight: 24 }
     );
@@ -392,11 +461,14 @@ function buildPlantContent(ctx, entry) {
     { text: '。先想清楚再落手。', color: C.ink, font: body(12.5) }
   ];
   const noteY = y;
-  ctx.fillStyle = '#f2e7d0';
-  rr(ctx, 0, noteY, 700, 36, 6);
-  ctx.fill();
-  writeRich(ctx, notes, 12, noteY + 9, 676, 20);
-  y = noteY + 48;
+  y = callout(ctx, 0, noteY, 700, notes, {
+    bg: 'rgba(154,115,38,0.10)',
+    accent: C.gold,
+    lineHeight: 20,
+    padY: 9,
+    padX: 14,
+    gap: 16
+  });
 
   for (const path of tree) {
     y = pathSection(ctx, entry.type, path, 0, y, 700);
@@ -422,15 +494,15 @@ function buildZombieContent(ctx, entry) {
   y = statGrid(ctx, zombieBaseStats(entry.type), 0, y + 2, 700) + 10;
 
   y = heading(ctx, '对策', 0, y);
-  const start = y;
-  ctx.fillStyle = 'rgba(47,107,103,0.1)';
-  rr(ctx, 0, start, 700, 50, 6);
-  ctx.fill();
-  ctx.fillStyle = C.teal;
-  ctx.fillRect(0, start + 6, 3, 38);
   const counterSegments = colorize(entry.counter, body(14), C.story);
-  writeRich(ctx, counterSegments, 16, start + 12, 664, 24);
-  y = start + 62;
+  y = callout(ctx, 0, y, 700, counterSegments, {
+    bg: 'rgba(47,107,103,0.10)',
+    accent: C.teal,
+    lineHeight: 24,
+    padY: 12,
+    padX: 16,
+    gap: 12
+  });
 
   return footerNote(ctx, y);
 }
@@ -639,7 +711,7 @@ function entryHeader(ctx, game, entry) {
   ctx.font = bold(11);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(isPlant ? '植物' : zombieTierLabel(ZOMBIE_TYPES[entry.type]?.tier), tagX + 21, tagY + 12);
+  ctx.fillText(isPlant ? '草木' : zombieTierLabel(ZOMBIE_TYPES[entry.type]?.tier), tagX + 21, tagY + 12);
 
   ctx.textAlign = 'left';
   ctx.fillStyle = C.ink;

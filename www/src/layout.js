@@ -248,6 +248,35 @@ export const TUTORIAL_UI = {
   skip: { x: 946, y: 654, w: 74, h: 40 }
 };
 
+export const TRAINING_UI = {
+  panel: { x: 360, y: 176, w: 560, h: 360 },
+  tutorial: { x: 420, y: 274, w: 440, h: 82 },
+  sandbox: { x: 420, y: 374, w: 440, h: 82 },
+  back: { x: 540, y: 484, w: 200, h: 38 }
+};
+
+export const TRAIN_CHEAT = {
+  panel: { x: 210, y: 70, w: 860, h: 590 },
+  tabs: { x: 760, y: 94, w: 120, h: 36, gap: 8 },
+  rows: { x: 250, y: 158, w: 380, h: 42, gap: 8 },
+  spawnGrid: { x: 250, y: 152, cols: 4, rows: 3, cellW: 168, cellH: 108, gapX: 10, gapY: 8 },
+  countPills: { x: 250, y: 514, w: 70, h: 36, gap: 8 },
+  lanePills: { x: 250, y: 562, w: 62, h: 36, gap: 7 },
+  summon: { x: 834, y: 530, w: 200, h: 50 }
+};
+
+export function trainSpawnCellRect(i) {
+  const g = TRAIN_CHEAT.spawnGrid;
+  const col = i % g.cols;
+  const row = Math.floor(i / g.cols);
+  return {
+    x: g.x + col * (g.cellW + g.gapX),
+    y: g.y + row * (g.cellH + g.gapY),
+    w: g.cellW,
+    h: g.cellH
+  };
+}
+
 export const PREP = {
   panel: { x: 70, y: 34, w: 1140, h: 652 },
   back: { x: 462, y: 606, w: 150, h: 46 },

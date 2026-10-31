@@ -1,8 +1,9 @@
-import { LEVELS, getLevel, PLANT_TYPES, PLANT_ORDER, ZOMBIE_TYPES, TUTORIAL_LEVEL } from '../content.js';
+import { LEVELS, getLevel, PLANT_TYPES, PLANT_ORDER, ZOMBIE_TYPES, ZOMBIE_ORDER, TUTORIAL_LEVEL } from '../content.js';
 import {
-  ALMANAC, BOARD, BOARD_H, BOARD_W, BTN, LEVELS_UI, PREP, PREP_CINEMA, SETTINGS, TUTORIAL_UI, VIEW,
+  ALMANAC, BOARD, BOARD_H, BOARD_W, BTN, LEVELS_UI, PREP, PREP_CINEMA, SETTINGS, TRAINING_UI, TRAIN_CHEAT, TUTORIAL_UI, VIEW,
   almanacEntryRect, cardRect, cellAt, cellCenter, inRect, levelDayIsleRect, levelNodeRect,
-  prepRosterRect, prepSlotRect, prepZombieRect, settingsPill, settingsRowEnabled, settingsRangeRect
+  prepRosterRect, prepSlotRect, prepZombieRect, settingsPill, settingsRowEnabled, settingsRangeRect,
+  trainSpawnCellRect
 } from '../layout.js';
 import { initUpgrades, pathsFor, pathStatus, petalAt, tierOf, PLANT_EFFECTS } from './upgrade.js';
 import { almanacEntries } from '../content/almanac.js';
@@ -86,6 +87,12 @@ export class Game {
     this.loadout = cleanLoadout(savedLoadout);
     if (!this.loadout.length && savedLoadout.length) this.loadout = [...PLANT_ORDER];
     this.prep = null;
+    this.training = null;
+    this.cheatTab = 'misc';
+    this.trainSpawnType = 'ghost';
+    this.trainSpawnCount = 1;
+    this.trainSpawnLane = -1;
+    this.trainLastSummon = '';
     this.reset();
     this.refreshSaveInfo();
   }
@@ -190,12 +197,18 @@ export class Game {
     this.confirmNew = false;
     this.almanacScroll = 0;
     this.tutorial = null;
+    this.cheatTab = 'misc';
+    this.trainSpawnType = 'ghost';
+    this.trainSpawnCount = 1;
+    this.trainSpawnLane = -1;
+    this.trainLastSummon = '';
     this.settingsSlider = null;
   }
 
   startRun(levelId = this.selectedLevel, loadout = this.loadout) {
     const ids = cleanLoadout(loadout);
     if (!ids.length) return false;
+    this.training = null;
     const level = getLevel(levelId);
     this.level = level;
     this.runLevelId = level.id;
@@ -226,7 +239,166 @@ export class Game {
     return true;
   }
 
+  openTrainingMenu() {
+    if (this.phase !== 'menu' || this.overlay || this.confirmBack || this.confirmNew) return;
+    this.overlay = 'trainMenu';
+    this.overlayFrom = 'menu';
+    this.menuNotice = null;
+  }
+
+  handleTrainingClick(x, y) {
+    if (inRect(x, y, TRAINING_UI.tutorial)) {
+      this.overlay = null;
+      this.overlayFrom = null;
+      this.startTutorial();
+      return;
+    }
+    if (inRect(x, y, TRAINING_UI.sandbox)) {
+      this.openTrainingPrep(1);
+      return;
+    }
+    if (inRect(x, y, TRAINING_UI.back) || !inRect(x, y, TRAINING_UI.panel)) {
+      this.closeOverlay();
+    }
+  }
+
+  openTrainingPrep(day = 1) {
+    if (this.confirmBack || this.confirmNew) return;
+    const mapDay = Math.max(1, Math.min(3, day));
+    const level = getLevel((mapDay - 1) * 5 + 1);
+    const prev = this.training || {};
+    this.training = {
+      mapDay,
+      noCooldown: prev.noCooldown !== false,
+      prevSelected: prev.prevSelected ?? this.selectedLevel,
+      prevDay: prev.prevDay ?? this.levelDay,
+      loadout: prev.loadout || [...this.loadout]
+    };
+    this.phase = 'menu';
+    this.level = level;
+    this.levelThreat = level.threat;
+    this.levelCountMul = 1;
+    this.levelHpMul = 1;
+    this.overlay = 'prep';
+    this.overlayFrom = null;
+    this.menu = null;
+    this.shovel = false;
+    this.selected = -1;
+    this.almanacReturn = null;
+    this.menuNotice = null;
+    this.prep = {
+      levelId: level.id,
+      selected: cleanLoadout(this.training.loadout.length ? this.training.loadout : this.loadout),
+      zombies: [],
+      warning: null,
+      cinemaT: PREP_CINEMA.total,
+      cinemaDone: true,
+      guard: 0,
+      training: true,
+      trainingDay: mapDay
+    };
+    audio.sfx('click');
+  }
+
+  startTrainingRun(levelId, loadout) {
+    const base = getLevel(levelId);
+    const ids = cleanLoadout(loadout);
+    if (!ids.length) return false;
+    const prev = this.training || {};
+    this.training = {
+      mapDay: base.day,
+      noCooldown: prev.noCooldown !== false,
+      prevSelected: prev.prevSelected ?? this.selectedLevel,
+      prevDay: prev.prevDay ?? this.levelDay,
+      loadout: [...ids]
+    };
+    this.level = { ...base, waves: [] };
+    this.runLevelId = base.id;
+    this.selectedLevel = base.id;
+    this.levelDay = base.day;
+    this.levelThreat = base.threat;
+    this.levelCountMul = 1;
+    this.levelHpMul = 1;
+    this.runLoadout = [...ids];
+    this.reset(ids);
+    this.phase = 'playing';
+    this.prep = null;
+    this.runDifficulty = 'easy';
+    this.runCheats = true;
+    this.overlay = null;
+    this.overlayFrom = null;
+    this.confirmBack = false;
+    this.confirmNew = false;
+    this.menuNotice = null;
+    this.almanacReturn = null;
+    this.sun = 1000;
+    this.banner = {
+      text: `训练场 · ${base.dayName}·${base.daySub} · 手动召唤恶客`,
+      t: 3.2,
+      max: 3.2
+    };
+    audio.sfx('start');
+    return true;
+  }
+
+  trainingClearPlants() {
+    if (!this.training) return;
+    for (const p of [...this.plants]) this.killPlant(p, true);
+    this.plants = [];
+    this.lilies.clear();
+    this.cells = Array.from({ length: this.rows }, () => Array(BOARD.cols).fill(null));
+    this.menu = null;
+    this.selected = -1;
+    this.floaters.push({
+      x: 640, y: 310, text: '草木已清空',
+      color: '#ffe1a1', life: 1.6, maxLife: 1.6, size: 20
+    });
+    audio.sfx('explode');
+  }
+
+  switchTrainingMap(day) {
+    if (!this.training) return;
+    const mapDay = ((day - 1 + 3) % 3) + 1;
+    this.training.mapDay = mapDay;
+    const levelId = (mapDay - 1) * 5 + 1;
+    this.overlay = null;
+    this.overlayFrom = null;
+    this.startTrainingRun(levelId, this.runLoadout || this.training.loadout);
+    this.banner = {
+      text: `训练场已重载 · ${getLevel(levelId).dayName}·${getLevel(levelId).daySub}`,
+      t: 2.8,
+      max: 2.8
+    };
+    audio.sfx('place');
+  }
+
+  trainingToLoadout() {
+    if (!this.training) return;
+    this.openTrainingPrep(this.training.mapDay);
+  }
+
+  summonTrainingZombies() {
+    if (!this.training) return;
+    const def = ZOMBIE_TYPES[this.trainSpawnType] || ZOMBIE_TYPES.ghost;
+    const count = Math.max(1, Math.min(20, this.trainSpawnCount));
+    for (let i = 0; i < count; i++) {
+      const row = this.trainSpawnLane >= 0
+        ? Math.min(this.rows - 1, this.trainSpawnLane)
+        : Math.floor(Math.random() * this.rows);
+      this.spawnZombie(def.id, row, {
+        x: 1290 + i * 48 + Math.random() * 24
+      });
+    }
+    this.floaters.push({
+      x: 640, y: 310,
+      text: `召来 ${def.name} ×${count}`,
+      color: '#ffd0a0', life: 1.6, maxLife: 1.6, size: 20
+    });
+    audio.sfx('wave');
+  }
+
   startTutorial() {
+    this.training = null;
     this.level = TUTORIAL_LEVEL;
     this.runLevelId = TUTORIAL_LEVEL.id;
     this.levelThreat = 1;
@@ -342,6 +514,21 @@ export class Game {
   toMenu() {
     if (this.tutorial) {
       this.exitTutorial();
+      return;
+    }
+    if (this.training) {
+      const prev = this.training.prevSelected;
+      const prevDay = this.training.prevDay;
+      this.training = null;
+      this.reset();
+      this.phase = 'menu';
+      if (Number.isFinite(prev)) {
+        this.selectedLevel = prev;
+        this.levelDay = prevDay || Math.ceil(prev / 5);
+        this.level = getLevel(prev);
+      }
+      this.menuNotice = null;
+      this.refreshSaveInfo();
       return;
     }
     if (this.phase === 'playing' || this.phase === 'paused') this.saveNow();
@@ -526,6 +713,10 @@ export class Game {
     if (!this.prep) return;
     const ids = cleanLoadout(this.prep.selected);
     this.prep.selected = ids;
+    if (this.prep.training) {
+      if (this.training) this.training.loadout = [...ids];
+      return;
+    }
     if (ids.length) {
       this.loadout = [...ids];
       storage.saveLoadout(ids);
@@ -555,6 +746,10 @@ export class Game {
       this.prep.warning = 'empty';
       this.prep.warningT = 0;
       audio.sfx('alert');
+      return;
+    }
+    if (this.prep.training) {
+      this.startTrainingRun(this.prep.levelId, ids);
       return;
     }
     this.loadout = [...ids];
@@ -777,7 +972,7 @@ export class Game {
 
   saveNow() {
     storage.saveSettings(this.settings);
-    if (this.tutorial) return;
+    if (this.tutorial || this.training) return;
     if (this.phase !== 'playing' && this.phase !== 'paused') return;
     const payload = storage.saveRun(this.serializeRun());
     if (payload) {
@@ -808,7 +1003,7 @@ export class Game {
   }
 
   updateRecords(won) {
-    if (this.tutorial || this.runCheats) return;
+    if (this.tutorial || this.training || this.runCheats) return;
     const r = this.records;
     r.bestWave = Math.max(r.bestWave, Math.min(this.waveIndex, this.waveTotal));
     r.bestKills = Math.max(r.bestKills, this.kills);
@@ -1101,6 +1296,8 @@ export class Game {
         hurt: 0,
         eating: false,
         chomp: 0,
+        eatBite: 0,
+        eatSndT: 0,
         anim: Math.random() * Math.PI * 2,
         phase: Math.random() * Math.PI * 2,
         breached: !!raw.breached,
@@ -1244,6 +1441,10 @@ export class Game {
     this.time += dt;
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 34);
     for (const card of this.cards) {
+      if (this.training?.noCooldown) {
+        card.cd = 0;
+        continue;
+      }
       if (card.cd > 0) card.cd = Math.max(0, card.cd - dt);
     }
     if (this.banner) {
@@ -1252,7 +1453,7 @@ export class Game {
     }
 
     this.updateEconomy(dt);
-    this.updateWaves();
+    if (!this.training) this.updateWaves();
     this.updatePlants(dt);
     this.updateZombies(dt);
     this.updateProjectiles(dt);
@@ -1268,6 +1469,7 @@ export class Game {
 
     if (
       !this.tutorial &&
+      !this.training &&
       this.phase === 'playing' &&
       this.waveIndex >= this.level.waves.length &&
       this.spawnQueue.length === 0 &&
@@ -1326,6 +1528,10 @@ export class Game {
       this.handleLevelsClick(x, y);
       return;
     }
+    if (this.overlay === 'trainMenu') {
+      this.handleTrainingClick(x, y);
+      return;
+    }
 
     if (this.confirmNew) {
       if (inRect(x, y, BTN.confirmYes)) {
@@ -1349,7 +1555,7 @@ export class Game {
 
     if (this.phase === 'menu') {
       if (inRect(x, y, BTN.tutorialMenu)) {
-        this.startTutorial();
+        this.openTrainingMenu();
         return;
       }
       if (inRect(x, y, BTN.levelsMenu)) {
@@ -1391,6 +1597,7 @@ export class Game {
       else if (inRect(x, y, BTN.pauseSettings)) this.openSettings('pause');
       else if (inRect(x, y, BTN.restart)) {
         if (this.tutorial) this.startTutorial();
+        else if (this.training) this.openTrainingPrep(this.training.mapDay);
         else this.openPrep(this.runLevelId);
       }
       else if (inRect(x, y, BTN.backMenu)) this.confirmBack = true;
@@ -1579,6 +1786,10 @@ export class Game {
   }
 
   handleCheatClick(x, y) {
+    if (this.training) {
+      this.handleTrainingCheatClick(x, y);
+      return;
+    }
     if (!inRect(x, y, BTN.cheatPanel)) {
       this.closeOverlay();
       return;
@@ -1617,6 +1828,117 @@ export class Game {
     }
   }
 
+  handleTrainingCheatClick(x, y) {
+    if (!inRect(x, y, TRAIN_CHEAT.panel)) {
+      this.closeOverlay();
+      return;
+    }
+    for (let i = 0; i < 2; i++) {
+      const tab = {
+        x: TRAIN_CHEAT.tabs.x + i * (TRAIN_CHEAT.tabs.w + TRAIN_CHEAT.tabs.gap),
+        y: TRAIN_CHEAT.tabs.y,
+        w: TRAIN_CHEAT.tabs.w,
+        h: TRAIN_CHEAT.tabs.h
+      };
+      if (inRect(x, y, tab)) {
+        this.cheatTab = i === 0 ? 'misc' : 'spawn';
+        audio.sfx('click');
+        return;
+      }
+    }
+
+    if (this.cheatTab === 'spawn') {
+      for (let i = 0; i < ZOMBIE_ORDER.length; i++) {
+        if (inRect(x, y, trainSpawnCellRect(i))) {
+          this.trainSpawnType = ZOMBIE_ORDER[i];
+          audio.sfx('click');
+          return;
+        }
+      }
+      const counts = [1, 3, 5, 10];
+      for (let i = 0; i < counts.length; i++) {
+        const r = {
+          x: TRAIN_CHEAT.countPills.x + i * (TRAIN_CHEAT.countPills.w + TRAIN_CHEAT.countPills.gap),
+          y: TRAIN_CHEAT.countPills.y,
+          w: TRAIN_CHEAT.countPills.w,
+          h: TRAIN_CHEAT.countPills.h
+        };
+        if (inRect(x, y, r)) {
+          this.trainSpawnCount = counts[i];
+          audio.sfx('click');
+          return;
+        }
+      }
+      for (let i = 0; i <= this.rows; i++) {
+        const r = {
+          x: TRAIN_CHEAT.lanePills.x + i * (TRAIN_CHEAT.lanePills.w + TRAIN_CHEAT.lanePills.gap),
+          y: TRAIN_CHEAT.lanePills.y,
+          w: TRAIN_CHEAT.lanePills.w,
+          h: TRAIN_CHEAT.lanePills.h
+        };
+        if (inRect(x, y, r)) {
+          this.trainSpawnLane = i === 0 ? -1 : i - 1;
+          audio.sfx('click');
+          return;
+        }
+      }
+      if (inRect(x, y, TRAIN_CHEAT.summon)) {
+        this.summonTrainingZombies();
+        this.trainLastSummon = `已召来 ${ZOMBIE_TYPES[this.trainSpawnType]?.name || '恶客'} ×${this.trainSpawnCount}`;
+        return;
+      }
+      return;
+    }
+
+    const rowRect = (i) => ({
+      x: TRAIN_CHEAT.rows.x,
+      y: TRAIN_CHEAT.rows.y + i * (TRAIN_CHEAT.rows.h + TRAIN_CHEAT.rows.gap),
+      w: TRAIN_CHEAT.rows.w,
+      h: TRAIN_CHEAT.rows.h
+    });
+    if (inRect(x, y, rowRect(0))) {
+      this.sun += 500;
+      audio.sfx('collect');
+      return;
+    }
+    if (inRect(x, y, rowRect(1))) {
+      for (const z of this.zombies) if (this.aliveZombie(z)) this.killZombie(z);
+      this.cleanup();
+      audio.sfx('hit', { type: 'mountain' });
+      return;
+    }
+    if (inRect(x, y, rowRect(2))) {
+      for (const m of this.mowers) {
+        m.ready = true;
+        m.active = false;
+        m.x = BOARD.x - 32;
+      }
+      audio.sfx('upgrade');
+      return;
+    }
+    if (inRect(x, y, rowRect(3))) {
+      this.training.noCooldown = !this.training.noCooldown;
+      audio.sfx('click');
+      return;
+    }
+    if (inRect(x, y, rowRect(4))) {
+      this.trainingClearPlants();
+      this.overlay = null;
+      return;
+    }
+    if (inRect(x, y, rowRect(5))) {
+      this.switchTrainingMap((this.training.mapDay % 3) + 1);
+      return;
+    }
+    if (inRect(x, y, rowRect(6))) {
+      this.trainingToLoadout();
+      return;
+    }
+    if (inRect(x, y, rowRect(7))) {
+      this.overlay = null;
+    }
+  }
+
   tryPlace(index, c, r) {
     const card = this.cards[index];
     if (!card) return;
@@ -1628,23 +1950,23 @@ export class Game {
     }
     if (card.def.attach) {
       const host = this.cells[r][c];
-      if (card.cd > 0) return this.deny('还没缓过手来');
+      if (card.cd > 0 && !this.training?.noCooldown) return this.deny('还没缓过手来');
       if (this.sun < card.def.cost) return this.deny('香火不够');
       if (!host) return this.deny('先种一株植物，再罩龟甲');
       if (host.shell) return this.deny('这里已经罩了龟甲');
       this.sun -= card.def.cost;
-      card.cd = card.def.cooldown;
+      card.cd = this.training?.noCooldown ? 0 : card.def.cooldown;
       this.attachShell(host);
       this.selected = -1;
       audio.sfx('place');
       return;
     }
-    if (card.cd > 0) return this.deny('还没缓过手来');
+    if (card.cd > 0 && !this.training?.noCooldown) return this.deny('还没缓过手来');
     if (this.sun < card.def.cost) return this.deny('香火不够');
     const check = this.canPlaceAt(card.id, c, r);
     if (!check.ok) return this.deny(check.reason);
     this.sun -= card.def.cost;
-    card.cd = card.def.cooldown;
+    card.cd = this.training?.noCooldown ? 0 : card.def.cooldown;
     const placed = this.placeFree(card.id, c, r);
     this.selected = -1;
     if (this.tutorial && this.tutorial.step === 'plant' && placed) {
@@ -1919,6 +2241,7 @@ export class Game {
   }
 
   updateWaves() {
+    if (this.training) return;
     const waves = this.level.waves;
     while (this.waveIndex < waves.length && this.time >= waves[this.waveIndex].t) {
       const wave = waves[this.waveIndex];
@@ -1932,7 +2255,7 @@ export class Game {
   }
 
   summonNextWave() {
-    if (this.phase !== 'playing') return;
+    if (this.phase !== 'playing' || this.training) return;
     const waves = this.level.waves;
     if (this.waveIndex >= waves.length) {
       this.floaters.push({
@@ -1986,6 +2309,8 @@ export class Game {
       hurt: 0,
       eating: false,
       chomp: 0,
+      eatBite: 0,
+      eatSndT: 0,
       anim: Math.random() * Math.PI * 2,
       phase: Math.random() * Math.PI * 2,
       breached: false,
@@ -3229,15 +3554,33 @@ export class Game {
       if (target) {
         z.eating = true;
         z.chomp += dt;
+        z.eatBite = Math.max(0, (z.eatBite || 0) - dt * 8);
         z.eatSndT = (z.eatSndT ?? 0) - dt;
         if (z.eatSndT <= 0) {
+          z.eatBite = 1;
+          target.biteT = 0.2;
           audio.sfx('eat', {
             plant: target.type,
+            shell: !!target.shell,
             pan: Math.max(-1, Math.min(1, (z.x - 640) / 640))
           });
-          z.eatSndT = 0.34 + Math.random() * 0.16;
+          z.eatSndT = 0.3 + Math.random() * 0.12;
+          const fx = z.x - 26;
+          const fy = z.y - 22;
+          for (let i = 0; i < 4; i++) {
+            this.particles.push({
+              x: fx + (Math.random() - 0.5) * 16,
+              y: fy + (Math.random() - 0.5) * 14,
+              vx: -30 - Math.random() * 60,
+              vy: -35 - Math.random() * 70,
+              life: 0.32 + Math.random() * 0.22,
+              maxLife: 0.54,
+              size: 2 + Math.random() * 2.6,
+              color: target.shell ? '#c7cba8' : '#e0c58c',
+              kind: i % 2 ? 'shard' : 'circle'
+            });
+          }
         }
-        target.biteT = 0.2;
         const guard = this.plantGuard(target);
         this.damagePlant(target, z.def.dps * (1 - guard) * dt);
 
@@ -3258,6 +3601,8 @@ export class Game {
         }
       } else {
         z.eating = false;
+        z.eatBite = 0;
+        z.eatSndT = 0;
         const mult = z.slowT > 0 ? (z.slowFactor ?? 1) : 1;
         const rage = z.rageT > 0 ? Math.max(1, z.rageMult ?? 1) : 1;
         z.x -= z.speed * mult * rage * dt;
@@ -3339,6 +3684,16 @@ export class Game {
         life: 1.4, maxLife: 1.4, size: 18
       });
     } else {
+      if (this.training) {
+        z.dead = true;
+        z.dying = false;
+        this.floaters.push({
+          x: BOARD.x + 80, y: this.rowY(z.row) - 36,
+          text: '训练场不判负', color: '#ffd98a',
+          life: 1.4, maxLife: 1.4, size: 16
+        });
+        return;
+      }
       this.lose();
     }
   }

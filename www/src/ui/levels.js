@@ -30,8 +30,8 @@ function rr(ctx, x, y, w, h, r) {
 }
 
 function threatColor(threat) {
-  if (threat >= 4.2) return '#d9684a';
-  if (threat >= 2.8) return '#d88a4c';
+  if (threat >= 2.4) return '#d9684a';
+  if (threat >= 1.6) return '#d88a4c';
   return '#d8b260';
 }
 

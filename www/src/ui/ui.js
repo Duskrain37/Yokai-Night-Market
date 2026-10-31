@@ -1,9 +1,9 @@
 import {
-  BOARD, BTN, PREP, PREP_CINEMA, SETTINGS, TUTORIAL_UI, VIEW, cardRect, cellCenter, inRect,
+  BOARD, BTN, PREP, PREP_CINEMA, SETTINGS, TRAINING_UI, TRAIN_CHEAT, TUTORIAL_UI, VIEW, cardRect, cellCenter, inRect,
   prepRosterRect, prepSlotRect, prepZombieRect,
-  settingsPill, settingsRowEnabled, settingsRangeRect
+  settingsPill, settingsRowEnabled, settingsRangeRect, trainSpawnCellRect
 } from '../layout.js';
-import { getLevel, PLANT_ORDER, PLANT_TYPES, ZOMBIE_TYPES, ZOMBIE_TIERS, zombieTierLabel } from '../content.js';
+import { getLevel, PLANT_ORDER, PLANT_TYPES, ZOMBIE_TYPES, ZOMBIE_ORDER, ZOMBIE_TIERS, zombieTierLabel } from '../content.js';
 import { drawPlant, drawZombie } from '../render/art.js';
 import { getFan, pathStatus, petalAt } from '../game/upgrade.js';
 import { drawAlmanac } from './almanac.js';
@@ -42,6 +42,7 @@ export function drawUI(ctx, game, t) {
     drawMenu(ctx, game, t);
     if (game.overlay === 'settings') drawSettings(ctx, game);
     if (game.overlay === 'levels') drawLevels(ctx, game, t);
+    if (game.overlay === 'trainMenu') drawTrainingMenu(ctx, game);
     if (game.overlay === 'prep') drawPrep(ctx, game, t);
     if (game.overlay === 'almanac') drawAlmanac(ctx, game);
     return;
@@ -56,7 +57,7 @@ export function drawUI(ctx, game, t) {
     drawOverlay(ctx, game);
   }
   if (game.overlay === 'settings') drawSettings(ctx, game);
-  if (game.overlay === 'cheat') drawCheatPanel(ctx, game);
+  if (game.overlay === 'cheat') drawCheatPanel(ctx, game, t);
   if (game.overlay === 'almanac') drawAlmanac(ctx, game);
 }
 
@@ -324,9 +325,12 @@ function drawProgress(ctx, game) {
     ctx.fill();
     return;
   }
-  const waves = game.level.waves;
-  const lastT = waves[waves.length - 1].t;
-  const ratio = clamp01(Math.max(game.time / lastT, game.waveIndex / game.waveTotal));
+  const waves = game.level.waves || [];
+  const training = !!game.training;
+  const lastT = training || !waves.length ? 1 : waves[waves.length - 1].t;
+  const ratio = training || !waves.length
+    ? 0
+    : clamp01(Math.max(game.time / lastT, game.waveIndex / Math.max(1, game.waveTotal)));
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
@@ -334,7 +338,9 @@ function drawProgress(ctx, game) {
   ctx.fillStyle = 'rgba(240,220,180,0.7)';
   const shown = Math.max(1, Math.min(game.waveIndex, game.waveTotal));
   ctx.fillText(
-    `第${game.runLevelId}关 · ${shown}/${game.waveTotal}波 · ×${speedLabel(game.settings.speed)}`,
+    training
+      ? `训练场 · 手动召唤 · ×${speedLabel(game.settings.speed)}`
+      : `第${game.runLevelId}关 · ${shown}/${game.waveTotal}波 · ×${speedLabel(game.settings.speed)}`,
     pr.x, pr.y - 9
   );
 
@@ -923,7 +929,7 @@ function drawMenu(ctx, game, t) {
 
   drawMenuTag(ctx, BTN.levelsMenu, '关卡', '十五夜', -0.024, inRect(mouse.x, mouse.y, BTN.levelsMenu));
   drawMenuTag(ctx, BTN.almanacMenu, '图鉴', '草木·恶客', 0.019, inRect(mouse.x, mouse.y, BTN.almanacMenu));
-  drawMenuTag(ctx, BTN.tutorialMenu, '教程', '第一课', -0.014, inRect(mouse.x, mouse.y, BTN.tutorialMenu));
+  drawMenuTag(ctx, BTN.tutorialMenu, '训练', '教程·训练场', -0.014, inRect(mouse.x, mouse.y, BTN.tutorialMenu));
   drawMenuTag(ctx, BTN.settingsMenu, '设置', '声音与画面', 0.026, inRect(mouse.x, mouse.y, BTN.settingsMenu));
 
   drawMenuSaveCard(ctx, game);
@@ -1818,6 +1824,101 @@ function drawPrepCinematic(ctx, game, t) {
   ctx.restore();
 }
 
+function drawTrainingMenu(ctx, game) {
+  ctx.fillStyle = 'rgba(2,3,8,0.74)';
+  ctx.fillRect(0, 0, VIEW.w, VIEW.h);
+  const p = TRAINING_UI.panel;
+  drawGlassPanel(ctx, p, 14);
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#f6e4ba';
+  ctx.font = `700 30px ${DISPLAY}`;
+  ctx.fillText('训练', p.x + 30, p.y + 38);
+  ctx.fillStyle = 'rgba(232,211,162,0.5)';
+  ctx.font = `400 11.5px ${KAI}`;
+  ctx.fillText('先在教程里学一手，或直接进训练场摆阵', p.x + 30, p.y + 64);
+  ctx.strokeStyle = 'rgba(226,192,122,0.32)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(p.x + 30, p.y + 82);
+  ctx.lineTo(p.x + p.w - 30, p.y + 82);
+  ctx.stroke();
+
+  const cards = [
+    {
+      r: TRAINING_UI.tutorial,
+      title: '教程',
+      sub: '收香火 → 种签筒 → 升阶 → 退敌',
+      tag: '新手',
+      mark: '书'
+    },
+    {
+      r: TRAINING_UI.sandbox,
+      title: '自定义训练场',
+      sub: '1-1 起步 · 不自动出怪 · 手动召唤',
+      tag: '沙盒',
+      mark: '阵'
+    }
+  ];
+  for (const card of cards) {
+    const b = card.r;
+    const hover = inRect(game.mouse.x, game.mouse.y, b);
+    ctx.save();
+    ctx.shadowColor = hover ? 'rgba(240,190,110,0.25)' : 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = hover ? 20 : 12;
+    ctx.shadowOffsetY = 6;
+    const g = ctx.createLinearGradient(0, b.y, 0, b.y + b.h);
+    if (hover) {
+      g.addColorStop(0, 'rgba(72,48,30,0.95)');
+      g.addColorStop(1, 'rgba(28,19,13,0.96)');
+    } else {
+      g.addColorStop(0, 'rgba(40,31,23,0.92)');
+      g.addColorStop(1, 'rgba(17,13,10,0.95)');
+    }
+    ctx.fillStyle = g;
+    rr(ctx, b.x, b.y, b.w, b.h, 8);
+    ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = hover ? 'rgba(247,209,133,0.85)' : 'rgba(226,192,122,0.34)';
+    ctx.lineWidth = hover ? 1.8 : 1;
+    rr(ctx, b.x, b.y, b.w, b.h, 8);
+    ctx.stroke();
+
+    ctx.fillStyle = hover ? '#c96a45' : '#8a3a2b';
+    rr(ctx, b.x, b.y, 6, b.h, 3);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255,220,160,0.14)';
+    ctx.beginPath();
+    ctx.arc(b.x + 46, b.y + b.h / 2, 25, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(236,202,140,0.5)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(b.x + 46, b.y + b.h / 2, 25, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = '#f0d8a8';
+    ctx.font = `700 20px ${DISPLAY}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(card.mark, b.x + 46, b.y + b.h / 2 + 1);
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f6e2b8';
+    ctx.font = `700 23px ${DISPLAY}`;
+    ctx.fillText(card.title, b.x + 86, b.y + 31);
+    ctx.fillStyle = 'rgba(232,211,162,0.55)';
+    ctx.font = `400 11.5px ${KAI}`;
+    ctx.fillText(card.sub, b.x + 86, b.y + 56);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(238,202,138,0.6)';
+    ctx.font = `400 10px ${KAI}`;
+    ctx.fillText(card.tag, b.x + b.w - 18, b.y + 26);
+  }
+
+  drawButton(ctx, TRAINING_UI.back, '返回', false);
+}
+
 function drawPrep(ctx, game, t) {
   const prep = game.prep;
   if (!prep) return;
@@ -1827,6 +1928,7 @@ function drawPrep(ctx, game, t) {
   }
   const level = getLevel(prep.levelId);
   const diff = prepDiff(game.settings.difficulty);
+  const training = !!prep.training;
 
   ctx.fillStyle = 'rgba(3,4,8,0.8)';
   ctx.fillRect(0, 0, VIEW.w, VIEW.h);
@@ -1836,13 +1938,23 @@ function drawPrep(ctx, game, t) {
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#f6e4ba';
   ctx.font = `700 34px ${DISPLAY}`;
-  ctx.fillText('备战', 104, 76);
+  ctx.fillText(training ? '训练场' : '备战', 104, 76);
   ctx.fillStyle = '#e8cea0';
   ctx.font = `700 21px ${KAI}`;
-  ctx.fillText(`${level.dayName} · ${level.name} · ${level.tag}`, 210, 68);
+  ctx.fillText(
+    training
+      ? `${level.dayName} · ${level.daySub} · 自定义训练`
+      : `${level.dayName} · ${level.name} · ${level.tag}`,
+    210, 68
+  );
   ctx.fillStyle = 'rgba(232,211,162,0.55)';
   ctx.font = `400 12px ${KAI}`;
-  ctx.fillText(`第 ${level.id} / 15 关 · ${level.rows} 行 · 共 ${level.waves.length} 波`, 210, 92);
+  ctx.fillText(
+    training
+      ? `不自动出怪 · 手动召唤 · ${level.rows} 行地图`
+      : `第 ${level.id} / 15 关 · ${level.rows} 行 · 共 ${level.waves.length} 波`,
+    210, 92
+  );
 
   const chip = { x: 920, y: 52, w: 250, h: 42 };
   ctx.fillStyle = 'rgba(255,235,196,0.06)';
@@ -1854,64 +1966,97 @@ function drawPrep(ctx, game, t) {
   ctx.stroke();
   ctx.fillStyle = 'rgba(232,211,162,0.58)';
   ctx.font = `400 11px ${KAI}`;
-  ctx.fillText('当前难度', chip.x + 14, chip.y + 14);
+  ctx.fillText(training ? '训练规则' : '当前难度', chip.x + 14, chip.y + 14);
   ctx.fillStyle = '#f0d7a0';
   ctx.font = `700 16px ${KAI}`;
-  ctx.fillText(`${diff.label} · 出怪/血量 ×${diff.mult.toFixed(2)}`, chip.x + 14, chip.y + 30);
+  ctx.fillText(
+    training ? '不自动出怪 · 手动召唤' : `${diff.label} · 出怪/血量 ×${diff.mult.toFixed(2)}`,
+    chip.x + 14, chip.y + 30
+  );
 
   ctx.fillStyle = '#e2c07a';
   ctx.font = `700 15px ${KAI}`;
-  ctx.fillText('本夜威胁', 104, 126);
-  const tb = PREP.threatBar;
-  ctx.fillStyle = 'rgba(7,11,20,0.75)';
-  rr(ctx, tb.x, tb.y, tb.w, tb.h, 6);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(226,192,122,0.24)';
-  ctx.lineWidth = 1;
-  rr(ctx, tb.x, tb.y, tb.w, tb.h, 6);
-  ctx.stroke();
-  const ratio = clamp01(level.threat / 5);
-  if (ratio > 0) {
-    const g = ctx.createLinearGradient(tb.x, 0, tb.x + tb.w, 0);
-    g.addColorStop(0, '#b83428');
-    g.addColorStop(0.62, '#e08a3e');
-    g.addColorStop(1, '#f2cf80');
-    ctx.fillStyle = g;
-    rr(ctx, tb.x + 2, tb.y + 2, Math.max(3, (tb.w - 4) * ratio), tb.h - 4, 4);
+  if (training) {
+    ctx.fillText('训练规则', 104, 126);
+    ctx.fillStyle = 'rgba(232,211,162,0.62)';
+    ctx.font = `400 12px ${KAI}`;
+    ctx.fillText('1-1 起步，可在作弊菜单切到 2-1 / 3-1', 104, 152);
+    ctx.fillText('不自动刷怪，开战后手动召唤恶客', 104, 174);
+    ctx.fillText('开局 1000 香火 · 训练不写存档', 104, 196);
+    ctx.fillStyle = 'rgba(232,211,162,0.4)';
+    ctx.font = `400 11px ${KAI}`;
+    ctx.fillText('种植默认无冷却，可在作弊菜单关闭', 104, 220);
+  } else {
+    ctx.fillText('本夜威胁', 104, 126);
+    const tb = PREP.threatBar;
+    ctx.fillStyle = 'rgba(7,11,20,0.75)';
+    rr(ctx, tb.x, tb.y, tb.w, tb.h, 6);
     ctx.fill();
-  }
-  for (let i = 1; i < 5; i++) {
-    const tx = tb.x + (tb.w * i) / 5;
-    ctx.strokeStyle = 'rgba(10,14,22,0.55)';
-    ctx.beginPath();
-    ctx.moveTo(tx, tb.y + 2);
-    ctx.lineTo(tx, tb.y + tb.h - 2);
+    ctx.strokeStyle = 'rgba(226,192,122,0.24)';
+    ctx.lineWidth = 1;
+    rr(ctx, tb.x, tb.y, tb.w, tb.h, 6);
     ctx.stroke();
-  }
-  ctx.fillStyle = '#f2d59a';
-  ctx.font = `700 15px ${KAI}`;
-  ctx.fillText(`×${level.threat.toFixed(1)}`, 416, 156);
+    const ratio = clamp01(level.threat / 3);
+    if (ratio > 0) {
+      const g = ctx.createLinearGradient(tb.x, 0, tb.x + tb.w, 0);
+      g.addColorStop(0, '#b83428');
+      g.addColorStop(0.62, '#e08a3e');
+      g.addColorStop(1, '#f2cf80');
+      ctx.fillStyle = g;
+      rr(ctx, tb.x + 2, tb.y + 2, Math.max(3, (tb.w - 4) * ratio), tb.h - 4, 4);
+      ctx.fill();
+    }
+    for (let i = 1; i < 3; i++) {
+      const tx = tb.x + (tb.w * i) / 3;
+      ctx.strokeStyle = 'rgba(10,14,22,0.55)';
+      ctx.beginPath();
+      ctx.moveTo(tx, tb.y + 2);
+      ctx.lineTo(tx, tb.y + tb.h - 2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#f2d59a';
+    ctx.font = `700 15px ${KAI}`;
+    ctx.fillText(`×${level.threat.toFixed(1)}`, 416, 156);
 
-  ctx.fillStyle = 'rgba(232,211,162,0.62)';
-  ctx.font = `400 12px ${KAI}`;
-  ctx.fillText(`难度 ${diff.label}：出怪与血量各 ×${diff.mult.toFixed(2)}`, 104, 184);
-  ctx.fillText(`${level.waves.length} 波 · ${prep.zombies.length} 种恶客`, 104, 206);
-  ctx.fillStyle = 'rgba(232,211,162,0.4)';
-  ctx.font = `400 11px ${KAI}`;
-  ctx.fillText('难度可在封面设置中调整', 104, 228);
+    ctx.fillStyle = 'rgba(232,211,162,0.62)';
+    ctx.font = `400 12px ${KAI}`;
+    ctx.fillText(`难度 ${diff.label}：出怪与血量各 ×${diff.mult.toFixed(2)}`, 104, 184);
+    ctx.fillText(`${level.waves.length} 波 · ${prep.zombies.length} 种恶客`, 104, 206);
+    ctx.fillStyle = 'rgba(232,211,162,0.4)';
+    ctx.font = `400 11px ${KAI}`;
+    ctx.fillText('难度可在封面设置中调整', 104, 228);
+  }
 
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#e2c07a';
   ctx.font = `700 15px ${KAI}`;
-  ctx.fillText('今夜恶客', 700, 126);
+  ctx.fillText(training ? '训练说明' : '今夜恶客', 700, 126);
   ctx.fillStyle = 'rgba(232,211,162,0.45)';
   ctx.font = `400 10.5px ${KAI}`;
   ctx.textAlign = 'right';
-  ctx.fillText('悬停看名称 · 右键查图鉴', 1170, 126);
+  ctx.fillText(training ? '手动投放 · 不自动出怪' : '悬停看名称 · 右键查图鉴', 1170, 126);
   ctx.textAlign = 'left';
-  for (let i = 0; i < prep.zombies.length; i++) {
-    drawPrepZombie(ctx, game, i, prep.zombies[i], t);
+  if (training) {
+    ctx.fillStyle = 'rgba(18,26,36,0.55)';
+    rr(ctx, 700, 150, 470, 188, 8);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(226,192,122,0.18)';
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(238,222,192,0.72)';
+    ctx.font = `400 12px ${KAI}`;
+    ctx.fillText('开战后点右上角作弊按钮，切到「召唤」页。', 720, 180);
+    ctx.fillText('自选恶客种类、数量与分路，随时投放。', 720, 204);
+    ctx.fillText('地图可切到 2-1 / 3-1，切图会清空场上单位。', 720, 228);
+    ctx.fillStyle = 'rgba(238,222,192,0.42)';
+    ctx.fillText('训练不写存档，退出即结束；可随时重选草木。', 720, 252);
+    ctx.fillStyle = 'rgba(232,180,110,0.6)';
+    ctx.font = `400 11px ${KAI}`;
+    ctx.fillText('提示：香火 1000，种植默认无冷却。', 720, 292);
+  } else {
+    for (let i = 0; i < prep.zombies.length; i++) {
+      drawPrepZombie(ctx, game, i, prep.zombies[i], t);
+    }
   }
 
   ctx.textAlign = 'left';
@@ -1952,7 +2097,7 @@ function drawPrep(ctx, game, t) {
   ctx.font = `400 11px ${KAI}`;
   ctx.fillText('最多 10 株 · 选择会自动记住 · 右键植物或恶客查看图鉴', 640, 560);
   drawButton(ctx, PREP.back, '返回', false);
-  drawButton(ctx, PREP.confirm, '开战', true);
+  drawButton(ctx, PREP.confirm, training ? '进入训练' : '开战', true);
 
   if (prep.warning) {
     drawPrepWarning(ctx, game);
@@ -2080,7 +2225,11 @@ function drawPill(ctx, rect, label, selected, enabled, hover) {
   ctx.restore();
 }
 
-function drawCheatPanel(ctx, game) {
+function drawCheatPanel(ctx, game, t) {
+  if (game.training) {
+    drawTrainingCheat(ctx, game, t);
+    return;
+  }
   ctx.fillStyle = 'rgba(2,3,8,0.42)';
   ctx.fillRect(0, 0, VIEW.w, VIEW.h);
 
@@ -2119,6 +2268,223 @@ function drawCheatRow(ctx, r, label, mouse) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(label, r.x + r.w / 2, r.y + r.h / 2 + 1);
+}
+
+function drawTrainingCheat(ctx, game, t) {
+  ctx.fillStyle = 'rgba(2,3,8,0.66)';
+  ctx.fillRect(0, 0, VIEW.w, VIEW.h);
+  drawGlassPanel(ctx, TRAIN_CHEAT.panel, 14);
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffc09a';
+  ctx.font = `700 22px ${DISPLAY}`;
+  ctx.fillText('训练场作弊', TRAIN_CHEAT.panel.x + 40, TRAIN_CHEAT.panel.y + 44);
+  ctx.fillStyle = 'rgba(232,211,162,0.42)';
+  ctx.font = `400 10.5px ${KAI}`;
+  ctx.fillText('两份菜单 · 点右上页签切换', TRAIN_CHEAT.panel.x + 196, TRAIN_CHEAT.panel.y + 45);
+
+  const tabs = ['杂项', '召唤'];
+  for (let i = 0; i < 2; i++) {
+    const r = {
+      x: TRAIN_CHEAT.tabs.x + i * (TRAIN_CHEAT.tabs.w + TRAIN_CHEAT.tabs.gap),
+      y: TRAIN_CHEAT.tabs.y,
+      w: TRAIN_CHEAT.tabs.w,
+      h: TRAIN_CHEAT.tabs.h
+    };
+    const active = (i === 0) === (game.cheatTab === 'misc');
+    const hover = inRect(game.mouse.x, game.mouse.y, r);
+    ctx.fillStyle = active ? '#e9dcc0' : hover ? 'rgba(60,72,86,0.92)' : 'rgba(30,40,54,0.9)';
+    rr(ctx, r.x, r.y, r.w, r.h, 6);
+    ctx.fill();
+    ctx.strokeStyle = active ? '#e3b45e' : 'rgba(226,192,122,0.28)';
+    ctx.lineWidth = active ? 1.8 : 1;
+    rr(ctx, r.x, r.y, r.w, r.h, 6);
+    ctx.stroke();
+    ctx.fillStyle = active ? '#3a2b1d' : '#efe0bd';
+    ctx.font = `700 15px ${KAI}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(tabs[i], r.x + r.w / 2, r.y + r.h / 2 + 1);
+  }
+
+  if (game.cheatTab === 'spawn') {
+    drawTrainingSpawn(ctx, game, t);
+  } else {
+    drawTrainingMisc(ctx, game);
+  }
+
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(240,210,170,0.35)';
+  ctx.font = `400 10px ${KAI}`;
+  ctx.fillText('点面板外关闭', TRAIN_CHEAT.panel.x + TRAIN_CHEAT.panel.w - 24, TRAIN_CHEAT.panel.y + TRAIN_CHEAT.panel.h - 18);
+}
+
+function drawTrainingMisc(ctx, game) {
+  const mapDay = game.training?.mapDay || 1;
+  const nextDay = (mapDay % 3) + 1;
+  const rows = [
+    ['+500 香火', '当前 ' + game.sun],
+    ['秒杀全场恶客', `场上 ${game.zombies.length}`],
+    ['恢复所有门神', '全部归位'],
+    ['种植无冷却', game.training?.noCooldown ? '开' : '关'],
+    ['消灭所有草木', `场上 ${game.plants.length} 株`],
+    ['切换地图', `第${mapDay}天 → 第${nextDay}天（重载）`],
+    ['切换携带草木', '退回选草木（重载）'],
+    ['关闭作弊菜单', '']
+  ];
+  for (let i = 0; i < rows.length; i++) {
+    const r = {
+      x: TRAIN_CHEAT.rows.x,
+      y: TRAIN_CHEAT.rows.y + i * (TRAIN_CHEAT.rows.h + TRAIN_CHEAT.rows.gap),
+      w: TRAIN_CHEAT.rows.w,
+      h: TRAIN_CHEAT.rows.h
+    };
+    const hover = inRect(game.mouse.x, game.mouse.y, r);
+    const active = (i === 3 && game.training?.noCooldown) || (i === 5);
+    const g = ctx.createLinearGradient(0, r.y, 0, r.y + r.h);
+    if (i === 3 && game.training?.noCooldown) {
+      g.addColorStop(0, hover ? 'rgba(58,104,84,0.96)' : 'rgba(42,82,66,0.92)');
+      g.addColorStop(1, hover ? 'rgba(34,72,58,0.96)' : 'rgba(22,50,40,0.92)');
+    } else {
+      g.addColorStop(0, hover ? 'rgba(150,50,38,0.96)' : 'rgba(82,30,24,0.9)');
+      g.addColorStop(1, hover ? 'rgba(100,32,26,0.96)' : 'rgba(52,20,17,0.9)');
+    }
+    ctx.fillStyle = g;
+    rr(ctx, r.x, r.y, r.w, r.h, 7);
+    ctx.fill();
+    ctx.strokeStyle = active || hover ? 'rgba(244,200,120,0.65)' : 'rgba(226,150,96,0.28)';
+    ctx.lineWidth = hover ? 1.5 : 1;
+    rr(ctx, r.x, r.y, r.w, r.h, 7);
+    ctx.stroke();
+    ctx.fillStyle = '#f6ddb2';
+    ctx.font = `700 14px ${KAI}`;
+    ctx.textAlign = 'left';
+    ctx.fillText(rows[i][0], r.x + 16, r.y + r.h / 2 + 1);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(246,221,178,0.55)';
+    ctx.font = `400 10.5px ${KAI}`;
+    ctx.fillText(rows[i][1], r.x + r.w - 14, r.y + r.h / 2 + 1);
+  }
+
+  const px = 680;
+  ctx.fillStyle = 'rgba(16,24,34,0.6)';
+  rr(ctx, px, 158, 350, 330, 8);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(226,192,122,0.18)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#e2c07a';
+  ctx.font = `700 15px ${KAI}`;
+  ctx.fillText('训练场状态', px + 18, 184);
+  ctx.fillStyle = 'rgba(238,222,192,0.7)';
+  ctx.font = `400 12px ${KAI}`;
+  const dayNames = ['第一天·夜市街', '第二天·河埠口', '第三天·暗河'];
+  ctx.fillText(`地图　${dayNames[mapDay - 1]}（${mapDay === 1 ? 5 : mapDay === 2 ? 6 : 5} 行）`, px + 18, 216);
+  ctx.fillText(`香火　${game.sun}`, px + 18, 244);
+  ctx.fillText(`草木　${game.plants.length} 株`, px + 18, 272);
+  ctx.fillText(`恶客　${game.zombies.length} 只`, px + 18, 300);
+  ctx.fillText(`无冷却　${game.training?.noCooldown ? '已开启' : '已关闭'}`, px + 18, 328);
+  ctx.fillStyle = 'rgba(238,222,192,0.38)';
+  ctx.font = `400 10.5px ${KAI}`;
+  ctx.fillText('切图会清空场上草木与恶客，', px + 18, 372);
+  ctx.fillText('并重新载入地图与门神。', px + 18, 390);
+  ctx.fillText('切携带草木会退回选草木界面，', px + 18, 426);
+  ctx.fillText('确认后按当前地图重新开局。', px + 18, 444);
+}
+
+function drawTrainingSpawn(ctx, game, t) {
+  const selectedType = game.trainSpawnType;
+  for (let i = 0; i < ZOMBIE_ORDER.length; i++) {
+    const type = ZOMBIE_ORDER[i];
+    const def = ZOMBIE_TYPES[type];
+    if (!def) continue;
+    const r = trainSpawnCellRect(i);
+    const hover = inRect(game.mouse.x, game.mouse.y, r);
+    const selected = type === selectedType;
+    ctx.fillStyle = selected ? 'rgba(96,60,38,0.95)' : hover ? 'rgba(44,54,66,0.95)' : 'rgba(24,32,42,0.92)';
+    rr(ctx, r.x, r.y, r.w, r.h, 7);
+    ctx.fill();
+    ctx.strokeStyle = selected ? '#f0c96e' : hover ? 'rgba(240,200,120,0.55)' : 'rgba(226,192,122,0.2)';
+    ctx.lineWidth = selected ? 1.8 : 1;
+    rr(ctx, r.x, r.y, r.w, r.h, 7);
+    ctx.stroke();
+    ctx.save();
+    ctx.globalAlpha = selected ? 1 : 0.82;
+    drawZombie(ctx, type, r.x + r.w / 2, r.y + r.h - 22, t, {
+      def, scale: 0.42, idle: true, hpRatio: 1
+    });
+    ctx.restore();
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = selected ? '#ffe8bd' : '#efe0bd';
+    ctx.font = `700 13px ${KAI}`;
+    ctx.fillText(def.name, r.x + 10, r.y + 16);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = ZOMBIE_TIERS[def.tier]?.color || '#c9a15c';
+    ctx.font = `400 9.5px ${KAI}`;
+    ctx.fillText(zombieTierLabel(def.tier) + ' · ' + def.kind, r.x + r.w - 10, r.y + 16);
+  }
+
+  const counts = [1, 3, 5, 10];
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#e2c07a';
+  ctx.font = `700 13px ${KAI}`;
+  ctx.fillText('数量', TRAIN_CHEAT.countPills.x, 505);
+  for (let i = 0; i < counts.length; i++) {
+    const r = {
+      x: TRAIN_CHEAT.countPills.x + i * (TRAIN_CHEAT.countPills.w + TRAIN_CHEAT.countPills.gap),
+      y: TRAIN_CHEAT.countPills.y,
+      w: TRAIN_CHEAT.countPills.w,
+      h: TRAIN_CHEAT.countPills.h
+    };
+    const active = game.trainSpawnCount === counts[i];
+    ctx.fillStyle = active ? '#e9dcc0' : 'rgba(30,40,54,0.9)';
+    rr(ctx, r.x, r.y, r.w, r.h, 6);
+    ctx.fill();
+    ctx.strokeStyle = active ? '#e3b45e' : 'rgba(226,192,122,0.28)';
+    ctx.lineWidth = active ? 1.6 : 1;
+    rr(ctx, r.x, r.y, r.w, r.h, 6);
+    ctx.stroke();
+    ctx.fillStyle = active ? '#3a2b1d' : '#efe0bd';
+    ctx.font = `700 14px ${KAI}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(String(counts[i]), r.x + r.w / 2, r.y + r.h / 2 + 1);
+  }
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#e2c07a';
+  ctx.font = `700 13px ${KAI}`;
+  ctx.fillText('分路', TRAIN_CHEAT.lanePills.x, 553);
+  for (let i = 0; i <= game.rows; i++) {
+    const r = {
+      x: TRAIN_CHEAT.lanePills.x + i * (TRAIN_CHEAT.lanePills.w + TRAIN_CHEAT.lanePills.gap),
+      y: TRAIN_CHEAT.lanePills.y,
+      w: TRAIN_CHEAT.lanePills.w,
+      h: TRAIN_CHEAT.lanePills.h
+    };
+    const value = i === 0 ? -1 : i - 1;
+    const active = game.trainSpawnLane === value;
+    ctx.fillStyle = active ? '#e9dcc0' : 'rgba(30,40,54,0.9)';
+    rr(ctx, r.x, r.y, r.w, r.h, 6);
+    ctx.fill();
+    ctx.strokeStyle = active ? '#e3b45e' : 'rgba(226,192,122,0.28)';
+    ctx.lineWidth = active ? 1.6 : 1;
+    rr(ctx, r.x, r.y, r.w, r.h, 6);
+    ctx.stroke();
+    ctx.fillStyle = active ? '#3a2b1d' : '#efe0bd';
+    ctx.font = `700 11.5px ${KAI}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(i === 0 ? '随机' : `${i}行`, r.x + r.w / 2, r.y + r.h / 2 + 1);
+  }
+
+  drawButton(ctx, TRAIN_CHEAT.summon, '召唤恶客', true);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(246,221,178,0.55)';
+  ctx.font = `400 10.5px ${KAI}`;
+  ctx.fillText(game.trainLastSummon || '选种类 → 数量 → 分路', 1034, 515);
 }
 
 function drawFan(ctx, game) {

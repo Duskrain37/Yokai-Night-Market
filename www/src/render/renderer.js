@@ -368,6 +368,8 @@ export class Renderer {
           phase: z.phase,
           animT: z.anim,
           eating: z.eating,
+          eatBite: z.eatBite || 0,
+          chompT: z.chomp || 0,
           slowT: z.slowT,
           armor: z.armor,
           maxArmor: z.maxArmor,
