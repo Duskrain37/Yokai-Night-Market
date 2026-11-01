@@ -1,0 +1,535 @@
+{
+  "checks": [
+    {
+      "detail": "实际 18",
+      "group": "内容",
+      "name": "18 种草木齐备",
+      "ok": true
+    },
+    {
+      "detail": "实际 12",
+      "group": "内容",
+      "name": "12 种恶客齐备",
+      "ok": true
+    },
+    {
+      "detail": "实际 15",
+      "group": "内容",
+      "name": "十五夜关卡齐备",
+      "ok": true
+    },
+    {
+      "detail": "[]",
+      "group": "内容",
+      "name": "草木顺序表都有定义",
+      "ok": true
+    },
+    {
+      "detail": "[]",
+      "group": "内容",
+      "name": "恶客顺序表都有定义",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "行数按天地图分配（5/6/5）",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "威胁倍率都在 0.8—3.0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "首波在 17.5 秒",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "波次间隔 18 秒",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "每关 12 波",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "图鉴 30 篇文案齐全",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "图鉴香火数值取自数据表",
+      "ok": true
+    },
+    {
+      "detail": "本行输出：每 1.4 秒朝前方射出一发竹签，单发 20 伤害。一路连发（最高 6",
+      "group": "内容",
+      "name": "图鉴本事按数据生成伤害",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "所有升阶费用都是 5 的倍数且为正",
+      "ok": true
+    },
+    {
+      "detail": "90",
+      "group": "升阶",
+      "name": "签筒连发一级 90 香火",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "初生草木不可升阶时状态为 next",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "三级后该路关闭",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "已开两路时第三路锁定",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "另一路到三级后此路三级关闭",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "13 株都有费用系数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "无升阶树时返回 none：lamp",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "无升阶树时返回 none：shell",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "无升阶树时返回 none：lily",
+      "ok": true
+    },
+    {
+      "detail": "{ \"ok\": true, \"tier\": 1, \"cost\": 90 }",
+      "group": "升阶",
+      "name": "升阶扣费等于 path_status 费用",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "升阶后该路等级为 1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "状态",
+      "name": "首次减速生效",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "状态",
+      "name": "更强减速覆盖并刷新时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "状态",
+      "name": "较弱减速既不延长也不回退",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "状态",
+      "name": "同强减速续时取较长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "状态",
+      "name": "易伤同样只认更强",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "状态",
+      "name": "灼烧弱效果不覆盖",
+      "ok": true
+    },
+    {
+      "detail": "normal=21.0 slowed=10.5",
+      "group": "状态",
+      "name": "50% 减速让移动距离减半",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "护具",
+      "name": "斗笠鬼有 90 点斗笠",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "护具",
+      "name": "伤害先扣护具",
+      "ok": true
+    },
+    {
+      "detail": "armor=0.0 hp=70.0",
+      "group": "护具",
+      "name": "破具后溢出伤害打在本体",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "护具",
+      "name": "击杀后进入倒地动画",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "护具",
+      "name": "尸体仍在场景里挡路",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "护具",
+      "name": "0.5 秒后普通尸体会消失",
+      "ok": true
+    },
+    {
+      "detail": "hp=238.0 armor=555.0",
+      "group": "护具",
+      "name": "透骨针直接扣本体",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "护具",
+      "name": "轿壳破裂后排出两只饿鬼",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "护具",
+      "name": "纸扎匠给低阶发 200 纸甲",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "第一天全是地格",
+      "ok": true
+    },
+    {
+      "detail": "实际 5",
+      "group": "地图",
+      "name": "第二天有 5 个障碍格",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "障碍只在靠右四列",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "障碍位置随关卡种子固定",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "第三天地图 5 行",
+      "ok": true
+    },
+    {
+      "detail": "水面 13 物件 5",
+      "group": "地图",
+      "name": "第二、四行是水面（含物件格共 18 格）",
+      "ok": true
+    },
+    {
+      "detail": "物件 5",
+      "group": "地图",
+      "name": "物件格都落在水行上",
+      "ok": true
+    },
+    {
+      "detail": "实际 5",
+      "group": "地图",
+      "name": "暗河有 5 个物件格",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "水面不能直接种签筒",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "夜莲只能放水面",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "水面可以放夜莲",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "夜莲铺好后可种普通草木",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "水上植物记下浮台",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "物件格不能种",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "波次",
+      "name": "开局没有恶客",
+      "ok": true
+    },
+    {
+      "detail": "wave=1",
+      "group": "波次",
+      "name": "17.5 秒时首波已排队",
+      "ok": true
+    },
+    {
+      "detail": "zombies=1",
+      "group": "波次",
+      "name": "首波按威胁倍率放怪",
+      "ok": true
+    },
+    {
+      "detail": "hard=234 easy=156",
+      "group": "波次",
+      "name": "困难难度恶客更硬",
+      "ok": true
+    },
+    {
+      "detail": "156.0",
+      "group": "波次",
+      "name": "血量按 sqrt(threat) 缩放",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "波次",
+      "name": "威胁倍率同时影响出怪数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "训练场",
+      "name": "训练场不刷波次",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "训练场",
+      "name": "手动召唤生效",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "训练场",
+      "name": "召唤可指定行",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "训练场",
+      "name": "训练场可种植",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "训练场",
+      "name": "无冷却开启时冷却为 0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "训练场",
+      "name": "同一张卡可连续摆放",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "训练场",
+      "name": "训练场越线不判负",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "训练场",
+      "name": "清空草木后板上为空",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "教学关只有签筒一张卡",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "教学关预置红灯笼在 (0,2)",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "第一步是收集香火",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "教学香火不设时限",
+      "ok": true
+    },
+    {
+      "detail": "life=999995",
+      "group": "教学",
+      "name": "教学香火落地后仍未过期",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "收下香火后进入种植步",
+      "ok": true
+    },
+    {
+      "detail": "orbs=0",
+      "group": "教学",
+      "name": "教学灯笼不产香火",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "种下签筒后进入升阶步",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "升阶后进入实战步",
+      "ok": true
+    },
+    {
+      "detail": "zombies=1",
+      "group": "教学",
+      "name": "实战步会放出教学恶客",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "教学恶客 120 血、速度 14",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "击退后进入收尾",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "存档",
+      "name": "关卡与时间还原",
+      "ok": true
+    },
+    {
+      "detail": "500 vs 500",
+      "group": "存档",
+      "name": "香火还原",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "存档",
+      "name": "草木数量与升阶还原",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "存档",
+      "name": "龟甲罩耐久还原",
+      "ok": true
+    },
+    {
+      "detail": "2 vs 2",
+      "group": "存档",
+      "name": "恶客数量还原",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "存档",
+      "name": "难度还原",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "存档",
+      "name": "存档可再次序列化",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 88,
+  "version": "0.3.0"
+}
