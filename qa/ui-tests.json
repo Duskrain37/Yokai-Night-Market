@@ -1,0 +1,265 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "group": "封面",
+      "name": "封面已建立",
+      "ok": true
+    },
+    {
+      "detail": "buttons=6",
+      "group": "封面",
+      "name": "封面按钮不少于六组",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "封面",
+      "name": "封面读得到存档状态",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "选关",
+      "name": "选关页已建立",
+      "ok": true
+    },
+    {
+      "detail": "nights=15",
+      "group": "选关",
+      "name": "十五夜都在页面里",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "选关",
+      "name": "选关页带详情面板",
+      "ok": true
+    },
+    {
+      "detail": "buttons=3",
+      "group": "选关",
+      "name": "选关页有返回按钮",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "选关",
+      "name": "可以选到第十一夜",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "备战页已建立",
+      "ok": true
+    },
+    {
+      "detail": "cards=10",
+      "group": "备战",
+      "name": "备战默认带上十张卡",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "取下一张后剩九张",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "再点回来变十张",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "不存在的卡不会进卡组",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "开战后进入战场",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "战场铺了棋盘与单位层",
+      "ok": true
+    },
+    {
+      "detail": "cards=10",
+      "group": "对局",
+      "name": "HUD 卡槽与卡组一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "点卡后处于待落子状态",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "点空地后种下草木",
+      "ok": true
+    },
+    {
+      "detail": "100 -> 50",
+      "group": "对局",
+      "name": "种植扣了香火",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "落子后自动取消选卡",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "冷却中的卡点不动",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "冷却中落子是无效操作",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "签筒落在第 2 列",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "点草木后弹出升阶面板",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "面板列出三条路",
+      "ok": true
+    },
+    {
+      "detail": "tier=1",
+      "group": "升阶",
+      "name": "一级升阶生效",
+      "ok": true
+    },
+    {
+      "detail": "900 -> 810",
+      "group": "升阶",
+      "name": "升阶扣香火",
+      "ok": true
+    },
+    {
+      "detail": "90 vs 90",
+      "group": "升阶",
+      "name": "面板费用与实际扣费一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "关闭面板后回到无选中",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "暂停",
+      "name": "暂停会停住模拟",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "暂停",
+      "name": "暂停期间时间不推进",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "暂停",
+      "name": "继续后恢复推进",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "图鉴",
+      "name": "从局内能打开图鉴",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "图鉴",
+      "name": "关闭图鉴回到战场",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "设置",
+      "name": "从局内能打开设置",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "设置",
+      "name": "关掉描格子后棋盘同步",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "设置",
+      "name": "重新开启描格子",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "结算",
+      "name": "结算页已建立",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "结算",
+      "name": "结算记录了胜负",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "结算",
+      "name": "胜利后写入通关进度",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "续局",
+      "name": "封面认出存档",
+      "ok": true
+    },
+    {
+      "detail": "level=2",
+      "group": "续局",
+      "name": "继续守夜能回到同一夜",
+      "ok": true
+    },
+    {
+      "detail": "sun=777 t=0.1",
+      "group": "续局",
+      "name": "香火与时间接上",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 43,
+  "version": "0.3.0"
+}

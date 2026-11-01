@@ -1,0 +1,211 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "第一夜 跑完不崩溃",
+      "ok": true
+    },
+    {
+      "detail": "won=true lost=false t=237.2 kills=57 wave=12 sun=520 plants=35",
+      "group": "对局",
+      "name": "第一夜 状态最终为胜（策略可行）",
+      "ok": true
+    },
+    {
+      "detail": "max_shots=22",
+      "group": "对局",
+      "name": "第一夜 有射弹出手",
+      "ok": true
+    },
+    {
+      "detail": "kills=57",
+      "group": "对局",
+      "name": "第一夜 击退数合理",
+      "ok": true
+    },
+    {
+      "detail": "wave=12",
+      "group": "对局",
+      "name": "第一夜 波次推进到后段",
+      "ok": true
+    },
+    {
+      "detail": "t=237.2",
+      "group": "对局",
+      "name": "第一夜 用时在合理区间",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "第六夜（六行） 跑完不崩溃",
+      "ok": true
+    },
+    {
+      "detail": "won=true lost=false t=295.9 kills=115 wave=12 sun=315 plants=39",
+      "group": "对局",
+      "name": "第六夜（六行） 状态最终为胜（策略可行）",
+      "ok": true
+    },
+    {
+      "detail": "max_shots=30",
+      "group": "对局",
+      "name": "第六夜（六行） 有射弹出手",
+      "ok": true
+    },
+    {
+      "detail": "kills=115",
+      "group": "对局",
+      "name": "第六夜（六行） 击退数合理",
+      "ok": true
+    },
+    {
+      "detail": "wave=12",
+      "group": "对局",
+      "name": "第六夜（六行） 波次推进到后段",
+      "ok": true
+    },
+    {
+      "detail": "t=295.9",
+      "group": "对局",
+      "name": "第六夜（六行） 用时在合理区间",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "第十一夜（暗河） 跑完不崩溃",
+      "ok": true
+    },
+    {
+      "detail": "won=false lost=true t=156.9 kills=49 wave=8 sun=100 plants=15",
+      "group": "对局",
+      "name": "第十一夜（暗河） 状态最终为胜（策略可行）",
+      "ok": true
+    },
+    {
+      "detail": "max_shots=6",
+      "group": "对局",
+      "name": "第十一夜（暗河） 有射弹出手",
+      "ok": true
+    },
+    {
+      "detail": "kills=49",
+      "group": "对局",
+      "name": "第十一夜（暗河） 击退数合理",
+      "ok": true
+    },
+    {
+      "detail": "wave=8",
+      "group": "对局",
+      "name": "第十一夜（暗河） 波次推进到后段",
+      "ok": true
+    },
+    {
+      "detail": "t=156.9",
+      "group": "对局",
+      "name": "第十一夜（暗河） 用时在合理区间",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "水面",
+      "name": "夜莲能落在水格",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "水面",
+      "name": "莲上能种签筒",
+      "ok": true
+    },
+    {
+      "detail": "hp=127/147",
+      "group": "水面",
+      "name": "莲上的签筒能打到水面来的恶客",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "水面",
+      "name": "缠魂藻能种在另一条水行上",
+      "ok": true
+    },
+    {
+      "detail": "kelp_x=592 victim=604",
+      "group": "水面",
+      "name": "缠魂藻会拖住并拖沉恶客",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "地图",
+      "name": "暗河物件格不能种",
+      "ok": true
+    },
+    {
+      "detail": "t=123.3",
+      "group": "对局",
+      "name": "不设防一整夜会失守",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "对局",
+      "name": "失守前门神已经用掉",
+      "ok": true
+    },
+    {
+      "detail": "plants=32 zombies=0 wave=6",
+      "group": "存档",
+      "name": "对局中段存档非空",
+      "ok": true
+    },
+    {
+      "detail": "t=238.0 kills=57 wave=12",
+      "group": "存档",
+      "name": "读回存档后能继续打完这一夜",
+      "ok": true
+    },
+    {
+      "detail": "238.0 > 120.0",
+      "group": "存档",
+      "name": "续局时间接得上",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "教学关第一步香火仍在",
+      "ok": true
+    },
+    {
+      "detail": "sun=225",
+      "group": "教学",
+      "name": "收下香火后香火数增加",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "签筒落地",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "升阶后进入实战",
+      "ok": true
+    },
+    {
+      "detail": "t=10.6 step=done",
+      "group": "教学",
+      "name": "教学关能打完并判胜",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 34,
+  "version": "0.3.0"
+}

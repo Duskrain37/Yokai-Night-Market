@@ -1,0 +1,96 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "name": "封面：找得到「挑选一夜」按钮",
+      "ok": true
+    },
+    {
+      "detail": "levels",
+      "name": "封面：点按钮真的切到选关页",
+      "ok": true
+    },
+    {
+      "detail": "11",
+      "name": "选关：点夜卡选中第十一夜",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "选关：有「进入备战」按钮",
+      "ok": true
+    },
+    {
+      "detail": "prep",
+      "name": "选关：点进备战页",
+      "ok": true
+    },
+    {
+      "detail": "10 -> 9",
+      "name": "备战：点名册卡会改变卡组",
+      "ok": true
+    },
+    {
+      "detail": "10",
+      "name": "备战：再点一次恢复原样",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "开战：进入战场",
+      "ok": true
+    },
+    {
+      "detail": "0",
+      "name": "开战：点卡槽选中该卡",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "开战：点棋盘真的种下草木",
+      "ok": true
+    },
+    {
+      "detail": "100 -> 50",
+      "name": "开战：落子扣香火",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "升阶：点草木弹出升阶面板",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "升阶：面板里有带费用的升阶按钮",
+      "ok": true
+    },
+    {
+      "detail": "0 -> 1",
+      "name": "升阶：点按钮真的升了一级",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "暂停：找得到暂停按钮",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "暂停：点暂停后真的暂停",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "暂停：面板里有继续按钮",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "暂停：点继续后恢复",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 18
+}
