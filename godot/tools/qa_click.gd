@@ -138,6 +138,8 @@ func _run() -> void:
 
 	game.show_prep(1)
 	await process_frame
+	# 本轮新增缺少产香草木警告；点击回归仍验证正常带产香草木的开战流程。
+	game.screen_node._picked = ["lantern", "shooter"]
 	game.screen_node._start()
 	await process_frame
 	check("开战：进入战场", game.screen == "battle" and game.sim != null)

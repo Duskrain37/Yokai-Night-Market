@@ -57,7 +57,9 @@ func _stage_menu() -> void:
 		str(_button_texts(buttons)))
 	var texts := _label_texts(game.screen_node)
 	check("封面", "守夜记录按难度分档", _has_text(texts, "普通"), str(texts))
-	check("封面", "开过调整的那几夜另册单列", _has_text(texts, "另册"), str(texts))
+	check("封面", "只显示天亮次数与击退波数，不列开过调整的夜",
+		_has_text(texts, "天亮 1 次") and _has_text(texts, "击退 2 波")
+		and not _has_text(texts, "另册"), str(texts))
 
 
 func _stage_levels() -> void:

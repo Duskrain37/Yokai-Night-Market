@@ -40,8 +40,12 @@ func run() -> void:
 		check("关%d 大波数" % int(level.id),Content.wave_groups(level)==expected)
 		check("关%d 威胁按用户新值" % int(level.id),is_equal_approx(float(level.threat),float([.8,1.,1.2,1.4,1.6,1.,1.25,1.5,1.75,2.,1.2,1.53,1.85,2.18,2.5][int(level.id)-1])))
 		check("关%d 前四大波保持" % int(level.id),same(Array(level.waves).slice(0,12),fixtures.levels[int(level.id)-1].waves))
-	check("狐尾灯用户进化数值保持",same(Upgrades.EFFECTS.cat,fixtures.cat_effects))
-	check("狐尾灯用户三路保持",same(tree_rules(Upgrades.TREES.cat),tree_rules(fixtures.cat_tree)))
+	check("狐尾灯新疾焰与十焰数值",same(Upgrades.EFFECTS.cat.interval_reduction,
+		[0.0,0.2,0.4,0.6]) and is_equal_approx(float(Upgrades.EFFECTS.cat.ten_flames_chance[3]),0.1)
+		and is_equal_approx(float(Upgrades.EFFECTS.cat.ten_flames_cooldown),6.0))
+	check("狐尾灯回魂四团、狐火路保持",int(Upgrades.EFFECTS.cat.count[3])==4
+		and int(Upgrades.EFFECTS.cat.hits[3])==2
+		and same(tree_rules([Upgrades.TREES.cat[2]]),tree_rules([fixtures.cat_tree[2]])))
 	for id in ["lantern","shooter","wall"]:
 		check(id+" 原型数值保持",same(Upgrades.EFFECTS[id],fixtures.prototype_effects[id]))
 	for level in Content.LEVELS.slice(0,15):
@@ -52,15 +56,15 @@ func run() -> void:
 		var s=create(id)
 		var b=s.boss
 		check("首领%d 替换整组队列" % id,b!=null and s.wave_index==s.level.waves.size() and s.spawn_queue.is_empty())
-		check("首领%d 命门覆盖每行" % id,b.weakpoints.size()==s.rows)
+		check("首领%d 只占相邻两行" % id,b.body_targets.size()==2 and b.body_targets[1].row==b.body_targets[0].row+1)
 		check("首领%d 不计入普通兵上限" % id,s.active_zombies()==0)
 		var health=b.hp
-		s.kill_zombie(b.weakpoints[0])
+		s.kill_zombie(b.body_targets[0])
 		check("首领%d 不被收妖或门神直接处决" % id,b.hp==health and b.alive())
 		b.damage_token="shot:unit-test"
-		s.damage_zombie(b.weakpoints[0],100,false,false,"shooter")
-		s.damage_zombie(b.weakpoints[1],100,false,false,"shooter")
-		check("首领%d 同弹多命门只结算一次" % id,is_equal_approx(b.hp,health-100))
+		s.damage_zombie(b.body_targets[0],100,false,false,"shooter")
+		s.damage_zombie(b.body_targets[1],100,false,false,"shooter")
+		check("首领%d 同弹多本体只结算一次" % id,is_equal_approx(b.hp,health-100))
 		b.damage_token=""
 		var normal_hp=b.max_hp
 		b.damage(null,normal_hp*.81,"shooter")
@@ -72,7 +76,7 @@ func run() -> void:
 		var r=Sim.new();r.restore(snapshot)
 		check("首领%d 快照共享生命与阈值" % id,is_equal_approx(r.boss.hp,b.hp) and r.boss.fired==b.fired)
 		check("首领%d 快照保留随机状态" % id,str(r.rng.state)==str(s.rng.state))
-		check("首领%d 快照重建命门" % id,r.boss.weakpoints.size()==r.rows and r.active_zombies()==s.active_zombies())
+		check("首领%d 快照重建本体" % id,r.boss.body_targets.size()==2 and r.active_zombies()==s.active_zombies())
 		# Interrupt an already telegraphed lethal strike by killing the boss first.
 		var p=s.place_free("shooter",7,0)
 		if p!=null:p.hp=1
@@ -83,6 +87,32 @@ func run() -> void:
 		check("首领%d 死后无延迟拆卡" % id,s.plants_lost==old_lost)
 		check("首领%d 死亡清空预警与出兵" % id,b.action.is_empty() and b.major_queue.is_empty() and s.active_zombies()==0)
 		check("首领%d 退散后结算" % id,s.is_cleared())
+	var moving = create(5)
+	var moving_boss = moving.boss
+	var old_row = moving_boss.body_row
+	moving_boss.state = "small_recovery"
+	moving_boss.state_end = moving.time
+	moving_boss.smalls_to_blink = 2
+	moving_boss.tick(0.01)
+	check("第二次小技能前保留原行", moving_boss.body_row == old_row and moving_boss.state == "idle")
+	moving_boss.state = "small_recovery"
+	moving_boss.state_end = moving.time
+	moving_boss.tick(0.01)
+	check("小技能后闪影切换至另一组相邻行",
+		moving_boss.state == "blink" and moving_boss.body_row != old_row
+		and moving_boss.body_targets[0].row == moving_boss.body_row
+		and moving_boss.body_targets[1].row == moving_boss.body_row + 1)
+	var outside = 0 if moving_boss.body_row > 0 else moving.rows - 1
+	for lane in [outside, moving_boss.body_row, moving_boss.body_row + 1]:
+		var shot = Sim.Shot.new()
+		shot.pos = Vector2(moving_boss.body_x() - 30.0, moving.row_y(lane) - 16.0)
+		shot.row = lane
+		shot.speed = 400.0
+		shot.base_damage = 20.0
+		shot.damage = 20.0
+		var before = moving_boss.hp
+		moving._update_straight(shot, 0.1)
+		check("首领本体命中按行%d" % lane, before - moving_boss.hp == (0.0 if lane == outside else 20.0))
 	var s=create(15);var b=s.boss
 	var lily=s.place_free("lily",3,1)
 	var host=s.place_free("shooter",3,1)
@@ -91,14 +121,14 @@ func run() -> void:
 	var sun=s.sun
 	b._hurt_cell({"c":3,"r":1},360)
 	check("水路只拆宿主不拆底座",host.dead and not lily.dead and s.lily_at(3,1)==lily)
-	check("回收累计实付80%",s.sun-sun==300)
+	check("首领毁卡不返香火",s.sun==sun)
 	var economy=s.place_free("lantern",0,0);economy.hp=1
 	b._hurt_cell({"c":0,"r":0},100000)
 	check("后两列经济受保护",not economy.dead and economy.hp==1)
 	var p=s.place_free("wall",4,0);p.hp=1
 	b.destruction_used=int(b.config.destruction_budget)
 	b._hurt_cell({"c":4,"r":0},10000)
-	check("拆卡预算耗尽伤害非致命",not p.dead and p.hp>=1)
+	check("拆卡预算耗尽伤害非致命",not p.dead and p.hp>0.0)
 	var seal_host=s.place_free("shooter",5,0)
 	seal_host.sealed_until=s.time+5
 	b._add_prop("paper_seal",{"c":5,"r":0},120,5)
@@ -108,9 +138,9 @@ func run() -> void:
 	check("纸封拆除有碎裂事件",not b.effects.filter(func(f):return f.kind=="break").is_empty())
 	var shield=create(5)
 	var before=shield.boss.max_hp
-	for z in shield.boss.weakpoints:z.bomb_t=.01;z.bomb_damage=before*.08
+	for z in shield.boss.body_targets:z.bomb_t=.01;z.bomb_damage=before*.08
 	shield.tick(.02)
-	check("百分比伤害不随命门数翻倍",shield.boss.hp>=before*.99-.001)
+	check("百分比伤害不随本体数翻倍",shield.boss.hp>=before*.99-.001)
 	var paper=Sim.new();paper.setup(Content.get_level(1),["umbrella"],"normal")
 	var umbrella=paper.place_free("umbrella",4,0)
 	umbrella.upgrades={1:0,2:0,3:1};umbrella.secondary={"busy":true,"t":10.0,"max":15.0};umbrella.timer=100
@@ -122,12 +152,12 @@ func run() -> void:
 	paper._try_umbrella_secondary(umbrella,Upgrades.EFFECTS.umbrella)
 	check("纸伞副槽不能瞬收大型敌人",large.alive() and umbrella.secondary.is_empty())
 	var resume=create(5)
-	var shot=Sim.Shot.new();shot.uid="saved-shot";shot.target=resume.boss.weakpoints[0]
-	shot.hit_ids=[resume.boss.weakpoints[1]];shot.pos=Vector2(1000,300);shot.damage=20;shot.speed=100
+	var shot=Sim.Shot.new();shot.uid="saved-shot";shot.target=resume.boss.body_targets[0]
+	shot.hit_ids=[resume.boss.body_targets[1]];shot.pos=Vector2(1000,300);shot.damage=20;shot.speed=100
 	resume.shots.append(shot);resume.natural_timer=1.234
 	resume.boss.damage_token="shot:saved-shot";resume.boss.damage(shot.target,20)
 	var restored=Sim.new();restored.restore(JSON.parse_string(JSON.stringify(resume.serialize())))
-	check("存档保留飞行子弹和命门引用",restored.shots.size()==1 and restored.shots[0].target==restored.boss.weakpoints[0] and restored.shots[0].hit_ids[0]==restored.boss.weakpoints[1])
+	check("存档保留飞行子弹和本体引用",restored.shots.size()==1 and restored.shots[0].target==restored.boss.body_targets[0] and restored.shots[0].hit_ids[0]==restored.boss.body_targets[1])
 	var old_hp=restored.boss.hp
 	restored.boss.damage_token="shot:saved-shot";restored.boss.damage(restored.shots[0].target,20)
 	check("存档续局同弹不重复结算",restored.boss.hp==old_hp and is_equal_approx(restored.natural_timer,1.234))
@@ -145,7 +175,7 @@ func run() -> void:
 	check("地洞先在边界出兵",traveller.pos.x>=Geo.SPAWN_X and traveller.boss_meta.has("portal_at"))
 	portal.time+=.5;portal.boss.tick(.5)
 	check("地洞延迟借道且不偷袭经济区",is_equal_approx(traveller.pos.x,tunnel.pos.x+Geo.CELL_W*.48) and traveller.pos.x>portal.cell_pos(5,0).x)
-	var marks=create(5);var target=marks.boss.weakpoints[0]
+	var marks=create(5);var target=marks.boss.body_targets[0]
 	marks.add_mark(target,"fox",1,.1)
 	marks.boss.tick(.2)
 	check("首领身上记号正常到期",marks.mark_stacks(target,"fox")==0)
@@ -153,13 +183,13 @@ func run() -> void:
 	marks.boss.damage_token="shot:compound"
 	marks.damage_zombie(target,24,false,false,"cat")
 	marks.damage_zombie(target,40,false,false,"cat","fox_ignite")
-	marks.damage_zombie(marks.boss.weakpoints[1],40,false,false,"cat","fox_ignite")
-	check("固定爆发保留且跨命门不翻倍",is_equal_approx(burst_before-marks.boss.hp,64))
+	marks.damage_zombie(marks.boss.body_targets[1],40,false,false,"cat","fox_ignite")
+	check("固定爆发保留且跨本体不翻倍",is_equal_approx(burst_before-marks.boss.hp,64))
 	marks.boss.damage_token="plant:brace"
-	var lion=marks.place_free("lion",8,0);lion.upgrades={1:0,2:3,3:0};lion.brace_t=.01
+	var lion=marks.place_free("lion",8,marks.boss.body_row);lion.upgrades={1:0,2:3,3:0};lion.brace_t=.01
 	var brace_before=marks.boss.hp
 	marks._lion_brace(lion,Upgrades.EFFECTS.lion,.02)
-	check("最前列醒狮蹲桩能触及命门",is_equal_approx(brace_before-marks.boss.hp,60))
+	check("最前列醒狮蹲桩能触及本体",is_equal_approx(brace_before-marks.boss.hp,60))
 	var sealed=create(5);var original=sealed.place_free("shooter",5,0)
 	sealed.boss._add_prop("paper_seal",{"c":5,"r":0},120,5)
 	var old_seal=sealed.boss.props[0]

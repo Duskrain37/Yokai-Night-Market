@@ -178,19 +178,15 @@ func _records_card() -> void:
 		var book: Dictionary = Dictionary(books.get(key, {}))
 		if book.is_empty():
 			continue
-		lines.append("%s：天亮 %d · 退 %d · 第 %d 大波" % [
+		lines.append("%s：天亮 %d 次 · 最多击退 %d 波" % [
 			String(game.DIFFICULTY_LABEL[key]), int(book.get("wins", 0)),
-			int(book.get("best_kills", 0)),
-			int(ceil(float(book.get("best_wave", 0)) / Content.WAVES_PER_GROUP))])
+			int(book.get("best_groups", int(book.get("best_wave", 0)) / Content.WAVES_PER_GROUP))])
 	var legacy: Dictionary = Dictionary(game.records.get("legacy", {}))
 	if books.is_empty() and not legacy.is_empty():
 		# v0.3.1 及更早不分难度，旧数字整册摆在这一行，等正经分档的账记上就退场
-		lines.append("旧版累计：天亮 %d · 退 %d · 第 %d 大波" % [
-			int(legacy.get("wins", 0)), int(legacy.get("best_kills", 0)),
+		lines.append("旧版累计：天亮 %d 次 · 最多击退 %d 波" % [
+			int(legacy.get("wins", 0)),
 			int(ceil(float(legacy.get("best_wave", 0)) / Content.WAVES_PER_GROUP))])
-	var cheat: Dictionary = Dictionary(game.records.get("cheated", {}))
-	if int(cheat.get("runs", 0)) > 0:
-		lines.append("开过局内调整 %d 夜：另册，不并入上面" % int(cheat.get("runs", 0)))
 	if lines.size() == 2:
 		lines.append("还没守过夜：从第壹夜开始")
 	for line in lines:

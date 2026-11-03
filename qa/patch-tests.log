@@ -1,0 +1,28 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS 暗河水路单行权重为陆路的三分之二
+PASS 四种高阶恶客不走水路
+PASS 暗河前后单位仅差1.05倍
+PASS 门神触发不立即判负
+PASS 门神扫倒触发行的恶客
+PASS 无门神路口继续行走而非立即判负
+PASS 恶客走到无人守护的路尽头才判负
+PASS 坟头菇半程尚未成熟
+PASS 坟头菇成熟有独立音效
+PASS market障碍立绘1
+PASS market障碍立绘2
+PASS market障碍立绘3
+PASS water障碍立绘1
+PASS water障碍立绘2
+PASS water障碍立绘3
+PASS 坟头菇成长立绘1
+PASS 坟头菇成长立绘2
+PASS 坟头菇成长立绘3
+PASS 局内开启作弊后按钮即刻出现
+PASS 点击作弊后面板即刻出现
+PASS 作弊面板有香火按钮
+PASS 作弊点击即刻生效而无需退出面板
+PASS 关闭作弊选项后按钮和面板均收起
+PASS 无产香草木时开战弹出警告
+PASS 警告确认后可继续开战
+TOTAL 25 FAILURES 0

@@ -13,7 +13,7 @@ const AlmanacScreen = preload("res://ui/screen_almanac.gd")
 const TrainingScreen = preload("res://ui/screen_training.gd")
 const Build = preload("res://data/build_info.gd")
 
-const VERSION = "0.4.0"
+const VERSION = "0.4.1"
 const SAVE_PATH = "user://run.json"
 const SETTINGS_PATH = "user://settings.json"
 const PROGRESS_PATH = "user://progress.json"
@@ -599,6 +599,8 @@ func set_setting(key: String, value) -> void:
 		sim.auto_collect = bool(value)
 	elif key == "collect_delay" and sim != null:
 		sim.collect_delay = float(value)
+	elif key == "cheats" and hud != null and is_instance_valid(hud):
+		hud.set_cheats_enabled(bool(value))
 	elif key == "speed" and screen == "battle" and not tutorial_active:
 		apply_speed(float(value))
 	elif key == "resolution":
@@ -684,6 +686,9 @@ func _update_records(won: bool) -> void:
 
 func _record_tally(book: Dictionary, won: bool) -> void:
 	book["best_kills"] = maxi(int(book.get("best_kills", 0)), sim.kills)
+	var previous = int(book.get("best_groups", int(book.get("best_wave", 0)) / Content.WAVES_PER_GROUP))
+	var completed = Content.wave_groups(sim.level) if won else sim.completed_major_waves()
+	book["best_groups"] = maxi(previous, completed)
 	book["best_wave"] = maxi(int(book.get("best_wave", 0)), sim.wave_index)
 	if not won:
 		return

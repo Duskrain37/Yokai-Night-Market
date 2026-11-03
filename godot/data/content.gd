@@ -12,12 +12,12 @@ const COLS = 9
 const PLANT_ORDER: Array[String] = [
 	"lantern", "shooter", "wall", "bomb", "bell", "censer", "umbrella", "lion",
 	"mushroom", "cat", "shell", "lobber", "torch", "star", "needle", "judge",
-	"lily", "kelp",
+	"lily", "kelp", "gust", "firework",
 ]
 
 const ZOMBIE_ORDER: Array[String] = [
 	"ghost", "tongue", "straw", "paper", "stonehat", "bucket",
-	"vault", "mourner", "sedan", "artisan", "ironjudge", "mountain",
+	"vault", "mourner", "sedan", "artisan", "ironjudge", "mountain", "bride",
 ]
 
 const TIERS = {
@@ -96,14 +96,22 @@ const PLANTS = {
 		"sprite_h": 100, "star": {"interval": 1.6, "damage": 20.0, "dirs": 5}, "tint": "#e8c25c",
 	},
 	"needle": {
-		"name": "透骨针", "role": "破甲", "cost": 100, "cooldown": 18, "hp": 300,
+		"name": "透骨针", "role": "破甲", "cost": 125, "cooldown": 18, "hp": 300,
 		"sprite_h": 92, "needle": {"interval": 1.7, "damage": 18.0, "speed": 720.0},
 		"tint": "#e4dcc4",
 	},
 	"judge": {
-		"name": "钟馗像", "role": "击退", "cost": 150, "cooldown": 20, "hp": 900,
-		"sprite_h": 106, "judge": {"interval": 5.5, "damage": 40.0, "knock_cells": 0.4,
-			"reach": 260.0}, "tint": "#c4503a",
+		"name": "钟馗像", "role": "庇护", "cost": 125, "cooldown": 20, "hp": 900,
+		"sprite_h": 106, "judge": {"interval": 1.6, "damage": 38.0, "speed": 530.0},
+		"tint": "#c4503a",
+	},
+	"gust": {
+		"name": "归风扇", "role": "灰烬", "cost": 175, "cooldown": 46, "hp": 320,
+		"sprite_h": 94, "ash": true, "no_upgrade": true, "gust": {"fuse": 0.6}, "tint": "#649f99",
+	},
+	"firework": {
+		"name": "烟花童", "role": "抛射", "cost": 200, "cooldown": 24, "hp": 320,
+		"sprite_h": 100, "firework": true, "tint": "#c77941",
 	},
 	"lily": {
 		"name": "夜莲", "role": "浮台", "cost": 25, "cooldown": 5, "hp": 260,
@@ -151,6 +159,12 @@ const ZOMBIES = {
 		"hp": 520.0, "armor": 950.0, "armor_type": "sedan", "armor_name": "轿壳",
 		"speed": 14.0, "dps": 120.0, "scale": 1.0, "sprite_h": 118, "death": "sedan",
 		"split": {"type": "ghost", "count": 2, "hp": 0.6},
+	},
+	"bride": {
+		"name": "鬼新娘", "kind": "轿中客", "tier": "m",
+		"hp": 460.0, "armor": 0.0, "speed": 19.0, "dps": 75.0,
+		"scale": 1.03, "sprite_h": 108, "death": "ghost", "ash_immune": true,
+		"sedan_only": true,
 	},
 	"straw": {
 		"name": "斗笠鬼", "kind": "小僵尸", "tier": "l",
@@ -201,20 +215,20 @@ const WATER_ROWS = [1, 3]
 const WATER_OBJECTS = [[1, 2], [1, 5], [1, 7], [3, 3], [3, 6]]
 
 # 每周的推荐配卡顺序：备战「按今夜推荐配卡」取前十张，缺夜莲的一键替换也按这张表挑替身。
-# 三张表都排满 18 株，漏排的那张表会让「最不该带的」判不出来。
+# 三张表都排满全部草木，漏排的那张表会让「最不该带的」判不出来。
 const LOADOUT_TIPS = {
 	# 夜市街：五条平地一线排开，先站稳再讲输出
 	"street": ["lantern", "shooter", "wall", "bell", "censer", "torch", "cat",
 		"needle", "judge", "umbrella", "lion", "lobber", "star", "mushroom",
-		"bomb", "shell", "lily", "kelp"],
+		"firework", "bomb", "gust", "shell", "lily", "kelp"],
 	# 河埠口：右四列有杂物挡道，种不进去就得靠抛物线、跨行与长手
 	"market": ["lantern", "shooter", "wall", "bell", "lobber", "cat", "judge",
 		"star", "censer", "torch", "needle", "umbrella", "lion", "mushroom",
-		"bomb", "shell", "lily", "kelp"],
+		"firework", "bomb", "gust", "shell", "lily", "kelp"],
 	# 暗河：第二、四行是水，先铺夜莲才种得下别的东西，缠魂藻只在水里做事
 	"water": ["lily", "lantern", "shooter", "wall", "kelp", "bell", "cat",
 		"lobber", "censer", "torch", "needle", "judge", "star", "umbrella",
-		"lion", "mushroom", "bomb", "shell"],
+		"lion", "mushroom", "firework", "bomb", "gust", "shell"],
 }
 
 

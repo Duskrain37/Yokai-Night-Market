@@ -182,9 +182,8 @@ func _draw_tooltip() -> void:
 	var w := max_w + 20.0
 	var anchor := _point(OUTER + 26.0, _petal_angle(_hover))
 	var rect := Rect2(anchor - Vector2(w * 0.5, h), Vector2(w, h))
-	draw_rect(rect, Color(0.96, 0.92, 0.82, 0.97))
-	draw_rect(rect, Color(Ui.VERMILION.r, Ui.VERMILION.g, Ui.VERMILION.b, 0.8),
-		false, 2.0)
+	Ui.draw_plate(self, rect, Color(0.96, 0.92, 0.82, 0.97),
+		Color(Ui.VERMILION.r, Ui.VERMILION.g, Ui.VERMILION.b, 0.8), 14, 2)
 	var tw := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
 	draw_string(font, rect.position + Vector2(w * 0.5 - tw * 0.5, 20.0), title,
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.22, 0.13, 0.09))

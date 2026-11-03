@@ -96,10 +96,7 @@ static func flat(color: Color, border: Color = Color(0, 0, 0, 0), radius: int = 
 		border_width: int = 0) -> StyleBoxFlat:
 	var box = StyleBoxFlat.new()
 	box.bg_color = color
-	box.corner_radius_top_left = radius
-	box.corner_radius_top_right = radius
-	box.corner_radius_bottom_left = radius
-	box.corner_radius_bottom_right = radius
+	box.set_corner_radius_all(maxi(10, radius))
 	if border_width > 0:
 		box.border_color = border
 		box.border_width_left = border_width
@@ -112,7 +109,7 @@ static func flat(color: Color, border: Color = Color(0, 0, 0, 0), radius: int = 
 
 ## 半透明夜色面板：界面的通用底。
 static func panel_style(alpha: float = 0.86, border: Color = GOLD_DIM,
-		radius: int = 4, border_width: int = 2) -> StyleBoxFlat:
+		radius: int = 16, border_width: int = 2) -> StyleBoxFlat:
 	var box = flat(Color(INK.r, INK.g, INK.b, alpha), border, radius, border_width)
 	box.shadow_color = Color(0, 0, 0, 0.55)
 	box.shadow_size = 14
@@ -123,7 +120,7 @@ static func panel_style(alpha: float = 0.86, border: Color = GOLD_DIM,
 	return box
 
 
-## 木牌 / 匾额：暗红漆底 + 金线，边角近直角，用在主按钮与标题条上。
+## 木牌 / 匾额：暗红漆底、圆角和旧金线。
 static func plaque_style(primary: bool = false, hover: bool = false) -> StyleBoxFlat:
 	var base = Color("#5b2017") if primary else Color("#1b2530")
 	if hover:
@@ -137,6 +134,25 @@ static func plaque_style(primary: bool = false, hover: bool = false) -> StyleBox
 	box.content_margin_top = 10
 	box.content_margin_bottom = 10
 	return box
+
+
+static func draw_plate(canvas: CanvasItem, rect: Rect2, base: Color, rim: Color,
+		radius: int = 14, border_width: int = 2) -> void:
+	canvas.draw_style_box(flat(base, rim, radius, border_width), rect)
+
+
+static func draw_gauge(canvas: CanvasItem, rect: Rect2, fraction: float, lacquer: Color) -> void:
+	draw_plate(canvas, rect, Color("#141b21"), Color("#92724b"), 12, 1)
+	var inset := 2.0 if rect.size.y >= 10.0 else 1.0
+	var fill := rect.grow(-inset)
+	fill.size.x *= clampf(fraction, 0.0, 1.0)
+	if fill.size.x < 0.7:
+		return
+	draw_plate(canvas, fill, lacquer, Color.TRANSPARENT, 12, 0)
+	if fill.size.y >= 6.0 and fill.size.x >= 7.0:
+		var start := fill.position + Vector2(3.0, 2.0)
+		var end := Vector2(fill.end.x - 3.0, start.y)
+		canvas.draw_line(start, end, Color(1.0, 0.83, 0.58, 0.31), 1.0, true)
 
 
 static func paper_style(alpha: float = 0.94, border: Color = GOLD_DIM,
@@ -196,6 +212,14 @@ static func make_theme() -> Theme:
 
 	theme.set_stylebox("panel", "ScrollContainer", StyleBoxEmpty.new())
 	theme.set_stylebox("panel", "PopupMenu", paper_style(0.98))
+	theme.set_stylebox("panel", "AcceptDialog", panel_style(0.97, GOLD_DIM, 18))
+	theme.set_stylebox("embedded_border", "Window", panel_style(0.97, GOLD_DIM, 18))
+	for input_type in ["LineEdit", "TextEdit"]:
+		theme.set_stylebox("normal", input_type, panel_style(0.94, GOLD_DIM, 12, 1))
+		theme.set_stylebox("focus", input_type, flat(Color.TRANSPARENT, GOLD_BRIGHT, 12, 2))
+		theme.set_color("font_color", input_type, TEXT)
+	theme.set_stylebox("panel", "TooltipPanel", panel_style(0.97, GOLD_DIM, 12, 1))
+	theme.set_color("font_color", "TooltipLabel", TEXT)
 	theme.set_color("font_color", "PopupMenu", INK)
 	_theme = theme
 	return theme
@@ -345,8 +369,18 @@ static func sprite(name: String) -> Texture2D:
 	if _sprite_cache.has(name):
 		return _sprite_cache[name]
 	var path = "res://assets/sprites/%s.png" % ("shell-v040" if name=="shell" else name)
+	if name == "sedan" and ResourceLoader.exists("res://assets/sprites/sedan-v041.png"):
+		path = "res://assets/sprites/sedan-v041.png"
 	var texture: Texture2D = null
-	if ResourceLoader.exists(path):
+	var atlas_path = "res://assets/sprites/animation/%s.png" % name
+	if name in ["bride", "gust", "firework"] and ResourceLoader.exists(atlas_path):
+		var sheet: Texture2D = load(atlas_path)
+		var portrait := AtlasTexture.new()
+		portrait.atlas = sheet
+		portrait.region = Rect2(Vector2.ZERO, sheet.get_size() / Vector2(4.0, 2.0))
+		portrait.filter_clip = true
+		texture = portrait
+	elif ResourceLoader.exists(path):
 		texture = load(path)
 	_sprite_cache[name] = texture
 	return texture

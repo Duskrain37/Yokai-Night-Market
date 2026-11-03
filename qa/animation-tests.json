@@ -1,0 +1,1230 @@
+{
+	"checks": [
+		{
+			"name": "lantern 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lantern idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lantern action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lantern-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lantern-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lantern-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lantern-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lantern-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lantern-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lantern-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lantern-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lantern-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shooter 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shooter idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shooter action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shooter-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shooter-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shooter-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shooter-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shooter-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shooter-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shooter-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shooter-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shooter-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "wall 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wall idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "wall action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "wall-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wall-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "wall-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "wall-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wall-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "wall-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "wall-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wall-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "wall-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bomb 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bomb idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bomb action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bell 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bell idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bell action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bell-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bell-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bell-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bell-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bell-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bell-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bell-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bell-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bell-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "censer 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "censer idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "censer action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "censer-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "censer-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "censer-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "censer-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "censer-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "censer-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "censer-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "censer-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "censer-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "umbrella 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "umbrella idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "umbrella action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lion 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lion idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lion action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lion-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lion-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lion-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lion-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lion-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lion-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lion-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lion-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lion-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "mushroom 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "mushroom idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "mushroom action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "cat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cat idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "cat action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "cat-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cat-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "cat-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "cat-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cat-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "cat-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "cat-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cat-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "cat-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shell 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shell idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "shell action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lobber 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lobber idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lobber action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lobber-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lobber-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lobber-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lobber-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lobber-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lobber-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lobber-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lobber-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lobber-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "torch 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "torch idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "torch action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "torch-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "torch-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "torch-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "torch-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "torch-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "torch-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "torch-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "torch-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "torch-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "star 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "star idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "star action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "star-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "star-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "star-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "star-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "star-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "star-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "star-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "star-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "star-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "needle 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "needle idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "needle action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "needle-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "needle-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "needle-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "needle-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "needle-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "needle-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "needle-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "needle-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "needle-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "judge 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "judge idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "judge action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "judge-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "judge-e1 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "judge-e1 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "judge-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "judge-e2 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "judge-e2 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "judge-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "judge-e3 idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "judge-e3 action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lily 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lily idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "lily action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "kelp 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "kelp idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "kelp action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "gust 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "gust idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "gust action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "firework 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "firework idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "firework action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "ghost 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ghost walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "ghost attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "ghost swim 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "ghost swim_bite 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "tongue 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "tongue walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "tongue attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "tongue swim 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "tongue swim_bite 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "straw 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "straw walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "straw attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "straw swim 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "straw swim_bite 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "paper 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "paper walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "paper attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "paper swim 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "paper swim_bite 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "stonehat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "stonehat walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "stonehat attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "stonehat swim 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "stonehat swim_bite 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bucket 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bucket walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bucket attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bucket swim 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bucket swim_bite 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "vault 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "vault walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "vault attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "vault swim 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "vault swim_bite 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "mourner 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "mourner walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "mourner attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "mourner swim 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "mourner swim_bite 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "sedan 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sedan walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "sedan attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "artisan 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "artisan walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "artisan attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "ironjudge 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ironjudge walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "ironjudge attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "mountain 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "mountain walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "mountain attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bride 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bride walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "bride attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "sedan-empty 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sedan-empty walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "sedan-empty attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "sedan-loaded 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sedan-loaded walk 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "sedan-loaded attack 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-idle 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-idle idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-idle action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-anticipation 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-anticipation idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-anticipation action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-small 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-small idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-small action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-major 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-major idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-major action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-hurt 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-hurt idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-hurt action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-defeat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-defeat idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-defeat action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-idle 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-idle idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-idle action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-anticipation 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-anticipation idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-anticipation action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-small 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-small idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-small action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-major 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-major idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-major action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-hurt 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-hurt idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-hurt action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-defeat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-defeat idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-defeat action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-idle 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-idle idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-idle action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-anticipation 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-anticipation idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-anticipation action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-small 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-small idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-small action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-major 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-major idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-major action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-hurt 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-hurt idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-hurt action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-defeat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-defeat idle 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "boss-river-defeat action 有四帧且至少三幅不同画面",
+			"ok": true
+		},
+		{
+			"name": "鬼新娘不能被普通刷怪入口直接创建",
+			"ok": true
+		},
+		{
+			"name": "载客与空轿按各50%抽取",
+			"ok": true
+		},
+		{
+			"name": "轿子只能走陆路",
+			"ok": true
+		},
+		{
+			"name": "轿壳碎裂后只留下乘客和轿夫",
+			"ok": true
+		},
+		{
+			"name": "两只饿鬼和对应的鬼新娘",
+			"ok": true
+		},
+		{
+			"name": "轿子只能走陆路",
+			"ok": true
+		},
+		{
+			"name": "轿壳碎裂后只留下乘客和轿夫",
+			"ok": true
+		},
+		{
+			"name": "鬼新娘免疫灰烬伤害",
+			"ok": true
+		},
+		{
+			"name": "鬼新娘正常承受竹签伤害",
+			"ok": true
+		},
+		{
+			"name": "两只饿鬼和对应的鬼新娘",
+			"ok": true
+		},
+		{
+			"name": "直弹飞行速度为原来的60%",
+			"ok": true
+		},
+		{
+			"name": "灯焰飞行速度为原来的60%",
+			"ok": true
+		},
+		{
+			"name": "抛射进度为原来的60%",
+			"ok": true
+		},
+		{
+			"name": "追踪弹飞行速度为原来的60%",
+			"ok": true
+		}
+	],
+	"failures": 0,
+	"total": 306
+}

@@ -22,7 +22,12 @@ var action: Dictionary = {}
 var effects: Array = []
 var cell_cooldowns: Dictionary = {}
 var repair_marks: Array = []
-var weakpoints: Array = []
+var body_targets: Array = []
+var body_row := 0
+var blink_from := -1
+var blink_at := -10.0
+var smalls_to_blink := 1
+const BLINK_TIME := 0.48
 var props: Array = []
 var destruction_used = 0
 var supply_given = false
@@ -65,12 +70,41 @@ func begin(owner, boss_id: String) -> void:
 	sim.last_group = int(wave_end/Content.WAVES_PER_GROUP)-1
 	sim.spawn_queue.clear()
 	sim.pending_spawns.clear()
-	for row in sim.rows:
-		var proxy = sim.make_boss_proxy("weakpoint",row,Geo.BOARD_X+Geo.BOARD_W-4,max_hp,{})
-		weakpoints.append(proxy)
+	body_row = clampi(int(sim.rows / 2) - 1, 0, sim.rows - 2)
+	smalls_to_blink = sim.rng.randi_range(1, 2)
+	_make_body_targets()
 	sim.banner={"text":String(config.name)+"现身", "group":int(wave_end/Content.WAVES_PER_GROUP),
 		"groups":Content.wave_groups(sim.level),"t":3.0,"max":3.0}
 	sim.sfx("boss_intro")
+
+func _make_body_targets() -> void:
+	for row in range(body_row, body_row + 2):
+		body_targets.append(sim.make_boss_proxy("body", row, body_x(), max_hp, {}))
+
+
+func body_x() -> float:
+	return Geo.BOARD_X + Geo.BOARD_W - 10.0
+
+
+func _start_blink() -> void:
+	var choices: Array[int] = []
+	for row in sim.rows - 1:
+		if row != body_row:
+			choices.append(row)
+	if choices.is_empty():
+		state = "idle"
+		return
+	blink_from = body_row
+	body_row = choices[sim.rng.randi_range(0, choices.size() - 1)]
+	blink_at = sim.time
+	for i in body_targets.size():
+		var target = body_targets[i]
+		target.row = body_row + i
+		target.pos.y = sim.row_y(target.row) + 4.0
+	smalls_to_blink = sim.rng.randi_range(1, 2)
+	state = "blink"
+	state_end = sim.time + BLINK_TIME
+
 
 func alive() -> bool:
 	return died_at < 0.0
@@ -80,6 +114,7 @@ func finished() -> bool:
 
 func pose() -> String:
 	if not alive(): return "defeat"
+	if state == "blink": return "blink"
 	if state == "major_warning" or state == "small_warning": return "anticipation"
 	if state == "major_hits": return "major"
 	if state == "small_recovery": return "small"
@@ -93,7 +128,7 @@ func emit(kind: String, at: Vector2, extra: Dictionary = {}) -> void:
 	if effects.size()>96: effects.pop_front()
 
 func _sync_hp() -> void:
-	for z in weakpoints:
+	for z in body_targets:
 		z.hp=hp
 		z.max_hp=max_hp
 
@@ -141,9 +176,9 @@ func tick(dt: float) -> void:
 	effects=effects.filter(func(e):return float(e.at)+2.0>sim.time)
 	repair_marks=repair_marks.filter(func(e):return float(e.until)>sim.time)
 	if not alive(): return
-	# A poison/burn status shared through several lane weakpoints cannot multiply by lane count.
+	# A poison/burn status shared across both lanes of the same body cannot multiply by lane count.
 	var burn=0.0;var bleed=0.0;var burn_source=""
-	for z in weakpoints:
+	for z in body_targets:
 		sim.update_marks(z,dt)
 		z.hurt=maxf(0,z.hurt-dt)
 		if z.vuln_t>0: z.vuln_t=maxf(0,z.vuln_t-dt)
@@ -188,7 +223,15 @@ func tick(dt: float) -> void:
 			if sim.time>=state_end:
 				_resolve_small();state="small_recovery";state_end=sim.time+0.5
 		"small_recovery":
-			if sim.time>=state_end:state="idle"
+			if sim.time >= state_end:
+				smalls_to_blink -= 1
+				if smalls_to_blink <= 0:
+					_start_blink()
+				else:
+					state = "idle"
+		"blink":
+			if sim.time >= state_end:
+				state = "idle"
 		"major_warning":
 			if sim.time>=state_end:state="major_hits"
 		"major_hits":
@@ -225,24 +268,29 @@ func _interval() -> float:
 
 func _spawn_add(role: String,source=null) -> bool:
 	if not alive() or sim.time<spawn_gate or sim.active_zombies()>=int(config.adds.live_cap):return false
-	var lane=0;var best=100000
-	for r in sim.rows:
-		var count=0
-		for z in sim.zombies:
-			if z.alive() and z.boss_role!="weakpoint" and z.boss_role!="prop" and z.row==r:count+=1
-		if r==last_lane and lane_streak>=2:count+=100
-		if count<best or (count==best and sim.rng.randf()<0.5):best=count;lane=r
-	if source!=null:
-		lane=source.row
-		if lane==last_lane and lane_streak>=2:return false
-	if lane==last_lane:lane_streak+=1
-	else:last_lane=lane;lane_streak=1
 	var type="ghost"
 	if role=="armor":type="straw"
 	elif role!="light":
 		var roll=sim.rng.randi_range(1,100)
 		if roll>int(config.adds.weights.light)+int(config.adds.weights.armor):type="bucket"
 		elif roll>int(config.adds.weights.light):type="straw"
+	var lane=0;var best=100000
+	for r in sim.rows:
+		var count=0
+		for z in sim.zombies:
+			if z.alive() and z.boss_role!="body" and z.boss_role!="prop" and z.row==r:count+=1
+		if r==last_lane and lane_streak>=2:count+=100
+		if count<best or (count==best and sim.rng.randf()<0.5):best=count;lane=r
+	if String(sim.level.get("map", ""))=="water" and source==null:
+		lane=sim.choose_spawn_row(type)
+		for attempt in 4:
+			if lane!=last_lane or lane_streak<2:break
+			lane=sim.choose_spawn_row(type)
+	if source!=null:
+		lane=source.row
+		if lane==last_lane and lane_streak>=2:return false
+	if lane==last_lane:lane_streak+=1
+	else:last_lane=lane;lane_streak=1
 	var z=sim.spawn_zombie(type,lane)
 	if z==null:return false
 	if source!=null and String(source.boss_meta.kind)=="tunnel" and int(source.boss_meta.c)>=5:
@@ -394,7 +442,6 @@ func _update_props(dt: float,paused_adds: bool) -> void:
 			if z.reverse_t>0:z.reverse_t=maxf(0,z.reverse_t-dt);factor*=-1.0
 			var distance=1.54*Geo.CELL_W*dt*factor
 			z.pos.x=minf(Geo.SPAWN_X,z.pos.x-distance)
-			if distance>0:sim._nail_progress(z,distance)
 			if not z.alive():continue
 			var host=null
 			for c in range(8,1,-1):
@@ -430,21 +477,17 @@ func _hurt_cell(cell: Dictionary,amount: float) -> void:
 	# Charged crabs are separate casts, but never split one frame into several losses.
 	if String(action.get("kind",""))!="major":lethal_allowed=destruction_used<int(config.destruction_budget) and absf(last_boss_destroy_at-sim.time)>0.0001
 	var applied=amount
-	if not lethal_allowed:
-		applied=minf(applied,maxf(0.0,p.hp-1.0))
-		p.sealed_until=minf(maxf(p.sealed_until,sim.time+2),sim.time+4)
+	if not lethal_allowed and amount >= p.hp + p.wish + p.shell:
+		# After the destructive hit, the remaining force suppresses nearby plants.
+		applied = minf(amount, p.hp * 0.45 + p.wish + p.shell)
+		p.sealed_until = minf(maxf(p.sealed_until, sim.time + 2.0), sim.time + 4.0)
 	if applied>0:sim.damage_plant(p,applied)
 	if (p.dead or p.ash or p.dance_t>0) and not p.boss_recycled:
 		p.boss_recycled=true
 		destruction_used+=1;action.kills=int(action.get("kills",0))+1;last_boss_destroy_at=sim.time
-		var refund=int(floor(float(p.paid_incense)*0.8/5.0))*5
-		sim.sun+=refund
 		for card in sim.cards:
 			if String(card.id)==String(p.type):card.cd=0.0
 		repair_marks.append({"c":int(cell.c),"r":int(cell.r),"until":sim.time+8.0})
-		sim.float_text(p.pos+Vector2(0,-70),"回收香火 +%d" % refund,Color("#e5cc93"))
-	elif not lethal_allowed:
-		sim.float_text(p.pos+Vector2(0,-65),"护市结界 · 失衡",Color("#b8cbb0"),15)
 
 func _resolve_major() -> void:
 	var targets: Array=action.targets
@@ -481,24 +524,39 @@ func serialize() -> Dictionary:
 	for name in ["id","hp","max_hp","began_at","combat_at","died_at","state","state_end","small_at","adds_at","spawn_gate",
 		"major_queue","fired","action","cell_cooldowns","repair_marks","destruction_used","supply_given","alternate","last_lane",
 		"lane_streak","last_major_row","cc_log","stun_until","total_damage","add_count","peak_adds","major_count","last_boss_destroy_at",
-		"major_wait_since","adds_were_paused","hit_tokens","effects"]:
+		"major_wait_since","adds_were_paused","hit_tokens","effects", "body_row", "blink_from",
+		"blink_at", "smalls_to_blink"]:
 		saved[name]=get(name)
 	var proxy_rows: Array=[]
-	for z in weakpoints+props:
+	for z in body_targets+props:
 		if not z.dead:proxy_rows.append(sim.pack_unit(z))
 	saved.proxies=proxy_rows
 	return saved
 
 func restore(owner,data: Dictionary) -> void:
 	begin(owner,String(data.id))
-	for z in weakpoints:z.dead=true
-	weakpoints.clear();props.clear()
+	for z in body_targets:z.dead=true
+	body_targets.clear();props.clear()
 	for name in data:
 		if name!="proxies":set(name,data[name])
-	for row in data.get("proxies",[]):
-		var z=sim.make_boss_proxy(String(row.boss_role),int(row.row),float(row.pos[0]),float(row.max_hp),Dictionary(row.boss_meta))
-		sim.unpack_unit(z,row)
-		if z.boss_role=="weakpoint":weakpoints.append(z)
-		else:props.append(z)
+	for row in data.get("proxies", []):
+		var role := String(row.boss_role)
+		if role in ["body", "weakpoint"]:
+			if int(row.row) not in [body_row, body_row + 1]:
+				continue
+			var z = sim.make_boss_proxy("body", int(row.row), body_x(), max_hp, {})
+			sim.unpack_unit(z, row)
+			z.boss_role = "body"
+			z.type = "boss_body"
+			z.pos.x = body_x()
+			body_targets.append(z)
+		else:
+			var z = sim.make_boss_proxy(role, int(row.row), float(row.pos[0]),
+				float(row.max_hp), Dictionary(row.boss_meta))
+			sim.unpack_unit(z, row)
+			props.append(z)
+	if alive() and body_targets.is_empty():
+		_make_body_targets()
+	body_targets.sort_custom(func(a, b): return a.row < b.row)
 	_sync_hp()
 	sim.banner={}

@@ -11,6 +11,7 @@ var _slot_nodes: Array = []
 var _warning: Label = null
 var _count_label: Label = null
 var _fix_row: HBoxContainer = null
+var _producer_warning: ConfirmationDialog = null
 
 
 func _ready() -> void:
@@ -361,6 +362,22 @@ func _start() -> void:
 		_warning.text = "先选至少一株草木。"
 		game.play_sfx("deny")
 		return
+	if not _has_producer():
+		if _producer_warning == null:
+			_producer_warning = ConfirmationDialog.new()
+			_producer_warning.title = "缺少香火草木"
+			_producer_warning.dialog_text = "这套草木没有能产香火的，开战后只能等天上掉落。确定仍要开战吗？"
+			_producer_warning.ok_button_text = "仍要开战"
+			_producer_warning.cancel_button_text = "回去选草"
+			_producer_warning.confirmed.connect(_launch)
+			add_child(_producer_warning)
+		_producer_warning.popup_centered(Vector2i(480, 180))
+		game.play_sfx("deny")
+		return
+	_launch()
+
+
+func _launch() -> void:
 	game.loadout = _picked.duplicate()
 	game.save_progress()
 	var level_id = int(_level()["id"])
@@ -412,9 +429,8 @@ class PlantPickCard extends Control:
 			base = Color(0.24, 0.19, 0.09, 0.96)
 		elif hovered:
 			base = Color(0.13, 0.2, 0.23, 0.94)
-		draw_rect(rect, base)
-		draw_rect(rect, Ui.GOLD if chosen else Color(0.32, 0.29, 0.24, 0.9),
-			false, 2.0 if chosen else 1.0)
+		Ui.draw_plate(self, rect, base, Ui.GOLD if chosen else Color(0.32, 0.29, 0.24, 0.9),
+			14, 2 if chosen else 1)
 		Ui.draw_plant_icon(self, plant_id, Rect2(8, 6, rect.size.x - 16,
 			rect.size.y - 62))
 		var font = Ui.body_font()
@@ -460,11 +476,9 @@ class SlotCard extends Control:
 	func _draw() -> void:
 		var rect = Rect2(Vector2.ZERO, size)
 		if plant_id == "":
-			draw_rect(rect, Color(1, 1, 1, 0.04))
-			draw_rect(rect, Color(0.3, 0.28, 0.23, 0.6), false, 1.0)
+			Ui.draw_plate(self, rect, Color(1, 1, 1, 0.04), Color(0.3, 0.28, 0.23, 0.6), 12, 1)
 			return
-		draw_rect(rect, Color(0.1, 0.15, 0.18, 0.95))
-		draw_rect(rect, Ui.GOLD_DIM, false, 1.0)
+		Ui.draw_plate(self, rect, Color(0.1, 0.15, 0.18, 0.95), Ui.GOLD_DIM, 12, 1)
 		Ui.draw_plant_icon(self, plant_id, Rect2(5, 5, rect.size.x - 10,
 			rect.size.y - 24))
 		var def: Dictionary = Content.PLANTS[plant_id]
@@ -502,9 +516,8 @@ class EnemyChip:
 	func _draw() -> void:
 		var def: Dictionary = Content.ZOMBIES[zombie_id]
 		var rect := Rect2(Vector2.ZERO, size)
-		draw_rect(rect, Color(0.09, 0.11, 0.13, 0.86))
-		draw_rect(rect, Ui.GOLD_BRIGHT if _hovered else Color(0.34, 0.30, 0.22, 0.9),
-			false, 1.0)
+		Ui.draw_plate(self, rect, Color(0.09, 0.11, 0.13, 0.86),
+			Ui.GOLD_BRIGHT if _hovered else Color(0.34, 0.30, 0.22, 0.9), 12, 1)
 		var icon := Rect2(9, 3, 44, 32)
 		var texture := Ui.sprite(zombie_id)
 		if texture != null:
@@ -522,6 +535,6 @@ class EnemyChip:
 		draw_circle(Vector2(size.x - 9.0, 9.0), 4.0,
 			Color(String(tier.get("color", "#7f9d7a"))))
 		if fresh:
-			draw_rect(Rect2(2, 2, 17, 14), Color(0.72, 0.24, 0.18, 0.95))
+			Ui.draw_plate(self, Rect2(2, 2, 17, 14), Color(0.72, 0.24, 0.18, 0.95), Color.TRANSPARENT, 7, 0)
 			draw_string(font, Vector2(4.5, 13.5), "新", HORIZONTAL_ALIGNMENT_LEFT, -1,
 				11, Color(1, 0.96, 0.88))

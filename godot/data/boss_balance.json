@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "integrated_v0.4.0",
+  "status": "integrated_v0.4.1",
   "difficulty": "normal",
   "time_unit": "game_seconds",
   "index_base": 1,
@@ -27,8 +27,6 @@
       9
     ],
     "same_cell_cooldown_s": 6,
-    "refund_paid_fraction": 0.8,
-    "refund_round_down_to": 5,
     "repair_mark_s": 8,
     "cc_duration_multiplier": 0.25,
     "cc_single_cap_s": 0.75,
@@ -47,8 +45,8 @@
       "id": "earth",
       "name": "地脉獾王",
       "stage": "1-5",
-      "max_hp": 56000,
-      "reference_net_dps": 467,
+      "max_hp": 24300,
+      "reference_net_dps": 202,
       "small_first_s": 8,
       "small_period_s": 14,
       "major_thresholds": [
@@ -106,8 +104,8 @@
       "id": "paper",
       "name": "缚愿纸官",
       "stage": "2-5",
-      "max_hp": 68000,
-      "reference_net_dps": 567,
+      "max_hp": 23100,
+      "reference_net_dps": 192,
       "small_first_s": 7,
       "small_period_s": 13,
       "major_thresholds": [
@@ -165,8 +163,8 @@
       "id": "river",
       "name": "暗河傩主",
       "stage": "3-5",
-      "max_hp": 46000,
-      "reference_net_dps": 383,
+      "max_hp": 17900,
+      "reference_net_dps": 149,
       "small_first_s": 6,
       "small_period_s": 12,
       "major_thresholds": [

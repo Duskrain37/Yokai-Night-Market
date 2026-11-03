@@ -20,11 +20,16 @@ var _textures: Dictionary = {}
 var _time = 0.0
 var _guardian: Texture2D = null
 var mower_art: Dictionary = {}
+var obstacle_art: Dictionary = {}
 
 
 func _ready() -> void:
 	z_index = 0
 	_guardian = Ui.sprite("guardian")
+	for kind in ["market", "water"]:
+		for variant in [1, 2, 3]:
+			var key = "%s-%d" % [kind, variant]
+			obstacle_art[key] = load("res://assets/sprites/obstacle-%s.png" % key)
 
 
 func set_map(key: String) -> void:
@@ -178,77 +183,28 @@ func _draw_water(quad: PackedVector2Array, kind: String) -> void:
 			Color(0.55, 0.86, 0.84, 0.10), 1.4)
 
 
-## 水面上的石磴 / 系船桩 / 破渔网架：有顶面与正面的小体块，跟着投影走。
+## 两周障碍使用与底图同笔触的透明立绘，脚底随行投影。
+func _obstacle_texture(kind: String, variant: int) -> Texture2D:
+	var key = "%s-%d" % [kind, posmod(variant, 3) + 1]
+	return obstacle_art[key]
+
+
+func _paint_obstacle(kind: String, col: int, row: int, variant: int) -> void:
+	var flat = Geo.cell_center(col, row, sim.rows)
+	var center = Geo.to_screen(flat, sim.rows)
+	var scale = Geo.scale_at_flat(flat, sim.rows) * Geo.unit_scale(sim.rows)
+	var art = _obstacle_texture(kind, variant)
+	var size = Vector2(68.0, 68.0) * scale
+	var foot = center + Vector2(0.0, 20.0 * scale)
+	draw_texture_rect(art, Rect2(foot - Vector2(size.x * 0.5, size.y), size), false)
+
+
 func _draw_object(col: int, row: int, variant: int) -> void:
-	var flat := Geo.cell_center(col, row, sim.rows)
-	var center := Geo.to_screen(flat, sim.rows)
-	var s := Geo.scale_at_flat(flat, sim.rows)
-	var w := 44.0 * s
-	var h := 30.0 * s
-	match variant % 3:
-		0:  # 石磴
-			draw_colored_polygon(PackedVector2Array([
-				center + Vector2(-w * 0.42, -h * 0.1),
-				center + Vector2(0, -h * 0.42),
-				center + Vector2(w * 0.42, -h * 0.1),
-				center + Vector2(0, h * 0.22),
-			]), Color(0.30, 0.32, 0.30, 0.95))
-			draw_rect(Rect2(center + Vector2(-w * 0.42, -h * 0.1),
-				Vector2(w * 0.84, h * 0.34)), Color(0.20, 0.22, 0.21, 0.95))
-		1:  # 系船桩 + 缆绳
-			draw_rect(Rect2(center + Vector2(-w * 0.13, -h * 0.62),
-				Vector2(w * 0.26, h * 0.86)), Color(0.24, 0.19, 0.14, 0.96))
-			draw_rect(Rect2(center + Vector2(-w * 0.2, -h * 0.66),
-				Vector2(w * 0.4, h * 0.12)), Color(0.34, 0.27, 0.18, 0.96))
-			draw_line(center + Vector2(w * 0.1, -h * 0.5),
-				center + Vector2(w * 0.6, h * 0.1), Color(0.42, 0.36, 0.24, 0.7), 1.4)
-		2:  # 破渔网架
-			draw_line(center + Vector2(-w * 0.32, h * 0.16),
-				center + Vector2(w * 0.3, -h * 0.44), Color(0.32, 0.28, 0.2, 0.95), 2.6)
-			draw_line(center + Vector2(-w * 0.32, h * 0.16),
-				center + Vector2(w * 0.24, h * 0.2), Color(0.32, 0.28, 0.2, 0.95), 2.0)
-			for i in 3:
-				draw_line(center + Vector2(-w * 0.2 + i * w * 0.14, h * 0.1),
-					center + Vector2(-w * 0.06 + i * w * 0.12, -h * 0.16),
-					Color(0.46, 0.44, 0.34, 0.4), 1.0)
+	_paint_obstacle("water", col, row, variant)
 
 
-## 第二天的障碍：堆叠货箱与竹筐麻袋，2.5D 画法与台面同源。
 func _draw_blocked(col: int, row: int, variant: int) -> void:
-	var flat := Geo.cell_center(col, row, sim.rows)
-	var center := Geo.to_screen(flat, sim.rows)
-	var s := Geo.scale_at_flat(flat, sim.rows)
-	var w := 40.0 * s
-	var h := 32.0 * s
-	var wood := Color(0.30, 0.22, 0.14, 1.0)
-	var wood_hi := Color(0.46, 0.35, 0.22, 1.0)
-	draw_set_transform(center + Vector2(0, h * 0.18), 0.0, Vector2(1.0, 0.34))
-	draw_circle(Vector2.ZERO, w * 0.58, Color(0, 0, 0, 0.32))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	if variant % 2 == 0:
-		for level in 2:
-			var lift := h * 0.5 * (1 - level)
-			var box := Rect2(center + Vector2(-w * 0.46, -h * 0.5 - lift),
-				Vector2(w * 0.92, h * 0.52))
-			draw_rect(box, wood)
-			draw_rect(Rect2(box.position, Vector2(box.size.x, h * 0.12)), wood_hi)
-			draw_line(Vector2(box.position.x, box.position.y + box.size.y),
-				Vector2(box.position.x + box.size.x, box.position.y + box.size.y),
-				Color(0.06, 0.04, 0.03, 0.9), 2.0)
-			draw_line(Vector2(box.position.x, box.position.y + box.size.y * 0.5),
-				Vector2(box.position.x + box.size.x,
-					box.position.y + box.size.y * 0.5),
-				Color(0.14, 0.11, 0.08, 0.8), 1.4)
-	else:
-		draw_circle(center + Vector2(-w * 0.14, -h * 0.22), w * 0.36, wood)
-		draw_arc(center + Vector2(-w * 0.14, -h * 0.22), w * 0.36, PI, TAU, 14,
-			wood_hi, 2.0)
-		draw_colored_polygon(PackedVector2Array([
-			center + Vector2(w * 0.16, h * 0.1),
-			center + Vector2(w * 0.2, -h * 0.42),
-			center + Vector2(w * 0.46, -h * 0.06),
-			center + Vector2(w * 0.42, h * 0.14),
-		]), Color(0.34, 0.28, 0.19, 0.95))
+	_paint_obstacle("market", col, row, variant)
 
 
 # ── 悬停、射程、门神 ────────────────────────────────────────────────────────

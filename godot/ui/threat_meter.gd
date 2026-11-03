@@ -9,6 +9,5 @@ func _draw() -> void:
 	var segment=(size.x-(count-1)*8)/count
 	for i in values.size():
 		var start=Vector2(i*(segment+8),4)
-		draw_rect(Rect2(start,Vector2(segment,8)),Color(.1,.12,.12,.9))
-		draw_rect(Rect2(start,Vector2(segment*clampf(float(values[i])/3.5,0,1),8)),Color("#b65d43"))
-		draw_rect(Rect2(start,Vector2(segment,8)),Color("#997a50"),false,1)
+		Ui.draw_gauge(self, Rect2(start, Vector2(segment, 10)), float(values[i]) / 3.5,
+			Color("#b65d43"))

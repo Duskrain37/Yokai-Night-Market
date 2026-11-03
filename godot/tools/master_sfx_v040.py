@@ -10,7 +10,7 @@ RATE=44100
 NAMES=['click','collect','produce','place','deny','place_bad','shoot','gravel_shot','needle_shot',
  'cat_shot','star_shot','lob_shot','eat','bell','censer','umbrella','lion','judge','upgrade',
  'shell','explode','mine','zombie_die','plant_down','wave','alert','mower','wail','grant','win','lose','kill',
- 'boss_intro','boss_warning','boss_impact','boss_paper','boss_defeat']
+ 'boss_intro','boss_warning','boss_impact','boss_paper','boss_defeat','mushroom_grow']
 NAMES += [prefix+material for prefix in ['hit_','break_'] for material in ['body','straw','stone','urn','iron','paper']]
 
 def modal(t,tones,decay):
@@ -21,7 +21,7 @@ def modal(t,tones,decay):
 def make(name):
  seconds=.32
  group='wood';rms_db=-28
- if name in ['collect','produce','bell','upgrade','grant']:group='bronze';seconds=.62;rms_db=-29 if name=='produce' else -26
+ if name in ['collect','produce','bell','upgrade','grant','mushroom_grow']:group='bronze';seconds=.62;rms_db=-29 if name=='produce' else -26
  if name in ['wave','alert','boss_intro','boss_warning','boss_impact','mower','explode','mine','lion','judge']:
   group='drum';seconds=.8;rms_db=-24 if name.startswith('boss') else -26
  if name in ['censer','umbrella','wail','plant_down','zombie_die','kill','boss_paper'] or 'paper' in name or 'straw' in name:

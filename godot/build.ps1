@@ -70,6 +70,10 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw '交互检查失败' }
     & $enginePath --headless --path $projectPath --script res://tools/qa_player_ui.gd --log-file (Join-Path $qa 'player-ui-tests.log')
     if ($LASTEXITCODE -ne 0) { throw '玩家文案与界面检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_patch.gd --log-file (Join-Path $qa 'patch-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw '补丁功能检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_animation.gd --log-file (Join-Path $qa 'animation-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw '动画与射弹检查失败' }
 }
 
 Write-Host '[7/7] 导出 Windows 单文件…'

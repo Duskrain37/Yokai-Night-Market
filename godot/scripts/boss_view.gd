@@ -1,5 +1,7 @@
 ## Pure presentation: projections come from Geo; all events/clocks come from BossEncounter.
 extends Node2D
+const ActorFrames = preload("res://scripts/actor_frames.gd")
+var actor_frames = ActorFrames.new()
 var sim: Sim
 var textures: Dictionary={}
 var sheets: Dictionary={}
@@ -11,13 +13,14 @@ var _pose_at=0.0
 
 func _ready() -> void:
 	z_index=20
+	actor_frames.load_sheets("boss-")
 	font=Ui.body_font()
 	var manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_art_manifest.json"))
 	for sheet in manifest.atlases:
 		var name=String(sheet.file).get_file()
 		sheets[name]=load("res://assets/boss/"+name)
 		for f in sheet.frames:frames[name+":"+String(f.name)]=f
-	for key in ["telegraph_tile","telegraph_ring","telegraph_lane","weakpoint","repair_mark","ground_shadow"]:
+	for key in ["telegraph_tile","telegraph_ring","telegraph_lane","repair_mark","ground_shadow"]:
 		textures[key]=load("res://assets/boss/"+key+".svg")
 	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR
 
@@ -46,7 +49,7 @@ func _text(value: String,point: Vector2,size: int=20,color: Color=Color("#f0d9a9
 func _draw() -> void:
 	if sim==null or sim.boss==null or sheets.is_empty():return
 	var boss=sim.boss
-	var body_foot=Vector2(1470,570)
+	var body_foot = _body_foot(boss.body_row)
 	var sheet="boss_%s_atlas.png" % String(boss.id)
 	var pose=String(boss.pose())
 	if pose!=_pose:
@@ -56,22 +59,23 @@ func _draw() -> void:
 	if not boss.alive():alpha=1.0-smoothstep(0.7,2.0,sim.time-float(boss.died_at))
 	elif sim.time<float(boss.combat_at):alpha=clampf((sim.time-float(boss.began_at))/0.8,0,1)
 	var bob=sin(sim.time*2.4)*1.4 if pose=="idle" else 0.0
-	var body_height=260.0 if String(boss.id)=="paper" else 225.0
+	var body_height = (Geo.cell_h(sim.rows) * 1.76) * Geo.scale_at_flat(
+		Vector2(boss.body_x(), sim.row_y(boss.body_row + 1)), sim.rows)
 	draw_texture_rect(textures.ground_shadow,Rect2(body_foot-Vector2(105,40),Vector2(210,80)),false,Color(1,1,1,alpha))
-	if _previous!=_pose and mix<1:_frame(sheet,_previous,body_foot,body_height,alpha*(1-mix),true)
+	if _previous != _pose and mix < 1.0 and pose != "blink":
+		_frame(sheet,_previous,body_foot,body_height,alpha*(1-mix),true)
 	var impact=0.0
 	for event in boss.effects:
 		var age=sim.time-float(event.at)
 		if age>=0 and age<.18 and String(event.kind) in ["earth","paper","water"]:impact=maxf(impact,sin(age/.18*PI))
-	_frame(sheet,pose,body_foot+Vector2(0,bob),body_height,alpha*mix,true,Vector2(1+impact*.035,1-impact*.06))
-	if boss.alive():
-		for z in boss.weakpoints:
-			var at=_point(z.pos)
-			draw_line(at,body_foot-Vector2(0,105),Color(0.76,0.60,0.33,0.20),1.4,true)
-			var glow=Color("#f2dcab") if String(boss.state)=="recovery" else Color.WHITE
-			if z.hurt>0:glow=Color(1.6,1.5,1.25,1)
-			draw_texture_rect(textures.weakpoint,Rect2(at-Vector2(18,38),Vector2(36,36)),false,glow)
-			if z.bomb_t>0:_text("贴馅",at-Vector2(20,50),15)
+	var action_pose = pose in ["anticipation", "small", "major", "hurt", "defeat"]
+	var index = mini(3, int((sim.time - _pose_at) * 8.0)) if action_pose else int(sim.time * 5.0)
+	var actor = "boss-%s-%s" % [boss.id, pose]
+	if pose == "blink":
+		_draw_blink(boss, body_foot, body_height)
+	elif not actor_frames.draw_pose(self, actor, "action" if action_pose else "idle", index,
+			body_foot, body_height, true, Color(1, 1, 1, alpha * mix)):
+		_frame(sheet,pose,body_foot+Vector2(0,bob),body_height,alpha*mix,true,Vector2(1+impact*.035,1-impact*.06))
 	for z in boss.props:
 		if not z.alive():continue
 		var at=_point(z.pos)
@@ -95,6 +99,26 @@ func _draw() -> void:
 		if String(fx.kind)=="break":_break(String(fx.prop),at,age)
 		else:_effect(String(fx.kind),at,age)
 	if not boss.alive():_effect("release",body_foot-Vector2(0,70),sim.time-float(boss.died_at),240)
+
+
+func _body_foot(row: int) -> Vector2:
+	return _point(Vector2(sim.boss.body_x(), sim.row_y(row + 1)))
+
+
+func _draw_blink(boss, destination: Vector2, height: float) -> void:
+	var elapsed = sim.time - float(boss.blink_at)
+	var length = maxf(0.01, float(boss.state_end) - float(boss.blink_at))
+	var t = clampf(elapsed / length, 0.0, 1.0)
+	var origin = _body_foot(boss.blink_from)
+	var actor = "boss-%s-anticipation" % boss.id
+	for i in 3:
+		var progress = clampf(t * 1.4 - i * 0.15, 0.0, 1.0)
+		var at = origin.lerp(destination, progress)
+		actor_frames.draw_pose(self, actor, "action", mini(3, int(progress * 4.0)),
+			at, height, true, Color(0.67, 0.83, 0.88, sin(t * PI) * (0.58 - 0.12 * i)))
+	var landing = "boss-%s-idle" % boss.id
+	actor_frames.draw_pose(self, landing, "idle", int(t * 7.0), destination, height,
+		true, Color(1, 1, 1, smoothstep(0.43, 1.0, t)))
 
 func _warning(boss) -> void:
 	var action: Dictionary=boss.action

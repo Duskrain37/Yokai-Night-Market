@@ -212,9 +212,9 @@ func _build_hud() -> void:
 	tools.add_child(_tool_wave)
 	_tool_shovel = _tool_button("铲子", "铲除草木；龟甲可单独拆", func(): _on_shovel())
 	tools.add_child(_tool_shovel)
-	if bool(game.settings.get("cheats", false)) or sim.training:
-		_tool_cheat = _tool_button("作弊", "杂项与召唤", func(): _toggle_cheat())
-		tools.add_child(_tool_cheat)
+	_tool_cheat = _tool_button("作弊", "杂项与召唤", func(): _toggle_cheat())
+	_tool_cheat.visible = bool(game.settings.get("cheats", false)) or sim.training
+	tools.add_child(_tool_cheat)
 	var pause_button = _tool_button("暂停", "Esc 暂停", func(): game.toggle_pause())
 	tools.add_child(pause_button)
 	_speed_label = Ui.label("×1", 17, Ui.TEXT_DIM)
@@ -323,10 +323,10 @@ func _draw_wave_pips() -> void:
 		return
 	var font = Ui.body_font()
 	var group_count=Content.wave_groups(sim.level)
-	var group_now=Content.current_major_wave(sim.level,sim.wave_index)-1
+	var group_now=Content.current_major_wave(sim.level,sim.displayed_wave_count())-1
 	# Permanent rule: show four major waves at a time; switch when entering the next four.
 	var page_start=int(group_now/4)*4
-	for g in Content.visible_wave_groups(sim.level,sim.wave_index):
+	for g in Content.visible_wave_groups(sim.level,sim.displayed_wave_count()):
 		var x=0.0
 		var y=4.0+(g-page_start)*35.0
 		for sub in Content.WAVES_PER_GROUP:
@@ -337,7 +337,10 @@ func _draw_wave_pips() -> void:
 			var color=Color(1,1,1,.16)
 			if done:color=Color(Ui.GOLD_DIM.r,Ui.GOLD_DIM.g,Ui.GOLD_DIM.b,.9)
 			elif i==sim.wave_index or (sim.boss!=null and g==group_now):color=Ui.GOLD_BRIGHT
-			_wave_pips.draw_rect(Rect2(x+20,y,24.0 if bool(waves[i].get("flag",false)) else 15.0,5),color)
+			Ui.draw_gauge(_wave_pips, Rect2(x + 20, y,
+				27.0 if bool(waves[i].get("flag", false)) else 19.0, 7.0),
+				1.0 if done or i == sim.wave_index or (sim.boss != null and g == group_now) else 0.0,
+				color)
 			y+=9
 		_wave_pips.draw_string(font,Vector2(x+2,y-11),str(g+1),HORIZONTAL_ALIGNMENT_LEFT,-1,11,
 			Ui.GOLD_BRIGHT if g==group_now else Color(1,1,1,.4))
@@ -354,16 +357,18 @@ func refresh() -> void:
 	var total = int(sim.level.get("waves", []).size())
 	if _wave_label != null:
 		if sim.boss!=null:
-			_wave_label.text="第 %d 大波 · 首领战" % Content.current_major_wave(sim.level,sim.wave_index)
+			_wave_label.text="第 %d 大波 · 首领战" % Content.current_major_wave(sim.level,sim.displayed_wave_count())
 		elif bool(sim.level.get("special",false)):
-			_wave_label.text="第 %d / 12 大波" % Content.current_major_wave(sim.level,sim.wave_index)
+			_wave_label.text = "第 %d / 12 大波" % Content.current_major_wave(sim.level, sim.displayed_wave_count())
+			if sim.special_opening():
+				_wave_label.text += " · 布阵"
 		elif sim.training:
 			_wave_label.text = "训练场 · 手动召唤"
 		elif total == 0:
 			_wave_label.text = "教学关"
 		else:
 			var groups = Content.wave_groups(sim.level)
-			var group_now = Content.current_major_wave(sim.level,sim.wave_index)
+			var group_now = Content.current_major_wave(sim.level,sim.displayed_wave_count())
 			_wave_label.text = "第 %d / %d 大波 · 第 %d 拨" % [group_now, groups,
 				Content.wave_sub(maxi(0,sim.wave_index-1))]
 	if _danger!=null:
@@ -438,7 +443,7 @@ func _format_speed(value: float) -> String:
 func _hint_text() -> String:
 	var sim: Sim = game.sim
 	if sim.boss!=null:
-		return "预警落点会锁定；先拆机关，虚弱时集火。\n首领拆卡返还实付香火的80%。"
+		return "留意落点预警。首领换行后，把火力转向它所在的两行。"
 	if sim.training:
 		return "训练场：不刷波次、不判负、不写存档。"
 	if not sim.banner.is_empty() or _banner_t > 0.0:
@@ -692,6 +697,13 @@ func blocks_simulation() -> bool:
 	return cheat_open
 
 
+func set_cheats_enabled(enabled: bool) -> void:
+	if _tool_cheat != null:
+		_tool_cheat.visible = enabled or (game.sim != null and game.sim.training)
+	if not enabled and cheat_open and (game.sim == null or not game.sim.training):
+		_toggle_cheat()
+
+
 func _toggle_cheat() -> void:
 	cheat_open = not cheat_open
 	if cheat_open:
@@ -713,6 +725,7 @@ func _build_cheat() -> void:
 	_cheat_panel.offset_top = -250.0
 	_cheat_panel.offset_bottom = 250.0
 	_cheat_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	_cheat_panel.z_index = 100
 	add_child(_cheat_panel)
 	var box = Ui.vbox(8)
 	_cheat_panel.add_child(box)
@@ -800,6 +813,8 @@ func _cheat(action: Callable) -> Callable:
 		if game.sim != null and not game.sim.training:
 			game.sim.cheated = true
 		action.call()
+		if game.sim != null and is_instance_valid(self):
+			refresh()
 
 
 func _build_spawn_tab(box: VBoxContainer) -> void:
@@ -811,6 +826,8 @@ func _build_spawn_tab(box: VBoxContainer) -> void:
 	grid.add_theme_constant_override("v_separation", 6)
 	box.add_child(grid)
 	for type in Content.ZOMBIE_ORDER:
+		if bool(Content.ZOMBIES[type].get("sedan_only", false)):
+			continue
 		var button = Ui.button(String(Content.ZOMBIES[type]["name"]), 15, 84, 34)
 		if type == spawn_type:
 			Ui.set_button_active(button, true)
@@ -1063,12 +1080,12 @@ class CardButton extends Control:
 			base = Color(0.12, 0.18, 0.21, 0.95)
 		var border = Ui.GOLD if bool(state.get("selected", false)) else (
 			Ui.GOLD_DIM if hovered else Color(0.32, 0.29, 0.23, 0.9))
-		draw_rect(rect, base)
-		draw_rect(rect, border, false, 2.0)
+		Ui.draw_plate(self, rect, base, border, 14, 2)
 		if bool(state.get("taught", false)):
 			# 这一步该点哪张牌：金框呼吸 + 牌底一个向上的箭头
 			var beat = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 260.0)
-			draw_rect(rect.grow(2.0), Color(1.0, 0.85, 0.42, 0.45 + beat * 0.5), false, 2.6)
+			Ui.draw_plate(self, rect.grow(2.0), Color.TRANSPARENT,
+				Color(1.0, 0.85, 0.42, 0.45 + beat * 0.5), 16, 3)
 			var cx = rect.size.x * 0.5
 			var lift = 6.0 + beat * 5.0
 			draw_colored_polygon(PackedVector2Array([
@@ -1097,7 +1114,7 @@ class CardButton extends Control:
 		var cd = float(state.get("cooldown", 0.0))
 		if cd > 0.05:
 			var ratio = clampf(cd / float(state.get("cooldown_max", 1.0)), 0.0, 1.0)
-			draw_rect(Rect2(0, 0, rect.size.x, rect.size.y * ratio),
-				Color(0.02, 0.03, 0.05, 0.68))
+			Ui.draw_plate(self, Rect2(0, 0, rect.size.x, rect.size.y * ratio),
+				Color(0.02, 0.03, 0.05, 0.68), Color.TRANSPARENT, 14, 0)
 		if not bool(state.get("affordable", true)):
-			draw_rect(rect, Color(0.02, 0.03, 0.05, 0.35))
+			Ui.draw_plate(self, rect, Color(0.02, 0.03, 0.05, 0.22), Color.TRANSPARENT, 14, 0)

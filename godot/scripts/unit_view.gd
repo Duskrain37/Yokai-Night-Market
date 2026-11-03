@@ -1,11 +1,11 @@
 ## 战场单位层：草木、恶客、射弹、香火、粒子与飘字。
 ##
-## 立绘沿用 v0.2.4 成套原画（33 张，同一画风），动作由程序化变换与特效补足：
-## 每株草木、每种恶客都有各自的呼吸/摇摆/受击/出手节奏与专属光色，
-## 既不换画风，也不会糊成一片。
+## 用战斗时钟选择草木、恶客与三阶形态的动画帧。
 class_name UnitView
 extends Node2D
 
+const ActorFrames = preload("res://scripts/actor_frames.gd")
+var _actor_frames = ActorFrames.new()
 var sim: Sim = null
 var health_bars = "bar"
 var focus_plant: Sim.Plant = null
@@ -16,11 +16,15 @@ var _guardian: Texture2D = null
 var _time = 0.0
 var _armor_atlas: Dictionary = {}
 var _evolve_textures: Dictionary = {}
+var _growth_textures: Dictionary = {}
 
 
 func _ready() -> void:
 	z_index = 10
+	_actor_frames.load_sheets()
 	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	for stage in [1, 2, 3]:
+		_growth_textures[stage] = load("res://assets/sprites/mushroom-growth-%d.png" % stage)
 	# Import once before drawing. Loading textures inside _draw can produce white rectangles.
 	for art in ["straw", "stonehat", "paper", "sedan", "urn", "mask"]:
 		var path = "res://assets/sprites/armor-%s-atlas.png" % art
@@ -206,6 +210,13 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 	var sway = sin(_time * idle.y * 0.7 + phase) * 0.012
 	if plant.type == "torch" or plant.type == "bomb":
 		bob += sin(_time * 8.0 + phase) * 1.2
+	var growth = 1.0
+	if plant.type == "mushroom":
+		growth = clampf(plant.arm_t / float(plant.def["mine"]["arm"]), 0.0, 1.0)
+		if plant.armed:
+			growth = 1.0
+		height *= lerpf(0.88, 1.0, growth)
+		bob -= 2.0 * sin(growth * PI)
 	if plant.bite_t > 0.0:
 		bob += sin(_time * 40.0) * plant.bite_t * 6.0
 	var squash = Vector2.ONE
@@ -247,13 +258,67 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 			Color(glow.r, glow.g, glow.b, strength))
 	if cap.a > 0.0:
 		_draw_capstone_ring(foot, height, cap)
-	if texture != null:
+	if sim.time < plant.ward_until:
+		var center = foot - Vector2(0, height * 0.47)
+		var pulse = 0.55 + sin(_time * 7.0) * 0.13
+		_draw_glow(center, height * 0.74, Color(1.0, 0.77, 0.40, 0.30))
+		draw_arc(center, height * 0.53, 0.0, TAU, 32, Color(1.0, 0.85, 0.57, pulse), 2.0, true)
+	if plant.type == "lion" and plant.lion_wave_t > 0.0:
+		var travel = 1.0 - plant.lion_wave_t / 0.34
+		var start = foot + Vector2(height * 0.3, -height * 0.48)
+		var far = Geo.to_screen(Vector2(plant.lion_wave_end,
+			plant.pos.y + cell_h * 0.3), sim.rows) + Vector2(0, -height * 0.48)
+		var front = start.lerp(far, clampf(travel, 0.0, 1.0))
+		var fade = 1.0 - travel
+		draw_line(start, front, Color(0.98, 0.75, 0.32, fade * 0.34), 15.0 * fade + 2.0)
+		draw_line(start, front, Color(1.0, 0.9, 0.6, fade * 0.82), 3.0)
+		draw_arc(front, 13.0 + 12.0 * travel, -PI * 0.55, PI * 0.55,
+			16, Color(1.0, 0.75, 0.35, fade * 0.8), 3.0)
+		for trail in 3:
+			var streak = start.lerp(front, clampf(travel - trail * 0.08, 0.0, 1.0))
+			draw_line(streak + Vector2(-8, -8 + trail * 8), streak + Vector2(15, -15 + trail * 8),
+				Color(1.0, 0.82, 0.47, fade * 0.5), 2.0)
+	var drawn = false
+	if plant.type != "mushroom" or plant.armed:
+		var actor = String(plant.type)
+		var capstone = Upgrades.capstone(plant.upgrades)
+		var evolved_actor = "%s-e%d" % [actor, capstone]
+		if capstone > 0 and _evolve_textures.has(evolved_actor):
+			actor = evolved_actor
+		var age = sim.time - plant.action_at
+		var action = age < 0.42
+		var frame = mini(3, int(age * 10.0)) if action else int(sim.time * 5.0 + phase)
+		if not action and plant.type == "bomb" and plant.timer > 0.6:
+			action = true
+			frame = mini(1, int((plant.timer - 0.6) * 5.0))
+		if not action and plant.type == "gust" and plant.timer > 0.25:
+			action = true
+			frame = mini(1, int((plant.timer - 0.25) * 6.0))
+		if not action and plant.bite_t > 0.0 and plant.type in ["wall", "lily"]:
+			action = true
+			frame = int(sim.time * 9.0)
+		drawn = _actor_frames.draw_pose(self, actor, "action" if action else "idle",
+			frame, foot, height, false, tint)
+	if not drawn and plant.type == "mushroom":
+		var first = 1 if growth < 0.5 else 2
+		var blend = clampf(growth * 2.0 - float(first - 1), 0.0, 1.0)
+		var young: Texture2D = _growth_textures[first]
+		var adult: Texture2D = _growth_textures[first + 1]
+		if blend < 0.999:
+			_sprite(young, foot + Vector2(recoil, bob), height, false,
+				Color(tint.r, tint.g, tint.b, tint.a * (1.0 - blend)), sway, squash)
+		if blend > 0.001:
+			_sprite(adult, foot + Vector2(recoil, bob), height, false,
+				Color(tint.r, tint.g, tint.b, tint.a * blend), sway, squash)
+	elif not drawn and texture != null:
 		_sprite(texture, foot + Vector2(recoil, bob), height, false, tint, sway, squash)
 	if hp_ratio < 0.4:
 		_draw_wounds(foot + Vector2(recoil, bob), height, 1.0 - hp_ratio / 0.4)
 	_draw_shell(plant, foot, height)
 	_draw_upgrade_pips(plant, foot, height)
 	_draw_upgrade_dot(plant, foot, height)
+	if health_bars != "off":
+		_draw_plant_health_bar(plant, foot, height)
 
 
 ## 特殊一击的冲击：三圈扩散的金环 + 四散的碎光
@@ -313,9 +378,13 @@ func _draw_shell(plant: Sim.Plant, foot: Vector2, height: float) -> void:
 	var ratio = clampf(plant.shell / maxf(1.0, plant.shell_max), 0.0, 1.0)
 	var pulse = plant.shell_pulse
 	var shell_texture=texture_for("shell")
-	if shell_texture!=null:
-		_sprite(shell_texture,foot+Vector2(height*.32,2),height*.49,false,
-			Color(.78+.22*ratio,.78+.22*ratio,.78+.22*ratio,.88),.06)
+	var shell_foot = foot + Vector2(height * 0.32, 2)
+	var shell_tint = Color(0.78 + 0.22 * ratio, 0.78 + 0.22 * ratio, 0.78 + 0.22 * ratio, 0.88)
+	var shell_action = pulse > 0.0
+	var shell_frame = int((0.25 - pulse) * 16.0) if shell_action else int(sim.time * 5.0)
+	if not _actor_frames.draw_pose(self, "shell", "action" if shell_action else "idle",
+			shell_frame, shell_foot, height * 0.49, false, shell_tint) and shell_texture != null:
+		_sprite(shell_texture, shell_foot, height * 0.49, false, shell_tint, 0.06)
 	var center = foot + Vector2(0, -height * 0.34)
 	var radius = height * 0.62 + pulse * 3.0
 	var tint = Color(0.62, 0.72, 0.55, 0.34 + 0.2 * ratio)
@@ -412,6 +481,11 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 		rotation = z.vault_arc * 0.2
 	if z.object_hop > 0.0:
 		lift -= z.object_hop * 16.0
+	if z.water_entry_t > 0.0:
+		var plunge = 1.0 - z.water_entry_t / 0.68
+		bob += sin(plunge * PI) * height * 0.16
+		squash = Vector2(1.0 + sin(plunge * PI) * 0.09,
+			1.0 - sin(plunge * PI) * 0.13)
 	if z.dying:
 		var k = clampf(z.death_t / maxf(0.01, z.death_dur), 0.0, 1.0)
 		alpha = 1.0 - k * k
@@ -431,18 +505,55 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	if glow.a > 0.0 and not z.dying:
 		_draw_glow(foot + Vector2(0, -height * 0.5), height * 0.6,
 			Color(glow.r, glow.g, glow.b, 0.12))
-	if texture != null:
+	var swimming = z.water_entered and z.pos.x <= Geo.BOARD_X + Geo.BOARD_W
+	var clip = "swim_bite" if z.eating else "swim"
+	if not swimming:
+		clip = "attack" if z.eating else "walk"
+	var frame = int(z.chomp * 10.0) if z.eating else int(z.anim * (7.0 if swimming else 6.5))
+	var frame_foot = foot + Vector2(0.0, lift)
+	if swimming:
+		frame_foot.y += 3.0
+	var cabin_drawn = false
+	if z.type == "sedan" and z.armor > 0.0 and not z.dying:
+		var cabin_actor = "sedan-loaded" if z.sedan_has_bride else "sedan-empty"
+		var cabin_foot = frame_foot + Vector2(0, -height * 0.68)
+		cabin_drawn = _actor_frames.draw_pose(self, cabin_actor, clip, frame, cabin_foot,
+			height * 0.92, z.reverse_t <= 0.0, tint)
+		if cabin_drawn and z.armor < z.max_armor * 0.66:
+			_draw_wounds(cabin_foot, height * 0.65, 0.65 if z.armor < z.max_armor * 0.33 else 0.32)
+	var drawn = false
+	if not z.dying or (z.type == "sedan" and z.split_done):
+		if swimming and z.water_entry_t > 0.0:
+			var entry = smoothstep(0.0, 0.44, 0.68 - z.water_entry_t)
+			_actor_frames.draw_pose(self, z.type, "walk", frame,
+				frame_foot + Vector2(0, height * 0.22 * entry), height, z.reverse_t <= 0.0,
+				Color(tint.r, tint.g, tint.b, tint.a * (1.0 - entry)))
+			tint.a *= entry
+		drawn = _actor_frames.draw_pose(self, z.type, clip, frame,
+			frame_foot, height, z.reverse_t <= 0.0, tint)
+	if not drawn and texture != null:
 		_sprite(texture, foot + Vector2(sway, bob + lift), height, true, tint,
 			rotation + lean * 0.35, squash)
-	else:
+	elif not drawn:
 		# 没有立绘时的保底：画一个会走的影子
 		draw_circle(foot + Vector2(0, -height * 0.3 + bob), height * 0.2,
 			Color(0.6, 0.62, 0.6, 0.8))
 	# 残血：身上开裂、脚下渗影
 	if hp_ratio < 0.36 and not z.dying:
 		_draw_wounds(foot + Vector2(sway, bob + lift), height, 1.0 - hp_ratio / 0.36)
-	_draw_armor(z, foot + Vector2(sway, bob + lift), height, texture,
-		rotation + lean * 0.35, squash)
+	if drawn:
+		_draw_armor(z, frame_foot, height * (0.72 if swimming else 1.0), texture, 0.0,
+			Vector2.ONE, cabin_drawn)
+	else:
+		_draw_armor(z, foot + Vector2(sway, bob + lift), height, texture,
+			rotation + lean * 0.35, squash)
+	if z.water_entry_t > 0.0:
+		var plunge = 1.0 - z.water_entry_t / 0.68
+		var ripple = 13.0 + plunge * 30.0
+		for band in 2:
+			draw_arc(foot + Vector2(0, 1 + band * 3), ripple + band * 8,
+				0.05 * PI, 0.95 * PI, 20,
+				Color(0.59, 0.83, 0.82, (1.0 - plunge) * (0.7 - band * 0.22)), 2.0)
 	if not z.dying:
 		_draw_status(z, foot, height, lift)
 	if health_bars != "off" and not z.dying:
@@ -538,20 +649,35 @@ func _armor_texture(art: String, tier: int) -> Texture2D:
 
 
 func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
-		body: Texture2D, rotation: float, squash: Vector2) -> void:
+		body: Texture2D, rotation: float, squash: Vector2, cabin_drawn: bool = false) -> void:
 	var key = z.get_instance_id()
 	var ratio = clampf(z.armor / maxf(1.0, z.max_armor), 0.0, 1.0)
 	var prev = float(_armor_memory.get(key, ratio))
 	# Every armor material breaks into independently moving pieces, even on a lethal hit.
 	if prev > 0.01 and z.armor <= 0.0:
+		var fall_texture: Texture2D = null
+		var lift = 0.7
+		if z.type == "sedan":
+			var actor = "sedan-loaded" if z.sedan_has_bride else "sedan-empty"
+			var sheet: Texture2D = _actor_frames.sheets.get(actor)
+			if sheet != null:
+				var frame: Dictionary = _actor_frames.catalog[actor]["clips"]["walk"][0]
+				var r: Array = frame["rect"]
+				var region := AtlasTexture.new()
+				region.atlas = sheet
+				region.region = Rect2(r[0], r[1], r[2], r[3])
+				region.filter_clip = true
+				fall_texture = region
+				lift = 1.12
 		for i in 5:
-			_falling.append({"at": animated_foot + Vector2(0, -height * 0.7),
+			_falling.append({"at": animated_foot + Vector2(0, -height * lift),
+				"texture": fall_texture,
 				"t": 0.0, "type": String(z.armor_type), "w": height * _armor_width(z),
 				"part": i, "vx": (float(i) - 2.0) * 46.0,
 				"vy": -60.0 - float((i * 7) % 3) * 25.0,
 				"spin": (float(i) - 2.0) * 3.2})
 	_armor_memory[key] = ratio
-	if z.armor <= 0.0 or z.dying:
+	if z.armor <= 0.0 or z.dying or cabin_drawn:
 		return
 	var art = _armor_art_key(String(z.armor_type))
 	var tier = _armor_tier(ratio)
@@ -638,11 +764,15 @@ func _draw_armor_falls() -> void:
 	for piece in _falling:
 		var t = clampf(float(piece["t"]) / 0.8, 0.0, 1.0)
 		var art = _armor_art_key(String(piece["type"]))
-		var texture = _armor_texture(art, 3)
+		var texture: Texture2D = piece.get("texture")
+		var is_cabin = texture != null
+		if not is_cabin:
+			texture = _armor_texture(art, 3)
 		if texture == null:
 			continue
 		var width = float(piece["w"])
-		var content = _armor_content("armor-%s-3" % art, texture)
+		var content = Rect2(Vector2.ZERO, texture.get_size()) if is_cabin \
+			else _armor_content("armor-%s-3" % art, texture)
 		var part = int(piece["part"])
 		var source = Rect2(content.position + Vector2(content.size.x * part / 5.0, 0),
 			Vector2(content.size.x / 5.0, content.size.y))
@@ -729,6 +859,8 @@ func _draw_health_bar(z: Sim.Zombie, foot: Vector2, height: float) -> void:
 	var width = 56.0 if not bool(z.def.get("large", false)) else 72.0
 	var x = foot.x - width * 0.5
 	var y = foot.y - height - 14.0
+	if z.type == "sedan" and z.armor > 0.0:
+		y = foot.y - height * 1.62 - 7.0
 	if z.vault_arc > 0.0:
 		y -= z.vault_arc * 58.0
 	var hp_ratio = clampf(z.hp / maxf(1.0, z.max_hp), 0.0, 1.0)
@@ -750,6 +882,32 @@ func _draw_health_bar(z: Sim.Zombie, foot: Vector2, height: float) -> void:
 			Color(1, 0.95, 0.85, 0.92))
 
 
+func _draw_plant_health_bar(plant: Sim.Plant, foot: Vector2, height: float) -> void:
+	var width = 54.0
+	var x = foot.x - width * 0.5
+	var y = foot.y - height - 14.0
+	if plant.is_lily and plant.on_lily:
+		y += 11.0
+	var hp_ratio = clampf(plant.hp / maxf(1.0, plant.max_hp), 0.0, 1.0)
+	draw_rect(Rect2(x - 1.0, y - 1.0, width + 2.0, 8.0), Color(0, 0, 0, 0.55))
+	draw_rect(Rect2(x, y, width * hp_ratio, 4.0), Ui.GOOD.lerp(Ui.BAD, 1.0 - hp_ratio))
+	var shield = maxf(plant.shell, plant.wish)
+	if shield > 0.0:
+		var shield_max = maxf(plant.shell_max, shield)
+		if plant.type == "umbrella":
+			shield_max = maxf(shield_max,
+				float(Upgrades.EFFECTS["umbrella"]["wish_hp"][plant.tier(2)]))
+		draw_rect(Rect2(x, y + 4.0, width * clampf(shield / shield_max, 0.0, 1.0), 3.0),
+			Color("#d6b777"))
+	if health_bars == "barText":
+		var label = "%d" % int(ceil(plant.hp))
+		if shield > 0.0:
+			label += "+%d" % int(ceil(shield))
+		draw_string(Ui.body_font(), Vector2(x - 2.0, y - 5.0), label,
+			HORIZONTAL_ALIGNMENT_LEFT, width + 6.0, 13,
+			Color(1, 0.95, 0.85, 0.92))
+
+
 # ── 射弹 ────────────────────────────────────────────────────────────────────
 func _draw_shots() -> void:
 	for shot in sim.shots:
@@ -758,6 +916,11 @@ func _draw_shots() -> void:
 		var at = Geo.to_screen(shot.pos)
 		var look = String(shot.look)
 		match look if look != "" else String(shot.kind):
+			"firework":
+				_draw_glow(at - Vector2(5, -3), 12.0, Color(1, 0.5, 0.18, 0.55))
+				draw_line(at - Vector2(10, -5), at + Vector2(5, -3), Color("#a33828"), 7.0, true)
+				draw_line(at - Vector2(4, -2), at, Color("#efbf6a"), 6.0, true)
+				draw_circle(at - Vector2(11, -6), 2.7, Color("#ffe7a9"))
 			"homing":
 				_draw_flame(at, 9.0 if not shot.fire else 11.0, Color("#ffb45e"))
 			"lob":
@@ -836,6 +999,35 @@ func _draw_particles() -> void:
 		var color: Color = p["color"]
 		var pos = Geo.to_screen(Vector2(float(p["x"]), float(p["y"])))
 		match String(p["kind"]):
+			"plant_action":
+				var actor = String(p["actor"])
+				var flat = Vector2(float(p["x"]), float(p["y"]))
+				var height = float(p["size"]) * Geo.unit_scale(sim.rows) * Geo.scale_at_flat(flat, sim.rows)
+				var frame = mini(3, int((1.0 - k) * 4.0))
+				if actor in ["bomb", "gust"]:
+					frame = 2 + mini(1, int((1.0 - k) * 2.0))
+				_actor_frames.draw_pose(self, actor, "action", frame, Geo.to_screen(flat, sim.rows),
+					height, false, Color(1, 1, 1, minf(1.0, 2.0 * k)))
+			"gust_trail":
+				for strand in 3:
+					var line := PackedVector2Array()
+					for i in 14:
+						line.append(pos + Vector2(-i * (7.0 + strand), strand * 10.0
+							+ sin(i * 0.43 + strand + k * 7.0) * 5.0))
+					draw_polyline(line, Color(color.r, color.g, color.b,
+						0.56 * sin(PI * k)), 2.5 - 0.5 * strand, true)
+			"bomb_blast":
+				var elapsed = max_life - life - float(p.get("delay", 0.0))
+				if elapsed < 0.0:
+					continue
+				var t = clampf(elapsed / (max_life - float(p.get("delay", 0.0))), 0.0, 1.0)
+				var radius = float(p["size"]) * (0.15 + 0.85 * sqrt(t))
+				draw_circle(pos, radius, Color(color.r, color.g, color.b, 0.17 * (1.0 - t)))
+				draw_arc(pos, radius, 0.0, TAU, 48,
+					Color(color.r, color.g, color.b, 0.85 * (1.0 - t)), 8.0 * (1.0 - t) + 1.0)
+			"bomb_smoke":
+				draw_circle(pos, float(p["size"]) * (1.0 + 1.8 * (1.0 - k)),
+					Color(color.r, color.g, color.b, 0.38 * k))
 			"ring":
 				draw_arc(pos, float(p["size"]), 0.0, TAU, 40,
 					Color(color.r, color.g, color.b, color.a * k), 2.4)

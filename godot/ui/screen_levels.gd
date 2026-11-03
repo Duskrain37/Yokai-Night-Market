@@ -104,8 +104,6 @@ func _draw_picture() -> void:
 
 
 func _draw_header() -> void:
-	draw_string(Ui.display_font(), Vector2(196, 76), "大岛航线", HORIZONTAL_ALIGNMENT_LEFT,
-		-1, 44, Ui.GOLD_BRIGHT)
 	var level = Content.get_level(selected)
 	draw_string(Ui.display_font(), Vector2(760, 76),
 		"%s · %s" % [level["day_name"], level["day_sub"]],
@@ -119,9 +117,8 @@ func _draw_tabs() -> void:
 		var cleared = _cleared_count(i + 1)
 		var base = Color(0.06, 0.09, 0.11, 0.88) if not active \
 			else Color(0.22, 0.17, 0.08, 0.95)
-		draw_rect(rect, base)
-		draw_rect(rect, Ui.GOLD if active else Color(0.34, 0.31, 0.25, 0.85),
-			false, 2.0 if active else 1.0)
+		Ui.draw_plate(self, rect, base, Ui.GOLD if active else Color(0.34, 0.31, 0.25, 0.85),
+			16, 2 if active else 1)
 		var info: Dictionary = Content.DAYS[i]
 		draw_string(Ui.medium_font(), rect.position + Vector2(16, 30),
 			String(info["name"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 21,
@@ -214,8 +211,8 @@ func _draw_nodes() -> void:
 
 func _draw_footer() -> void:
 	var panel = Rect2(56, 596, 610, 268)
-	draw_rect(panel, Color(0.03, 0.05, 0.07, 0.9))
-	draw_rect(panel, Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g, Ui.GOLD_DIM.b, 0.75), false, 2.0)
+	Ui.draw_plate(self, panel, Color(0.03, 0.05, 0.07, 0.9),
+		Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g, Ui.GOLD_DIM.b, 0.75), 20, 2)
 	var level = Content.get_level(selected)
 	var x = panel.position.x + 24
 	var y = panel.position.y + 40

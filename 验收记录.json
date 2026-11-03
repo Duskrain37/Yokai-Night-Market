@@ -1,23 +1,26 @@
 {
-  "version": "0.4.0",
-  "build_hash": "73780aa",
-  "exe_bytes": 239354152,
-  "exe_sha256": "770242806efc4d4bd3f2601fb0760f049d7dd9e6c7e2756566a2e9eddccc0b7b",
+  "version": "0.4.1",
+  "build_hash": "07444bd",
+  "exe_bytes": 306944504,
+  "exe_sha256": "8ffca157ca62f15fe707403b15d038b78c11396115db6f46093d1d5017848a70",
   "assertions": {
-    "logic-tests.json": 327,
-    "battle-tests.json": 38,
-    "boss-tests.json": 126,
-    "special-tests.json": 76,
-    "ui-tests.json": 71,
-    "click-tests.json": 20,
-    "player-ui-tests.json": 197
+    "logic-tests": 302,
+    "battle-tests": 38,
+    "boss-tests": 131,
+    "special-tests": 76,
+    "ui-tests": 71,
+    "click-tests": 20,
+    "player-ui-tests": 209,
+    "animation-tests": 306,
+    "patch-tests": 25
   },
-  "assertion_total": 855,
+  "assertion_total": 1178,
   "failures": 0,
   "boss_simulations": 27,
   "boss_reference_seconds": [
     109.7,
-    120.0
+    128.9
   ],
-  "scope": "Windows x64; headless tests and native rendered captures; no claim of human full clear, human listening or other-platform verification"
+  "platform": "Windows x64",
+  "verification": "自动检查、导出包启动与图集加载、GPU 实机截图；未做人手十五夜全通。"
 }
