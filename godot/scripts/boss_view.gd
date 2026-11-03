@@ -69,7 +69,7 @@ func _draw() -> void:
 		var age=sim.time-float(event.at)
 		if age>=0 and age<.18 and String(event.kind) in ["earth","paper","water"]:impact=maxf(impact,sin(age/.18*PI))
 	var action_pose = pose in ["anticipation", "small", "major", "hurt", "defeat"]
-	var index = mini(3, int((sim.time - _pose_at) * 8.0)) if action_pose else int(sim.time * 5.0)
+	var index = clampf((sim.time - _pose_at) * 8.0, 0.0, 3.99) if action_pose else sim.time * 5.0
 	var actor = "boss-%s-%s" % [boss.id, pose]
 	if pose == "blink":
 		_draw_blink(boss, body_foot, body_height)
@@ -114,10 +114,10 @@ func _draw_blink(boss, destination: Vector2, height: float) -> void:
 	for i in 3:
 		var progress = clampf(t * 1.4 - i * 0.15, 0.0, 1.0)
 		var at = origin.lerp(destination, progress)
-		actor_frames.draw_pose(self, actor, "action", mini(3, int(progress * 4.0)),
+		actor_frames.draw_pose(self, actor, "action", minf(3.99, progress * 4.0),
 			at, height, true, Color(0.67, 0.83, 0.88, sin(t * PI) * (0.58 - 0.12 * i)))
 	var landing = "boss-%s-idle" % boss.id
-	actor_frames.draw_pose(self, landing, "idle", int(t * 7.0), destination, height,
+	actor_frames.draw_pose(self, landing, "idle", t * 7.0, destination, height,
 		true, Color(1, 1, 1, smoothstep(0.43, 1.0, t)))
 
 func _warning(boss) -> void:

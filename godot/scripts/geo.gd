@@ -51,7 +51,7 @@ const STAGES = {
 	# 不再用均匀等分：均匀等分会让水陆界线和画里的岸线错开。
 	"day3": {"cx": 830.0, "far_y": 200.0, "near_y": 790.0,
 		"far_half": 615.0, "near_half": 660.0,
-		"far_scale": 1.0, "near_scale": 1.05,
+		"far_scale": 0.92, "near_scale": 1.05,
 		# 照画量出来的六条边界：石台—水—石台—水—石台
 		"bands": [200.0, 303.0, 397.0, 522.0, 642.0, 790.0],
 		"halves": [615.0, 622.0, 630.0, 640.0, 652.0, 660.0]},
@@ -156,12 +156,8 @@ static func _to_flat_uniform(screen: Vector2) -> Vector2:
 	return Vector2(BOARD_X + u * BOARD_W, BOARD_Y + t * BOARD_H)
 
 
-static func scale_at_flat(pos: Vector2, rows: int = 0) -> float:
-	if rows > 0 and BANDS.size() == rows + 1:
-		var cell = BOARD_H / float(rows)
-		var idx = clampi(int((pos.y - BOARD_Y) / cell), 0, rows - 1)
-		var band_h = float(BANDS[idx + 1]) - float(BANDS[idx])
-		return depth_scale((pos.y - BOARD_Y) / BOARD_H) * (band_h / cell) * 0.92
+static func scale_at_flat(pos: Vector2, _rows: int = 0) -> float:
+	# Band heights align hit regions to the shoreline. They do not scale units.
 	return depth_scale((pos.y - BOARD_Y) / BOARD_H)
 
 

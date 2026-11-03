@@ -217,9 +217,11 @@ func check_tutorial_flow() -> void:
 	check("教学", "石磨落地后进入实战", String(sim.tutorial["step"]) == "battle"
 		and sim.main_plant_at(3, 2) != null, sim.tutorial_step())
 	steps = 0
-	while steps < int(40.0 / dt) and not won[0]:
+	while steps < int(40.0 / dt) and sim.tutorial_step() != "almanac":
 		sim.tick(dt)
 		sim.sounds.clear()
 		steps += 1
-	check("教学", "教学关能打完并判胜", won[0], "t=%.1f step=%s" % [sim.time,
+	check("教学", "实战结束后引导看图鉴", sim.tutorial_step() == "almanac" and not won[0])
+	sim.finish_tutorial_almanac()
+	check("教学", "看完图鉴完成教程", won[0], "t=%.1f step=%s" % [sim.time,
 		sim.tutorial_step()])

@@ -164,16 +164,26 @@ func _run() -> void:
 		check("升阶：点扇叶真的升了一级",
 			game.sim.main_plant_at(1, 2).tier(1) == tier_before + 1,
 			"%d -> %d" % [tier_before, game.sim.main_plant_at(1, 2).tier(1)])
+		var other = game.sim.place_free("shooter", 1, 1)
+		await click(Geo.screen_cell_center(1, 1, game.sim.rows))
+		check("升阶：直接点相邻草木切换扇面", hud.focus_plant == other)
 		# 点空地应关掉扇形
 		await click(Vector2(200, 760))
 		check("升阶：点别处关掉扇形", hud._fan == null)
+	var trowel: Button = hud._tool_shovel
+	check("工具：起土铲按钮以立绘表示", trowel.icon != null and trowel.text.is_empty())
+	await click(_button_center(trowel))
+	check("工具：点起土铲进入移除模式", hud.shovel_mode)
+	await click(Geo.screen_cell_center(1, 2, game.sim.rows))
+	check("工具：移除草木并播放动画", game.sim.main_plant_at(1, 2) == null and not hud.shovel_mode
+		and game.sim.particles.any(func(effect): return effect.kind == "shovel_lift"))
 
 	var pause_button: Button = _find_button(hud, "暂停")
 	check("暂停：找得到暂停按钮", pause_button != null)
 	if pause_button != null:
 		await click(_button_center(pause_button))
 		check("暂停：点暂停后真的暂停", game.paused)
-		var resume_button: Button = _find_button(game.screen_node, "继续守夜")
+		var resume_button: Button = _find_button(game.screen_node, "重返游戏")
 		check("暂停：面板里有继续按钮", resume_button != null)
 		if resume_button != null:
 			await click(_button_center(resume_button))

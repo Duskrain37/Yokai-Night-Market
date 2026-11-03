@@ -63,7 +63,7 @@ func _build_book() -> void:
 	head.add_child(Ui.title("妖怪夜市图鉴", 34, Ui.GOLD_BRIGHT))
 	var tabs := Ui.hbox(6)
 	head.add_child(tabs)
-	for pair in [["plant", "草木志"], ["zombie", "恶客录"]]:
+	for pair in [["plant", "草木志"], ["zombie", "恶客录"], ["boss", "首领录"]]:
 		var button := Ui.button(String(pair[1]), 17, 104, 38)
 		button.pressed.connect(_select_tab.bind(String(pair[0])))
 		tabs.add_child(button)
@@ -135,6 +135,8 @@ func _build_book() -> void:
 
 # ── 数据 ────────────────────────────────────────────────────────────────────
 func _entries() -> Array:
+	if tab == "boss":
+		return Almanac.BOSS_ORDER
 	return Almanac.plant_entries() if tab == "plant" else Almanac.zombie_entries()
 
 
@@ -194,7 +196,7 @@ func _entry_row(type: String, entry_index: int, active: bool) -> Control:
 	thumb.custom_minimum_size = Vector2(38, 44)
 	thumb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	thumb.draw.connect(func():
-		Ui.draw_plant_icon(thumb, type, Rect2(Vector2.ZERO, thumb.size)))
+		_draw_entry_icon(thumb, type, Rect2(Vector2.ZERO, thumb.size)))
 	inner.add_child(thumb)
 	var texts := Ui.vbox(0)
 	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -213,12 +215,16 @@ func _entry_row(type: String, entry_index: int, active: bool) -> Control:
 
 
 func _entry_short(type: String) -> String:
+	if tab == "boss":
+		return Almanac.boss_name(type)
 	if tab == "plant":
 		return String(Content.PLANTS[type]["name"])
 	return String(Content.ZOMBIES[type]["name"])
 
 
 func _entry_role(type: String) -> String:
+	if tab == "boss":
+		return "关底首领"
 	if tab == "plant":
 		return String(Content.PLANTS[type]["role"])
 	return Content.tier_label(String(Content.ZOMBIES[type]["tier"]))
@@ -234,14 +240,20 @@ func _entry_name(type: String) -> String:
 
 func _update_header() -> void:
 	var type := _current_type()
+	for child in _tag_row.get_children():
+		child.queue_free()
+	if tab == "boss":
+		_name_label.text = Almanac.boss_name(type)
+		_epithet_label.text = "「%s」" % Almanac.BOSS_PAGES[type][0]
+		_tag_row.add_child(_chip("关底首领", Ui.VERMILION))
+		_portrait.queue_redraw()
+		return
 	var def: Dictionary = Content.PLANTS[type] if tab == "plant" \
 		else Content.ZOMBIES[type]
 	var text: Dictionary = Almanac.PLANTS[type] if tab == "plant" \
 		else Almanac.ZOMBIES[type]
 	_name_label.text = String(def["name"])
 	_epithet_label.text = "「%s」" % String(text.get("epithet", ""))
-	for child in _tag_row.get_children():
-		child.queue_free()
 	if tab == "plant":
 		_tag_row.add_child(_chip(String(def["role"]), Ui.JADE_LIGHT))
 		_tag_row.add_child(_chip("香火 %d" % int(def["cost"]), Ui.tone_color("cost")))
@@ -268,7 +280,18 @@ func _draw_portrait() -> void:
 		_portrait.draw_circle(Vector2.ZERO, box.size.x * 0.42 * k,
 			Color(1.0, 0.72, 0.38, 0.035))
 		_portrait.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	Ui.draw_plant_icon(_portrait, type, box)
+	_draw_entry_icon(_portrait, type, box)
+
+
+func _draw_entry_icon(canvas: Control, type: String, box: Rect2) -> void:
+	if tab != "boss":
+		Ui.draw_plant_icon(canvas, type, box)
+		return
+	var portrait := Almanac.boss_portrait(type)
+	if portrait != null:
+		var size := portrait.get_size()
+		size *= minf(box.size.x / size.x, box.size.y / size.y)
+		canvas.draw_texture_rect(portrait, Rect2(box.get_center() - size / 2.0, size), false)
 
 
 # ── 书页 ────────────────────────────────────────────────────────────────────
@@ -291,6 +314,12 @@ func _render_page() -> void:
 	var type := _current_type()
 	if tab == "plant":
 		_render_plant(type)
+	elif tab == "boss":
+		var page: Array = Almanac.BOSS_PAGES[type]
+		_page.add_child(Ui.title(Almanac.boss_name(type), 32, Ui.GOLD_BRIGHT))
+		_page.add_child(_paragraph("初遇 · %s" % page[1]))
+		_page.add_child(_paragraph(String(page[2])))
+		_page.add_child(_paragraph("首领占据相邻两行，两行的射弹都能打中它。留意出招前的红纹和号令，后者会唤来一整大波援军。"))
 	else:
 		_render_zombie(type)
 

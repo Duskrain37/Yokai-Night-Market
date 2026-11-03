@@ -12,8 +12,12 @@ const HudScreen = preload("res://ui/screen_hud.gd")
 const AlmanacScreen = preload("res://ui/screen_almanac.gd")
 const TrainingScreen = preload("res://ui/screen_training.gd")
 const Build = preload("res://data/build_info.gd")
+const LoadingScreen = preload("res://ui/screen_loading.gd")
+var _loading_screen: Control
+var _loading_hold: Dictionary = {}
+var _loading_busy := false
 
-const VERSION = "0.4.1"
+const VERSION = "0.4.2"
 const SAVE_PATH = "user://run.json"
 const SETTINGS_PATH = "user://settings.json"
 const PROGRESS_PATH = "user://progress.json"
@@ -108,15 +112,24 @@ func _ready() -> void:
 	ui_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	ui_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_layer.add_child(ui_root)
-	Ui.warm_sprites(Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"])
 	_load_state()
-	_setup_audio()
 	_apply_resolution()
+	if not _qa:
+		var paths: Array[String] = []
+		for track in MUSIC_BASE + MUSIC_DAY_TRACKS:
+			paths.append(_music_path(track))
+		for actor in Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"]:
+			paths.append("res://assets/sprites/%s.png" % actor)
+		await _load_transition(paths, "灯火将明", "res://assets/bg/loading-menu.png", true)
+	Ui.warm_sprites(Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"])
+	_setup_audio()
 	loadout = _clean_loadout(Array(progress.get("loadout", [])))
 	if loadout.is_empty():
 		loadout = DEFAULT_LOADOUT.duplicate()
 	selected_level = clampi(int(progress.get("selected", 1)), 1, Content.LEVELS.size())
 	show_menu()
+	if _loading_screen != null:
+		await _reveal_loaded()
 	_handle_cli()
 
 
@@ -234,8 +247,12 @@ func close_overlay() -> void:
 				bool(prep.get("training", false)),
 				int(prep.get("training_day", 1)))
 		"battle", "paused":
+			var tutorial_book = screen == "almanac" and tutorial_active and sim != null
 			screen = "battle"
 			_clear_screen()
+			if tutorial_book and sim.tutorial_step() == "almanac":
+				sim.finish_tutorial_almanac()
+				return
 			if paused:
 				show_pause()
 		"result":
@@ -255,7 +272,27 @@ func show_training_menu() -> void:
 
 
 # ── 对局 ────────────────────────────────────────────────────────────────────
-func start_battle(level_id: int, cards: Array, mode = "normal") -> void:
+func start_battle(level_id: int, cards: Array, mode = "normal", restore_data: Dictionary = {}) -> void:
+	if _loading_busy:
+		return
+	if not _qa:
+		var map = _battle_map(level_id, mode)
+		var background = "res://assets/bg/map-%s.png" % map
+		if not ResourceLoader.exists(background):
+			background = "res://assets/bg/map-%s.jpg" % map
+		await _load_transition(_battle_resources(level_id, cards, background, map), "守夜将启", background)
+	_start_battle_now(level_id, cards, mode)
+	if not restore_data.is_empty():
+		sim.restore(restore_data)
+		settings["difficulty"] = sim.difficulty
+		hud.refresh()
+	if _loading_screen != null:
+		paused = true
+		await _reveal_loaded()
+		paused = false
+
+
+func _start_battle_now(level_id: int, cards: Array, mode: String) -> void:
 	_clear_screen()
 	_clear_battle()
 	_finished = false
@@ -284,14 +321,7 @@ func start_battle(level_id: int, cards: Array, mode = "normal") -> void:
 	board = BoardView.new()
 	board.sim = sim
 	board.show_grid = bool(settings["show_grid"])
-	var map = "day1"
-	if mode != "tutorial":
-		match String(Content.get_level(level_id)["map"]):
-			"market":
-				map = "day2"
-			"water":
-				map = "day3"
-	board.set_map(map)
+	board.set_map(_battle_map(level_id, mode))
 	add_child(board)
 	units = UnitView.new()
 	units.sim = sim
@@ -315,6 +345,111 @@ func start_battle(level_id: int, cards: Array, mode = "normal") -> void:
 	if mode != "tutorial" and mode != "training":
 		save_run()
 	_music_for_wave()
+
+
+func _battle_map(level_id: int, mode: String) -> String:
+	if mode == "tutorial":
+		return "day1"
+	match String(Content.get_level(level_id)["map"]):
+		"market": return "day2"
+		"water": return "day3"
+		_: return "day1"
+
+
+func _battle_resources(level_id: int, cards: Array, background: String, map: String) -> Array[String]:
+	var paths: Array[String] = [background]
+	for material in ["straw", "stonehat", "paper", "sedan", "urn", "mask"]:
+		paths.append("res://assets/sprites/armor-%s-atlas.png" % material)
+	for index in [1, 2, 3]:
+		paths.append("res://assets/sprites/mushroom-growth-%d.png" % index)
+		for kind in ["market", "water"]:
+			paths.append("res://assets/sprites/obstacle-%s-%d.png" % [kind, index])
+	paths.append("res://assets/sprites/mower-%s.png" % map)
+	paths.append("res://assets/sprites/guest-gear-v042.png")
+	for role in ["sedan-unarmored", "paper-unarmored-v2"]:
+		paths.append("res://assets/sprites/%s.png" % role)
+	var allies = cards.duplicate()
+	allies.append("lantern")
+	var foes = Content.plants_in_level(Content.get_level(level_id)) if level_id > 0 else ["ghost"]
+	if "sedan" in foes or "matchmaker" in foes:
+		foes.append_array(["sedan", "sedan-empty", "sedan-loaded", "bride", "ghost"])
+	if "phaseguard" in foes or "tamer" in foes:
+		foes.append_array(["phase-veil", "phase-kite"])
+	var motion = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json"))
+	if motion is Dictionary:
+		for actor in allies + foes:
+			if motion.has(actor):
+				paths.append("res://" + String(motion[actor]["file"]))
+	var forms = JSON.parse_string(FileAccess.get_file_as_string("res://data/evolution_art_v040.json"))
+	if forms is Dictionary:
+		for actor in forms:
+			paths.append("res://" + String(forms[actor]["file"]))
+	for atlas in ["boss_earth_atlas", "boss_paper_atlas", "boss_river_atlas", "props_atlas", "fx_atlas"]:
+		paths.append("res://assets/boss/%s.png" % atlas)
+	return paths
+
+
+func _load_transition(paths: Array[String], caption: String, backdrop: String, cold: bool = false) -> void:
+	_loading_busy = true
+	_loading_hold.clear()
+	_loading_screen = LoadingScreen.new()
+	_loading_screen.caption = caption
+	_loading_screen.backdrop = load(backdrop)
+	_loading_screen.modulate.a = 1.0 if cold else 0.0
+	var layer := CanvasLayer.new()
+	layer.layer = 7
+	add_child(layer)
+	layer.add_child(_loading_screen)
+	if not cold:
+		paused = true
+		var enter = create_tween()
+		enter.tween_property(_loading_screen, "modulate:a", 1.0, 0.28).set_trans(Tween.TRANS_SINE)
+		await enter.finished
+	await get_tree().process_frame
+
+	var waiting: Array[String] = []
+	for path in paths:
+		if ResourceLoader.exists(path) and not waiting.has(path):
+			waiting.append(path)
+	var total = waiting.size()
+	var running: Array[String] = []
+	var finished := 0
+	while finished < total:
+		while not waiting.is_empty() and running.size() < 6:
+			var path: String = waiting.pop_front()
+			if ResourceLoader.load_threaded_request(path) == OK:
+				running.append(path)
+			else:
+				finished += 1
+		var partial := 0.0
+		for path in running.duplicate():
+			var detail: Array = []
+			var status = ResourceLoader.load_threaded_get_status(path, detail)
+			if status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+				if not detail.is_empty():
+					partial += float(detail[0])
+				continue
+			if status == ResourceLoader.THREAD_LOAD_LOADED:
+				_loading_hold[path] = ResourceLoader.load_threaded_get(path)
+			running.erase(path)
+			finished += 1
+		_loading_screen.fraction = (finished + partial) / maxf(1.0, total)
+		await get_tree().process_frame
+	_loading_screen.fraction = 1.0
+	while _loading_screen.displayed < 1.0:
+		await get_tree().process_frame
+
+
+func _reveal_loaded() -> void:
+	await get_tree().process_frame
+	var layer = _loading_screen.get_parent()
+	var leave = create_tween()
+	leave.tween_property(_loading_screen, "modulate:a", 0.0, 0.38).set_trans(Tween.TRANS_SINE)
+	await leave.finished
+	layer.queue_free()
+	_loading_screen = null
+	_loading_hold.clear()
+	_loading_busy = false
 
 
 func _tick_battle(delta: float) -> void:
@@ -431,6 +566,7 @@ func _show_result(won: bool) -> void:
 func show_pause() -> void:
 	if sim == null or screen != "battle":
 		return
+	hud.cancel_selection()
 	paused = true
 	_music_duck = 1.0
 	var node = HudScreen.new()
@@ -489,6 +625,8 @@ func _mouse_world() -> Vector2:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _loading_busy:
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_F11:
@@ -550,24 +688,25 @@ func _handle_battle_click(pos: Vector2) -> void:
 		return
 	if hud.has_method("blocks_simulation") and hud.blocks_simulation():
 		return
+	var cell = Geo.screen_cell_at(pos, sim.rows)
+	if hud.shovel_mode:
+		if cell.x >= 0:
+			var outcome = sim.shovel_at(cell.x, cell.y)
+			if not bool(outcome["ok"]):
+				sim.deny(String(outcome["text"]), pos)
+			hud.set_shovel_mode(false)
+			hud.refresh()
+		return
 	var orb = sim.pick_orb(pos)
 	if not orb.is_empty():
 		sim.collect_orb(orb)
 		return
-	var cell = Geo.screen_cell_at(pos, sim.rows)
 	if hud.card_selected >= 0:
 		if cell.x >= 0:
 			var ok = sim.try_place_card(hud.card_selected, cell.x, cell.y, pos)
 			if ok:
 				hud.card_selected = -1
 				hud.refresh()
-		return
-	if hud.shovel_mode:
-		if cell.x >= 0:
-			var outcome = sim.shovel_at(cell.x, cell.y)
-			if not bool(outcome["ok"]):
-				sim.deny(String(outcome["text"]), pos)
-			hud.shovel_mode = false
 		return
 	if cell.x < 0:
 		hud.close_fan()
@@ -602,6 +741,8 @@ func set_setting(key: String, value) -> void:
 	elif key == "cheats" and hud != null and is_instance_valid(hud):
 		hud.set_cheats_enabled(bool(value))
 	elif key == "speed" and screen == "battle" and not tutorial_active:
+		if hud != null and float(value) > 0.1:
+			hud.slow_battle = false
 		apply_speed(float(value))
 	elif key == "resolution":
 		_apply_resolution()
@@ -617,7 +758,7 @@ func set_setting(key: String, value) -> void:
 ## 0.1× 是训练场的观察档：正式对局一律抬到 1× 以上，
 ## 局内切速度也走这里，免得从设置面板绕过下限。
 func speed_floor() -> float:
-	return 0.1 if run_mode == "training" else 1.0
+	return 0.1 if run_mode == "training" or (hud != null and hud.slow_battle) else 1.0
 
 
 func apply_speed(value: float) -> void:
@@ -752,10 +893,7 @@ func continue_run() -> void:
 		show_levels()
 		return
 	loadout = _clean_loadout(Array(save_data.get("loadout", [])))
-	start_battle(int(save_data.get("level_id", 1)), loadout)
-	sim.restore(payload)
-	settings["difficulty"] = sim.difficulty
-	hud.refresh()
+	start_battle(int(save_data.get("level_id", 1)), loadout, "normal", payload)
 
 
 func _load_state() -> void:
@@ -1065,6 +1203,16 @@ func _synth_mood(key: String) -> AudioStreamWAV:
 			noise_hp = 60.0
 			noise_decay = 160.0
 			attack = 0.012
+		"capstone":
+			dur = 0.76
+			layers = [[147.0, 0.24, 110.0], [294.0, 0.37, 220.0], [441.0, 0.29, 270.0], [662.0, 0.16, 310.0], [895.0, 0.07, 180.0]]
+			attack = 0.025
+		"shovel":
+			dur = 0.28
+			layers = [[135.0, 0.38, 70.0], [281.0, 0.12, 35.0]]
+			noise_amp = 0.32
+			noise_lp = 760.0
+			noise_decay = 70.0
 		_:
 			dur = 0.2
 			layers = [[220.0, 0.4, 60.0]]
@@ -1221,7 +1369,7 @@ func _sfx_for(name: String, detail: Dictionary = {}) -> AudioStream:
 		var sound: AudioStream=load(mastered)
 		_sfx_cache[key]=sound
 		return sound
-	if key in ["click", "collect", "kill", "alert"]:
+	if key in ["click", "collect", "kill", "alert", "capstone", "shovel"]:
 		var mood_stream = _synth_mood(key)
 		_sfx_cache[key] = mood_stream
 		return mood_stream
@@ -1388,6 +1536,8 @@ func _handle_cli() -> void:
 					open_almanac("plant", 0)
 				"almanac-zombie":
 					open_almanac("zombie", 6)
+				"almanac-boss":
+					open_almanac("boss", 2)
 				"settings":
 					open_settings()
 				"training":

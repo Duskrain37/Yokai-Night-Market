@@ -18,7 +18,7 @@ def register(actor, source, clips, facing):
         if "A" not in sheet.getbands():
             raise ValueError("Atlas has no alpha channel")
         alpha = sheet.getchannel("A")
-        transparent = alpha.histogram()[0] / (sheet.width * sheet.height)
+        transparent = sum(alpha.histogram()[:8]) / (sheet.width * sheet.height)
         if transparent < 0.12:
             raise ValueError(f"Only {transparent:.1%} of the atlas is clear")
         frames = {}

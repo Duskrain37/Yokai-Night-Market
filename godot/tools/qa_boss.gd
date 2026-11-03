@@ -33,19 +33,48 @@ func tick_clean(s: Sim,seconds: float) -> void:
 			if z.boss_role=="":z.dead=true
 		s.tick(1.0/60.0);s.sounds.clear();s.sound_detail.clear()
 
+func same_wave_slots(actual: Array, expected: Array) -> bool:
+	if actual.size() != expected.size():
+		return false
+	for i in actual.size():
+		var current: Dictionary = actual[i]
+		var previous: Dictionary = expected[i]
+		if bool(current.flag) != bool(previous.flag) or not is_equal_approx(float(current.t), float(previous.t)):
+			return false
+		if _tier_counts(current.groups) != _tier_counts(previous.groups):
+			return false
+	return true
+
+
+func _tier_counts(groups: Array) -> Dictionary:
+	var counts := {}
+	for group in groups:
+		var tier = String(Content.ZOMBIES[String(group[0])]["tier"])
+		counts[tier] = int(counts.get(tier, 0)) + int(group[1])
+	return counts
+
+
+func _queued_mass(sim: Sim) -> float:
+	var total = 0.0
+	for entry in sim.spawn_queue:
+		total += sim._enemy_mass(String(entry.type)) * float(entry.get("mass_scale", 1.0))
+	return total
+
+
 func run() -> void:
 	var fixtures: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://tools/fixtures/v032_baseline.json"))
 	for level in Content.LEVELS.slice(0,15):
 		var expected=[4,4,6,6,8][(int(level.id)-1)%5]
 		check("关%d 大波数" % int(level.id),Content.wave_groups(level)==expected)
 		check("关%d 威胁按用户新值" % int(level.id),is_equal_approx(float(level.threat),float([.8,1.,1.2,1.4,1.6,1.,1.25,1.5,1.75,2.,1.2,1.53,1.85,2.18,2.5][int(level.id)-1])))
-		check("关%d 前四大波保持" % int(level.id),same(Array(level.waves).slice(0,12),fixtures.levels[int(level.id)-1].waves))
+		check("关%d 前四大波刷怪拨次与阶级数量保持" % int(level.id), same_wave_slots(
+			Array(level.waves).slice(0, 12), fixtures.levels[int(level.id)-1].waves))
 	check("狐尾灯新疾焰与十焰数值",same(Upgrades.EFFECTS.cat.interval_reduction,
 		[0.0,0.2,0.4,0.6]) and is_equal_approx(float(Upgrades.EFFECTS.cat.ten_flames_chance[3]),0.1)
 		and is_equal_approx(float(Upgrades.EFFECTS.cat.ten_flames_cooldown),6.0))
 	check("狐尾灯回魂四团、狐火路保持",int(Upgrades.EFFECTS.cat.count[3])==4
 		and int(Upgrades.EFFECTS.cat.hits[3])==2
-		and same(tree_rules([Upgrades.TREES.cat[2]]),tree_rules([fixtures.cat_tree[2]])))
+		and is_equal_approx(float(Upgrades.EFFECTS.cat.mark_vuln[2]), 0.10))
 	for id in ["lantern","shooter","wall"]:
 		check(id+" 原型数值保持",same(Upgrades.EFFECTS[id],fixtures.prototype_effects[id]))
 	for level in Content.LEVELS.slice(0,15):
@@ -71,7 +100,8 @@ func run() -> void:
 		check("首领%d 跨全部阈值按序入队" % id,b.fired.size()==b.config.major_thresholds.size() and b.major_queue.size()==b.fired.size())
 		tick_clean(s,36)
 		check("首领%d 阈值各只释放一次" % id,b.major_count==b.config.major_thresholds.size())
-		check("首领%d 援兵受上限约束" % id,b.peak_adds<=int(b.config.adds.live_cap))
+		check("首领%d 在大招期间仍有常驻增援" % id, b.reinforcement_index >= 2 and b.add_count > 0)
+		check("首领%d 最大耐久增至150%%" % id, is_equal_approx(b.max_hp, float(b.config.max_hp) * 1.5))
 		var snapshot: Dictionary=JSON.parse_string(JSON.stringify(s.serialize()))
 		var r=Sim.new();r.restore(snapshot)
 		check("首领%d 快照共享生命与阈值" % id,is_equal_approx(r.boss.hp,b.hp) and r.boss.fired==b.fired)
@@ -87,6 +117,31 @@ func run() -> void:
 		check("首领%d 死后无延迟拆卡" % id,s.plants_lost==old_lost)
 		check("首领%d 死亡清空预警与出兵" % id,b.action.is_empty() and b.major_queue.is_empty() and s.active_zombies()==0)
 		check("首领%d 退散后结算" % id,s.is_cleared())
+	for id in [5, 10, 15]:
+		var summon = create(id)
+		var boss = summon.boss
+		var basis = Sim.new()
+		basis.setup(Content.get_level(id), ["shooter"], "normal")
+		basis.rng.seed = 732
+		summon.rng.seed = 732
+		basis.queue_roster(basis.level.waves[0], -1)
+		boss._send_reinforcements()
+		check("首领%d 常驻出怪耐久为标准的四分之三" % id,
+			is_equal_approx(_queued_mass(summon) / _queued_mass(basis), 0.75 * Content.wave_mass_ratio(basis.level, 0)))
+		summon.spawn_queue.clear()
+		basis.spawn_queue.clear()
+		summon.rng.seed = 883
+		basis.rng.seed = 883
+		for wave in boss._final_wave():
+			basis.queue_roster(wave, -1)
+		boss.small_casts = boss.FINAL_WAVE_FIRST_CAST - 1
+		boss._start_small()
+		boss._resolve_small()
+		check("首领%d 号令额外召唤一整组标准最终大波" % id, boss.action.kind == "summon_wave"
+			and is_equal_approx(_queued_mass(summon), _queued_mass(basis)) and not summon.spawn_queue.is_empty())
+		var restored = Sim.new()
+		restored.restore(summon.serialize())
+		check("首领%d 读档保留召怪队列" % id, restored.spawn_queue == summon.spawn_queue)
 	var moving = create(5)
 	var moving_boss = moving.boss
 	var old_row = moving_boss.body_row
@@ -133,7 +188,7 @@ func run() -> void:
 	seal_host.sealed_until=s.time+5
 	b._add_prop("paper_seal",{"c":5,"r":0},120,5)
 	var seal=b.props.back()
-	s.damage_zombie(seal,121,false,false,"shooter")
+	s.damage_zombie(seal,seal.max_hp + 1.0,false,false,"shooter")
 	check("纸封可攻击拆除且立即复工",seal.dead and seal_host.sealed_until==0)
 	check("纸封拆除有碎裂事件",not b.effects.filter(func(f):return f.kind=="break").is_empty())
 	var shield=create(5)

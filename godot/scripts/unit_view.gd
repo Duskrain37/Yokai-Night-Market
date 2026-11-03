@@ -17,6 +17,7 @@ var _time = 0.0
 var _armor_atlas: Dictionary = {}
 var _evolve_textures: Dictionary = {}
 var _growth_textures: Dictionary = {}
+var _guest_gear: Dictionary = {}
 
 
 func _ready() -> void:
@@ -36,6 +37,16 @@ func _ready() -> void:
 				frame.atlas = sheet
 				frame.region = Rect2((tier - 1) * cell_width, 0, cell_width, sheet.get_height())
 				_armor_atlas["%s-%d" % [art, tier]] = frame
+	var gear_path := "res://assets/sprites/guest-gear-v042.png"
+	if ResourceLoader.exists(gear_path):
+		var sheet: Texture2D = load(gear_path)
+		var size = sheet.get_size() / Vector2(2, 1)
+		for i in 2:
+			var gear := AtlasTexture.new()
+			gear.atlas = sheet
+			gear.region = Rect2(Vector2(i * size.x, 0), size)
+			gear.filter_clip = true
+			_guest_gear[["shield", "raft"][i]] = gear
 	for id in ["sedan", "paper"]:
 		var revealed = "res://assets/sprites/%s-unarmored%s.png" % [id,
 			"-v2" if id == "paper" else ""]
@@ -278,6 +289,15 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 			var streak = start.lerp(front, clampf(travel - trail * 0.08, 0.0, 1.0))
 			draw_line(streak + Vector2(-8, -8 + trail * 8), streak + Vector2(15, -15 + trail * 8),
 				Color(1.0, 0.82, 0.47, fade * 0.5), 2.0)
+	if plant.type == "squash" and plant.squash_at >= 0.0:
+		var age = sim.time - plant.squash_at
+		var progress = clampf((age - Sim.SQUASH_WINDUP) / Sim.SQUASH_LEAP, 0.0, 1.0)
+		var target_foot = Geo.to_screen(plant.squash_aim + Vector2(0, cell_h * 0.3), sim.rows)
+		var leap = foot.lerp(target_foot, progress) - Vector2(0, sin(progress * PI) * height * 0.84)
+		var frame = clampf(age * 5.9, 0.0, 3.99)
+		if _actor_frames.draw_pose(self, "squash", "action", frame, leap, height,
+				target_foot.x < foot.x, tint):
+			return
 	var drawn = false
 	if plant.type != "mushroom" or plant.armed:
 		var actor = String(plant.type)
@@ -287,18 +307,21 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 			actor = evolved_actor
 		var age = sim.time - plant.action_at
 		var action = age < 0.42
-		var frame = mini(3, int(age * 10.0)) if action else int(sim.time * 5.0 + phase)
+		var frame = clampf(age * 9.5, 0.0, 3.99) if action else sim.time * 5.0 + phase
 		if not action and plant.type == "bomb" and plant.timer > 0.6:
 			action = true
-			frame = mini(1, int((plant.timer - 0.6) * 5.0))
+			frame = minf(1.99, (plant.timer - 0.6) * 3.3)
 		if not action and plant.type == "gust" and plant.timer > 0.25:
 			action = true
-			frame = mini(1, int((plant.timer - 0.25) * 6.0))
+			frame = minf(1.99, (plant.timer - 0.25) * 5.7)
 		if not action and plant.bite_t > 0.0 and plant.type in ["wall", "lily"]:
 			action = true
-			frame = int(sim.time * 9.0)
-		drawn = _actor_frames.draw_pose(self, actor, "action" if action else "idle",
-			frame, foot, height, false, tint)
+			frame = sim.time * 9.0
+		if plant.type == "dragon":
+			drawn = _draw_dragon(plant, foot, height, tint)
+		else:
+			drawn = _actor_frames.draw_pose(self, actor, "action" if action else "idle",
+				frame, foot, height, false, tint)
 	if not drawn and plant.type == "mushroom":
 		var first = 1 if growth < 0.5 else 2
 		var blend = clampf(growth * 2.0 - float(first - 1), 0.0, 1.0)
@@ -317,8 +340,59 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 	_draw_shell(plant, foot, height)
 	_draw_upgrade_pips(plant, foot, height)
 	_draw_upgrade_dot(plant, foot, height)
+	if plant.sleep_until > sim.time:
+		_draw_sleep(foot, height)
 	if health_bars != "off":
 		_draw_plant_health_bar(plant, foot, height)
+
+
+func _draw_dragon(plant: Sim.Plant, foot: Vector2, height: float, tint: Color) -> bool:
+	var clip := "idle"
+	var frame = sim.time * 4.5 + plant.phase
+	var asleep = plant.sleep_until > sim.time
+	var near_age = sim.time - plant.dragon_near_at
+	var far_age = sim.time - plant.dragon_far_at
+	if sim.time < plant.dragon_switch_until and not asleep:
+		clip = "switch"
+		var progress = clampf((sim.time - plant.dragon_switch_at) / Sim.DRAGON_SWITCH_TIME, 0.0, 1.0)
+		frame = (progress if plant.dragon_mode != "near" else 1.0 - progress) * 3.0
+	elif plant.dragon_mode == "dual" and minf(near_age, far_age) < 0.26 and not asleep:
+		clip = "dual"
+		frame = minf(3.99, minf(near_age, far_age) * 13.0)
+	elif plant.dragon_mode != "near":
+		clip = "far_idle"
+		if far_age < 0.3 and not asleep:
+			clip = "far"
+			frame = minf(3.99, far_age * 13.0)
+	elif near_age < 0.24 and not asleep:
+		clip = "action"
+		frame = minf(3.99, near_age * 15.0)
+	var drawn = _actor_frames.draw_pose(self, "dragon", clip, frame, foot, height, false, tint)
+	if near_age < 0.21 and not asleep:
+		var fx: Dictionary = Upgrades.EFFECTS["dragon"]
+		var reach = float(fx["near_range"][plant.tier(1)]) * Geo.CELL_W
+		var tip = Geo.to_screen(plant.pos + Vector2(reach, 0), sim.rows)
+		var mouth = foot + Vector2(height * 0.42, -height * (0.38 if plant.dragon_mode == "dual" else 0.53))
+		var travel = clampf(near_age / 0.21, 0.0, 1.0)
+		var end = Vector2(tip.x, mouth.y + 8.0)
+		var front = mouth.lerp(end, minf(1.0, 0.32 + travel * 1.1))
+		for i in 3:
+			var offset = Vector2(0, (i - 1) * 6.0)
+			draw_line(mouth + offset, front + offset * 2.0,
+				Color(0.50, 0.83, 0.70, (0.35 - i * 0.07) * (1.0 - travel)), 6.0 - i, true)
+	return drawn
+
+
+func _draw_sleep(foot: Vector2, height: float) -> void:
+	var center = foot - Vector2(0, height * 0.58)
+	_draw_glow(center, height * 0.62, Color(0.62, 0.49, 0.82, 0.20))
+	for i in 3:
+		var phase = fposmod(sim.time * 1.55 + i / 3.0, 1.0)
+		var pos = center + Vector2(17.0 + 27.0 * phase, -8.0 - 54.0 * phase)
+		var alpha = 0.9 * sin(phase * PI)
+		draw_arc(pos, 5.0 + phase * 4.0, 0.4, 4.9, 18,
+			Color(0.79, 0.68, 0.96, alpha), 1.8, true)
+		draw_circle(pos + Vector2(6, -5), 1.3, Color(1, 0.89, 0.65, alpha))
 
 
 ## 特殊一击的冲击：三圈扩散的金环 + 四散的碎光
@@ -381,7 +455,7 @@ func _draw_shell(plant: Sim.Plant, foot: Vector2, height: float) -> void:
 	var shell_foot = foot + Vector2(height * 0.32, 2)
 	var shell_tint = Color(0.78 + 0.22 * ratio, 0.78 + 0.22 * ratio, 0.78 + 0.22 * ratio, 0.88)
 	var shell_action = pulse > 0.0
-	var shell_frame = int((0.25 - pulse) * 16.0) if shell_action else int(sim.time * 5.0)
+	var shell_frame = clampf((0.25 - pulse) * 16.0, 0.0, 3.99) if shell_action else sim.time * 5.0
 	if not _actor_frames.draw_pose(self, "shell", "action" if shell_action else "idle",
 			shell_frame, shell_foot, height * 0.49, false, shell_tint) and shell_texture != null:
 		_sprite(shell_texture, shell_foot, height * 0.49, false, shell_tint, 0.06)
@@ -440,6 +514,12 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	var texture = texture_for(z.type)
 	var foot = _zombie_foot(z, cell_h)
 	var height = _zombie_height(z, cell_h)
+	if z.revive_at >= 0.0:
+		var phase = clampf(1.0 - (z.revive_at - sim.time), 0.0, 1.0)
+		_actor_frames.draw_pose(self, "returner", "revive", minf(3.99, phase * 4.0),
+			foot, height, true, Color(1, 1, 1, 0.76 + phase * 0.24))
+		_draw_glow(foot - Vector2(0, height * 0.55), 25.0 * phase, Color(1, 0.63, 0.22, phase * 0.22))
+		return
 	var lift = 0.0
 	var rotation = 0.0
 	var alpha = 1.0
@@ -505,11 +585,18 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	if glow.a > 0.0 and not z.dying:
 		_draw_glow(foot + Vector2(0, -height * 0.5), height * 0.6,
 			Color(glow.r, glow.g, glow.b, 0.12))
-	var swimming = z.water_entered and z.pos.x <= Geo.BOARD_X + Geo.BOARD_W
+	var swimming = z.water_entered and z.pos.x <= Geo.BOARD_X + Geo.BOARD_W \
+		and not (z.type == "reedboat" and z.armor > 0.0)
 	var clip = "swim_bite" if z.eating else "swim"
 	if not swimming:
 		clip = "attack" if z.eating else "walk"
-	var frame = int(z.chomp * 10.0) if z.eating else int(z.anim * (7.0 if swimming else 6.5))
+	var frame = z.chomp * 10.0 if z.eating else z.anim * (7.0 if swimming else 6.5)
+	if z.def.has("special_period") and sim.time - z.guest_action_at < 0.42:
+		clip = "attack"
+		frame = clampf((sim.time - z.guest_action_at) * 9.0, 0.0, 3.99)
+	var actor = String(z.type)
+	if z.type == "phaseguard":
+		actor = "phase-kite" if z.phase_form == 1 else "phase-veil"
 	var frame_foot = foot + Vector2(0.0, lift)
 	if swimming:
 		frame_foot.y += 3.0
@@ -525,11 +612,17 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	if not z.dying or (z.type == "sedan" and z.split_done):
 		if swimming and z.water_entry_t > 0.0:
 			var entry = smoothstep(0.0, 0.44, 0.68 - z.water_entry_t)
-			_actor_frames.draw_pose(self, z.type, "walk", frame,
+			_actor_frames.draw_pose(self, actor, "walk", frame,
 				frame_foot + Vector2(0, height * 0.22 * entry), height, z.reverse_t <= 0.0,
 				Color(tint.r, tint.g, tint.b, tint.a * (1.0 - entry)))
 			tint.a *= entry
-		drawn = _actor_frames.draw_pose(self, z.type, clip, frame,
+		if z.type == "phaseguard" and sim.time - z.guest_action_at < 0.3:
+			var amount = smoothstep(0.0, 0.3, sim.time - z.guest_action_at)
+			var previous = "phase-veil" if z.phase_form == 1 else "phase-kite"
+			_actor_frames.draw_pose(self, previous, clip, frame, frame_foot, height,
+				z.reverse_t <= 0.0, Color(tint.r, tint.g, tint.b, tint.a * (1.0 - amount)))
+			tint.a *= amount
+		drawn = _actor_frames.draw_pose(self, actor, clip, frame,
 			frame_foot, height, z.reverse_t <= 0.0, tint)
 	if not drawn and texture != null:
 		_sprite(texture, foot + Vector2(sway, bob + lift), height, true, tint,
@@ -543,7 +636,7 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 		_draw_wounds(foot + Vector2(sway, bob + lift), height, 1.0 - hp_ratio / 0.36)
 	if drawn:
 		_draw_armor(z, frame_foot, height * (0.72 if swimming else 1.0), texture, 0.0,
-			Vector2.ONE, cabin_drawn)
+			Vector2.ONE, cabin_drawn, clip, frame, height)
 	else:
 		_draw_armor(z, foot + Vector2(sway, bob + lift), height, texture,
 			rotation + lean * 0.35, squash)
@@ -602,7 +695,7 @@ var _falling: Array = []               # 正在掉落的护具碎片
 
 const ARMOR_ART = {
 	"straw": "straw", "stonehat": "stonehat", "paper": "paper", "charm": "paper",
-	"sedan": "sedan", "urn": "urn", "mask": "mask",
+	"sedan": "sedan", "urn": "urn", "mask": "mask", "shield": "shield", "raft": "raft",
 }
 ## 生成图已经带了各自的材质色，这里只做很轻的偏色，别把人家的画压平
 const ARMOR_TINT = {
@@ -642,6 +735,8 @@ func _sprite_content(key: String, texture: Texture2D) -> Rect2:
 
 
 func _armor_texture(art: String, tier: int) -> Texture2D:
+	if _guest_gear.has(art):
+		return _guest_gear[art]
 	var key = "%s-%d" % [art, tier]
 	if _armor_atlas.has(key):
 		return _armor_atlas[key]
@@ -649,8 +744,10 @@ func _armor_texture(art: String, tier: int) -> Texture2D:
 
 
 func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
-		body: Texture2D, rotation: float, squash: Vector2, cabin_drawn: bool = false) -> void:
+		body: Texture2D, rotation: float, squash: Vector2, cabin_drawn: bool = false,
+		clip: String = "", key_position: float = 0.0, actor_height: float = 0.0) -> void:
 	var key = z.get_instance_id()
+	var face = _armor_face(z, clip, key_position, animated_foot, actor_height)
 	var ratio = clampf(z.armor / maxf(1.0, z.max_armor), 0.0, 1.0)
 	var prev = float(_armor_memory.get(key, ratio))
 	# Every armor material breaks into independently moving pieces, even on a lethal hit.
@@ -659,7 +756,7 @@ func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
 		var lift = 0.7
 		if z.type == "sedan":
 			var actor = "sedan-loaded" if z.sedan_has_bride else "sedan-empty"
-			var sheet: Texture2D = _actor_frames.sheets.get(actor)
+			var sheet: Texture2D = _actor_frames.key_sheet(actor)
 			if sheet != null:
 				var frame: Dictionary = _actor_frames.catalog[actor]["clips"]["walk"][0]
 				var r: Array = frame["rect"]
@@ -670,7 +767,7 @@ func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
 				fall_texture = region
 				lift = 1.12
 		for i in 5:
-			_falling.append({"at": animated_foot + Vector2(0, -height * lift),
+			_falling.append({"at": face if face != Vector2.INF else animated_foot + Vector2(0, -height * lift),
 				"texture": fall_texture,
 				"t": 0.0, "type": String(z.armor_type), "w": height * _armor_width(z),
 				"part": i, "vx": (float(i) - 2.0) * 46.0,
@@ -683,6 +780,17 @@ func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
 	var tier = _armor_tier(ratio)
 	var texture = _armor_texture(art, tier)
 	if texture == null:
+		return
+	if art in ["shield", "raft"]:
+		var source = _armor_content(art, texture)
+		var body_h = actor_height if actor_height > 0.0 else height
+		var w = body_h * (0.70 if art == "shield" else 1.14)
+		var size = source.size * (w / maxf(1.0, source.size.x))
+		var direction = -1.0 if z.reverse_t <= 0.0 else 1.0
+		var center = animated_foot + Vector2(direction * body_h * 0.21, -body_h * 0.44) if art == "shield" else animated_foot - Vector2(0, 3.0)
+		draw_texture_rect_region(texture, Rect2(center - size * 0.5, size), source)
+		if tier > 1:
+			_draw_wounds(center + Vector2(0, size.y * 0.5), size.y, 0.42 if tier == 2 else 0.84)
 		return
 	# Work in the body's local coordinates and reuse its flip, stride, lean and squash.
 	var art_name = "armor-%s-%d" % [art, tier]
@@ -700,11 +808,56 @@ func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
 	if z.armor_pulse > 0.01:
 		tint = Color(tint.r + 0.4 * z.armor_pulse, tint.g + 0.35 * z.armor_pulse,
 			tint.b + 0.25 * z.armor_pulse, tint.a)
+	if face != Vector2.INF:
+		var face_width = actor_height * (0.24 if art == "mask" else 0.36)
+		var size = content.size * (face_width / maxf(1.0, content.size.x))
+		draw_texture_rect_region(texture, Rect2(face - size * Vector2(0.5, 0.49), size),
+			content, tint)
+		return
 	var body_scale = height / maxf(1.0, body_size.y)
 	draw_set_transform(animated_foot, rotation, Vector2(-body_scale, body_scale) * squash)
 	draw_texture_rect_region(texture, Rect2(Vector2(-drawn.x * 0.5,
 		head_y - drawn.y), drawn), content, tint)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+# Face centers marked on the original atlases. Interpolation follows each clip's head motion.
+const ARMOR_FACE_KEYS = {
+	"ironjudge": {
+		"walk": [[222, 36], [667, 39], [1110, 42], [1557, 43]],
+		"attack": [[228, 528], [668, 506], [1117, 574], [1556, 493]],
+	},
+	"bucket": {
+		"walk": [[158, 39], [467, 40], [776, 42], [1091, 40]],
+		"attack": [[157, 366], [499, 370], [803, 373], [1116, 384]],
+		"swim": [[155, 720], [467, 719], [783, 722], [1093, 721]],
+		"swim_bite": [[154, 1038], [466, 1006], [800, 1034], [1093, 1038]],
+	},
+}
+
+
+func _armor_face(z: Sim.Zombie, clip: String, key_position: float, foot: Vector2,
+		height: float) -> Vector2:
+	var pins: Array = ARMOR_FACE_KEYS.get(z.type, {}).get(clip, [])
+	if pins.is_empty() or height <= 0.0:
+		return Vector2.INF
+	var info: Dictionary = _actor_frames.catalog[z.type]
+	var frames: Array = info["clips"][clip]
+	var phase = fposmod(key_position, float(pins.size()))
+	var first = int(floor(phase))
+	var second = (first + 1) % pins.size()
+	var a = _local_face(pins[first], frames[first])
+	var b = _local_face(pins[second], frames[second])
+	var point = a.lerp(b, phase - first) * (height / float(info["body_px"]))
+	if (String(info["facing"]) == "left") != (z.reverse_t <= 0.0):
+		point.x = -point.x
+	return foot + point
+
+
+func _local_face(pin: Array, frame: Dictionary) -> Vector2:
+	var rect: Array = frame["rect"]
+	var anchor: Array = frame["anchor"]
+	return Vector2(pin[0] - rect[0] - anchor[0], pin[1] - rect[1] - anchor[1])
 
 
 ## 算出小图里真正有像素的区域，缓存起来（只在第一次用到时扫一遍）
@@ -916,6 +1069,8 @@ func _draw_shots() -> void:
 		var at = Geo.to_screen(shot.pos)
 		var look = String(shot.look)
 		match look if look != "" else String(shot.kind):
+			"dragon_1", "dragon_2", "dragon_3":
+				_draw_dragon_round(at, int(look.right(1)))
 			"firework":
 				_draw_glow(at - Vector2(5, -3), 12.0, Color(1, 0.5, 0.18, 0.55))
 				draw_line(at - Vector2(10, -5), at + Vector2(5, -3), Color("#a33828"), 7.0, true)
@@ -931,6 +1086,29 @@ func _draw_shots() -> void:
 				_draw_star(at, 8.0, Color("#ffe9a8"))
 			_:
 				_draw_pea(shot)
+
+
+func _draw_dragon_round(at: Vector2, tier: int) -> void:
+	match tier:
+		1:
+			_draw_glow(at, 10.0, Color(0.96, 0.68, 0.29, 0.36))
+			draw_circle(at, 5.0, Color("#a3693d"))
+			draw_circle(at - Vector2(1.5, 1.5), 3.0, Color("#e9b96f"))
+		2:
+			_draw_glow(at, 14.0, Color(0.44, 0.81, 0.67, 0.44))
+			draw_set_transform(at, -0.38)
+			draw_colored_polygon(PackedVector2Array([Vector2(-8, 0), Vector2(-2, -6),
+				Vector2(6, -5), Vector2(9, 0), Vector2(3, 5), Vector2(-4, 5)]), Color("#5caa90"))
+			draw_line(Vector2(-2, -5), Vector2(-2, 5), Color("#efd289"), 2.0, true)
+			draw_set_transform(Vector2.ZERO)
+		3:
+			_draw_glow(at, 18.0, Color(1.0, 0.39, 0.22, 0.48))
+			draw_set_transform(at, -0.36)
+			draw_colored_polygon(PackedVector2Array([Vector2(-11, -7), Vector2(-4, -4),
+				Vector2(3, -5), Vector2(12, 0), Vector2(3, 5), Vector2(-4, 4), Vector2(-11, 7)]), Color("#bf4e34"))
+			draw_line(Vector2(-4, -4), Vector2(-4, 4), Color("#f3ca7c"), 3.0, true)
+			draw_circle(Vector2(3, -1), 2.0, Color("#ffdfa6"))
+			draw_set_transform(Vector2.ZERO)
 
 
 func _draw_pea(shot) -> void:
@@ -991,6 +1169,51 @@ func _draw_orbs() -> void:
 
 
 # ── 粒子与飘字 ──────────────────────────────────────────────────────────────
+func _draw_shovel_lift(event: Dictionary, remaining: float) -> void:
+	var plant: Sim.Plant = event["plant"]
+	var shell := bool(event["shell_only"])
+	var art := texture_for("shell") if shell else plant_texture(plant)
+	if art == null:
+		return
+	var age := 1.0 - remaining
+	var foot := _plant_foot(plant, Geo.cell_h(sim.rows))
+	var height := float(plant.def.get("sprite_h", 92)) * Geo.unit_scale(sim.rows) * Geo.scale_at_flat(plant.pos, sim.rows)
+	var lift := sin(age * PI * 0.82)
+	var displayed := height * lerpf(1.0, 0.32, smoothstep(0.15, 1.0, age))
+	var shape := art.get_size() * displayed / art.get_height()
+	var center := foot + Vector2(32.0 * age, -48.0 * lift - displayed * 0.50)
+	if shell:
+		center += Vector2(0, -height * 0.30)
+	draw_set_transform(center, -0.45 * lift, Vector2.ONE)
+	draw_texture_rect(art, Rect2(-shape / 2.0, shape), false, Color(1, 0.94, 0.80, 1.0 - smoothstep(0.20, 1.0, age)))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	for i in 6:
+		var angle := float(i) * TAU / 6.0
+		var soil := foot + Vector2(cos(angle) * (12.0 + 24.0 * age), sin(angle) * (5.0 + 11.0 * age) - 11.0 * lift)
+		draw_circle(soil, (3.2 + float(i % 2)) * remaining, Color(0.66, 0.45, 0.29, remaining * 0.7))
+
+
+func _draw_capstone_seal(event: Dictionary, age: float) -> void:
+	var flat := Vector2(event["x"], event["y"]) + Vector2(0, Geo.cell_h(sim.rows) * 0.30)
+	var foot := Geo.to_screen(flat, sim.rows)
+	var path: Color = event["color"]
+	var gold := Ui.GOLD_BRIGHT.lerp(path, 0.36)
+	var fade := smoothstep(0.0, 0.15, age) * (1.0 - smoothstep(0.38, 1.0, age))
+	if fade < 0.01:
+		return
+	var radius := lerpf(17.0, 55.0, smoothstep(0.0, 0.65, age))
+	draw_set_transform(foot, 0, Vector2(1, 0.32))
+	draw_arc(Vector2.ZERO, radius, 0, TAU, 50, Color(gold, fade * 0.78), 2.6, true)
+	draw_arc(Vector2.ZERO, radius * 0.79, 0, TAU, 42, Color(path, fade * 0.65), 1.8, true)
+	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+	for i in 12:
+		var angle := i * TAU / 12.0 + age * 2.1
+		var ember := foot + Vector2(cos(angle) * radius * 0.83, sin(angle) * radius * 0.22 - age * (57.0 + i % 4 * 15.0))
+		var size := (1.5 + float(i % 3) * 0.7) * fade
+		draw_colored_polygon(PackedVector2Array([ember + Vector2(-size, 0), ember + Vector2(0, -size * 2),
+			ember + Vector2(size, 0), ember + Vector2(0, size * 2)]), Color(gold, fade * 0.85))
+
+
 func _draw_particles() -> void:
 	for p in sim.particles:
 		var life = float(p["life"])
@@ -999,13 +1222,17 @@ func _draw_particles() -> void:
 		var color: Color = p["color"]
 		var pos = Geo.to_screen(Vector2(float(p["x"]), float(p["y"])))
 		match String(p["kind"]):
+			"shovel_lift":
+				_draw_shovel_lift(p, k)
+			"capstone_seal":
+				_draw_capstone_seal(p, 1.0 - k)
 			"plant_action":
 				var actor = String(p["actor"])
 				var flat = Vector2(float(p["x"]), float(p["y"]))
 				var height = float(p["size"]) * Geo.unit_scale(sim.rows) * Geo.scale_at_flat(flat, sim.rows)
-				var frame = mini(3, int((1.0 - k) * 4.0))
-				if actor in ["bomb", "gust"]:
-					frame = 2 + mini(1, int((1.0 - k) * 2.0))
+				var frame = minf(3.99, (1.0 - k) * 4.0)
+				if actor in ["bomb", "gust", "squash"]:
+					frame = 2.0 + minf(1.99, (1.0 - k) * 2.0)
 				_actor_frames.draw_pose(self, actor, "action", frame, Geo.to_screen(flat, sim.rows),
 					height, false, Color(1, 1, 1, minf(1.0, 2.0 * k)))
 			"gust_trail":

@@ -28,6 +28,14 @@ var blink_from := -1
 var blink_at := -10.0
 var smalls_to_blink := 1
 const BLINK_TIME := 0.48
+const HEALTH_SCALE := 1.5
+const SKILL_RATE := 4.0 / 3.0
+const SKILL_FORCE := 4.0 / 3.0
+const REINFORCEMENT_MASS := 0.75
+const FINAL_WAVE_FIRST_CAST := 3
+const FINAL_WAVE_CAST_INTERVAL := 6
+var small_casts := 0
+var reinforcement_index := 0
 var props: Array = []
 var destruction_used = 0
 var supply_given = false
@@ -57,12 +65,12 @@ func begin(owner, boss_id: String) -> void:
 			config = row.duplicate(true)
 	# Boss is excluded from threat: only an explicit difficulty choice changes its HP.
 	var difficulty_scale = {"easy":0.85,"normal":1.0,"hard":1.15}.get(sim.difficulty,1.0)
-	max_hp = float(config.max_hp) * float(difficulty_scale)
+	max_hp = float(config.max_hp) * float(difficulty_scale) * HEALTH_SCALE
 	hp = max_hp
 	began_at = sim.time
 	combat_at = sim.time + 3.0
 	state_end = combat_at
-	small_at = combat_at + float(config.small_first_s)
+	small_at = combat_at + float(config.small_first_s) / SKILL_RATE
 	adds_at = combat_at + 5.0
 	wave_end = Array(sim.level.waves).size()
 	if bool(sim.level.get("special",false)):wave_end=(sim.special_bosses_completed+1)*12
@@ -240,7 +248,7 @@ func tick(dt: float) -> void:
 			if sim.time>=state_end:state="major_gap";state_end=sim.time+1.0
 		"major_gap":
 			if sim.time>=state_end:
-				state="idle";small_at=sim.time+float(config.small_period_s);adds_at=sim.time+_interval()
+				state="idle";small_at=sim.time+float(config.small_period_s) / SKILL_RATE
 		"idle":
 			if not major_queue.is_empty():
 				# Let an already telegraphed crab finish before the next destructive cast.
@@ -253,18 +261,34 @@ func tick(dt: float) -> void:
 						for z in crabs:break_prop(z)
 						major_wait_since=-1;major_queue.pop_front();_start_major()
 			elif sim.time>=small_at:
-				_start_small();small_at=sim.time+float(config.small_period_s)
-	if paused_adds:
-		adds_were_paused=true
-	elif adds_were_paused:
-		adds_were_paused=false;adds_at=sim.time+_interval()
-	elif sim.time>=adds_at:
-		_spawn_add("")
-		adds_at=sim.time+_interval()
+				_start_small();small_at=sim.time+float(config.small_period_s) / SKILL_RATE
+	if sim.time >= adds_at:
+		_send_reinforcements()
 	peak_adds=maxi(peak_adds,sim.active_zombies())
 
-func _interval() -> float:
-	return sim.rng.randf_range(float(config.adds.interval_s[0]),float(config.adds.interval_s[1]))
+
+func _final_wave() -> Array:
+	var waves: Array = sim.level["waves"]
+	return waves.slice(maxi(0, wave_end - Content.WAVES_PER_GROUP), wave_end)
+
+
+func _send_reinforcements() -> void:
+	var waves: Array = sim.level["waves"]
+	if waves.is_empty():
+		return
+	var first = maxi(0, wave_end - 12) if bool(sim.level.get("special", false)) else 0
+	var count = mini(waves.size(), wave_end) - first
+	if count <= 0:
+		return
+	var index = first + reinforcement_index % count
+	var interval = 18.0
+	if index + 1 < first + count:
+		interval = float(waves[index + 1]["t"]) - float(waves[index]["t"])
+	var mass_ratio = REINFORCEMENT_MASS * Content.wave_mass_ratio(sim.level, index)
+	sim.queue_roster(waves[index], -1, mass_ratio, Content.wave_low_only(sim.level, index), true)
+	reinforcement_index += 1
+	adds_at = sim.time + interval
+
 
 func _spawn_add(role: String,source=null) -> bool:
 	if not alive() or sim.time<spawn_gate or sim.active_zombies()>=int(config.adds.live_cap):return false
@@ -321,6 +345,16 @@ func _random_cell(first: int,last: int,empty: bool=false) -> Dictionary:
 	return _target(int(cell[0]),int(cell[1]))
 
 func _start_small() -> void:
+	small_casts += 1
+	if small_casts >= FINAL_WAVE_FIRST_CAST \
+			and (small_casts - FINAL_WAVE_FIRST_CAST) % FINAL_WAVE_CAST_INTERVAL == 0:
+		action = {"kind": "summon_wave", "targets": [], "warning_start": sim.time,
+			"warning_end": sim.time + 2.4, "hit": 0, "kills": 0}
+		state = "small_warning"
+		state_end = sim.time + 2.4
+		sim.banner = {"text": "首领号令 · 大批恶客来袭", "t": 2.4, "max": 2.4}
+		sim.sfx("boss_warning")
+		return
 	var kind="tunnel" if id=="earth" else ("seal" if alternate%2==0 else "paper_ferry")
 	if id=="river":kind="crab"
 	alternate+=1
@@ -377,6 +411,15 @@ func _start_major() -> void:
 	sim.sfx("boss_warning")
 
 func _resolve_small() -> void:
+	if String(action.kind) == "summon_wave":
+		var final_wave = _final_wave()
+		var delay = 0.0
+		for wave in final_wave:
+			var prior_count: int = sim.spawn_queue.size()
+			sim.queue_roster(wave, -1, 1.0, false, true, delay)
+			delay += maxf(0.9, float(sim.spawn_queue.size() - prior_count) * 0.38)
+		sim.sfx("alert")
+		return
 	for cell in action.targets:
 		var pos: Vector2=sim.cell_pos(int(cell.c),int(cell.r))
 		match String(action.kind):
@@ -390,12 +433,12 @@ func _resolve_small() -> void:
 			"seal":
 				var host=sim.main_plant_at(int(cell.c),int(cell.r))
 				if host!=null and not host.dead and _prop_count()<2:
-					var duration=2.0 if host.def.has("produce") else 5.0
+					var duration = (2.0 if host.def.has("produce") else 5.0) * SKILL_FORCE
 					host.sealed_until=sim.time+duration
 					_add_prop("paper_seal",cell,120,duration)
 			"crab":
 				if sim.time>=spawn_gate and sim.active_zombies()<int(config.adds.live_cap):
-					var z=sim.make_boss_proxy("crab",int(cell.r),Geo.SPAWN_X,180,
+					var z=sim.make_boss_proxy("crab",int(cell.r),Geo.SPAWN_X,180 * SKILL_FORCE,
 						{"kind":"crab","until":sim.time+10.0,"next":0.0,"c":int(cell.c),"r":int(cell.r)})
 					props.append(z);spawn_gate=sim.time+1.5
 	sim.sfx("boss_impact")
@@ -409,7 +452,7 @@ func _prop_count() -> int:
 func _add_prop(kind: String,cell: Dictionary,health: float,life: float) -> void:
 	if _prop_count()>=2:return
 	var pos: Vector2=sim.cell_pos(int(cell.c),int(cell.r))
-	var z=sim.make_boss_proxy("prop",int(cell.r),pos.x,health,
+	var z=sim.make_boss_proxy("prop",int(cell.r),pos.x,health * SKILL_FORCE,
 		{"kind":kind,"until":sim.time+life,"next":sim.time+(4.0 if kind=="tunnel" else 3.0),
 		"c":int(cell.c),"r":int(cell.r)})
 	props.append(z)
@@ -470,6 +513,7 @@ func break_prop(z) -> void:
 	sim.sfx("boss_paper" if kind in ["paper_ferry","paper_seal"] else "boss_impact")
 
 func _hurt_cell(cell: Dictionary,amount: float) -> void:
+	amount *= SKILL_FORCE
 	if int(cell.c)<2:return
 	var p=sim.main_plant_at(int(cell.c),int(cell.r))
 	if p==null or p.dead or p.is_lily or p.ash:return
@@ -498,7 +542,7 @@ func _resolve_major() -> void:
 		_hurt_cell(cell,float(config.major.damage_per_hit))
 		if id=="paper":
 			var host=sim.main_plant_at(int(cell.c),int(cell.r))
-			if host!=null and not host.dead:host.sealed_until=maxf(host.sealed_until,sim.time+2.0)
+			if host!=null and not host.dead:host.sealed_until=maxf(host.sealed_until,sim.time + 2.0 * SKILL_FORCE)
 		emit("earth" if id=="earth" else ("paper" if id=="paper" else "water"),sim.cell_pos(int(cell.c),int(cell.r)))
 		sim.shake=maxf(sim.shake,3.0);sim.sfx("boss_impact")
 		action.hit=index+1
@@ -525,7 +569,7 @@ func serialize() -> Dictionary:
 		"major_queue","fired","action","cell_cooldowns","repair_marks","destruction_used","supply_given","alternate","last_lane",
 		"lane_streak","last_major_row","cc_log","stun_until","total_damage","add_count","peak_adds","major_count","last_boss_destroy_at",
 		"major_wait_since","adds_were_paused","hit_tokens","effects", "body_row", "blink_from",
-		"blink_at", "smalls_to_blink"]:
+		"blink_at", "smalls_to_blink", "small_casts", "reinforcement_index"]:
 		saved[name]=get(name)
 	var proxy_rows: Array=[]
 	for z in body_targets+props:

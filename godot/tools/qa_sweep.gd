@@ -95,11 +95,13 @@ static func _night_name(level: Dictionary) -> String:
 static func night_pressure(level: Dictionary) -> float:
 	var scale = sqrt(maxf(0.1, Sim.effective_threat(level)))
 	var total = 0.0
-	for wave in level["waves"]:
-		for group in wave["groups"]:
+	for wave_no in level["waves"].size():
+		var wave: Dictionary = level["waves"][wave_no]
+		var mass_ratio = Content.wave_mass_ratio(level, wave_no)
+		for group in wave.get("budget_groups", wave["groups"]):
 			var def: Dictionary = Content.ZOMBIES[String(group[0])]
 			total += maxf(1.0, float(group[1]) * scale) \
-				* (float(def["hp"]) + float(def.get("armor", 0.0))) * scale
+				* (float(def["hp"]) + float(def.get("armor", 0.0))) * scale * mass_ratio
 	return total
 
 

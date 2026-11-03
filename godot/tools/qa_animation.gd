@@ -15,7 +15,7 @@ func check(label: String, condition: bool) -> void:
 		printerr("FAIL ", label)
 
 
-func check_actor(catalog: Dictionary, id: String, clips: Array) -> void:
+func check_actor(catalog: Dictionary, id: String, clips: Array, frames: int = 4) -> void:
 	var actor: Dictionary = catalog.get(id, {})
 	var art := "res://" + String(actor.get("file", ""))
 	check(id + " 图集可加载", not actor.is_empty() and ResourceLoader.exists(art))
@@ -35,8 +35,8 @@ func check_actor(catalog: Dictionary, id: String, clips: Array) -> void:
 				var pose := image.get_region(region)
 				if pose.get_used_rect().has_area():
 					poses[hash(pose.get_data())] = true
-		check("%s %s 有四帧且至少三幅不同画面" % [id, clip],
-			sequence.size() == 4 and poses.size() >= 3)
+		check("%s %s 有%d帧且不同画面不少于75%%" % [id, clip, frames],
+			sequence.size() == frames and poses.size() >= ceili(frames * 0.75))
 
 
 func check_sedan() -> void:
@@ -109,8 +109,8 @@ func check_projectiles() -> void:
 func run() -> void:
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_frames.json"))
 	for type in Content.PLANT_ORDER:
-		check_actor(catalog, type, ["idle", "action"])
-		if type == "firework": # No capstone form swap.
+		check_actor(catalog, type, ["idle", "action", "switch", "far_idle", "far", "dual"] if type == "dragon" else ["idle", "action"])
+		if type in ["firework", "dragon"]: # No separate capstone actor swap.
 			continue
 		for path in Upgrades.paths_for(type):
 			check_actor(catalog, "%s-e%d" % [type, int(path.id)], ["idle", "action"])
@@ -119,12 +119,22 @@ func run() -> void:
 		var def: Dictionary = Content.ZOMBIES[type]
 		if def.tier != "h" and not bool(def.get("sedan_only", false)):
 			clips += ["swim", "swim_bite"]
-		check_actor(catalog, type, clips)
+		if type == "returner":
+			clips.append("revive")
+		if type == "phaseguard":
+			check_actor(catalog, "phase-veil", clips)
+			check_actor(catalog, "phase-kite", clips)
+		else:
+			check_actor(catalog, type, clips)
 	for variant in ["sedan-empty", "sedan-loaded"]:
 		check_actor(catalog, variant, ["walk", "attack"])
 	for boss in ["earth", "paper", "river"]:
 		for pose in ["idle", "anticipation", "small", "major", "hurt", "defeat"]:
 			check_actor(catalog, "boss-%s-%s" % [boss, pose], ["idle", "action"])
+	var motion: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json"))
+	check("所有原画角色都已烘焙32帧动作", catalog.size() == motion.size())
+	for actor in catalog:
+		check_actor(motion, actor, catalog[actor]["clips"].keys(), 32)
 	check_sedan()
 	check_projectiles()
 	var out := FileAccess.open("res://qa/animation-tests.json", FileAccess.WRITE)

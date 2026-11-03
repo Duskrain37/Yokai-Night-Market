@@ -372,12 +372,16 @@ static func sprite(name: String) -> Texture2D:
 	if name == "sedan" and ResourceLoader.exists("res://assets/sprites/sedan-v041.png"):
 		path = "res://assets/sprites/sedan-v041.png"
 	var texture: Texture2D = null
-	var atlas_path = "res://assets/sprites/animation/%s.png" % name
-	if name in ["bride", "gust", "firework"] and ResourceLoader.exists(atlas_path):
+	var portrait_actor = "phase-veil" if name == "phaseguard" else name
+	var atlas_path = "res://assets/sprites/animation/%s.png" % portrait_actor
+	var animated_portraits = ["bride", "gust", "firework", "squash", "dragon", "returner",
+		"matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell"]
+	if name in animated_portraits and ResourceLoader.exists(atlas_path):
 		var sheet: Texture2D = load(atlas_path)
+		var rows = {"dragon": 6, "returner": 5, "phaseguard": 4, "shieldguard": 4, "reedboat": 4}
 		var portrait := AtlasTexture.new()
 		portrait.atlas = sheet
-		portrait.region = Rect2(Vector2.ZERO, sheet.get_size() / Vector2(4.0, 2.0))
+		portrait.region = Rect2(Vector2.ZERO, sheet.get_size() / Vector2(4.0, float(rows.get(name, 2))))
 		portrait.filter_clip = true
 		texture = portrait
 	elif ResourceLoader.exists(path):

@@ -1,26 +1,29 @@
 {
-  "version": "0.4.1",
-  "build_hash": "07444bd",
-  "exe_bytes": 306944504,
-  "exe_sha256": "8ffca157ca62f15fe707403b15d038b78c11396115db6f46093d1d5017848a70",
+  "version": "0.4.2",
+  "build_hash": "12b2c37",
+  "exe_bytes": 628539928,
+  "exe_sha256": "bd9b1eb2cc092d9a062702a84eedacd78fa20166210f0a7c342f549ec8584c23",
   "assertions": {
-    "logic-tests": 302,
-    "battle-tests": 38,
-    "boss-tests": 131,
+    "logic-tests": 304,
+    "battle-tests": 39,
+    "boss-tests": 143,
     "special-tests": 76,
     "ui-tests": 71,
-    "click-tests": 20,
-    "player-ui-tests": 209,
-    "animation-tests": 306,
-    "patch-tests": 25
+    "click-tests": 24,
+    "player-ui-tests": 227,
+    "animation-tests": 689,
+    "patch-tests": 73
   },
-  "assertion_total": 1178,
+  "assertion_total": 1646,
   "failures": 0,
   "boss_simulations": 27,
   "boss_reference_seconds": [
-    109.7,
-    128.9
+    70.5,
+    133.7
   ],
+  "boss_reference_wins": 9,
+  "boss_legacy_fixture_wins": 0,
+  "motion_frames": 7520,
   "platform": "Windows x64",
-  "verification": "自动检查、导出包启动与图集加载、GPU 实机截图；未做人手十五夜全通。"
+  "verification": "自动检查、Windows 导出包启动、实机画面与首领阵容模拟。未做人手十五夜全通。"
 }

@@ -77,7 +77,27 @@
     },
     {
       "detail": "",
+      "name": "升阶：直接点相邻草木切换扇面",
+      "ok": true
+    },
+    {
+      "detail": "",
       "name": "升阶：点别处关掉扇形",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "工具：起土铲按钮以立绘表示",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "工具：点起土铲进入移除模式",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "工具：移除草木并播放动画",
       "ok": true
     },
     {
@@ -102,5 +122,5 @@
     }
   ],
   "failures": 0,
-  "total": 20
+  "total": 24
 }

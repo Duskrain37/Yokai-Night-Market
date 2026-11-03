@@ -1,4 +1,13 @@
-# 妖怪夜市 v0.4.1 动画制作与接入
+# 妖怪夜市动画制作与接入
+
+v0.4.2 的战斗图集按每个动作 32 帧播放。原画四个关键姿势仍存于 `actor_frames.json`，并保留脚底或水线锚点。烘焙脚本在锚点坐标里计算相邻姿势的双向光流，补出运动中间帧，对遮挡处优先采用近端轮廓。成品是 `assets/sprites/motion/*.webp` 与 `data/actor_motion.json`。游戏按动作经过的时间逐帧采样。构建时只使用已经烘焙的图集，改过原画时才需要 Python、Pillow、NumPy 和 `opencv-python-headless`。
+
+```powershell
+python tools/bake_motion_frames.py --actor ironjudge
+python tools/bake_motion_frames.py
+```
+
+第一条命令仅更新一个角色，第二条重建全体角色的动作。三阶草木和首领仍可先用下文骨骼模板重新生成关键姿势，再烘焙 32 帧图集。大型铁面与铁桶的脸部锚点和关键姿势一同插值，走路、攻击与入水后的护具位置随头部变化。
 
 战斗从 `data/actor_frames.json` 读取透明 PNG 图集。草木按事件切换 `idle` 与 `action`，恶客在地面使用 `walk`、`attack`，水里使用 `swim`、`swim_bite`。下水时播放溅水并由行走帧过渡到游泳帧。所有动作帧以脚底或水线为锚点；同一角色的缩放基准取待机或行走高度，动作幅度不通过逐帧拉伸修正。护具应对准穿戴部位，轿厢与两只抬轿小鬼分图层，随行走与攻击同步播放。
 
@@ -33,6 +42,6 @@ python tools/register_actor_atlas.py new-guest "C:/art/new-guest.png" walk,attac
 & "C:/path/to/Godot_console.exe" --headless --path . --script res://tools/qa_animation.gd
 ```
 
-先看脚底与轮廓有无跳动、动作是否在技能触发时读得清，再看近远两行、遮挡和破损。烟花与推风的落点须与模拟一致；水路帧脚部收在水线下；Boss 闪影末帧和碰撞占行必须同时切换。动画自检会验证透明图集可加载、帧区域有效、每组四帧至少三幅不同画面，实机仍需检查动作观感。
+先看脚底与轮廓有无跳动、动作是否在技能触发时读得清，再看近远两行、遮挡和破损。烟花与推风的落点须与模拟一致；水路帧脚部收在水线下；Boss 闪影末帧和碰撞占行必须同时切换。动画自检会验证透明图集可加载、帧区域有效，以及每组 32 帧至少四分之三的画面不同。实机还应逐段查看手脚和护具是否重影。
 
 参考：[Godot 的 2D 骨骼文档](https://docs.godotengine.org/en/stable/tutorials/animation/2d_skeletons.html)。

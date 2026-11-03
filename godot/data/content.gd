@@ -12,12 +12,13 @@ const COLS = 9
 const PLANT_ORDER: Array[String] = [
 	"lantern", "shooter", "wall", "bomb", "bell", "censer", "umbrella", "lion",
 	"mushroom", "cat", "shell", "lobber", "torch", "star", "needle", "judge",
-	"lily", "kelp", "gust", "firework",
+	"lily", "kelp", "gust", "firework", "squash", "dragon",
 ]
 
 const ZOMBIE_ORDER: Array[String] = [
 	"ghost", "tongue", "straw", "paper", "stonehat", "bucket",
 	"vault", "mourner", "sedan", "artisan", "ironjudge", "mountain", "bride",
+	"returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell",
 ]
 
 const TIERS = {
@@ -83,7 +84,7 @@ const PLANTS = {
 		"sprite_h": 104, "attach": true, "tint": "#86966f",
 	},
 	"lobber": {
-		"name": "汤圆仔", "role": "抛射", "cost": 125, "cooldown": 12, "hp": 300,
+		"name": "汤圆仔", "role": "抛射", "cost": 100, "cooldown": 12, "hp": 300,
 		"sprite_h": 94, "lob": {"interval": 2.6, "damage": 40.0, "flight": 0.9},
 		"tint": "#e8d6ac",
 	},
@@ -110,8 +111,16 @@ const PLANTS = {
 		"sprite_h": 94, "ash": true, "no_upgrade": true, "gust": {"fuse": 0.6}, "tint": "#649f99",
 	},
 	"firework": {
-		"name": "烟花童", "role": "抛射", "cost": 200, "cooldown": 24, "hp": 320,
+		"name": "烟花童", "role": "抛射", "cost": 300, "cooldown": 24, "hp": 320,
 		"sprite_h": 100, "firework": true, "tint": "#c77941",
+	},
+	"squash": {
+		"name": "镇煞瓜", "role": "灰烬", "cost": 75, "cooldown": 30, "hp": 300,
+		"sprite_h": 88, "ash": true, "no_upgrade": true, "squash": true, "tint": "#91a46b",
+	},
+	"dragon": {
+		"name": "龙首铳", "role": "近攻", "cost": 250, "cooldown": 24, "hp": 550,
+		"sprite_h": 102, "dragon": true, "tint": "#b08d54",
 	},
 	"lily": {
 		"name": "夜莲", "role": "浮台", "cost": 25, "cooldown": 5, "hp": 260,
@@ -159,6 +168,39 @@ const ZOMBIES = {
 		"hp": 520.0, "armor": 950.0, "armor_type": "sedan", "armor_name": "轿壳",
 		"speed": 14.0, "dps": 120.0, "scale": 1.0, "sprite_h": 118, "death": "sedan",
 		"split": {"type": "ghost", "count": 2, "hp": 0.6},
+	},
+	"returner": {
+		"name": "回灯鬼", "kind": "复生", "tier": "m", "hp": 250.0, "armor": 0.0,
+		"speed": 17.0, "dps": 60.0, "scale": 0.98, "sprite_h": 109, "death": "ghost",
+	},
+	"matchmaker": {
+		"name": "红绳媒", "kind": "召唤", "tier": "h", "hp": 580.0, "armor": 0.0,
+		"speed": 11.5, "dps": 65.0, "scale": 1.0, "sprite_h": 118, "death": "mourner",
+		"special_period": 11.0,
+	},
+	"phaseguard": {
+		"name": "双相傀", "kind": "变相", "tier": "m", "hp": 420.0, "armor": 0.0,
+		"speed": 17.0, "dps": 70.0, "scale": 1.0, "sprite_h": 104, "death": "paper",
+	},
+	"tamer": {
+		"name": "巡相师", "kind": "召唤", "tier": "h", "hp": 750.0, "armor": 0.0,
+		"speed": 12.5, "dps": 75.0, "scale": 1.02, "sprite_h": 124, "death": "paper",
+		"special_period": 9.0,
+	},
+	"shieldguard": {
+		"name": "持牌鬼", "kind": "盾牌", "tier": "m", "hp": 340.0, "armor": 1080.0,
+		"armor_type": "shield", "armor_name": "护身牌", "projectile_shield": true,
+		"speed": 16.0, "dps": 70.0, "scale": 1.0, "sprite_h": 114, "death": "stonehat",
+	},
+	"reedboat": {
+		"name": "蒲舟客", "kind": "水路", "tier": "m", "hp": 320.0, "armor": 380.0,
+		"armor_type": "raft", "armor_name": "蒲舟", "water_only": true, "armor_speed": 1.9,
+		"speed": 16.0, "dps": 60.0, "scale": 1.0, "sprite_h": 104, "death": "ghost",
+	},
+	"dreambell": {
+		"name": "梦铃婆", "kind": "催眠", "tier": "h", "hp": 1050.0, "armor": 0.0,
+		"speed": 13.5, "dps": 90.0, "scale": 1.0, "sprite_h": 118, "death": "mourner",
+		"special_period": 11.0,
 	},
 	"bride": {
 		"name": "鬼新娘", "kind": "轿中客", "tier": "m",
@@ -220,15 +262,15 @@ const LOADOUT_TIPS = {
 	# 夜市街：五条平地一线排开，先站稳再讲输出
 	"street": ["lantern", "shooter", "wall", "bell", "censer", "torch", "cat",
 		"needle", "judge", "umbrella", "lion", "lobber", "star", "mushroom",
-		"firework", "bomb", "gust", "shell", "lily", "kelp"],
+		"firework", "dragon", "squash", "bomb", "gust", "shell", "lily", "kelp"],
 	# 河埠口：右四列有杂物挡道，种不进去就得靠抛物线、跨行与长手
 	"market": ["lantern", "shooter", "wall", "bell", "lobber", "cat", "judge",
 		"star", "censer", "torch", "needle", "umbrella", "lion", "mushroom",
-		"firework", "bomb", "gust", "shell", "lily", "kelp"],
+		"firework", "dragon", "squash", "bomb", "gust", "shell", "lily", "kelp"],
 	# 暗河：第二、四行是水，先铺夜莲才种得下别的东西，缠魂藻只在水里做事
 	"water": ["lily", "lantern", "shooter", "wall", "kelp", "bell", "cat",
 		"lobber", "censer", "torch", "needle", "judge", "star", "umbrella",
-		"lion", "mushroom", "firework", "bomb", "gust", "shell"],
+		"lion", "mushroom", "firework", "dragon", "squash", "bomb", "gust", "shell"],
 }
 
 
@@ -308,6 +350,18 @@ static func visible_wave_groups(level: Dictionary,released: int) -> Array:
 
 ## 玩家语言只有一套：一夜 = 几大波，一大波里 = 三小拨。
 ## 内部仍按 12 小波排波（wave_index），所有界面都走这两个函数换算。
+static func _is_third_week_main(level: Dictionary) -> bool:
+	return int(level.get("day", 0)) == 3 and not bool(level.get("special", false))
+
+
+static func wave_mass_ratio(level: Dictionary, wave_index: int) -> float:
+	return 0.60 if _is_third_week_main(level) and wave_index < 2 * WAVES_PER_GROUP else 1.0
+
+
+static func wave_low_only(level: Dictionary, wave_index: int) -> bool:
+	return _is_third_week_main(level) and wave_index < 2
+
+
 static func wave_sub(wave_index: int) -> int:
 	return int(wave_index % WAVES_PER_GROUP) + 1
 
@@ -355,6 +409,38 @@ const DAY_LEVELS = [
 	],
 ]
 
+const NIGHT_LESSONS = [
+	[
+		["熟悉五条街道。先攒香火，每行留一处能出手的草木。", ""],
+		["斗笠和石帽能挡住头几下。让同一行两株草木合力拆甲。", "stonehat"],
+		["跳幡鬼会跃过第一株草木。前面用石磨接它，输出往后放。", "vault"],
+		["回灯鬼倒下还能站起来。等这一行安静了，再把香火花去别处。", "returner"],
+		["熟客与生客都会上门。留些香火应付首领换行和援军。", ""],
+	],
+	[
+		["木栈和岸道隔得更开。先看清每一行从哪里来客，再落子。", ""],
+		["哭丧鬼会拖慢近处的草木。用更远的射程先打它。", "mourner"],
+		["持牌鬼专挡射弹。让近身草木或爆竹绕开这块牌。", "shieldguard"],
+		["纸扎匠会给身边的恶客补护具。先把它请下场。", "artisan"],
+		["今夜各路恶客都会来，缚愿纸官也会带来援军。", ""],
+	],
+	[
+		["两条水路把暗河分开。先铺夜莲，也给水路留出输出。", ""],
+		["蒲舟客只走水路，浮舟没破时走得快。先给水路补一层防线。", "reedboat"],
+		["双相傀会换相。把直射和抛射布在一起，两种身相都能应付。", "phaseguard"],
+		["梦铃婆会让草木打盹。关键一行留两处输出，别只指望一株。", "dreambell"],
+		["水陆各路恶客都会出没。暗河傩主现身后，留意它占住哪两行。", ""],
+	],
+]
+
+const NIGHT_INTRODUCTIONS = [
+	[["ghost", "tongue", "paper"], ["straw", "stonehat"], ["vault", "bucket"], ["returner", "mourner"]],
+	[["ghost", "tongue", "straw", "paper", "mountain"], ["mourner", "stonehat", "bucket"],
+		["shieldguard", "vault", "returner"], ["artisan", "sedan", "ironjudge"]],
+	[["ghost", "tongue", "straw", "paper", "mountain"], ["reedboat", "stonehat", "bucket"],
+		["phaseguard", "returner", "vault", "shieldguard", "tamer"], ["dreambell", "mourner", "sedan", "matchmaker"]],
+]
+
 
 static var LEVELS: Array = []
 
@@ -381,19 +467,20 @@ static func _build_levels() -> Array:
 				"tag": info["tag"],
 				"threat": info["threat"],
 				"band": info["band"],
-				"theme": String(info.get("theme", "")),
-				"theme_zombie": String(info.get("theme_zombie", "")),
+				"theme": NIGHT_LESSONS[day_index][night][0],
+				"theme_zombie": NIGHT_LESSONS[day_index][night][1],
 				"water_rows": WATER_ROWS if day["map"] == "water" else [],
 				"object_cells": WATER_OBJECTS if day["map"] == "water" else [],
 				"start_sun": 100,
 				"wave_groups": [4, 4, 6, 6, 8][night],
 				"boss_id": ["earth", "paper", "river"][day_index] if night == 4 else "",
-				"waves": build_waves(info["band"], [4, 4, 6, 6, 8][night]),
+				"waves": _night_roster(_with_guest_variants(build_waves(info["band"], [4, 4, 6, 6, 8][night]),
+					day_index + 1, night), day_index, night),
 			})
 	# Special gauntlet: twelve regular major waves PLUS three checkpoint bosses.
 	var special_waves: Array=[]
 	for section in 3:
-		var chunk=build_waves("late",4)
+		var chunk = _with_guest_variants(build_waves("late", 4), 3, 4)
 		for wave in chunk:
 			wave.t=float(wave.t)+section*216.0
 			wave.threat=[2.0,2.5,3.5][section]
@@ -407,8 +494,111 @@ static func _build_levels() -> Array:
 	return out
 
 
+## Keep the exact scheduled count, timing, and original durability budget. Only substitute roles.
+static func _night_roster(waves: Array, week: int, night: int) -> Array:
+	var allowed: Array = []
+	if night == 4:
+		for type in ZOMBIE_ORDER:
+			if not bool(ZOMBIES[type].get("sedan_only", false)) and (week == 2 or not bool(ZOMBIES[type].get("water_only", false))):
+				allowed.append(type)
+	else:
+		for i in range(night + 1):
+			allowed.append_array(NIGHT_INTRODUCTIONS[week][i])
+	var substitutes := {"l": "ghost", "m": "paper", "h": "mountain"}
+	var previous := {}
+	var slots: Array = []
+	for index in waves.size():
+		var wave: Dictionary = waves[index]
+		wave["budget_groups"] = wave["groups"]
+		wave["guest_slots"] = []
+		for group in wave["budget_groups"]:
+			var original: String = group[0]
+			var type: String = original if original in allowed else substitutes[ZOMBIES[original]["tier"]]
+			var replacements: Array = []
+			for i in int(group[1]):
+				replacements.append(type)
+				if index >= (2 if week == 2 else 0) and index < waves.size() - (WAVES_PER_GROUP if night == 4 else 0):
+					slots.append({"picks": replacements, "slot": i})
+					previous[type] = int(previous.get(type, 0)) + 1
+			wave["guest_slots"].append(replacements)
+	# Ensure a first encounter with every newly eligible type before the boss takes over.
+	for wanted in allowed:
+		if previous.has(wanted):
+			continue
+		var tier: String = ZOMBIES[wanted]["tier"]
+		var donor_tiers := [tier]
+		# The first week's boss night has fewer high-tier slots than distinct high-tier guests.
+		# Borrow a late middle-tier slot, with no increase to the original batch's budget.
+		if night == 4 and tier == "h":
+			donor_tiers.append("m")
+		for donor in donor_tiers:
+			for i in range(slots.size() - 1, -1, -1):
+				var slot: Dictionary = slots[i]
+				var incumbent: String = slot.picks[slot.slot]
+				if ZOMBIES[incumbent]["tier"] != donor or int(previous[incumbent]) < 2:
+					continue
+				slot.picks[slot.slot] = wanted
+				previous[incumbent] -= 1
+				previous[wanted] = 1
+				break
+			if previous.has(wanted):
+				break
+	for wave in waves:
+		var counts := {}
+		for picks in wave["guest_slots"]:
+			for type in picks:
+				counts[type] = int(counts.get(type, 0)) + 1
+		wave["groups"] = []
+		for type in counts:
+			wave["groups"].append([type, counts[type]])
+	return waves
+
+
 ## 某一天（1—3）的威胁区间，界面用它把当天的五夜排成一条自己的尺。
 ## 最新用户规则：这些是实际关卡系数，暗河不再另加码；玩家界面只画进度条。
+## Replace slots within their original tier. The new guests change tactics without adding spawns.
+static func _with_guest_variants(waves: Array, week: int, night: int) -> Array:
+	if week == 1 and night >= 2:
+		_replace_guest(waves, 8, "returner")
+	elif week == 2:
+		_replace_guest(waves, 6, "returner")
+		_replace_guest(waves, 8, "phaseguard")
+		if night >= 2:
+			_replace_guest(waves, 10, "shieldguard")
+		if night >= 3:
+			_replace_guest(waves, 11, "dreambell")
+	elif week == 3:
+		_replace_guest(waves, 6, "reedboat")
+		_replace_guest(waves, 7, "returner")
+		_replace_guest(waves, 8, "phaseguard")
+		_replace_guest(waves, 9, "shieldguard")
+		_replace_guest(waves, 10, "dreambell")
+		_replace_guest(waves, 11, "matchmaker")
+		if night >= 2:
+			_replace_guest(waves, 11, "tamer")
+			_replace_guest(waves, 15, "reedboat")
+	return waves
+
+
+static func _replace_guest(waves: Array, index: int, guest: String) -> void:
+	if index >= waves.size():
+		return
+	var groups: Array = waves[index]["groups"]
+	var tier = ZOMBIES[guest]["tier"]
+	for i in groups.size():
+		var old = groups[i]
+		if String(old[0]) in ["returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell"]:
+			continue
+		if ZOMBIES[String(old[0])]["tier"] != tier:
+			continue
+		if int(old[1]) == 1:
+			groups.remove_at(i)
+		else:
+			old[1] = int(old[1]) - 1
+		groups.append([guest, 1])
+		return
+
+
 static func day_threat_range(day: int) -> Array:
 	if day < 1 or day > DAY_THREAT_RANGE.size():
 		return [0.8, 3.0]
@@ -534,6 +724,8 @@ static func _add_tier_group(groups: Array, tier: String, count: int, wi: int) ->
 
 ## 关卡里第一次出现某种恶客的夜与波（图鉴「初遇」栏用）。
 static func first_appearance(zombie_type: String) -> String:
+	if zombie_type == "bride":
+		zombie_type = "sedan"
 	for level in LEVELS:
 		var waves: Array = level["waves"]
 		for i in waves.size():
@@ -557,6 +749,6 @@ static func plants_in_level(level: Dictionary) -> Array:
 				seen.append(group[0])
 	var ordered: Array = []
 	for type in ZOMBIE_ORDER:
-		if seen.has(type):
+		if seen.has(type) or (type == "bride" and (seen.has("sedan") or seen.has("matchmaker"))):
 			ordered.append(type)
 	return ordered

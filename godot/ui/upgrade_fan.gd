@@ -8,12 +8,13 @@ extends Control
 signal picked(path_id: int)
 signal dismissed
 
-const INNER := 52.0
-const OUTER := 126.0
-const SPREAD := 26.0          # 每片扇叶的半角（度）
-const GAP := 30.0             # 扇叶之间的角度间隔（度）
+const INNER := 47.0
+const OUTER := 120.0
+const SPREAD := 24.0
+const GAP := 9.0
 
 var plant = null
+var sim: Sim
 var entries: Array = []       # [{id, name, color, tier, ok, cost, desc, reason}]
 var _hover := -1
 var _time := 0.0
@@ -32,12 +33,13 @@ func _process(delta: float) -> void:
 func center() -> Vector2:
 	if plant == null:
 		return Vector2.ZERO
-	return Geo.to_screen(plant.pos)
+	return Geo.to_screen(plant.pos, sim.rows if sim != null else 0)
 
 
 func _petal_angle(index: int) -> float:
 	var count := maxi(1, entries.size())
-	return -90.0 + (float(index) - (count - 1) * 0.5) * (SPREAD * 2.0 + GAP)
+	var direction := 90.0 if center().y < 265.0 else -90.0
+	return direction + (float(index) - (count - 1) * 0.5) * (SPREAD * 2.0 + GAP)
 
 
 func _point(radius: float, degrees: float) -> Vector2:
@@ -59,11 +61,19 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 		picked.emit(int(entries[hit]["id"]))
 		return
-	accept_event()
-	dismissed.emit()
+
+
+func _has_point(pos: Vector2) -> bool:
+	return hit_test(pos) >= 0
 
 
 func hit_test(pos: Vector2) -> int:
+	if sim != null:
+		var cell := Geo.screen_cell_at(pos, sim.rows)
+		if cell.x >= 0:
+			var other = sim.main_plant_at(cell.x, cell.y)
+			if other != null and other != plant and pos.distance_to(Geo.to_screen(other.pos, sim.rows)) < 33.0:
+				return -1
 	var offset := pos - center()
 	var dist := offset.length()
 	if dist < INNER * 0.8 or dist > OUTER + 18.0:
@@ -116,12 +126,19 @@ func _draw_petal(index: int) -> void:
 	for s in segments + 1:
 		var a := mid + SPREAD - (SPREAD * 2.0) * float(s) / segments
 		points.append(_point(INNER, a))
-	var alpha := (0.34 if ok else 0.16) + (0.08 if hovered else 0.0)
-	draw_colored_polygon(points, Color(0.03, 0.05, 0.06, 0.88))
+	var alpha := (0.42 if ok else 0.13) + (0.12 if hovered else 0.0)
+	var lacquer := Color(0.11, 0.12, 0.105, 0.96).lerp(color, alpha * 0.27)
+	draw_colored_polygon(points, lacquer)
 	var outline := points.duplicate()
 	outline.append(points[0])
-	draw_polyline(outline, Color(color.r, color.g, color.b, 0.9 if ok else 0.4),
-		2.2 if hovered else 1.6)
+	draw_polyline(outline, Color(Ui.GOLD_DIM, 0.93 if ok else 0.45), 2.2 if hovered else 1.3, true)
+	var band := PackedVector2Array()
+	for segment in segments + 1:
+		band.append(_point(outer - 5, mid - SPREAD + 3 + (SPREAD * 2 - 6) * float(segment) / segments))
+	draw_polyline(band, Color(color.lerp(Ui.GOLD_BRIGHT, 0.44), alpha + 0.22), 1.1, true)
+	var seal := _point(outer - 10.0, mid)
+	draw_colored_polygon(PackedVector2Array([seal + Vector2(-3, 0), seal + Vector2(0, -4),
+		seal + Vector2(3, 0), seal + Vector2(0, 4)]), Color(Ui.GOLD_BRIGHT, alpha + 0.32))
 	# 填充一层颜色，越靠外越淡
 	for s in segments:
 		var a0 := mid - SPREAD + (SPREAD * 2.0) * float(s) / segments
@@ -181,7 +198,8 @@ func _draw_tooltip() -> void:
 	var h := 26.0 + float(lines.size()) * 20.0 + 10.0
 	var w := max_w + 20.0
 	var anchor := _point(OUTER + 26.0, _petal_angle(_hover))
-	var rect := Rect2(anchor - Vector2(w * 0.5, h), Vector2(w, h))
+	var rect := Rect2(Vector2(clampf(anchor.x - w * 0.5, 12.0, size.x - w - 12.0),
+		clampf(anchor.y - h if center().y >= 265.0 else anchor.y, 105.0, size.y - h - 16.0)), Vector2(w, h))
 	Ui.draw_plate(self, rect, Color(0.96, 0.92, 0.82, 0.97),
 		Color(Ui.VERMILION.r, Ui.VERMILION.g, Ui.VERMILION.b, 0.8), 14, 2)
 	var tw := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
@@ -211,8 +229,10 @@ func _wrap(font: Font, text: String, size: int, max_w: float) -> Array:
 func _draw_legend() -> void:
 	# 菜单下端一行说明，贴着草木，不铺满屏
 	var origin := center()
-	var text := "点扇叶升阶 · 点别处关掉"
+	var text := "最多两路 · 一路可到三阶"
 	var font := Ui.body_font()
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
-	draw_string(font, origin + Vector2(-width * 0.5, INNER + 40.0), text,
-		HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(0.86, 0.82, 0.7, 0.55))
+	var at := origin + Vector2(-width * 0.5, 46.0 if center().y >= 265.0 else -47.0)
+	Ui.draw_plate(self, Rect2(at + Vector2(-8, -14), Vector2(width + 16, 19)),
+		Color(0.09, 0.09, 0.075, 0.87), Ui.GOLD_DIM, 9, 1)
+	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.GOLD_BRIGHT)

@@ -87,9 +87,8 @@ func _stage_prep() -> void:
 	check("备战", "备战页已建立", game.screen == "prep" and screen != null)
 	var launch=_all_buttons(screen).filter(func(b):return b.text=="开战")
 	check("备战","水路备战开战按钮完整处于画面内",launch.size()==1 and launch[0].get_global_rect().end.y<=Geo.VIEW.y)
-	# 第十一夜是三夜样板之一：页面上要写明这一夜只练什么
-	check("备战", "样板夜写明这一夜练什么",
-		_has_text(_label_texts(screen), "只练一件事"))
+	check("备战", "暗河第一夜提示水路布阵",
+		_has_text(_label_texts(screen), "先铺夜莲"))
 	check("备战", "备战默认带上十张卡", Array(game.prep["selected"]).size() == 10,
 		"cards=%d" % Array(game.prep["selected"]).size())
 	screen.toggle_plant("cat")

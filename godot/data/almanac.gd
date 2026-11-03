@@ -6,6 +6,41 @@
 class_name Almanac
 extends RefCounted
 
+const BOSS_ORDER = ["earth", "paper", "river"]
+const BOSS_PAGES = {
+	"earth": ["街下有主", "第一周 · 第五夜", "震地前先有红纹，随后石俑沿街扑来。快拆挡路的石俑，把火力转到獾王所在的两行。"],
+	"paper": ["纸上有愿", "第二周 · 第五夜", "纸符会封住草木的本事，纸官还会从栈道唤来帮手。尽快打散符纸，留些香火补上空缺。"],
+	"river": ["潮底戴傩", "第三周 · 第五夜", "盯住涨潮的红纹和横冲的水蟹。傩主会闪到别处，把输出布在几行就能接住它。"],
+}
+static var _boss_data: Dictionary = {}
+static var _boss_portraits: Dictionary = {}
+
+
+static func boss_name(id: String) -> String:
+	if _boss_data.is_empty():
+		var config = JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_balance.json"))
+		for entry in config.bosses:
+			_boss_data[String(entry.id)] = String(entry.name)
+	return String(_boss_data.get(id, "首领"))
+
+
+static func boss_portrait(id: String) -> Texture2D:
+	if not _boss_portraits.has(id):
+		var path := "assets/boss/boss_%s_atlas.png" % id
+		var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_art_manifest.json"))
+		for sheet in manifest.atlases:
+			if String(sheet.file) != path:
+				continue
+			for frame in sheet.frames:
+				if String(frame.name) == "idle":
+					var crop := AtlasTexture.new()
+					crop.atlas = load("res://" + path)
+					crop.region = Rect2(frame.region[0] + frame.alpha_bbox_local[0],
+						frame.region[1] + frame.alpha_bbox_local[1], frame.alpha_bbox_local[2] - frame.alpha_bbox_local[0],
+						frame.alpha_bbox_local[3] - frame.alpha_bbox_local[1])
+					_boss_portraits[id] = crop
+	return _boss_portraits.get(id)
+
 const PLANTS = {
 	"lantern": {
 		"epithet": "摊前第一盏",
@@ -97,6 +132,16 @@ const PLANTS = {
 		"story": "烟花童总蹲在炮仗铺门口，等人来借一缕火。恶客逼近时，他把一捧火星丢过屋檐，在来客脚边开出一朵红花。",
 		"quote": "抬头，看这一朵。",
 	},
+	"squash": {
+		"epithet": "一声闷响压住邪祟",
+		"story": "老摊主把黄符系到冬瓜藤上。夜里瓜籽在壳里响了一声，整个瓜就醒了。听见恶客挨近，最沉的那一个会先跳起来。",
+		"quote": "站住，我马上下来。",
+	},
+	"dragon": {
+		"epithet": "铜龙有两口气",
+		"story": "铸炉师把旧庙的一段龙脊装上木座。低头时喷一街青火，仰头时含一串铜丸。过路人都说，它打了个喷嚏才有了龙声。",
+		"quote": "近处我看着，远处也别想走。",
+	},
 	"lily": {
 		"epithet": "水面上借你一块落脚地",
 		"story": "暗河里漂着几片不肯沉的夜莲，叶脉里像藏着一线灯火。摊主把灯灰撒下去，莲叶便停在水面不动，成了给别的植物落脚的一块浮台。",
@@ -145,6 +190,48 @@ const ZOMBIES = {
 		"story": "抬轿鬼抬着一顶褪色的红轿，轿帘后面坐着谁，没人看清过。它们走得不快，轿子却硬得很，像把一整场喜事都糊在了木头上。空轿破了，两个饿鬼撒手继续走。若帘后坐着新娘，她也会下轿。",
 		"counter": "轿子有一半机会载着鬼新娘。用签筒击碎轿壳后，留一道火力对付下轿的客人。",
 		"quote": "起轿——别问去哪。",
+	},
+	"returner": {
+		"epithet": "灯灭一息，还会再亮",
+		"story": "送灯人把最后一盏灯揣进怀里。它摔倒时，灯焰缩成一点，隔一息又沿衣襟爬起来，脚步比先前更急。",
+		"counter": "第一次击倒后继续留火力。它一秒后满血复生，移速提高50%，只复生一次。",
+		"quote": "灯还没送到。",
+	},
+	"matchmaker": {
+		"epithet": "红线另一头是喜轿",
+		"story": "她牵着的红绳总拖过街角，没人看见尽头。打结时远处便响起脚步，抬轿鬼把帘后那位客人送到她面前。",
+		"counter": "她的身板较脆，先点掉她。进场4秒后叫来一顶喜轿，此后每11秒再叫一顶，始终是她所在的路。",
+		"quote": "红线未断，客人还要来。",
+	},
+	"phaseguard": {
+		"epithet": "一副木骨，两副相",
+		"story": "扎戏偶的师傅给它做了两副肩壳。青壳紧闭，接得住飞来的暗器。黄壳像伞一样张开，接得住从高处掉下来的东西。",
+		"counter": "青相少受50%射弹伤害，多受20%近身等伤害。黄相少受50%抛射伤害，多受20%其余伤害。生命过半时换相一次。",
+		"quote": "翻一面，再来。",
+	},
+	"tamer": {
+		"epithet": "一抖线，两路见影",
+		"story": "巡相师的影子不跟着脚走，倒跟着手腕走。铜扣一响，街上两张木脸便各寻一条路。",
+		"counter": "进场4秒后随机在各路召出两只双相傀，之后每9秒再召一次。先截住他，免得傀儡越来越多。",
+		"quote": "轮到你们登台。",
+	},
+	"shieldguard": {
+		"epithet": "硬牌挡飞签",
+		"story": "旧庙门板给夜路人拆走一块。再见时，铜扣仍在，只是门板前面多了一双石脚。",
+		"counter": "护身牌只挡射弹。香雾、撞击和贴身伤害可以越过牌子直接伤它。",
+		"quote": "飞来的，我替它们接。",
+	},
+	"reedboat": {
+		"epithet": "一苇过暗河",
+		"story": "河面低处有个撑蒲舟的客人。舟没破时看不清它的脚，只能看到水花一路赶着灯影。",
+		"counter": "只走水路。蒲舟完好时移速提高90%，击毁蒲舟后它只能游过去。",
+		"quote": "借水一程。",
+	},
+	"dreambell": {
+		"epithet": "铃响，灯下做梦",
+		"story": "她从不睁眼。摇铃时巷口静一下，被她叫中的那株草木便以为天亮了，合上眼就睡。",
+		"counter": "进场4秒后令本行一株随机草木睡3秒，之后每11秒再摇铃。准备备用火力和香火来源。",
+		"quote": "灯下睡一会儿吧。",
 	},
 	"bride": {
 		"epithet": "帘开了，喜路还没走完",
@@ -306,6 +393,14 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("直击伤害", "100", "atk"))
 			rows.append(_row("抛射间隔", "3.5 秒", "time"))
 			rows.append(_row("溅射", "0.8格 · 30%伤害", "desc"))
+		"squash":
+			rows.append(_row("砸击伤害", "1800", "atk"))
+			rows.append(_row("索敌与范围", "1格", "desc"))
+			rows.append(_row("类别", "灰烬 · 一次性", "cost"))
+		"dragon":
+			rows.append(_row("近攻伤害", "14", "atk"))
+			rows.append(_row("近攻间隔", "0.25 秒", "time"))
+			rows.append(_row("范围", "本行前方3格", "desc"))
 		"lily":
 			rows.append(_row("水面", "必须", "desc"))
 			rows.append(_row("作用", "承载一株草木", "desc"))
@@ -344,18 +439,20 @@ static func plant_ability(type: String) -> String:
 	"bomb": "点燃后稍等片刻便会爆开，重创周围的恶客。只能使用一次，适合挽救突然吃紧的一段防线。",
 	"mushroom": "埋下后需要时间长成。恶客靠近时喷出鬼火，与敌人同归于尽；要提前种，别等对方贴到门口才下手。",
 	"bell": "让本行前方的恶客放慢脚步，为整条防线争取时间。进化可以加快摇铃、让敌人停步回头，或反噬啃咬者。",
-	"censer": "香雾能同时熏伤身边多名恶客。进化可以改变烟的去向、给敌人留下香印，或让倒塌的炉子继续守着一缕余烟。",
+	"censer": "香雾能同时熏伤身边多名恶客。进化可以扩大烟圈、加深香印或加快喷烟。",
 	"umbrella": "能把靠近的非大型恶客收进伞中；遇到大型敌人则用伞骨击打。进化可以加快收妖、给自己撑起护盾，还能打开两个独立的副收妖位。",
-	"lion": "撞击并推开本行恶客。进化后可以远跃、贯穿整行，最后一击横扫这一行；也能摔落护具或为同伴喝彩。",
+	"lion": "撞击并推开本行恶客。进化后可以远跃、贯穿整行，最后一击横扫这一行；也能重摔恶客或给身边同伴恢复耐久。",
 	"cat": "尾火会追向全场最近的恶客，也能跨行救急。进化可以缩短出手间隔、接连放出十团狐火，或让每团狐火命中后再追另一名。",
 	"shell": "给已有草木披上一层龟甲。恶客先啃壳，壳碎了才伤到里面的草木；用铲子可以单独拆下龟甲，不伤及被保护的草木。",
-	"lobber": "把汤圆越过前排，抛向本行队尾。进化可以追着密集的敌人落点、砸碎护具，或留下能减速和烫伤敌人的热汤。",
+	"lobber": "把汤圆越过前排，抛向本行队尾。进化可以提高伤害、加快抛射，或留下能减速和烫伤恶客的热汤。",
 	"torch": "友军射出的竹签、尾火等穿过火焰时会变得更有威力。适合种在射手前方；进化还能留下火星、灼烧与火油。穿过多个火盆也只得到最强的一次加成。",
 	"star": "向有敌人的方向送出灯焰，适合照应多行。进化可以提高伤害或攻速，门神出手时还能短暂急巡；错过敌人的灯焰也可折回追击。",
 	"needle": "骨针穿过护具直伤本体。进化可以贯穿一整行、加快出针并钉住恶客，或让被扎中的恶客更易受伤。",
 	"judge": "把它放在容易受围攻的草木旁。它也庇护自己；进化可以挡住一次致命伤、扩大范围或鼓舞附近草木。",
 	"gust": "扇风不伤恶客，却能让各路恶客后退。大型恶客退得较少，路上有障碍时会被挡住。",
 	"firework": "烟花越过障碍，在本行落下并溅伤附近恶客。进化可以连抛、扩大爆炸或添上追踪烟花。",
+	"squash": "等恶客走到一格内，镇煞瓜便会跃起砸下。能压住聚在一起的恶客，用完即退场。",
+	"dragon": "龙首铳喷出短程气焰，打中本行近处的恶客。进化可让它仰射铜弹，或用双口同时攻近处和远处。",
 	"lily": "先在水面放一片夜莲，其他草木才有地方落脚。它只负责承载，不会攻击；水路要提前留出放夜莲的香火。",
 	"kelp": "只能在水面等候。恶客靠近时将它拖入水底，随后自己也会散去；适合在水路最吃紧时换掉一个难缠的对手。"
 }
@@ -410,6 +507,8 @@ static func _zombie_trait(type: String) -> String:
 		"tongue": "快手远嘴", "mourner": "助威加速", "sedan": "破轿分身",
 		"straw": "斗笠护具", "stonehat": "石帽护具", "bucket": "陶瓮重甲",
 		"vault": "跳过首株", "artisan": "分发纸甲", "ironjudge": "铁面重甲",
+		"returner": "满血复生", "matchmaker": "召唤喜轿", "phaseguard": "半血换相",
+		"tamer": "召唤双相傀", "shieldguard": "护牌挡射弹", "reedboat": "蒲舟加速", "dreambell": "摇铃催眠",
 	}
 	return TRAITS.get(type, "数量最多")
 
@@ -419,11 +518,17 @@ static func zombie_ability(type: String) -> String:
 	var head = "%s·%s：本体 %d" % [
 		Content.tier_label(String(d["tier"])), d["kind"], int(d["hp"])]
 	if float(d.get("armor", 0)) > 0:
-		head += "，%s %d（先破护具才伤本体）" % [d["armor_name"], int(d["armor"])]
+		head += "，%s %d" % [d["armor_name"], int(d["armor"])]
+		if type == "shieldguard":
+			head += "（仅抵御射弹）"
+		else:
+			head += "（先破护具才伤本体）"
 	else:
 		head += "，无护具"
 	head += "；行进速度 %s/秒，啃食伤害 %d/秒。" % [in_cells(float(d["speed"]),2),int(d["dps"])]
 	match type:
+		"returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell":
+			head += String(ZOMBIES[type]["counter"])
 		"tongue":
 			head += "约 %s 外就会停下开咬，比别的低阶更早动手。" % in_cells(d["reach"])
 		"mourner":

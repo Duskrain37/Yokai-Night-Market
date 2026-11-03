@@ -8,6 +8,7 @@ static func run_all(harness) -> void:
 	_check_content(harness)
 	_check_upgrade_rules(harness)
 	_check_new_mechanics(harness)
+	_check_v042_cards_and_guests(harness)
 	_check_status_rules(harness)
 	_check_armor_and_corpse(harness)
 	_check_map_rules(harness)
@@ -33,9 +34,9 @@ static func run_all(harness) -> void:
 
 
 static func _check_content(h) -> void:
-	h.check("内容", "20 种草木齐备", Content.PLANTS.size() == 20,
+	h.check("内容", "22 种草木齐备", Content.PLANTS.size() == 22,
 		"实际 %d" % Content.PLANTS.size())
-	h.check("内容", "13 种恶客齐备", Content.ZOMBIES.size() == 13,
+	h.check("内容", "20 种恶客齐备", Content.ZOMBIES.size() == 20,
 		"实际 %d" % Content.ZOMBIES.size())
 	h.check("内容", "十五夜与特殊关齐备", Content.LEVELS.size() == 16 and Content.get_level(16).get("special",false),
 		"实际 %d" % Content.LEVELS.size())
@@ -167,7 +168,7 @@ static func _check_upgrade_rules(h) -> void:
 					detail += "%s-%d-%d=%d " % [type, path["id"], tier + 1, cost]
 				last = cost
 	h.check("升阶", "所有升阶费用都是 25 的倍数且逐阶递增", cost_ok, detail)
-	h.check("升阶", "14 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 14, detail)
+	h.check("升阶", "15 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 15, detail)
 	h.check("升阶", "签筒连发一级 100 香火",
 		Upgrades.tier_cost("shooter", 1, 1) == 100,
 		str(Upgrades.tier_cost("shooter", 1, 1)))
@@ -416,7 +417,7 @@ static func _check_waves(h) -> void:
 		is_equal_approx(eff, 2.5) and is_equal_approx(
 			Sim.effective_threat(Content.get_level(1)), 0.8),
 		"water=%.2f street=%.2f" % [eff, Sim.effective_threat(Content.get_level(1))])
-	# 三夜样板：题签点了哪种恶客，这一夜就得真的会出那种恶客
+	# 题签点了哪种恶客，这一夜就得真的会出那种恶客
 	var theme_bad = ""
 	var themed = 0
 	for level in Content.LEVELS.slice(0,15):
@@ -428,8 +429,8 @@ static func _check_waves(h) -> void:
 			continue
 		themed += 1
 		if type == "":
-			if String(level["map"]) != "water":
-				theme_bad += "夜%d 题没怪又不是水路 " % int(level["id"])
+			if int(level["id"]) % 5 not in [0, 1]:
+				theme_bad += "夜%d 缺少要教的来客 " % int(level["id"])
 			continue
 		var found = false
 		for wave in level["waves"]:
@@ -438,7 +439,7 @@ static func _check_waves(h) -> void:
 					found = true
 		if not found:
 			theme_bad += "夜%d 题签写了 %s 但这夜不出 " % [int(level["id"]), type]
-	h.check("波次", "三夜样板各只突出一个问题", themed == 3 and theme_bad == "",
+	h.check("波次", "十五夜题签与来客及地形一致", themed == 15 and theme_bad == "",
 		"nights=%d %s" % [themed, theme_bad])
 
 
@@ -501,56 +502,22 @@ static func _check_training(h) -> void:
 static func _check_lion(h) -> void:
 	var sim = h.sim_for(6, ["lion"], "easy")
 	var lion = sim.place_free("lion", 4, 2)
-	lion.upgrades = {1: 1, 2: 0, 3: 0}
-	var victim = sim.spawn_zombie("stonehat", 2, {"x": lion.pos.x + 60.0})
-	victim.max_hp = 4000.0
-	victim.hp = 4000.0
-	for i in 40:
+	var victim = sim.spawn_zombie("bucket", 2, {"x": lion.pos.x + 48.0})
+	victim.armor = 1200.0
+	var original_x = victim.pos.x
+	for tier in range(1, 4):
+		lion.upgrades[1] = tier
 		lion.timer = 1.49
+		var armor = victim.armor
 		sim._update_lion(lion, 0.02)
-		if victim.pos.x > lion.pos.x + 61.0:
-			break
-	h.check("醒狮", "叼：把非大型多摔回一格", victim.pos.x > lion.pos.x + 60.0,
-		"dx=%.0f" % (victim.pos.x - lion.pos.x))
-	h.check("醒狮", "同一名四秒内不重复被摔", victim.throw_until > sim.time)
-	var sim2 = h.sim_for(6, ["lion"], "easy")
-	var brute = sim2.place_free("lion", 4, 2)
-	brute.upgrades = {1: 2, 2: 0, 3: 0}
-	var bite = float(Content.PLANTS["lion"]["melee"]["damage"])
-	var surely = 0
-	for i in 12:
-		var clad = sim2.spawn_zombie("bucket", 2, {"x": brute.pos.x + 60.0})
-		clad.max_hp = 8000.0
-		clad.hp = 8000.0
-		var armor_before = clad.armor
-		var hp_before = clad.hp
-		var x_before = clad.pos.x
-		brute.timer = 1.49
-		sim2._update_lion(brute, 0.02)
-		var strip = armor_before - clad.armor - bite
-		if absf(strip - 100.0) < 0.001 and hp_before - clad.hp <= 0.001 \
-				and clad.pos.x > x_before + 30.0:
-			surely += 1
-		clad.dying = true
-	h.check("醒狮", "砸甲：对带护具的非大型十二次全部必摔、剥 100 护具且不溢出本体",
-		surely == 12, "命中 %d/12" % surely)
-	var sim3 = h.sim_for(6, ["lion"], "easy")
-	var charger = sim3.place_free("lion", 4, 2)
-	charger.upgrades = {1: 3, 2: 0, 3: 0}
-	var snack = sim3.spawn_zombie("ghost", 2, {"x": charger.pos.x + 60.0})
-	snack.hp = 20.0
-	charger.timer = 1.49
-	sim3._update_lion(charger, 0.02)
-	h.check("醒狮", "吞煞：直接击杀才把本体伤害存进狮头",
-		charger.lion_charge > 0.0, "charge=%.0f" % charger.lion_charge)
-	var next = sim3.spawn_zombie("ghost", 2, {"x": charger.pos.x + 60.0})
-	next.max_hp = 4000.0
-	next.hp = 4000.0
-	charger.timer = 1.49
-	sim3._update_lion(charger, 0.02)
-	h.check("醒狮", "吞煞：下一次撞头把存下的煞一并放出并清空",
-		4000.0 - next.hp >= 70.0 and 4000.0 - next.hp < 95.0 and charger.lion_charge <= 0.0,
-		"掉血=%.0f charge=%.0f" % [4000.0 - next.hp, charger.lion_charge])
+		h.check("醒狮", "第%d阶撞头伤害" % tier,
+			is_equal_approx(armor - victim.armor, [0, 80, 110, 140][tier]))
+	h.check("醒狮", "带甲普通恶客必摔一格", is_equal_approx(victim.pos.x - original_x, Geo.CELL_W))
+	h.check("醒狮", "重摔使用该株3秒冷却", is_equal_approx(lion.lion_throw_until, sim.time + 3.0))
+	victim.pos.x = original_x
+	lion.timer = 1.49
+	sim._update_lion(lion, 0.02)
+	h.check("醒狮", "重摔冷却内只结算撞头", victim.pos.x == original_x)
 	var sim4 = h.sim_for(6, ["lion"], "easy")
 	var runner = sim4.place_free("lion", 1, 2)
 	var at_three = sim4.spawn_zombie("ghost", 2, {"x": runner.pos.x + 2.8 * Geo.CELL_W})
@@ -592,21 +559,22 @@ static func _check_lion(h) -> void:
 	sim5._update_lion(healer, 0.02)
 	h.check("醒狮", "衔青：命中才回 25 耐久", healer.hp > 400.0 and healer.hp <= 425.001,
 		"hp=%.0f" % healer.hp)
-	var ally = sim5.place_free("wall", 3, 2)
-	var other = sim5.place_free("wall", 3, 1)
-	sim5.refresh_plant_buffs()
-	var plain_haste = ally.haste
-	healer.upgrades = {1: 2, 2: 2, 3: 2}
-	food.armor = 100.0
-	food.max_armor = 100.0
+	var rear = sim5.place_free("wall", 3, 2)
+	var front = sim5.place_free("wall", 5, 2)
+	var cross_ally = sim5.place_free("wall", 4, 1)
+	for target in [rear, front, cross_ally]:
+		target.hp = 1000.0
+	healer.upgrades[3] = 2
 	healer.timer = 1.49
+	var old_hp = healer.hp
 	sim5._update_lion(healer, 0.02)
-	sim5.refresh_plant_buffs()
-	h.check("醒狮", "喝彩：把撞退换成同行左右友军的攻速",
-		ally.cheer >= 1 and ally.haste > plain_haste,
-		"cheer=%d haste=%.2f" % [ally.cheer, ally.haste])
-	h.check("醒狮", "喝彩：不传给别行的友军", other != null and int(other.cheer) == 0,
-		"cheer=%d" % (0 if other == null else int(other.cheer)))
+	h.check("醒狮", "采青2阶单次恢复50耐久", is_equal_approx(healer.hp, old_hp + 50.0))
+	healer.upgrades[3] = 3
+	healer.timer = 1.49
+	old_hp = healer.hp
+	sim5._update_lion(healer, 0.02)
+	h.check("醒狮", "采青3阶自己和前后格各恢复75", is_equal_approx(healer.hp, old_hp + 75.0)
+		and rear.hp == 1075.0 and front.hp == 1075.0 and cross_ally.hp == 1000.0)
 	var sim6 = h.sim_for(6, ["lion"], "easy")
 	var dancer = sim6.place_free("lion", 4, 2)
 	dancer.upgrades = {1: 0, 2: 0, 3: 3}
@@ -764,15 +732,7 @@ static func _check_cat(h) -> void:
 	near.max_hp = 9000.0
 	near.hp = 9000.0
 	_cat_land(sim8, marker, 1, marked)
-	h.check("狐尾灯", "点火：第二层当场炸 40，身边一名一起吃，爆炸不留记号",
-		9000.0 - near.hp == 40.0 and sim8.mark_stacks(near, "fox") == 0
-		and 9000.0 - marked.hp >= 64.0, "near 掉 %.0f 层=%d" % [
-			9000.0 - near.hp, sim8.mark_stacks(near, "fox")])
-	var hp_after = marked.hp
-	_cat_land(sim8, marker, 1, marked)
-	h.check("狐尾灯", "点火：同一目标 3.2 秒内只炸一次",
-		9000.0 - near.hp == 40.0 and hp_after - marked.hp < 30.0,
-		"near 掉 %.0f / marked 又多掉 %.1f" % [9000.0 - near.hp, hp_after - marked.hp])
+	h.check("狐尾灯", "深印改为10%易伤", is_equal_approx(marked.vuln, 0.10) and near.hp == 9000.0)
 
 	# 锁魂（3-3）：三层消耗记号，定身 0.6 秒、2 秒内全队易伤 20%；大型只吃 0.2 秒
 	var sim9 = h.sim_for(6, ["cat"], "easy")
@@ -800,7 +760,7 @@ static func _check_cat(h) -> void:
 	sim9.add_mark(big, "fox", 2, 3.2, true, 0.05)
 	sim9._cat_mark(big, bolt)
 	h.check("狐尾灯", "锁魂：大型只吃 0.2 秒这一档",
-		big.stun_t > 0.0 and big.stun_t <= 0.2 + 0.001, "stun=%.2f" % big.stun_t)
+		big.stun_t > 0.0 and big.stun_t <= 0.2 + 0.001 and is_equal_approx(big.vuln, 0.40), "stun=%.2f" % big.stun_t)
 	sim9._cat_mark(big, bolt)
 	h.check("狐尾灯", "锁魂：同一名 6.4 秒内只结算一次，第二次只重新叠层",
 		sim9.mark_stacks(big, "fox") == 1 and big.lock_until > sim9.time,
@@ -1137,279 +1097,56 @@ static func _check_new_cards(h) -> void:
 		and is_equal_approx(sim.shots[0].tx, 1020.0) and fire.timer == 0.0)
 
 
-## 抛一颗汤圆直到落地，中间只推进射弹与地效，不动波次也不推进 sim.time。
-static func _lob_land(sim, plant, frames: int = 140) -> void:
-	sim.shots.clear()
-	plant.timer = 2.59
-	sim._update_lobber(plant, 0.02)
-	for i in frames:
-		sim.update_shots(1.0 / 60.0)
-	sim.update_grounds(1.0 / 60.0)
-
-
-static func _lob_grow(sim, frames: int) -> void:
-	for i in frames:
-		sim.update_shots(1.0 / 60.0)
-		sim.update_grounds(1.0 / 60.0)
-
-
-static func _lob_ground(sim, kind: String) -> Dictionary:
-	for g in sim.grounds:
-		if String(g["kind"]) == kind:
-			return g
-	return {}
-
-
-## 汤圆仔（批复版）：馅有多重／落在哪／落地留什么。白板 40 伤 2.6 秒只在 content 一处。
 static func _check_lobber(h) -> void:
-	var def: Dictionary = Content.PLANTS["lobber"]["lob"]
-	var fx: Dictionary = Upgrades.EFFECTS["lobber"]
-	h.check("汤圆仔", "白板 40 伤 / 2.6 秒只在 content，EFFECTS 不再抄一份",
-		is_equal_approx(float(def["damage"]), 40.0) and is_equal_approx(float(def["interval"]), 2.6)
-		and not fx.has("damage") and not fx.has("interval"), str(def))
-
-	# 白板：抛本行最靠里（队尾）那名
 	var sim = h.sim_for(6, ["lobber"], "easy")
-	var pot = sim.place_free("lobber", 1, 2)
-	var near = sim.spawn_zombie("ghost", 2, {"x": pot.pos.x + 120.0})
-	near.max_hp = 90000.0
-	near.hp = 90000.0
-	var deep = sim.spawn_zombie("ghost", 2, {"x": pot.pos.x + 400.0})
-	deep.max_hp = 90000.0
-	deep.hp = 90000.0
-	_lob_land(sim, pot)
-	h.check("汤圆仔", "白板：抛的是本行最靠里那名，落地 40",
-		90000.0 - deep.hp >= 39.999 and near.hp == 90000.0,
-		"队尾掉 %.0f 队头掉 %.0f" % [90000.0 - deep.hp, 90000.0 - near.hp])
-
-	# 数馅（1-1）：每 4 名存活敌人 +8%，只涨砸中的那一笔
-	var sim2 = h.sim_for(6, ["lobber"], "easy")
-	var scale = sim2.place_free("lobber", 1, 2)
-	scale.upgrades = {1: 1, 2: 0, 3: 0}
-	for i in 4:
-		var mob = sim2.spawn_zombie("ghost", 2, {"x": scale.pos.x + 300.0 + i * 26.0})
-		mob.max_hp = 90000.0
-		mob.hp = 90000.0
-	_lob_land(sim2, scale, 200)
-	var crowd_loss = 0.0
-	for z in sim2.zombies:
-		crowd_loss = maxf(crowd_loss, 90000.0 - z.hp)
-	h.check("汤圆仔", "数馅：四名存活就多 8%，只涨直接命中",
-		crowd_loss >= 43.199 and crowd_loss <= 43.201, "最重一口 %.2f" % crowd_loss)
-
-	# 砸飞（1-2）：带甲的另削 40，一击剥不掉整件；见了底才掉残片
-	var sim3 = h.sim_for(6, ["lobber"], "easy")
-	var chipper = sim3.place_free("lobber", 1, 2)
-	chipper.upgrades = {1: 2, 2: 0, 3: 0}
-	var thick = sim3.spawn_zombie("bucket", 2, {"x": chipper.pos.x + 300.0})
-	thick.max_hp = 90000.0
-	thick.hp = 90000.0
-	thick.armor = 500.0
-	_lob_land(sim3, chipper, 200)
-	h.check("汤圆仔", "砸飞：这一下最多削 40，剥不穿就不掉残片",
-		500.0 - thick.armor <= 80.01 and thick.armor > 0.0
-		and _lob_ground(sim3, "debris").is_empty() and thick.hp == 90000.0,
-		"甲=%.0f 血=%.0f" % [thick.armor, thick.hp])
-	sim3.grounds.clear()
-	thick.armor = 60.0
-	_lob_land(sim3, chipper, 200)
-	var debris = _lob_ground(sim3, "debris")
-	h.check("汤圆仔", "砸飞：护具见了底就掉一地残片",
-		not debris.is_empty() and thick.armor == 0.0, str(debris))
-	var triped = sim3.spawn_zombie("ghost", 2, {"x": float(debris["pos"].x)})
-	triped.max_hp = 90000.0
-	triped.hp = 90000.0
-	var ox = sim3.spawn_zombie("mountain", 2, {"x": float(debris["pos"].x)})
-	ox.max_hp = 90000.0
-	ox.hp = 90000.0
-	sim3.update_grounds(1.0 / 60.0)
-	h.check("汤圆仔", "残片：普通绊 0.2 秒，大型只吃 10% 减速",
-		triped.stun_t > 0.0 and triped.stun_t <= 0.201 and ox.stun_t <= 0.0
-		and ox.slow_t > 0.0, "绊=%.2f 大型钉=%.2f 减速=%.2f" % [
-			triped.stun_t, ox.stun_t, ox.slow_amount])
-
-	# 贴馅（1-3）：大型身上挂一颗两秒后炸的，同一名一次只挂一颗
-	var sim4 = h.sim_for(6, ["lobber"], "easy")
-	var stuffer = sim4.place_free("lobber", 1, 2)
-	stuffer.upgrades = {1: 3, 2: 0, 3: 0}
-	var big = sim4.spawn_zombie("mountain", 2, {"x": stuffer.pos.x + 300.0})
-	big.max_hp = 90000.0
-	big.hp = 90000.0
-	_lob_land(sim4, stuffer, 200)
-	h.check("汤圆仔", "贴馅：大型身上挂一颗 2 秒的，伤害封顶 160",
-		absf(big.bomb_t - 2.0) < 0.011 and big.bomb_damage == 160.0,
-		"t=%.2f dmg=%.0f" % [big.bomb_t, big.bomb_damage])
-	var after_attach = big.hp
-	sim4.grounds.clear()
-	_lob_land(sim4, stuffer, 200)
-	h.check("汤圆仔", "贴馅：身上还挂着一颗时不再贴第二颗",
-		big.bomb_damage == 160.0 and absf(after_attach - big.hp) < 40.01,
-		"又掉 %.0f" % (after_attach - big.hp))
-	for i in 140:
-		sim4.update_zombies(1.0 / 60.0)
-	h.check("汤圆仔", "贴馅：两秒到就炸开，扣的是本体",
-		big.bomb_t <= 0.0 and big.bomb_damage <= 0.0, "t=%.2f" % big.bomb_t)
-	var runt = sim4.spawn_zombie("ghost", 2, {"x": stuffer.pos.x + 300.0})
-	runt.max_hp = 90000.0
-	runt.hp = 90000.0
-	stuffer.timer = 2.59
-	sim4._update_lobber(stuffer, 0.02)
-	_lob_grow(sim4, 140)
-	h.check("汤圆仔", "贴馅：非大型不挂这颗，只吃本体那一口",
-		runt.bomb_t <= 0.0, "t=%.2f" % runt.bomb_t)
-
-	# 拣密（2-1）：抛本行射程内身边最挤那名，平局取离防线近的
-	var sim5 = h.sim_for(6, ["lobber"], "easy")
-	var denser = sim5.place_free("lobber", 1, 2)
-	denser.upgrades = {1: 0, 2: 1, 3: 0}
-	var lone = sim5.spawn_zombie("ghost", 2, {"x": denser.pos.x + 480.0})
-	lone.max_hp = 90000.0
-	lone.hp = 90000.0
-	var cluster: Array = []
-	for i in 3:
-		var c = sim5.spawn_zombie("ghost", 2, {"x": denser.pos.x + 200.0 + i * 30.0})
-		c.max_hp = 90000.0
-		c.hp = 90000.0
-		cluster.append(c)
-	_lob_land(sim5, denser, 220)
-	var in_cluster = 0.0
-	for c in cluster:
-		in_cluster = maxf(in_cluster, 90000.0 - float(c.hp))
-	h.check("汤圆仔", "拣密：抛的是身边最挤那一伙，不是最散那名",
-		90000.0 - lone.hp <= 0.001 and in_cluster >= 39.999,
-		"散的那名掉 %.0f / 那一伙最重一口 %.0f" % [90000.0 - lone.hp, in_cluster])
-
-	# 连抛（2-2）：一次两颗、隔 0.15 秒，两颗都还是 40
-	var sim6 = h.sim_for(6, ["lobber"], "easy")
-	var double = sim6.place_free("lobber", 1, 2)
-	double.upgrades = {1: 0, 2: 2, 3: 0}
-	var six = sim6.spawn_zombie("ghost", 2, {"x": double.pos.x + 300.0})
-	six.max_hp = 900000.0
-	six.hp = 900000.0
-	double.timer = 2.59
-	sim6._update_lobber(double, 0.02)
-	var gaps = 0.0
-	var both_base = true
-	for s in sim6.shots:
-		gaps = maxf(gaps, float(s.delay))
-		if not is_equal_approx(float(s.base_damage), 40.0):
-			both_base = false
-	h.check("汤圆仔", "连抛：一次两颗、第二颗隔 0.15 秒、两颗都还是白板 40",
-		sim6.shots.size() == 2 and gaps > 0.14 and gaps < 0.16 and both_base,
-		"%d 颗 gap=%.2f" % [sim6.shots.size(), gaps])
-	_lob_grow(sim6, 200)
-	h.check("汤圆仔", "连抛：两颗各 40，攻击周期仍是 2.6 秒",
-		absf((900000.0 - six.hp) - 80.0) < 0.01, "合计掉 %.0f" % (900000.0 - six.hp))
-
-	# 三更（2-3）：每四轮第一颗换成大汤
-	var sim7 = h.sim_for(6, ["lobber"], "easy")
-	var third = sim7.place_free("lobber", 1, 2)
-	third.upgrades = {1: 0, 2: 3, 3: 0}
-	var crowd7: Array = []
-	for i in 4:
-		var z = sim7.spawn_zombie("ghost", 2, {"x": third.pos.x + 260.0 + i * 40.0})
-		z.max_hp = 900000.0
-		z.hp = 900000.0
-		crowd7.append(z)
-	for i in 3:
-		sim7.shots.clear()
-		third.timer = 2.59
-		sim7._update_lobber(third, 0.02)
-		_lob_grow(sim7, 200)
-	sim7.shots.clear()
-	third.timer = 2.59
-	sim7._update_lobber(third, 0.02)
-	h.check("汤圆仔", "三更：第四轮第一颗是大汤 100，第二颗不跟着升",
-		sim7.shots.size() == 2 and bool(sim7.shots[0].big_soup)
-		and is_equal_approx(float(sim7.shots[0].base_damage), 100.0)
-		and not bool(sim7.shots[1].big_soup),
-		"第一颗 base=%.0f" % float(sim7.shots[0].base_damage))
-	var splash_before = 900000.0 - float(crowd7[0].hp)
-	_lob_grow(sim7, 200)
-	var splashed = 0
-	for z in crowd7:
-		if 900000.0 - float(z.hp) - splash_before >= 39.999 and 900000.0 - float(z.hp) - splash_before <= 40.01:
-			splashed += 1
-	h.check("汤圆仔", "三更：大汤溅开的额外目标各吃四成，至多 3 名",
-		splashed <= 3 and splashed >= 1, "溅到 %d 名" % splashed)
-
-	# 一摊（3-1）／合流（3-2）／封口（3-3）
-	var sim8 = h.sim_for(6, ["lobber"], "easy")
-	var souper = sim8.place_free("lobber", 1, 2)
-	souper.upgrades = {1: 0, 2: 0, 3: 1}
-	var soup_target = sim8.spawn_zombie("ghost", 2, {"x": souper.pos.x + 300.0})
-	soup_target.max_hp = 900000.0
-	soup_target.hp = 900000.0
-	_lob_land(sim8, souper, 200)
-	var pool = _lob_ground(sim8, "soup")
-	h.check("汤圆仔", "一摊：落点留 0.4 格汤，减速 20%、10/秒",
-		not pool.is_empty() and is_equal_approx(float(pool["radius"]), 0.4 * Geo.CELL_W)
-		and is_equal_approx(float(pool["damage"]), 10.0)
-		and float(pool["slow"]) > 0.19 and float(pool["life"]) > 2.9,
-		str(pool))
-	sim8.grounds.clear()
-	souper.upgrades = {1: 0, 2: 0, 3: 2}
-	_lob_land(sim8, souper, 200)
-	# 再补一摊在旁边，两摊相交就该熬成一锅浓汤
-	var second_soup = sim8.spawn_zombie("ghost", 2, {"x": soup_target.pos.x + 40.0})
-	second_soup.max_hp = 900000.0
-	second_soup.hp = 900000.0
-	_lob_land(sim8, souper, 200)
-	var broth = _lob_ground(sim8, "broth")
-	h.check("汤圆仔", "合流：两摊相交熬成 0.6 格浓汤，18/秒、减速 25%",
-		not broth.is_empty() and is_equal_approx(float(broth["radius"]), 0.6 * Geo.CELL_W)
-		and is_equal_approx(float(broth["damage"]), 18.0), str(broth))
-	var soups = 0
-	for g in sim8.grounds:
-		if String(g["kind"]) == "soup":
-			soups += 1
-	h.check("汤圆仔", "合流：摊不再多了，浓汤只有一锅", soups == 0, "还留 %d 摊" % soups)
-	var before_life = float(broth["life"])
-	_lob_land(sim8, souper, 200)
-	h.check("汤圆仔", "合流：新摊只续火，不再加大加烫",
-		is_equal_approx(float(broth["radius"]), 0.6 * Geo.CELL_W)
-		and float(broth["life"]) > before_life, "life %.2f → %.2f" % [
-			before_life, float(broth["life"])])
-	sim8.grounds.clear()
-	souper.upgrades = {1: 0, 2: 0, 3: 3}
-	_lob_land(sim8, souper, 200)
-	_lob_land(sim8, souper, 200)
-	var seal = _lob_ground(sim8, "broth")
-	h.check("汤圆仔", "封口：浓汤减速提到 35%、不定身",
-		not seal.is_empty() and is_equal_approx(float(seal["slow"]), 0.35), str(seal))
-	var muncher = sim8.spawn_zombie("ghost", 2, {"x": float(seal["pos"].x)})
-	muncher.max_hp = 900000.0
-	muncher.hp = 900000.0
-	muncher.eating = true
-	var stander = sim8.spawn_zombie("ghost", 2, {"x": float(seal["pos"].x) + 20.0})
-	stander.max_hp = 900000.0
-	stander.hp = 900000.0
-	sim8.update_grounds(1.0 / 60.0)
-	h.check("汤圆仔", "封口：站在汤里啃草的另受 12/秒",
-		900000.0 - muncher.hp >= 29.999 and 900000.0 - stander.hp <= 18.001,
-		"啃的掉 %.0f 站的掉 %.0f" % [900000.0 - muncher.hp, 900000.0 - stander.hp])
-	# 每摊同时只烫三名，优先离防线近的
-	var sim9 = h.sim_for(6, ["lobber"], "easy")
-	var capped = sim9.place_free("lobber", 1, 2)
-	capped.upgrades = {1: 0, 2: 0, 3: 3}
-	var many: Array = []
+	var pot = sim.place_free("lobber", 2, 2)
+	var foe = sim.spawn_zombie("ghost", 2, {"x": pot.pos.x + 185.0})
+	foe.hp = 20000.0
+	foe.max_hp = foe.hp
+	for tier in range(4):
+		pot.upgrades[1] = tier
+		sim._throw_soup(pot, foe, foe.pos)
+		h.check("汤圆仔", "馅料第%d档直击伤害" % tier,
+			is_equal_approx(sim.shots.back().base_damage, [40.0, 70.0, 100.0, 130.0][tier]))
 	for i in 5:
-		var m = sim9.spawn_zombie("ghost", 2, {"x": capped.pos.x + 240.0 + i * 24.0})
-		m.max_hp = 900000.0
-		m.hp = 900000.0
-		many.append(m)
-	_lob_land(sim9, capped, 200)
-	_lob_land(sim9, capped, 200)
-	var pot9 = _lob_ground(sim9, "broth")
-	var burned: Array = []
-	for i in range(many.size()):
-		if 900000.0 - float(many[i].hp) > 0.001:
-			burned.append(i)
-	h.check("汤圆仔", "每摊同时最多烫 3 名，先烫离防线近的",
-		burned.size() <= 3 and (burned.is_empty() or int(burned[0]) < int(burned[burned.size() - 1])),
-		"烫了第 %s 名" % str(burned))
+		var shot = sim.shots.back()
+		sim._soup_impact(shot, foe)
+		sim.time += 0.4
+	var expiry = pot.lob_heat_until
+	sim._soup_impact(sim.shots.back(), foe)
+	sim._throw_soup(pot, foe, foe.pos)
+	h.check("汤圆仔", "五层加伤50%，满层命中不刷新", pot.lob_heat_stacks == 5
+		and pot.lob_heat_until == expiry and sim.shots.back().base_damage == 195.0)
+	sim.time = expiry
+	sim._throw_soup(pot, foe, foe.pos)
+	h.check("汤圆仔", "叠层五秒后到期", sim.shots.back().base_damage == 130.0)
+	pot.upgrades[2] = 3
+	sim.shots.clear()
+	pot.timer = 0.0
+	sim._update_lobber(pot, 1.54)
+	h.check("汤圆仔", "三级抛射间隔1.55秒", sim.shots.is_empty())
+	sim._update_lobber(pot, 0.02)
+	h.check("汤圆仔", "间隔满立即抛出", sim.shots.size() == 1)
+	pot.lob_followup_aim = foe.pos
+	pot.lob_followup_at = sim.time + 0.4
+	sim.time += 0.39
+	sim._update_lobber(pot, 0.39)
+	h.check("汤圆仔", "补射等待0.4秒", sim.shots.size() == 1)
+	sim.time += 0.011
+	sim._update_lobber(pot, 0.011)
+	h.check("汤圆仔", "补射后冷却重新计时", sim.shots.size() == 2 and pot.timer == 0.0)
+	pot.upgrades[3] = 3
+	sim._throw_soup(pot, foe, foe.pos)
+	sim._soup_ground(sim.shots.back())
+	var puddle = sim.grounds.back()
+	var big = sim.spawn_zombie("mountain", 2, {"x": foe.pos.x})
+	var before = big.hp
+	sim.update_grounds(0.1)
+	h.check("汤圆仔", "沸汤每秒50伤，普通减速35%，大型减速25%", puddle.damage == 50.0
+		and is_equal_approx(foe.slow_amount, 0.35) and is_equal_approx(big.slow_amount, 0.25)
+		and is_equal_approx(before - big.hp, 50.0))
 
-## 从一轮五束里按方向找出那一束。
+
 static func _star_beam(sim, dir: Vector2):
 	for s in sim.shots:
 		if s.dir.distance_to(dir) < 0.01:
@@ -1782,10 +1519,10 @@ static func _check_umbrella(h) -> void:
 	sim.spawn_zombie("ghost", 2, {"x": shade.pos.x + 40.0})
 	sim._try_umbrella_secondary(shade, fx)
 	sim._try_umbrella_secondary(shade, fx)
-	h.check("纸伞", "三级开放两个15秒副收妖位",
+	h.check("纸伞", "三级开放两个12秒副收妖位",
 		not shade.secondary.is_empty() and not shade.tertiary.is_empty()
-		and is_equal_approx(float(shade.secondary["t"]), 15.0)
-		and is_equal_approx(float(shade.tertiary["t"]), 15.0))
+		and is_equal_approx(float(shade.secondary["t"]), 12.0)
+		and is_equal_approx(float(shade.tertiary["t"]), 12.0))
 	var total = 0.0
 	for i in 3:
 		total += sim.umbrella_thorns(shade, 100.0)
@@ -1793,125 +1530,40 @@ static func _check_umbrella(h) -> void:
 
 static func _check_censer(h) -> void:
 	var sim = h.sim_for(6, ["censer"], "easy")
-	var censer = sim.place_free("censer", 4, 2)
-	var front = sim.spawn_zombie("stonehat", 2, {"x": censer.pos.x + 168.0})
-	var rear = sim.spawn_zombie("stonehat", 2, {"x": censer.pos.x - 128.0})
-	front.hp = 4000.0
-	rear.hp = 4000.0
-	front.max_hp = 4000.0
-	rear.max_hp = 4000.0
-	front.armor = 0.0
-	rear.armor = 0.0
-	censer.timer = 2.99
-	sim._update_censer(censer, 0.02)
-	h.check("香炉", "白板圈熏到身后 128、熏不到身前 168",
-		rear.hp < 4000.0 and front.hp >= 4000.0,
-		"rear=%.0f front=%.0f" % [rear.hp, front.hp])
-	var plain_hit = 4000.0 - rear.hp
-	censer.upgrades = {1: 1, 2: 0, 3: 0}
-	front.hp = 4000.0
-	rear.hp = 4000.0
-	censer.timer = 2.99
-	sim._update_censer(censer, 0.02)
-	h.check("香炉", "顺风把前向拉长半格、后向收掉 0.2 格",
-		front.hp < 4000.0 and rear.hp >= 4000.0,
-		"front=%.0f rear=%.0f" % [front.hp, rear.hp])
-	censer.upgrades = {1: 2, 2: 0, 3: 0}
-	front.hp = 4000.0
-	censer.timer = 2.99
-	sim._update_censer(censer, 0.02)
-	h.check("香炉", "回风排进 0.8 秒后", censer.echoes.size() == 1, str(censer.echoes))
-	front.hp = 4000.0
-	h.step(sim, 0.9)
-	h.check("香炉", "回风到点再扫一次（18 伤）",
-		is_equal_approx(4000.0 - front.hp, 18.0), "掉 %.0f" % (4000.0 - front.hp))
-	censer.upgrades = {1: 3, 2: 0, 3: 0}
-	sim.grounds.clear()
-	censer.timer = 2.99
-	sim._update_censer(censer, 0.02)
-	h.check("香炉", "烟径留下一片地效", sim.grounds.size() >= 1, str(sim.grounds.size()))
-	censer.upgrades = {1: 0, 2: 1, 3: 0}
-	var marked = sim.spawn_zombie("straw", 2, {"x": censer.pos.x + 30.0})
-	marked.max_hp = 4000.0
-	marked.hp = 4000.0
-	marked.armor = 0.0
-	censer.timer = 2.99
-	sim._update_censer(censer, 0.02)
-	h.check("香炉", "盖印：一层香印、受伤害 +8%",
-		sim.mark_stacks(marked, "incense") == 1 and marked.vuln > 0.07,
-		"stacks=%d vuln=%.2f" % [sim.mark_stacks(marked, "incense"), marked.vuln])
-	# 三印合一：按已损失生命 20% 结算、单次上限 200、每敌 9 秒冷却
-	censer.upgrades = {1: 0, 2: 3, 3: 0}
-	marked.hp = 2000.0
-	censer.timer = 2.99
-	sim._update_censer(censer, 0.02)
-	var before = marked.hp
-	censer.timer = 2.99
-	sim._update_censer(censer, 0.02)
-	# 已损失 2000 → 20% 是 400，但单次上限 200；再加主雾 45，合计应落在 200 与 300 之间
-	h.check("香炉", "三印合一爆开、按已损失生命 20% 结算并受单次上限约束",
-		before - marked.hp > 200.0 and before - marked.hp < 300.0
-		and sim.mark_stacks(marked, "incense") == 0,
-		"掉 %.0f 层数 %d" % [before - marked.hp, sim.mark_stacks(marked, "incense")])
-	var icd = marked.punish_until
-	marked.hp = 1000.0
+	var censer = sim.place_free("censer", 3, 2)
+	for tier in range(1, 4):
+		censer.upgrades[1] = tier
+		censer.upgrades[3] = tier
+		var values = sim.censer_effect(censer)
+		h.check("香炉", "第%d阶半径与喷烟间隔" % tier,
+			is_equal_approx(values.radius / Geo.CELL_W, [0, 1.6, 1.9, 2.3][tier])
+			and is_equal_approx(values.interval, [0, 2.65, 2.3, 1.95][tier]))
+	censer.upgrades = {1: 0, 2: 2, 3: 0}
+	var doomed = sim.spawn_zombie("ghost", 2, {"x": censer.pos.x + 110.0})
+	var outside = sim.spawn_zombie("bucket", 2, {"x": censer.pos.x + 190.0})
+	outside.armor = 0
+	censer.timer = 3.0
+	sim._update_censer(censer, 0.0)
+	h.check("香炉", "传印易伤为13%", is_equal_approx(doomed.vuln, 0.13))
+	doomed.hp = 1.0
+	censer.upgrades[2] = 3
+	var old_hp = outside.hp
+	censer.timer = 3.0
+	sim._update_censer(censer, 0.0)
+	h.check("香炉", "击倒带印恶客爆出100伤并盖18%易伤", not doomed.alive()
+		and is_equal_approx(outside.vuln, 0.18) and is_equal_approx(old_hp - outside.hp, 100.0))
+	censer.upgrades[3] = 3
 	for i in 3:
-		censer.timer = 2.99
-		sim._update_censer(censer, 0.02)
-	h.check("香炉", "同一名的处决有 9 秒冷却", is_equal_approx(marked.punish_until, icd),
-		"%.1f vs %.1f" % [marked.punish_until, icd])
-	# 传印：带印者倒下，印传给身边的同伴
-	var sim2 = h.sim_for(6, ["censer"], "easy")
-	var urn2 = sim2.place_free("censer", 4, 2)
-	urn2.upgrades = {1: 0, 2: 2, 3: 0}
-	var host = sim2.spawn_zombie("straw", 2, {"x": urn2.pos.x + 30.0})
-	var pal = sim2.spawn_zombie("straw", 2, {"x": urn2.pos.x + 60.0})
-	sim2.add_mark(host, "incense", 1, 3.2)
-	sim2.kill_zombie(host)
-	h.check("香炉", "传印把印带给身边的同伴", sim2.mark_stacks(pal, "incense") >= 1)
-	# 旺客与众口：都只取较高的一份
-	var sim3 = h.sim_for(6, ["censer"], "easy")
-	var brazier = sim3.place_free("censer", 4, 2)
-	brazier.upgrades = {1: 0, 2: 0, 3: 1}
-	var crowd: Array = []
-	for i in 5:
-		var w = sim3.spawn_zombie("stonehat", 2, {"x": brazier.pos.x + 30.0 + i * 8.0})
-		w.max_hp = 4000.0
-		w.hp = 4000.0
-		w.armor = 0.0
-		crowd.append(w)
-	brazier.timer = 2.99
-	sim3._update_censer(brazier, 0.02)
-	h.check("香炉", "旺客：每 5 名敌人主雾 +6%",
-		is_equal_approx(4000.0 - float(crowd[0].hp), 45.0 * 1.06),
-		"掉 %.1f" % (4000.0 - float(crowd[0].hp)))
-	brazier.upgrades = {1: 0, 2: 0, 3: 2}
-	for w in crowd:
-		w.hp = 4000.0
-	brazier.timer = 2.99
-	sim3._update_censer(brazier, 0.02)
-	h.check("香炉", "众口：单圈熏到 3 名以上 +25%，与旺客取较高",
-		is_equal_approx(4000.0 - float(crowd[0].hp), 45.0 * 1.25),
-		"掉 %.1f" % (4000.0 - float(crowd[0].hp)))
-	# 冷炉：塌成香灰仍占格，再铲一次才腾格
-	var sim4 = h.sim_for(6, ["censer"], "easy")
-	var urn = sim4.place_free("censer", 4, 2)
-	urn.upgrades = {1: 0, 2: 0, 3: 3}
-	sim4.kill_plant(urn)
-	h.check("香炉", "冷炉：被摧毁后塌成香灰、仍占着这一格",
-		not urn.dead and urn.ash and sim4.main_plant_at(4, 2) == urn,
-		"dead=%s ash=%s" % [urn.dead, urn.ash])
-	var ash_hp = urn.hp
-	var passer = sim4.spawn_zombie("straw", 2, {"x": urn.pos.x + 30.0})
-	passer.max_hp = 4000.0
-	passer.hp = 4000.0
-	passer.armor = 0.0
-	urn.timer = 5.9
-	h.step(sim4, 0.2)
-	h.check("香炉", "香灰仍放灰雾（白板四成 = 18）",
-		is_equal_approx(4000.0 - passer.hp, 18.0), "掉 %.0f" % (4000.0 - passer.hp))
-	var dug = sim4.shovel_at(4, 2)
-	h.check("香炉", "再铲一次才腾格", bool(dug["ok"]) and urn.dead, str(dug))
+		var target = sim.spawn_zombie("mountain", 2, {"x": censer.pos.x + 40.0 + i * 15})
+		target.hp = 2000.0
+	censer.timer = 1.95
+	sim._update_censer(censer, 0.0)
+	var due = censer.censer_followup_at
+	h.check("香炉", "同时命中三名后0.3秒补喷", is_equal_approx(due - sim.time, 0.3))
+	sim.time = due
+	sim._update_censer(censer, 0.0)
+	h.check("香炉", "补喷后重新计时，四秒内不再触发", censer.timer == 0.0
+		and censer.censer_followup_at < 0.0 and is_equal_approx(censer.censer_followup_ready, due + 4.0))
 
 
 static func _check_new_mechanics(h) -> void:
@@ -1965,3 +1617,112 @@ static func _check_new_mechanics(h) -> void:
 		"shots=%d" % sim3.shots.size())
 
 	# 钟馗像：判死命中后有机会钉住
+
+static func _check_v042_cards_and_guests(h) -> void:
+	var sim = h.sim_for(6, ["squash", "dragon", "lantern"], "easy")
+	var melon = sim.place_free("squash", 2, 2)
+	var near = sim.spawn_zombie("ghost", 2, {"x": melon.pos.x + 50.0})
+	near.hp = 2000.0
+	var far = sim.spawn_zombie("ghost", 2, {"x": melon.pos.x + 280.0})
+	var bride = sim.spawn_zombie("bride", 2, {"x": melon.pos.x + 70.0, "sedan_split": true})
+	var bride_hp = bride.hp
+	sim._update_squash(melon)
+	h.check("镇煞瓜", "侦测后先蓄力与腾跃", melon.squash_at >= 0.0 and not melon.dead and near.hp == 2000.0)
+	sim.time += Sim.SQUASH_WINDUP + Sim.SQUASH_LEAP + 0.01
+	sim._update_squash(melon)
+	h.check("镇煞瓜", "落点半径一格，1800灰烬伤害并消耗自身",
+		melon.dead and near.hp == 200.0 and far.hp == far.max_hp and bride.hp == bride_hp)
+
+	var dragon = sim.place_free("dragon", 0, 1)
+	var enemy = sim.spawn_zombie("bucket", 1, {"x": dragon.pos.x + 2.9 * Geo.CELL_W})
+	var beyond = sim.spawn_zombie("ghost", 1, {"x": dragon.pos.x + 3.1 * Geo.CELL_W})
+	var armor = enemy.armor
+	sim._update_dragon(dragon, 0.25)
+	h.check("龙首铳", "基础只打前方3格，每0.25秒14伤",
+		is_equal_approx(armor - enemy.armor, 14.0) and beyond.hp == beyond.max_hp)
+	dragon.upgrades[2] = 3
+	var body = enemy.hp
+	armor = enemy.armor
+	sim._update_dragon(dragon, 0.25)
+	h.check("龙首铳", "三级近攻同时打本体和护具各32",
+		is_equal_approx(armor - enemy.armor, 32.0) and is_equal_approx(body - enemy.hp, 32.0))
+	enemy.dead = true
+	dragon.upgrades = {1: 0, 2: 0, 3: 1}
+	sim._update_dragon(dragon, 2.0)
+	h.check("龙首铳", "先播放切换动画再开始远攻", dragon.dragon_mode == "far" and sim.shots.is_empty())
+	sim.time += Sim.DRAGON_SWITCH_TIME + 0.01
+	sim._update_dragon(dragon, 2.0)
+	for i in 2:
+		sim.time += 0.151
+		sim._update_dragon(dragon, 0.151)
+	h.check("龙首铳", "远攻三发射完才重新计时，飞行用时是汤圆两倍", sim.shots.size() == 3
+		and dragon.dragon_volley_left == 0 and dragon.dragon_far_timer == 0.0
+		and sim.shots.all(func(shot): return shot.damage == 40.0 and shot.flight == 1.8))
+
+	var spirit = sim.spawn_zombie("returner", 0)
+	var speed = spirit.speed
+	sim.damage_zombie(spirit, 10000.0, true)
+	h.check("回灯鬼", "首败进入复活，仍计为场上恶客", spirit.dying
+		and is_equal_approx(spirit.revive_at - sim.time, 1.0) and sim.active_zombies() > 0)
+	sim.time += 0.999
+	sim.update_zombies(0.0)
+	h.check("回灯鬼", "不足一秒不复活", not spirit.alive())
+	sim.time += 0.002
+	sim.update_zombies(0.0)
+	h.check("回灯鬼", "一秒满血复生，速度提高50%", spirit.alive()
+		and spirit.hp == spirit.max_hp and is_equal_approx(spirit.speed, speed * 1.5))
+	sim.kill_zombie(spirit)
+	h.check("回灯鬼", "第二次击倒正常退场", spirit.dying and spirit.revive_at < 0.0)
+
+	var dual = sim.spawn_zombie("phaseguard", 0, {"phase_form": 0})
+	dual.hp = 400.0
+	dual.max_hp = 400.0
+	sim.damage_zombie(dual, 100.0, true, false, "test", "", false, "pea")
+	h.check("双相傀", "青相射弹只受一半", dual.hp == 350.0)
+	sim.damage_zombie(dual, 125.0, true)
+	h.check("双相傀", "青相非射弹加伤20%，半血换为黄相", dual.hp == 200.0 and dual.phase_form == 1)
+	sim.damage_zombie(dual, 100.0, true, false, "test", "", false, "lob")
+	sim.damage_zombie(dual, 100.0, true, false, "test", "", false, "pea")
+	h.check("双相傀", "黄相减抛射伤，其余增加20%", dual.hp == 30.0 and dual.phase_form == 1)
+
+	var guard = sim.spawn_zombie("shieldguard", 0)
+	var old_hp = guard.hp
+	armor = guard.armor
+	sim.damage_zombie(guard, 80.0, true)
+	sim.damage_zombie(guard, 100.0, true, true, "needle", "", false, "pea")
+	h.check("持牌鬼", "盾只挡射弹，非射弹伤本体", is_equal_approx(guard.hp, old_hp - 80.0)
+		and is_equal_approx(guard.armor, armor - 100.0))
+	h.check("蒲舟客", "陆地图无法出场", sim.spawn_zombie("reedboat", 0) == null)
+	var river = h.sim_for(11, ["lantern"], "easy")
+	var boat = river.spawn_zombie("reedboat", 0, {"x": Geo.SPAWN_X + 15.0})
+	var x = boat.pos.x
+	river.update_zombies(0.3)
+	var first = x - boat.pos.x
+	boat.armor = 0.0
+	x = boat.pos.x
+	river.update_zombies(0.3)
+	h.check("蒲舟客", "只出水路，载具存续加速90%", boat.row in river.level.water_rows
+		and absf(first / (x - boat.pos.x) - 1.9) < 0.002)
+
+	var matchmaker = sim.spawn_zombie("matchmaker", 0)
+	var tamer = sim.spawn_zombie("tamer", 3)
+	var sleeper = sim.spawn_zombie("dreambell", 4)
+	var lantern = sim.place_free("lantern", 0, 4)
+	sim.time += 3.99
+	sim.update_zombies(0.0)
+	h.check("召唤与催眠", "首次效果在进场4秒", sim.pending_spawns.is_empty() and lantern.sleep_until == 0.0)
+	sim.time += 0.02
+	sim.update_zombies(0.0)
+	sim.flush_pending_spawns()
+	var sedans = sim.zombies.filter(func(z): return z.type == "sedan" and z.sedan_has_bride and z.row == matchmaker.row)
+	var puppets = sim.zombies.filter(func(z): return z.type == "phaseguard" and z.row != dual.row)
+	h.check("红绳媒", "召来同路喜轿并保持11秒间隔",
+		sedans.size() == 1 and is_equal_approx(matchmaker.guest_special_at - sim.time, 11.0))
+	h.check("巡相师", "召来两只双相傀并保持9秒间隔",
+		sim.zombies.filter(func(z): return z.type == "phaseguard").size() == 3
+		and is_equal_approx(tamer.guest_special_at - sim.time, 9.0))
+	var timer = lantern.timer
+	sim.update_plants(1.0)
+	h.check("梦铃婆", "同路草木睡3秒，停止产香", lantern.timer == timer
+		and is_equal_approx(lantern.sleep_until - sim.time, 3.0)
+		and is_equal_approx(sleeper.guest_special_at - sim.time, 11.0))

@@ -5,11 +5,11 @@
 			"ok": true
 		},
 		{
-			"name": "lantern idle 有四帧且至少三幅不同画面",
+			"name": "lantern idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lantern action 有四帧且至少三幅不同画面",
+			"name": "lantern action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -17,11 +17,11 @@
 			"ok": true
 		},
 		{
-			"name": "lantern-e1 idle 有四帧且至少三幅不同画面",
+			"name": "lantern-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lantern-e1 action 有四帧且至少三幅不同画面",
+			"name": "lantern-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -29,11 +29,11 @@
 			"ok": true
 		},
 		{
-			"name": "lantern-e2 idle 有四帧且至少三幅不同画面",
+			"name": "lantern-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lantern-e2 action 有四帧且至少三幅不同画面",
+			"name": "lantern-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -41,11 +41,11 @@
 			"ok": true
 		},
 		{
-			"name": "lantern-e3 idle 有四帧且至少三幅不同画面",
+			"name": "lantern-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lantern-e3 action 有四帧且至少三幅不同画面",
+			"name": "lantern-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -53,11 +53,11 @@
 			"ok": true
 		},
 		{
-			"name": "shooter idle 有四帧且至少三幅不同画面",
+			"name": "shooter idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "shooter action 有四帧且至少三幅不同画面",
+			"name": "shooter action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -65,11 +65,11 @@
 			"ok": true
 		},
 		{
-			"name": "shooter-e1 idle 有四帧且至少三幅不同画面",
+			"name": "shooter-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "shooter-e1 action 有四帧且至少三幅不同画面",
+			"name": "shooter-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -77,11 +77,11 @@
 			"ok": true
 		},
 		{
-			"name": "shooter-e2 idle 有四帧且至少三幅不同画面",
+			"name": "shooter-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "shooter-e2 action 有四帧且至少三幅不同画面",
+			"name": "shooter-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -89,11 +89,11 @@
 			"ok": true
 		},
 		{
-			"name": "shooter-e3 idle 有四帧且至少三幅不同画面",
+			"name": "shooter-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "shooter-e3 action 有四帧且至少三幅不同画面",
+			"name": "shooter-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -101,11 +101,11 @@
 			"ok": true
 		},
 		{
-			"name": "wall idle 有四帧且至少三幅不同画面",
+			"name": "wall idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "wall action 有四帧且至少三幅不同画面",
+			"name": "wall action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -113,11 +113,11 @@
 			"ok": true
 		},
 		{
-			"name": "wall-e1 idle 有四帧且至少三幅不同画面",
+			"name": "wall-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "wall-e1 action 有四帧且至少三幅不同画面",
+			"name": "wall-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -125,11 +125,11 @@
 			"ok": true
 		},
 		{
-			"name": "wall-e2 idle 有四帧且至少三幅不同画面",
+			"name": "wall-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "wall-e2 action 有四帧且至少三幅不同画面",
+			"name": "wall-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -137,11 +137,11 @@
 			"ok": true
 		},
 		{
-			"name": "wall-e3 idle 有四帧且至少三幅不同画面",
+			"name": "wall-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "wall-e3 action 有四帧且至少三幅不同画面",
+			"name": "wall-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -149,11 +149,11 @@
 			"ok": true
 		},
 		{
-			"name": "bomb idle 有四帧且至少三幅不同画面",
+			"name": "bomb idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bomb action 有四帧且至少三幅不同画面",
+			"name": "bomb action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -161,11 +161,11 @@
 			"ok": true
 		},
 		{
-			"name": "bell idle 有四帧且至少三幅不同画面",
+			"name": "bell idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bell action 有四帧且至少三幅不同画面",
+			"name": "bell action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -173,11 +173,11 @@
 			"ok": true
 		},
 		{
-			"name": "bell-e1 idle 有四帧且至少三幅不同画面",
+			"name": "bell-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bell-e1 action 有四帧且至少三幅不同画面",
+			"name": "bell-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -185,11 +185,11 @@
 			"ok": true
 		},
 		{
-			"name": "bell-e2 idle 有四帧且至少三幅不同画面",
+			"name": "bell-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bell-e2 action 有四帧且至少三幅不同画面",
+			"name": "bell-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -197,11 +197,11 @@
 			"ok": true
 		},
 		{
-			"name": "bell-e3 idle 有四帧且至少三幅不同画面",
+			"name": "bell-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bell-e3 action 有四帧且至少三幅不同画面",
+			"name": "bell-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -209,11 +209,11 @@
 			"ok": true
 		},
 		{
-			"name": "censer idle 有四帧且至少三幅不同画面",
+			"name": "censer idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "censer action 有四帧且至少三幅不同画面",
+			"name": "censer action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -221,11 +221,11 @@
 			"ok": true
 		},
 		{
-			"name": "censer-e1 idle 有四帧且至少三幅不同画面",
+			"name": "censer-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "censer-e1 action 有四帧且至少三幅不同画面",
+			"name": "censer-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -233,11 +233,11 @@
 			"ok": true
 		},
 		{
-			"name": "censer-e2 idle 有四帧且至少三幅不同画面",
+			"name": "censer-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "censer-e2 action 有四帧且至少三幅不同画面",
+			"name": "censer-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -245,11 +245,11 @@
 			"ok": true
 		},
 		{
-			"name": "censer-e3 idle 有四帧且至少三幅不同画面",
+			"name": "censer-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "censer-e3 action 有四帧且至少三幅不同画面",
+			"name": "censer-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -257,11 +257,11 @@
 			"ok": true
 		},
 		{
-			"name": "umbrella idle 有四帧且至少三幅不同画面",
+			"name": "umbrella idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "umbrella action 有四帧且至少三幅不同画面",
+			"name": "umbrella action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -269,11 +269,11 @@
 			"ok": true
 		},
 		{
-			"name": "umbrella-e1 idle 有四帧且至少三幅不同画面",
+			"name": "umbrella-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "umbrella-e1 action 有四帧且至少三幅不同画面",
+			"name": "umbrella-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -281,11 +281,11 @@
 			"ok": true
 		},
 		{
-			"name": "umbrella-e2 idle 有四帧且至少三幅不同画面",
+			"name": "umbrella-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "umbrella-e2 action 有四帧且至少三幅不同画面",
+			"name": "umbrella-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -293,11 +293,11 @@
 			"ok": true
 		},
 		{
-			"name": "umbrella-e3 idle 有四帧且至少三幅不同画面",
+			"name": "umbrella-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "umbrella-e3 action 有四帧且至少三幅不同画面",
+			"name": "umbrella-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -305,11 +305,11 @@
 			"ok": true
 		},
 		{
-			"name": "lion idle 有四帧且至少三幅不同画面",
+			"name": "lion idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lion action 有四帧且至少三幅不同画面",
+			"name": "lion action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -317,11 +317,11 @@
 			"ok": true
 		},
 		{
-			"name": "lion-e1 idle 有四帧且至少三幅不同画面",
+			"name": "lion-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lion-e1 action 有四帧且至少三幅不同画面",
+			"name": "lion-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -329,11 +329,11 @@
 			"ok": true
 		},
 		{
-			"name": "lion-e2 idle 有四帧且至少三幅不同画面",
+			"name": "lion-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lion-e2 action 有四帧且至少三幅不同画面",
+			"name": "lion-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -341,11 +341,11 @@
 			"ok": true
 		},
 		{
-			"name": "lion-e3 idle 有四帧且至少三幅不同画面",
+			"name": "lion-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lion-e3 action 有四帧且至少三幅不同画面",
+			"name": "lion-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -353,11 +353,11 @@
 			"ok": true
 		},
 		{
-			"name": "mushroom idle 有四帧且至少三幅不同画面",
+			"name": "mushroom idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "mushroom action 有四帧且至少三幅不同画面",
+			"name": "mushroom action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -365,11 +365,11 @@
 			"ok": true
 		},
 		{
-			"name": "cat idle 有四帧且至少三幅不同画面",
+			"name": "cat idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "cat action 有四帧且至少三幅不同画面",
+			"name": "cat action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -377,11 +377,11 @@
 			"ok": true
 		},
 		{
-			"name": "cat-e1 idle 有四帧且至少三幅不同画面",
+			"name": "cat-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "cat-e1 action 有四帧且至少三幅不同画面",
+			"name": "cat-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -389,11 +389,11 @@
 			"ok": true
 		},
 		{
-			"name": "cat-e2 idle 有四帧且至少三幅不同画面",
+			"name": "cat-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "cat-e2 action 有四帧且至少三幅不同画面",
+			"name": "cat-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -401,11 +401,11 @@
 			"ok": true
 		},
 		{
-			"name": "cat-e3 idle 有四帧且至少三幅不同画面",
+			"name": "cat-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "cat-e3 action 有四帧且至少三幅不同画面",
+			"name": "cat-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -413,11 +413,11 @@
 			"ok": true
 		},
 		{
-			"name": "shell idle 有四帧且至少三幅不同画面",
+			"name": "shell idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "shell action 有四帧且至少三幅不同画面",
+			"name": "shell action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -425,11 +425,11 @@
 			"ok": true
 		},
 		{
-			"name": "lobber idle 有四帧且至少三幅不同画面",
+			"name": "lobber idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lobber action 有四帧且至少三幅不同画面",
+			"name": "lobber action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -437,11 +437,11 @@
 			"ok": true
 		},
 		{
-			"name": "lobber-e1 idle 有四帧且至少三幅不同画面",
+			"name": "lobber-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lobber-e1 action 有四帧且至少三幅不同画面",
+			"name": "lobber-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -449,11 +449,11 @@
 			"ok": true
 		},
 		{
-			"name": "lobber-e2 idle 有四帧且至少三幅不同画面",
+			"name": "lobber-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lobber-e2 action 有四帧且至少三幅不同画面",
+			"name": "lobber-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -461,11 +461,11 @@
 			"ok": true
 		},
 		{
-			"name": "lobber-e3 idle 有四帧且至少三幅不同画面",
+			"name": "lobber-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lobber-e3 action 有四帧且至少三幅不同画面",
+			"name": "lobber-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -473,11 +473,11 @@
 			"ok": true
 		},
 		{
-			"name": "torch idle 有四帧且至少三幅不同画面",
+			"name": "torch idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "torch action 有四帧且至少三幅不同画面",
+			"name": "torch action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -485,11 +485,11 @@
 			"ok": true
 		},
 		{
-			"name": "torch-e1 idle 有四帧且至少三幅不同画面",
+			"name": "torch-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "torch-e1 action 有四帧且至少三幅不同画面",
+			"name": "torch-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -497,11 +497,11 @@
 			"ok": true
 		},
 		{
-			"name": "torch-e2 idle 有四帧且至少三幅不同画面",
+			"name": "torch-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "torch-e2 action 有四帧且至少三幅不同画面",
+			"name": "torch-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -509,11 +509,11 @@
 			"ok": true
 		},
 		{
-			"name": "torch-e3 idle 有四帧且至少三幅不同画面",
+			"name": "torch-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "torch-e3 action 有四帧且至少三幅不同画面",
+			"name": "torch-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -521,11 +521,11 @@
 			"ok": true
 		},
 		{
-			"name": "star idle 有四帧且至少三幅不同画面",
+			"name": "star idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "star action 有四帧且至少三幅不同画面",
+			"name": "star action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -533,11 +533,11 @@
 			"ok": true
 		},
 		{
-			"name": "star-e1 idle 有四帧且至少三幅不同画面",
+			"name": "star-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "star-e1 action 有四帧且至少三幅不同画面",
+			"name": "star-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -545,11 +545,11 @@
 			"ok": true
 		},
 		{
-			"name": "star-e2 idle 有四帧且至少三幅不同画面",
+			"name": "star-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "star-e2 action 有四帧且至少三幅不同画面",
+			"name": "star-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -557,11 +557,11 @@
 			"ok": true
 		},
 		{
-			"name": "star-e3 idle 有四帧且至少三幅不同画面",
+			"name": "star-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "star-e3 action 有四帧且至少三幅不同画面",
+			"name": "star-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -569,11 +569,11 @@
 			"ok": true
 		},
 		{
-			"name": "needle idle 有四帧且至少三幅不同画面",
+			"name": "needle idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "needle action 有四帧且至少三幅不同画面",
+			"name": "needle action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -581,11 +581,11 @@
 			"ok": true
 		},
 		{
-			"name": "needle-e1 idle 有四帧且至少三幅不同画面",
+			"name": "needle-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "needle-e1 action 有四帧且至少三幅不同画面",
+			"name": "needle-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -593,11 +593,11 @@
 			"ok": true
 		},
 		{
-			"name": "needle-e2 idle 有四帧且至少三幅不同画面",
+			"name": "needle-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "needle-e2 action 有四帧且至少三幅不同画面",
+			"name": "needle-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -605,11 +605,11 @@
 			"ok": true
 		},
 		{
-			"name": "needle-e3 idle 有四帧且至少三幅不同画面",
+			"name": "needle-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "needle-e3 action 有四帧且至少三幅不同画面",
+			"name": "needle-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -617,11 +617,11 @@
 			"ok": true
 		},
 		{
-			"name": "judge idle 有四帧且至少三幅不同画面",
+			"name": "judge idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "judge action 有四帧且至少三幅不同画面",
+			"name": "judge action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -629,11 +629,11 @@
 			"ok": true
 		},
 		{
-			"name": "judge-e1 idle 有四帧且至少三幅不同画面",
+			"name": "judge-e1 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "judge-e1 action 有四帧且至少三幅不同画面",
+			"name": "judge-e1 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -641,11 +641,11 @@
 			"ok": true
 		},
 		{
-			"name": "judge-e2 idle 有四帧且至少三幅不同画面",
+			"name": "judge-e2 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "judge-e2 action 有四帧且至少三幅不同画面",
+			"name": "judge-e2 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -653,11 +653,11 @@
 			"ok": true
 		},
 		{
-			"name": "judge-e3 idle 有四帧且至少三幅不同画面",
+			"name": "judge-e3 idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "judge-e3 action 有四帧且至少三幅不同画面",
+			"name": "judge-e3 action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -665,11 +665,11 @@
 			"ok": true
 		},
 		{
-			"name": "lily idle 有四帧且至少三幅不同画面",
+			"name": "lily idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "lily action 有四帧且至少三幅不同画面",
+			"name": "lily action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -677,11 +677,11 @@
 			"ok": true
 		},
 		{
-			"name": "kelp idle 有四帧且至少三幅不同画面",
+			"name": "kelp idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "kelp action 有四帧且至少三幅不同画面",
+			"name": "kelp action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -689,11 +689,11 @@
 			"ok": true
 		},
 		{
-			"name": "gust idle 有四帧且至少三幅不同画面",
+			"name": "gust idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "gust action 有四帧且至少三幅不同画面",
+			"name": "gust action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -701,11 +701,51 @@
 			"ok": true
 		},
 		{
-			"name": "firework idle 有四帧且至少三幅不同画面",
+			"name": "firework idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "firework action 有四帧且至少三幅不同画面",
+			"name": "firework action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "squash 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "squash idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "squash action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "dragon idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon switch 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon far_idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon far 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon dual 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -713,19 +753,19 @@
 			"ok": true
 		},
 		{
-			"name": "ghost walk 有四帧且至少三幅不同画面",
+			"name": "ghost walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "ghost attack 有四帧且至少三幅不同画面",
+			"name": "ghost attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "ghost swim 有四帧且至少三幅不同画面",
+			"name": "ghost swim 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "ghost swim_bite 有四帧且至少三幅不同画面",
+			"name": "ghost swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -733,19 +773,19 @@
 			"ok": true
 		},
 		{
-			"name": "tongue walk 有四帧且至少三幅不同画面",
+			"name": "tongue walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "tongue attack 有四帧且至少三幅不同画面",
+			"name": "tongue attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "tongue swim 有四帧且至少三幅不同画面",
+			"name": "tongue swim 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "tongue swim_bite 有四帧且至少三幅不同画面",
+			"name": "tongue swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -753,19 +793,19 @@
 			"ok": true
 		},
 		{
-			"name": "straw walk 有四帧且至少三幅不同画面",
+			"name": "straw walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "straw attack 有四帧且至少三幅不同画面",
+			"name": "straw attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "straw swim 有四帧且至少三幅不同画面",
+			"name": "straw swim 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "straw swim_bite 有四帧且至少三幅不同画面",
+			"name": "straw swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -773,19 +813,19 @@
 			"ok": true
 		},
 		{
-			"name": "paper walk 有四帧且至少三幅不同画面",
+			"name": "paper walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "paper attack 有四帧且至少三幅不同画面",
+			"name": "paper attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "paper swim 有四帧且至少三幅不同画面",
+			"name": "paper swim 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "paper swim_bite 有四帧且至少三幅不同画面",
+			"name": "paper swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -793,19 +833,19 @@
 			"ok": true
 		},
 		{
-			"name": "stonehat walk 有四帧且至少三幅不同画面",
+			"name": "stonehat walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "stonehat attack 有四帧且至少三幅不同画面",
+			"name": "stonehat attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "stonehat swim 有四帧且至少三幅不同画面",
+			"name": "stonehat swim 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "stonehat swim_bite 有四帧且至少三幅不同画面",
+			"name": "stonehat swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -813,19 +853,19 @@
 			"ok": true
 		},
 		{
-			"name": "bucket walk 有四帧且至少三幅不同画面",
+			"name": "bucket walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bucket attack 有四帧且至少三幅不同画面",
+			"name": "bucket attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bucket swim 有四帧且至少三幅不同画面",
+			"name": "bucket swim 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bucket swim_bite 有四帧且至少三幅不同画面",
+			"name": "bucket swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -833,19 +873,19 @@
 			"ok": true
 		},
 		{
-			"name": "vault walk 有四帧且至少三幅不同画面",
+			"name": "vault walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "vault attack 有四帧且至少三幅不同画面",
+			"name": "vault attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "vault swim 有四帧且至少三幅不同画面",
+			"name": "vault swim 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "vault swim_bite 有四帧且至少三幅不同画面",
+			"name": "vault swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -853,19 +893,19 @@
 			"ok": true
 		},
 		{
-			"name": "mourner walk 有四帧且至少三幅不同画面",
+			"name": "mourner walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "mourner attack 有四帧且至少三幅不同画面",
+			"name": "mourner attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "mourner swim 有四帧且至少三幅不同画面",
+			"name": "mourner swim 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "mourner swim_bite 有四帧且至少三幅不同画面",
+			"name": "mourner swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -873,11 +913,11 @@
 			"ok": true
 		},
 		{
-			"name": "sedan walk 有四帧且至少三幅不同画面",
+			"name": "sedan walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "sedan attack 有四帧且至少三幅不同画面",
+			"name": "sedan attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -885,11 +925,11 @@
 			"ok": true
 		},
 		{
-			"name": "artisan walk 有四帧且至少三幅不同画面",
+			"name": "artisan walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "artisan attack 有四帧且至少三幅不同画面",
+			"name": "artisan attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -897,11 +937,11 @@
 			"ok": true
 		},
 		{
-			"name": "ironjudge walk 有四帧且至少三幅不同画面",
+			"name": "ironjudge walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "ironjudge attack 有四帧且至少三幅不同画面",
+			"name": "ironjudge attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -909,11 +949,11 @@
 			"ok": true
 		},
 		{
-			"name": "mountain walk 有四帧且至少三幅不同画面",
+			"name": "mountain walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "mountain attack 有四帧且至少三幅不同画面",
+			"name": "mountain attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -921,11 +961,151 @@
 			"ok": true
 		},
 		{
-			"name": "bride walk 有四帧且至少三幅不同画面",
+			"name": "bride walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "bride attack 有四帧且至少三幅不同画面",
+			"name": "bride attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "returner walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner revive 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "matchmaker 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "matchmaker walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "matchmaker attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-veil 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "phase-veil walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-veil attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-veil swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-veil swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-kite 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "phase-kite walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-kite attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-kite swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-kite swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tamer 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "tamer walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tamer attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shieldguard 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shieldguard walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shieldguard attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shieldguard swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shieldguard swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reedboat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reedboat walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reedboat attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reedboat swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reedboat swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dreambell 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "dreambell walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dreambell attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -933,11 +1113,11 @@
 			"ok": true
 		},
 		{
-			"name": "sedan-empty walk 有四帧且至少三幅不同画面",
+			"name": "sedan-empty walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "sedan-empty attack 有四帧且至少三幅不同画面",
+			"name": "sedan-empty attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -945,11 +1125,11 @@
 			"ok": true
 		},
 		{
-			"name": "sedan-loaded walk 有四帧且至少三幅不同画面",
+			"name": "sedan-loaded walk 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "sedan-loaded attack 有四帧且至少三幅不同画面",
+			"name": "sedan-loaded attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -957,11 +1137,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-earth-idle idle 有四帧且至少三幅不同画面",
+			"name": "boss-earth-idle idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-earth-idle action 有四帧且至少三幅不同画面",
+			"name": "boss-earth-idle action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -969,11 +1149,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-earth-anticipation idle 有四帧且至少三幅不同画面",
+			"name": "boss-earth-anticipation idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-earth-anticipation action 有四帧且至少三幅不同画面",
+			"name": "boss-earth-anticipation action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -981,11 +1161,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-earth-small idle 有四帧且至少三幅不同画面",
+			"name": "boss-earth-small idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-earth-small action 有四帧且至少三幅不同画面",
+			"name": "boss-earth-small action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -993,11 +1173,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-earth-major idle 有四帧且至少三幅不同画面",
+			"name": "boss-earth-major idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-earth-major action 有四帧且至少三幅不同画面",
+			"name": "boss-earth-major action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1005,11 +1185,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-earth-hurt idle 有四帧且至少三幅不同画面",
+			"name": "boss-earth-hurt idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-earth-hurt action 有四帧且至少三幅不同画面",
+			"name": "boss-earth-hurt action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1017,11 +1197,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-earth-defeat idle 有四帧且至少三幅不同画面",
+			"name": "boss-earth-defeat idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-earth-defeat action 有四帧且至少三幅不同画面",
+			"name": "boss-earth-defeat action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1029,11 +1209,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-paper-idle idle 有四帧且至少三幅不同画面",
+			"name": "boss-paper-idle idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-paper-idle action 有四帧且至少三幅不同画面",
+			"name": "boss-paper-idle action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1041,11 +1221,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-paper-anticipation idle 有四帧且至少三幅不同画面",
+			"name": "boss-paper-anticipation idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-paper-anticipation action 有四帧且至少三幅不同画面",
+			"name": "boss-paper-anticipation action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1053,11 +1233,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-paper-small idle 有四帧且至少三幅不同画面",
+			"name": "boss-paper-small idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-paper-small action 有四帧且至少三幅不同画面",
+			"name": "boss-paper-small action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1065,11 +1245,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-paper-major idle 有四帧且至少三幅不同画面",
+			"name": "boss-paper-major idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-paper-major action 有四帧且至少三幅不同画面",
+			"name": "boss-paper-major action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1077,11 +1257,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-paper-hurt idle 有四帧且至少三幅不同画面",
+			"name": "boss-paper-hurt idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-paper-hurt action 有四帧且至少三幅不同画面",
+			"name": "boss-paper-hurt action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1089,11 +1269,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-paper-defeat idle 有四帧且至少三幅不同画面",
+			"name": "boss-paper-defeat idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-paper-defeat action 有四帧且至少三幅不同画面",
+			"name": "boss-paper-defeat action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1101,11 +1281,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-river-idle idle 有四帧且至少三幅不同画面",
+			"name": "boss-river-idle idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-river-idle action 有四帧且至少三幅不同画面",
+			"name": "boss-river-idle action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1113,11 +1293,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-river-anticipation idle 有四帧且至少三幅不同画面",
+			"name": "boss-river-anticipation idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-river-anticipation action 有四帧且至少三幅不同画面",
+			"name": "boss-river-anticipation action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1125,11 +1305,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-river-small idle 有四帧且至少三幅不同画面",
+			"name": "boss-river-small idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-river-small action 有四帧且至少三幅不同画面",
+			"name": "boss-river-small action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1137,11 +1317,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-river-major idle 有四帧且至少三幅不同画面",
+			"name": "boss-river-major idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-river-major action 有四帧且至少三幅不同画面",
+			"name": "boss-river-major action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1149,11 +1329,11 @@
 			"ok": true
 		},
 		{
-			"name": "boss-river-hurt idle 有四帧且至少三幅不同画面",
+			"name": "boss-river-hurt idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-river-hurt action 有四帧且至少三幅不同画面",
+			"name": "boss-river-hurt action 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1161,11 +1341,1363 @@
 			"ok": true
 		},
 		{
-			"name": "boss-river-defeat idle 有四帧且至少三幅不同画面",
+			"name": "boss-river-defeat idle 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
-			"name": "boss-river-defeat action 有四帧且至少三幅不同画面",
+			"name": "boss-river-defeat action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "所有原画角色都已烘焙32帧动作",
+			"ok": true
+		},
+		{
+			"name": "artisan 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "artisan attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "artisan walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bell 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bell action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bell idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bell-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bell-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bell-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bell-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bell-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bell-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bell-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bell-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bell-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bomb 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bomb action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bomb idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-anticipation 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-anticipation action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-anticipation idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-defeat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-defeat action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-defeat idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-hurt 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-hurt action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-hurt idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-idle 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-idle action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-idle idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-major 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-major action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-major idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-small 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-small action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-earth-small idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-anticipation 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-anticipation action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-anticipation idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-defeat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-defeat action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-defeat idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-hurt 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-hurt action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-hurt idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-idle 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-idle action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-idle idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-major 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-major action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-major idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-small 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-small action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-paper-small idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-anticipation 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-anticipation action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-anticipation idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-defeat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-defeat action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-defeat idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-hurt 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-hurt action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-hurt idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-idle 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-idle action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-idle idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-major 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-major action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-major idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-small 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-river-small action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-river-small idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bride 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bride attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bride walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bucket 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "bucket attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bucket swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bucket swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "bucket walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cat action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cat idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cat-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cat-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cat-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cat-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cat-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cat-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cat-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cat-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cat-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "censer 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "censer action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "censer idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "censer-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "censer-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "censer-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "censer-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "censer-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "censer-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "censer-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "censer-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "censer-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "dragon action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon dual 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon far 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon far_idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dragon switch 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dreambell 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "dreambell attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "dreambell walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "firework 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "firework action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "firework idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ghost 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ghost attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ghost swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ghost swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ghost walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "gust 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "gust action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "gust idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ironjudge 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ironjudge attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ironjudge walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "judge 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "judge action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "judge idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "judge-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "judge-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "judge-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "judge-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "judge-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "judge-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "judge-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "judge-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "judge-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "kelp 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "kelp action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "kelp idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lantern 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lantern action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lantern idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lantern-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lantern-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lantern-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lantern-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lantern-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lantern-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lantern-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lantern-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lantern-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lily 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lily action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lily idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lion 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lion action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lion idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lion-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lion-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lion-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lion-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lion-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lion-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lion-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lion-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lion-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lobber 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lobber action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lobber idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lobber-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lobber-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lobber-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lobber-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lobber-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lobber-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lobber-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "lobber-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "lobber-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "matchmaker 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "matchmaker attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "matchmaker walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "mountain 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "mountain attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "mountain walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "mourner 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "mourner attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "mourner swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "mourner swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "mourner walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "mushroom 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "mushroom action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "mushroom idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "needle 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "needle action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "needle idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "needle-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "needle-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "needle-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "needle-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "needle-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "needle-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "needle-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "needle-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "needle-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "paper 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "paper attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "paper swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "paper swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "paper walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-kite 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "phase-kite attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-kite swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-kite swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-kite walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-veil 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "phase-veil attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-veil swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-veil swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "phase-veil walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reedboat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reedboat attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reedboat swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reedboat swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reedboat walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "returner attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner revive 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "returner walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sedan 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sedan attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sedan walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sedan-empty 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sedan-empty attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sedan-empty walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sedan-loaded 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sedan-loaded attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sedan-loaded walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shell 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shell action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shell idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shieldguard 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shieldguard attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shieldguard swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shieldguard swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shieldguard walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shooter 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shooter action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shooter idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shooter-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shooter-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shooter-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shooter-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shooter-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shooter-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shooter-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shooter-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shooter-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "squash 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "squash action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "squash idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "star 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "star action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "star idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "star-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "star-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "star-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "star-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "star-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "star-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "star-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "star-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "star-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "stonehat 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "stonehat attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "stonehat swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "stonehat swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "stonehat walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "straw 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "straw attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "straw swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "straw swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "straw walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tamer 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "tamer attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tamer walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tongue 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "tongue attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tongue swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tongue swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tongue walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "torch 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "torch action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "torch idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "torch-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "torch-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "torch-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "torch-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "torch-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "torch-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "torch-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "torch-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "torch-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "umbrella 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "umbrella action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "umbrella idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "umbrella-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "vault 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "vault attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "vault swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "vault swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "vault walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wall 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wall action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wall idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wall-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wall-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wall-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wall-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wall-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wall-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wall-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wall-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wall-e3 idle 有32帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1226,5 +2758,5 @@
 		}
 	],
 	"failures": 0,
-	"total": 306
+	"total": 689
 }

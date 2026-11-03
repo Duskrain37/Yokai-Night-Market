@@ -16,6 +16,8 @@ var card_selected = -1
 var shovel_mode = false
 var focus_plant = null
 var cheat_open = false
+var slow_battle = false
+var _opened_cheat_once = false
 var cheat_tab = "misc"
 var spawn_type = "ghost"
 var spawn_count = 1
@@ -32,6 +34,7 @@ var _banner_t = 0.0
 var _card_nodes: Array = []
 var _tool_wave: Button = null
 var _tool_shovel: Button = null
+var _shovel_cursor: Image = null
 var _tool_cheat: Button = null
 var _speed_label: Label = null
 var _fan: UpgradeFan = null
@@ -41,6 +44,8 @@ var _cheat_panel: PanelContainer = null
 var _tutorial_panel: PanelContainer = null
 var _tutorial_label: Label = null
 var _tutorial_dots: Control = null
+var _tutorial_almanac: Button = null
+var _tutorial_help: Button = null
 var _wave_pips: Control = null
 var _danger: Control = null
 var _tooltip: Label = null
@@ -141,7 +146,8 @@ func _build_hud() -> void:
 	left.add_child(_danger)
 
 	_wave_pips = Control.new()
-	_wave_pips.custom_minimum_size = Vector2(120, 150)
+	_wave_pips.custom_minimum_size = Vector2(258, 53)
+	_wave_pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_wave_pips.draw.connect(_draw_wave_pips)
 	left.add_child(_wave_pips)
 
@@ -210,7 +216,15 @@ func _build_hud() -> void:
 	add_child(tools)
 	_tool_wave = _tool_button("唤波", "提前放下一波恶客", func(): _on_quick_wave())
 	tools.add_child(_tool_wave)
-	_tool_shovel = _tool_button("铲子", "铲除草木；龟甲可单独拆", func(): _on_shovel())
+	_tool_shovel = _tool_button("", "起土铲 · 移除草木，先拆外面的龟甲罩", func(): _on_shovel())
+	var tool_art: Texture2D = load("res://assets/sprites/lotus-trowel.png")
+	_tool_shovel.icon = tool_art
+	_tool_shovel.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_tool_shovel.expand_icon = true
+	_tool_shovel.add_theme_constant_override("icon_max_width", 42)
+	if tool_art != null and DisplayServer.get_name() != "headless":
+		_shovel_cursor = tool_art.get_image()
+		_shovel_cursor.resize(48, 48, Image.INTERPOLATE_LANCZOS)
 	tools.add_child(_tool_shovel)
 	_tool_cheat = _tool_button("作弊", "杂项与召唤", func(): _toggle_cheat())
 	_tool_cheat.visible = bool(game.settings.get("cheats", false)) or sim.training
@@ -281,7 +295,7 @@ func _build_tutorial() -> void:
 	_tutorial_panel.anchor_right = 0.5
 	_tutorial_panel.offset_left = -430.0
 	_tutorial_panel.offset_right = 430.0
-	_tutorial_panel.offset_top = -118.0
+	_tutorial_panel.offset_top = -149.0
 	_tutorial_panel.offset_bottom = -22.0
 	add_child(_tutorial_panel)
 	var row = Ui.hbox(14)
@@ -296,7 +310,19 @@ func _build_tutorial() -> void:
 	_tutorial_dots.custom_minimum_size = Vector2(180, 12)
 	_tutorial_dots.draw.connect(_draw_tutorial_dots)
 	column.add_child(_tutorial_dots)
+	_tutorial_almanac = Ui.button("打开图鉴", 20, 138, 48, true)
+	_tutorial_almanac.pressed.connect(func(): game.open_almanac("plant", 1))
+	_tutorial_almanac.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_tutorial_almanac.hide()
+	var lesson_actions := Ui.vbox(6)
+	row.add_child(lesson_actions)
+	lesson_actions.add_child(_tutorial_almanac)
+	_tutorial_help = Ui.button("试用救急菜单", 17, 138, 36)
+	_tutorial_help.pressed.connect(_toggle_cheat)
+	_tutorial_help.hide()
+	lesson_actions.add_child(_tutorial_help)
 	var quit = Ui.button("退出教程", 16, 110, 40)
+	quit.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	quit.pressed.connect(func(): game.back_to_menu())
 	row.add_child(quit)
 
@@ -306,45 +332,65 @@ func _draw_tutorial_dots() -> void:
 	if sim == null or sim.tutorial == null:
 		return
 	var step = String(sim.tutorial["step"])
-	var order = ["collect", "plant", "upgrade", "wall", "battle", "finishing", "done"]
+	var order = ["collect", "plant", "upgrade", "wall", "battle", "almanac"]
 	var index = order.find(step)
 	for i in order.size():
 		var color = Ui.GOLD if i <= index else Color(1, 1, 1, 0.25)
 		_tutorial_dots.draw_circle(Vector2(8 + i * 22, 6), 5.0, color)
 
 
-## 波次条按大波分组：一大波 = 三小拨。拨与拨之间不留缝，大波之间留缝并在左边标大波号。
+## One horizontal page of up to four major waves, each ending at a banner.
 func _draw_wave_pips() -> void:
 	var sim: Sim = game.sim
-	if sim == null:
+	if sim == null or sim.training or sim.tutorial != null:
 		return
-	var waves: Array = sim.level.get("waves", [])
-	if waves.is_empty():
+	var groups = Content.visible_wave_groups(sim.level, sim.displayed_wave_count())
+	if groups.is_empty():
 		return
+	var start = int(groups.front()) * Content.WAVES_PER_GROUP
+	var steps = groups.size() * Content.WAVES_PER_GROUP
+	var progress = clampf(float(sim.wave_index - start), 0.0, float(steps))
+	if sim.boss != null and sim.boss.alive():
+		var boss_share = 1.0 - sim.boss.hp / maxf(1.0, sim.boss.max_hp)
+		var boss_span = float(Content.WAVES_PER_GROUP) if not bool(sim.level.get("special", false)) else 1.0
+		progress = steps - boss_span * (1.0 - boss_share)
+	elif progress > 0.0 and progress < steps and sim.wave_index < sim.level.waves.size():
+		var released_at = float(sim.level.waves[sim.wave_index - 1]["t"]) + sim.wave_time_offset
+		var next_at = float(sim.level.waves[sim.wave_index]["t"]) + sim.wave_time_offset
+		var fraction = (sim.time - released_at) / maxf(0.001, next_at - released_at)
+		progress += clampf(fraction, 0.0, 0.99)
+	var bar := Rect2(8, 27, 242, 10)
+	Ui.draw_gauge(_wave_pips, bar, progress / steps, Color("#b65a3c"))
+	var tip = Vector2(bar.position.x + bar.size.x * (progress / steps), bar.get_center().y)
+	_wave_pips.draw_circle(tip, 4.0, Color("#eac478"))
 	var font = Ui.body_font()
-	var group_count=Content.wave_groups(sim.level)
-	var group_now=Content.current_major_wave(sim.level,sim.displayed_wave_count())-1
-	# Permanent rule: show four major waves at a time; switch when entering the next four.
-	var page_start=int(group_now/4)*4
-	for g in Content.visible_wave_groups(sim.level,sim.displayed_wave_count()):
-		var x=0.0
-		var y=4.0+(g-page_start)*35.0
-		for sub in Content.WAVES_PER_GROUP:
-			var i=g*Content.WAVES_PER_GROUP+sub
-			if i>=waves.size():break
-			var done=i<sim.wave_index
-			if sim.boss!=null and sim.boss.alive() and g==group_now:done=false
-			var color=Color(1,1,1,.16)
-			if done:color=Color(Ui.GOLD_DIM.r,Ui.GOLD_DIM.g,Ui.GOLD_DIM.b,.9)
-			elif i==sim.wave_index or (sim.boss!=null and g==group_now):color=Ui.GOLD_BRIGHT
-			Ui.draw_gauge(_wave_pips, Rect2(x + 20, y,
-				27.0 if bool(waves[i].get("flag", false)) else 19.0, 7.0),
-				1.0 if done or i == sim.wave_index or (sim.boss != null and g == group_now) else 0.0,
-				color)
-			y+=9
-		_wave_pips.draw_string(font,Vector2(x+2,y-11),str(g+1),HORIZONTAL_ALIGNMENT_LEFT,-1,11,
-			Ui.GOLD_BRIGHT if g==group_now else Color(1,1,1,.4))
+	for i in groups.size():
+		var end_step = (i + 1) * Content.WAVES_PER_GROUP
+		var x = bar.position.x + bar.size.x * float(end_step) / steps
+		var active = progress > i * Content.WAVES_PER_GROUP
+		var raised = progress >= end_step
+		_draw_wave_flag(Vector2(x, bar.get_center().y), active, raised)
+		var number = str(int(groups[i]) + 1)
+		var width = font.get_string_size(number, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		_wave_pips.draw_string(font, Vector2(x - width * 0.5, 50), number,
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.GOLD_BRIGHT if active else Ui.TEXT_DIM)
 
+
+func _draw_wave_flag(at: Vector2, active: bool, raised: bool) -> void:
+	var gold = Color("#efd18c") if active else Color("#897653")
+	var silk = Color("#c9593c") if raised else (Color("#8c4431") if active else Color("#443832"))
+	var top = at + Vector2(0, -27)
+	_wave_pips.draw_line(at + Vector2(0, 3), top, gold, 2, true)
+	_wave_pips.draw_circle(top, 2.5, gold)
+	var points := PackedVector2Array([
+		top + Vector2(-1, 4), top + Vector2(-19, 3), top + Vector2(-16, 9),
+		top + Vector2(-19, 15), top + Vector2(-1, 16)
+	])
+	_wave_pips.draw_colored_polygon(points, silk)
+	points.append(points[0])
+	_wave_pips.draw_polyline(points, gold, 1.0, true)
+	_wave_pips.draw_line(top + Vector2(-13, 7), top + Vector2(-6, 8), gold, 1, true)
+	_wave_pips.draw_line(top + Vector2(-13, 11), top + Vector2(-6, 12), gold, 1, true)
 
 
 # ── 刷新 ────────────────────────────────────────────────────────────────────
@@ -498,17 +544,23 @@ func _refresh_tutorial() -> void:
 		"plant": ["第二步 · 请一株签筒出摊",
 			"点最上面那一排、正发着光的「签筒」牌，再点靠后的空格放下它。签筒只打本行前方。"],
 		"upgrade": ["第三步 · 给签筒升阶",
-			"点已种下的签筒，在「连发」一行按「%d 香火」升到一级。" % cost],
+			"点签筒，在「连发」扇叶花 %d 香火。升阶能让一株草木多做事。每株最多学两路，只有一路能练到三阶，落子前先想它要守哪一行。" % cost],
 		"wall": ["第四步 · 请石磨挡在前面",
 			"光在闪的「石磨」牌点一下，种在签筒前面那一格（%d 香火）。它不打人，它负责挨咬。" % wall_cost],
 		"battle": ["第五步 · 看它们自己出手",
-			"恶客从右边过来：石磨咬住它，签筒自动瞄准开火。等这一只被击退。"],
-		"finishing": ["成了", "这一夜的第一课，你已经学会了。"],
+			"恶客从右边过来。石磨挡住它，签筒自动瞄准开火。"],
+		"finishing": ["守住了", "接下来看看草木还有哪些本事。"],
+		"almanac": ["第六步 · 出摊前再看一眼",
+			"每周第一夜熟悉地形，第二到第四夜每天学一种应对法。第五夜恶客齐来，还要迎战首领。备战页能查今夜来客。\n实在守不住时，从暂停进设置开启「作弊菜单」，回战场点「作弊」，可慢放到 0.1× 或补香火。右侧可以先试，再翻图鉴看签筒的进化。"],
 		"done": ["这一课成了", "收香火、出输出、挡怪、升阶——四样都在手上了。"],
 	}
 	var entry: Array = copy.get(step, ["", ""])
 	if _tutorial_label != null:
 		_tutorial_label.text = "%s\n%s" % [entry[0], entry[1]]
+	if _tutorial_almanac != null:
+		_tutorial_almanac.visible = step == "almanac"
+		_tutorial_help.visible = step == "almanac"
+		_tutorial_panel.offset_top = -235.0 if step == "almanac" else -149.0
 	if _tutorial_dots != null:
 		_tutorial_dots.queue_redraw()
 
@@ -534,17 +586,30 @@ func _on_card(index: int) -> void:
 			sim.deny("这一步请石磨出摊", _mouse())
 			return
 	card_selected = -1 if card_selected == index else index
-	shovel_mode = false
+	set_shovel_mode(false)
+	close_fan()
 	game.play_sfx("click")
 	refresh()
 
 
 func _on_shovel() -> void:
-	shovel_mode = not shovel_mode
+	set_shovel_mode(not shovel_mode)
 	card_selected = -1
 	close_fan()
 	game.play_sfx("click")
 	refresh()
+
+
+func set_shovel_mode(enabled: bool) -> void:
+	if shovel_mode == enabled:
+		return
+	shovel_mode = enabled
+	if _shovel_cursor != null:
+		Input.set_custom_mouse_cursor(_shovel_cursor if enabled else null, Input.CURSOR_ARROW, Vector2(2, 2) if enabled else Vector2.ZERO)
+
+
+func _exit_tree() -> void:
+	set_shovel_mode(false)
 
 
 func _on_quick_wave() -> void:
@@ -558,7 +623,7 @@ func _on_quick_wave() -> void:
 
 func cancel_selection() -> void:
 	card_selected = -1
-	shovel_mode = false
+	set_shovel_mode(false)
 	close_fan()
 	refresh()
 
@@ -611,6 +676,7 @@ func _build_fan(plant, at: Vector2) -> void:
 	focus_plant = plant
 	_fan = UpgradeFan.new()
 	_fan.plant = plant
+	_fan.sim = game.sim
 	_fan.picked.connect(_on_fan_pick)
 	_fan.dismissed.connect(close_fan)
 	add_child(_fan)
@@ -702,15 +768,28 @@ func set_cheats_enabled(enabled: bool) -> void:
 		_tool_cheat.visible = enabled or (game.sim != null and game.sim.training)
 	if not enabled and cheat_open and (game.sim == null or not game.sim.training):
 		_toggle_cheat()
+	if not enabled and slow_battle:
+		_set_slow_battle(false)
 
 
 func _toggle_cheat() -> void:
 	cheat_open = not cheat_open
 	if cheat_open:
+		if not _opened_cheat_once and not game.sim.training and not game.tutorial_active:
+			_set_slow_battle(true)
+		_opened_cheat_once = true
 		_build_cheat()
 	elif _cheat_panel != null:
 		_cheat_panel.queue_free()
 		_cheat_panel = null
+	refresh()
+
+
+func _set_slow_battle(enabled: bool) -> void:
+	slow_battle = enabled
+	if enabled:
+		game.sim.cheated = true
+	game.apply_speed(0.1 if enabled else float(game.settings["speed"]))
 
 
 func _build_cheat() -> void:
@@ -778,6 +857,11 @@ func _build_misc_tab(box: VBoxContainer) -> void:
 			sim.restore_mowers()
 			sim.float_text(Vector2(800, 300), "门神归位", Ui.GOLD_BRIGHT, 18)],
 	]
+	if game.tutorial_active:
+		rows.resize(1)
+		var tip := Ui.label("试着补一次香火，再关闭菜单。正式守夜时，建议卡关再打开。", 17, Ui.TEXT_DIM)
+		tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		box.add_child(tip)
 	if sim.training:
 		rows.append(["无冷却 %s" % ("已开" if sim.no_cooldown else "已关"), func():
 			sim.no_cooldown = not sim.no_cooldown
@@ -795,7 +879,10 @@ func _build_misc_tab(box: VBoxContainer) -> void:
 		rows.append(["退回选草", func():
 			game.show_prep((int(game.training.get("day", 1)) - 1) * 5 + 1, true,
 				int(game.training.get("day", 1)))])
-	else:
+	elif not game.tutorial_active:
+		rows.push_front(["常规战斗 0.1× · %s" % ("已开" if slow_battle else "已关"), func():
+			_set_slow_battle(not slow_battle)
+			_build_cheat()])
 		rows.append(["直接结算为胜", func():
 			game.finish_run(true)])
 	for row in rows:
@@ -827,6 +914,8 @@ func _build_spawn_tab(box: VBoxContainer) -> void:
 	box.add_child(grid)
 	for type in Content.ZOMBIE_ORDER:
 		if bool(Content.ZOMBIES[type].get("sedan_only", false)):
+			continue
+		if bool(Content.ZOMBIES[type].get("water_only", false)) and sim.level.get("water_rows", []).is_empty():
 			continue
 		var button = Ui.button(String(Content.ZOMBIES[type]["name"]), 15, 84, 34)
 		if type == spawn_type:
@@ -878,8 +967,8 @@ func _build_pause() -> void:
 	panel.anchor_right = 0.5
 	panel.offset_left = -230.0
 	panel.offset_right = 230.0
-	panel.offset_top = -230.0
-	panel.offset_bottom = 230.0
+	panel.offset_top = -188.0
+	panel.offset_bottom = 188.0
 	add_child(panel)
 	var box = Ui.vbox(12)
 	panel.add_child(box)
@@ -889,24 +978,29 @@ func _build_pause() -> void:
 	head.add_child(Ui.title("暂停", 40, Ui.GOLD_BRIGHT))
 	box.add_child(Ui.label("这一夜还长，喘口气再守。", 17, Ui.TEXT_DIM))
 	box.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
-	var buttons = [
-		["继续守夜", func(): resume()],
-		["重新开始这一夜", func(): game.restart_run()],
-		["查看图鉴", func(): game.open_almanac("plant", 0)],
-		["设置", func(): game.open_settings()],
-		["回到封面", func(): game.back_to_menu()],
-	]
-	for row in buttons:
-		var button = Ui.button(String(row[0]), 19, 380, 46)
-		button.pressed.connect(row[1])
-		box.add_child(button)
+	var resume_button = Ui.button("重返游戏", 28, 380, 72, true)
+	resume_button.pressed.connect(resume)
+	box.add_child(resume_button)
+	var tools = Ui.hbox(12)
+	box.add_child(tools)
+	var almanac = Ui.button("查看图鉴", 19, 180, 49)
+	almanac.pressed.connect(func(): game.open_almanac("plant", 0))
+	tools.add_child(almanac)
+	var settings = Ui.button("设置", 19, 180, 49)
+	settings.pressed.connect(func(): game.open_settings())
+	tools.add_child(settings)
+	var restart = Ui.button("重新开始这一夜", 17, 300, 42)
+	restart.pressed.connect(func(): game.restart_run())
+	box.add_child(restart)
 	var footer = Ui.hbox(10)
 	box.add_child(footer)
-	var mute = Ui.button("静音切换", 16, 180, 36)
+	var mute = Ui.button("静音切换", 15, 120, 34)
 	mute.pressed.connect(func():
 		game.set_setting("sound", not bool(game.settings["sound"])))
 	footer.add_child(mute)
-	# 局内已在卡槽右边留了速度药丸，暂停页不再重复放一个
+	var back = Ui.button("回到封面", 15, 110, 34)
+	back.pressed.connect(func(): game.back_to_menu())
+	footer.add_child(back)
 
 
 func resume() -> void:
@@ -1009,25 +1103,25 @@ func _build_result() -> void:
 	row1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(row1)
 	if bool(result.get("tutorial", false)):
-		var again = Ui.button("再练一次", 19, 200, 46)
+		var again = Ui.button("再练一次", 17, 164, 44)
 		again.pressed.connect(func(): game.start_battle(0, ["shooter"], "tutorial"))
 		row1.add_child(again)
 		# 教程结束后直接把人带进正式第一夜，而不是又扔回封面（另一个"回到封面"在下一行）
-		var first = Ui.button("开始第一夜", 19, 200, 46)
+		var first = Ui.button("开始第一夜", 23, 242, 56, true)
 		first.pressed.connect(func(): game.show_prep(1))
 		row1.add_child(first)
 	else:
-		var retry = Ui.button("再来一次", 19, 190, 46)
+		var retry = Ui.button("再来一次", 18 if won else 23, 152 if won else 230, 44 if won else 56, not won)
 		retry.pressed.connect(func(): game.restart_run())
 		row1.add_child(retry)
 		if won:
 			var next_level = mini(int(result.get("level_id", 1)) + 1,
 				Content.LEVELS.size())
-			var next = Ui.button("下一夜", 19, 190, 46)
+			var next = Ui.button("下一夜", 23, 224, 56, true)
 			next.disabled = int(result.get("level_id", 1)) >= Content.LEVELS.size()
 			next.pressed.connect(func(): game.show_prep(next_level))
 			row1.add_child(next)
-		var select = Ui.button("换一夜", 19, 190, 46)
+		var select = Ui.button("换一夜", 17, 132, 44)
 		select.pressed.connect(func(): game.show_levels())
 		row1.add_child(select)
 	var row2 = Ui.hbox(12)

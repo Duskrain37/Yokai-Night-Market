@@ -223,6 +223,10 @@ func _slots() -> void:
 	details.add_child(enemies)
 	var seen = Content.plants_in_level(_level())
 	var level = _level()
+	var bosses: Array = level.get("boss_checkpoints", [])
+	if String(level.get("boss_id", "")) != "":
+		bosses = [level["boss_id"]]
+	seen = bosses.map(func(id): return "boss-" + String(id)) + seen
 	var debut_prefix = "%s·%s" % [String(level["day_name"]), String(level["name"])]
 	var strip = FlowContainer.new()
 	strip.add_theme_constant_override("h_separation", 6)
@@ -303,6 +307,10 @@ func _swap_in_lily() -> void:
 
 ## 备战页点恶客头像 → 直接翻到它那一页图鉴。
 func open_zombie_almanac(id: String) -> void:
+	var boss_index := Almanac.BOSS_ORDER.find(id.trim_prefix("boss-")) if id.begins_with("boss-") else -1
+	if boss_index >= 0:
+		game.open_almanac("boss", boss_index)
+		return
 	var index = Content.ZOMBIE_ORDER.find(id)
 	if index >= 0 and game != null:
 		game.open_almanac("zombie", index)
@@ -514,12 +522,15 @@ class EnemyChip:
 				screen.open_zombie_almanac(zombie_id)
 
 	func _draw() -> void:
-		var def: Dictionary = Content.ZOMBIES[zombie_id]
+		var boss := zombie_id.begins_with("boss-")
+		var boss_id := zombie_id.trim_prefix("boss-")
+		var def: Dictionary = Content.ZOMBIES.get(zombie_id, {})
 		var rect := Rect2(Vector2.ZERO, size)
-		Ui.draw_plate(self, rect, Color(0.09, 0.11, 0.13, 0.86),
-			Ui.GOLD_BRIGHT if _hovered else Color(0.34, 0.30, 0.22, 0.9), 12, 1)
+		var fill := Color(0.23, 0.12, 0.09, 0.92) if boss else Color(0.09, 0.11, 0.13, 0.86)
+		var edge := Ui.GOLD if boss else Color(0.34, 0.30, 0.22, 0.9)
+		Ui.draw_plate(self, rect, fill, Ui.GOLD_BRIGHT if _hovered else edge, 12, 1)
 		var icon := Rect2(9, 3, 44, 32)
-		var texture := Ui.sprite(zombie_id)
+		var texture := Almanac.boss_portrait(boss_id) if boss else Ui.sprite(zombie_id)
 		if texture != null:
 			var tex_size := texture.get_size()
 			var scale := minf(icon.size.x / tex_size.x, icon.size.y / tex_size.y)
@@ -527,13 +538,13 @@ class EnemyChip:
 			draw_texture_rect(texture, Rect2(icon.position + (icon.size - drawn) * 0.5,
 				drawn), false)
 		var font = Ui.body_font()
-		var label = String(def["name"])
+		var label = Almanac.boss_name(boss_id) if boss else String(def["name"])
 		var width = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 		draw_string(font, Vector2((size.x - width) * 0.5, size.y - 6.0), label,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.TEXT if _hovered else Ui.TEXT_DIM)
 		var tier: Dictionary = Content.TIERS.get(String(def.get("tier", "l")), {})
 		draw_circle(Vector2(size.x - 9.0, 9.0), 4.0,
-			Color(String(tier.get("color", "#7f9d7a"))))
+			Ui.VERMILION if boss else Color(String(tier.get("color", "#7f9d7a"))))
 		if fresh:
 			Ui.draw_plate(self, Rect2(2, 2, 17, 14), Color(0.72, 0.24, 0.18, 0.95), Color.TRANSPARENT, 7, 0)
 			draw_string(font, Vector2(4.5, 13.5), "新", HORIZONTAL_ALIGNMENT_LEFT, -1,
