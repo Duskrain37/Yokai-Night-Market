@@ -1,5 +1,12 @@
 # 妖怪夜市 v0.4.1
 
+## 下载后直接启动
+
+1. [下载 Windows 64 位可执行文件](https://github.com/Duskrain37/Yokai-Night-Market/releases/latest/download/YokaiNightMarket-win64.exe)。
+2. 下载完成后，双击 `YokaiNightMarket-win64.exe` 启动游戏。单文件无需安装或解压。
+3. Windows 压缩包、源码与更新公告见[最新发布页](https://github.com/Duskrain37/Yokai-Night-Market/releases/latest)。
+
+
 中式怪谈题材的车道塔防。用香火请草木出摊，在灯火与水道之间守住夜市。
 
 ## 内容与操作
