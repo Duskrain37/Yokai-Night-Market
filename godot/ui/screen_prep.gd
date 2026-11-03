@@ -10,10 +10,11 @@ var _roster_nodes: Array = []
 var _slot_nodes: Array = []
 var _warning: Label = null
 var _count_label: Label = null
+var _fix_row: HBoxContainer = null
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_picked = Array(game.prep.get("selected", [])).duplicate()
 	if _picked.is_empty():
 		_picked = game.loadout.duplicate()
@@ -22,6 +23,39 @@ func _ready() -> void:
 	_roster()
 	_slots()
 	game.play_music_scene("menu")
+	# 进入备战先放镜头：镜头期间整页隐形、不抢点击
+	_play_cinema()
+
+
+## v0.2.4 的备战镜头：推镜 → 报幕 → 恶客列队 → 淡入备战页。
+func _play_cinema() -> void:
+	var level: Dictionary = _level()
+	var cinema := PrepCinema.new()
+	cinema.level = level
+	cinema.zombie_types = Content.plants_in_level(level)
+	for child in get_children():
+		if child == cinema:
+			continue
+		child.visible = false
+	add_child(cinema)
+	cinema.finished.connect(func(): _reveal_after_cinema())
+
+
+## QA 截图不等开场镜头
+func skip_cinema() -> void:
+	for child in get_children():
+		if child is PrepCinema:
+			child.queue_free()
+	_reveal_after_cinema()
+
+
+func _reveal_after_cinema() -> void:
+	for child in get_children():
+		if child is PrepCinema:
+			continue
+		child.visible = true
+		child.modulate.a = 0.0
+		create_tween().tween_property(child, "modulate:a", 1.0, 0.45)
 
 
 func _level() -> Dictionary:
@@ -70,14 +104,40 @@ func _header() -> void:
 	var title = Ui.title("备战 · %s" % String(level["name"]), 44, Ui.GOLD_BRIGHT)
 	title.position = Vector2(96, 84)
 	add_child(title)
-	var detail = "%s·%s · %s · 威胁 %s · %d 波" % [level["day_name"], level["day_sub"],
-		level["tag"], String.num(float(level["threat"]), 2), int(level["waves"].size())]
+	var detail = "%s·%s · %s · %d 大波 · 三星：一夜不动用门神" % [
+		level["day_name"],level["day_sub"],level["tag"],Content.wave_groups(level)]
+	if bool(level.get("special",false)):
+		detail="十二大波 · 每四波后迎战一位首领 · 阵容与香火保留，越往里越凶险"
+	var danger_label=Ui.label("今夜凶险",16,Ui.TEXT_DIM)
+	danger_label.position=Vector2(1070,103);add_child(danger_label)
+	var danger=preload("res://ui/threat_meter.gd").new()
+	danger.position=Vector2(1180,108);danger.size=Vector2(330,16)
+	danger.values=[2.0,2.5,3.5] if bool(level.get("special",false)) else [float(level.threat)]
+	add_child(danger)
 	if training:
 		detail = "训练场 · %s·%s · 不刷波次、不判负、起手 1000 香火" % [
 			level["day_name"], level["day_sub"]]
 	var sub = Ui.label(detail, 18, Ui.TEXT_DIM)
 	sub.position = Vector2(100, 148)
 	add_child(sub)
+	# 三夜样板：这一夜只练一件事，写在右上角的暗底题签上
+	var theme := String(level.get("theme", ""))
+	if theme != "":
+		var plate := PanelContainer.new()
+		plate.position = Vector2(742, 20)
+		plate.custom_minimum_size = Vector2(800, 0)
+		plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		plate.add_theme_stylebox_override("panel", Ui.flat(
+			Color(0.05, 0.06, 0.08, 0.8), Color(Ui.VERMILION.r, Ui.VERMILION.g,
+				Ui.VERMILION.b, 0.55), 8, 1))
+		var row := Ui.hbox(10)
+		plate.add_child(row)
+		row.add_child(Ui.seal("题", 30.0))
+		var line := Ui.strong(theme, 17, Color(0.96, 0.9, 0.78))
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.custom_minimum_size = Vector2(720, 0)
+		row.add_child(line)
+		add_child(plate)
 	var rule = ColorRect.new()
 	rule.color = Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g, Ui.GOLD_DIM.b, 0.6)
 	rule.position = Vector2(100, 182)
@@ -136,49 +196,80 @@ func _slots() -> void:
 		slot.custom_minimum_size = Vector2(80, 96)
 		grid.add_child(slot)
 		_slot_nodes.append(slot)
+	# Keep the launch controls inside the viewport even with all enemy types + water warning.
+	var scroll=ScrollContainer.new()
+	scroll.custom_minimum_size=Vector2(0,140)
+	scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	box.add_child(scroll)
+	var details=Ui.vbox(6)
+	details.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	scroll.add_child(details)
 	_warning = Ui.label("", 16, Ui.WARN)
 	_warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_warning.custom_minimum_size = Vector2(410, 40)
-	box.add_child(_warning)
-	box.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
-	box.add_child(Ui.label("今夜恶客", 17, Ui.GOLD))
+	_warning.custom_minimum_size = Vector2(0, 40)
+	details.add_child(_warning)
+	# 水路忘带夜莲时的补救：一行按钮，只在真的缺的时候露出来
+	_fix_row = Ui.hbox(8)
+	details.add_child(_fix_row)
+	var fix = Ui.button("把夜莲换进来", 16, 0, 38)
+	fix.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	fix.pressed.connect(_swap_in_lily)
+	_fix_row.add_child(fix)
+	details.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
+	details.add_child(Ui.label("今夜恶客", 17, Ui.GOLD))
 	var enemies = Ui.vbox(2)
-	box.add_child(enemies)
+	details.add_child(enemies)
 	var seen = Content.plants_in_level(_level())
-	var line = ""
+	var level = _level()
+	var debut_prefix = "%s·%s" % [String(level["day_name"]), String(level["name"])]
+	var strip = FlowContainer.new()
+	strip.add_theme_constant_override("h_separation", 6)
+	strip.add_theme_constant_override("v_separation", 6)
+	strip.custom_minimum_size = Vector2(0, 0)
+	strip.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	enemies.add_child(strip)
 	for type in seen:
-		line += "%s  " % String(Content.ZOMBIES[type]["name"])
-	var enemy_label = Ui.label(line.strip_edges(), 15, Ui.TEXT_DIM)
-	enemy_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	enemy_label.custom_minimum_size = Vector2(410, 0)
-	enemies.add_child(enemy_label)
-	box.add_child(Ui.spacer(4))
-	var actions = Ui.hbox(8)
+		var chip = EnemyChip.new()
+		chip.zombie_id = String(type)
+		chip.fresh = String(Content.first_appearance(String(type))) \
+			.begins_with(debut_prefix)
+		chip.screen = self
+		strip.add_child(chip)
+	if seen.is_empty():
+		enemies.add_child(Ui.label("今夜没有新客", 15, Ui.TEXT_DIM))
+	details.add_child(Ui.spacer(4))
+	# 三枚小键等宽铺满一行；开战钉在面板底部，中间留白由弹性空隙吃掉
+	var actions = Ui.hbox(10)
+	actions.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(actions)
-	var auto = Ui.button("自动配卡", 16, 130, 40)
+	var auto = Ui.button("按今夜推荐配卡", 16, 0, 40)
+	auto.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	auto.pressed.connect(func(): _auto_pick())
 	actions.add_child(auto)
-	var clear = Ui.button("清空", 16, 90, 40)
+	var clear = Ui.button("清空", 16, 0, 40)
+	clear.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	clear.pressed.connect(func():
 		_picked.clear()
 		_refresh())
 	actions.add_child(clear)
-	var almanac = Ui.button("图鉴", 16, 90, 40)
+	var almanac = Ui.button("图鉴", 16, 0, 40)
+	almanac.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	almanac.pressed.connect(func(): game.open_almanac("plant", 0))
 	actions.add_child(almanac)
 	var start = Ui.button("开战" if not bool(game.prep.get("training", false)) else "进训练场",
-		22, 420, 56)
+		22, 0, 58, true)
+	start.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	start.pressed.connect(func(): _start())
 	box.add_child(start)
 	_refresh()
 
 
 func _auto_pick() -> void:
-	var priority = ["lantern", "shooter", "wall", "sun_lamp", "bell", "censer",
-		"torch", "umbrella", "lion", "needle", "judge", "cat", "lobber", "star",
-		"mushroom", "bomb", "shell"]
+	# 推荐顺序随地图：水路自带夜莲，河埠口多带抛物线与跨行
+	var tips: Array = Content.loadout_tips(String(_level()["map"]))
 	_picked.clear()
-	for type in priority:
+	for type in tips:
 		if Content.PLANTS.has(type) and _picked.size() < 10:
 			_picked.append(type)
 	for type in Content.PLANT_ORDER:
@@ -188,6 +279,32 @@ func _auto_pick() -> void:
 			_picked.append(type)
 	_refresh()
 	game.play_sfx("click")
+
+
+## 水路没带夜莲：把它换进来，满了就顶掉这张地图最不该带的那张
+func _swap_in_lily() -> void:
+	if _picked.has("lily"):
+		return
+	var map := String(_level()["map"])
+	if _picked.size() >= 10:
+		var worst := 0
+		for i in _picked.size():
+			if String(_picked[i]) == "lily":
+				continue
+			if Content.tip_rank(map, String(_picked[i])) \
+					> Content.tip_rank(map, String(_picked[worst])):
+				worst = i
+		_picked.remove_at(worst)
+	_picked.insert(0, "lily")
+	_refresh()
+	game.play_sfx("click")
+
+
+## 备战页点恶客头像 → 直接翻到它那一页图鉴。
+func open_zombie_almanac(id: String) -> void:
+	var index = Content.ZOMBIE_ORDER.find(id)
+	if index >= 0 and game != null:
+		game.open_almanac("zombie", index)
 
 
 func toggle_plant(type: String) -> void:
@@ -218,10 +335,18 @@ func _refresh() -> void:
 			_warning.text = "空手上阵会被恶客直接推平；至少带一株能产香火的草木。"
 		elif not _has_producer():
 			_warning.text = "没有产能草木，香火只靠天上掉的，会很难撑住。"
+		elif _needs_lily():
+			_warning.text = "第2、4行为水路，要先放夜莲。\n当前卡组没有夜莲，可用下方按钮换入。"
 		elif _picked.size() > 10:
 			_warning.text = "卡组超出十张。"
 		else:
 			_warning.text = ""
+	if _fix_row != null:
+		_fix_row.visible = _needs_lily()
+
+
+func _needs_lily() -> bool:
+	return String(_level().get("map", "")) == "water" and not _picked.has("lily")
 
 
 func _has_producer() -> bool:
@@ -348,3 +473,55 @@ class SlotCard extends Control:
 		var width = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
 		draw_string(font, Vector2((rect.size.x - width) * 0.5, rect.size.y - 8), text,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Ui.TEXT)
+
+
+## 今夜恶客的一枚头像牌：立绘、名字、阶级色点；首遇的挂「新」，点开进图鉴。
+class EnemyChip:
+	extends Control
+	var zombie_id := ""
+	var fresh := false
+	var screen = null
+	var _hovered := false
+
+	func _ready() -> void:
+		custom_minimum_size = Vector2(62, 54)
+		size = custom_minimum_size
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseMotion:
+			var now_hovered := get_rect().has_point(event.position)
+			if now_hovered != _hovered:
+				_hovered = now_hovered
+				queue_redraw()
+		elif event is InputEventMouseButton and event.pressed 				and event.button_index == MOUSE_BUTTON_LEFT:
+			accept_event()
+			if screen != null:
+				screen.open_zombie_almanac(zombie_id)
+
+	func _draw() -> void:
+		var def: Dictionary = Content.ZOMBIES[zombie_id]
+		var rect := Rect2(Vector2.ZERO, size)
+		draw_rect(rect, Color(0.09, 0.11, 0.13, 0.86))
+		draw_rect(rect, Ui.GOLD_BRIGHT if _hovered else Color(0.34, 0.30, 0.22, 0.9),
+			false, 1.0)
+		var icon := Rect2(9, 3, 44, 32)
+		var texture := Ui.sprite(zombie_id)
+		if texture != null:
+			var tex_size := texture.get_size()
+			var scale := minf(icon.size.x / tex_size.x, icon.size.y / tex_size.y)
+			var drawn := tex_size * scale
+			draw_texture_rect(texture, Rect2(icon.position + (icon.size - drawn) * 0.5,
+				drawn), false)
+		var font = Ui.body_font()
+		var label = String(def["name"])
+		var width = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		draw_string(font, Vector2((size.x - width) * 0.5, size.y - 6.0), label,
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.TEXT if _hovered else Ui.TEXT_DIM)
+		var tier: Dictionary = Content.TIERS.get(String(def.get("tier", "l")), {})
+		draw_circle(Vector2(size.x - 9.0, 9.0), 4.0,
+			Color(String(tier.get("color", "#7f9d7a"))))
+		if fresh:
+			draw_rect(Rect2(2, 2, 17, 14), Color(0.72, 0.24, 0.18, 0.95))
+			draw_string(font, Vector2(4.5, 13.5), "新", HORIZONTAL_ALIGNMENT_LEFT, -1,
+				11, Color(1, 0.96, 0.88))

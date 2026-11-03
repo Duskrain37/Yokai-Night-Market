@@ -1,0 +1,636 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "name": "关1 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关1 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关1 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关2 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关2 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关2 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关3 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关3 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关3 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关4 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关4 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关4 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关5 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关5 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关5 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关6 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关6 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关6 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关7 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关7 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关7 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关8 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关8 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关8 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关9 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关9 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关9 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关10 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关10 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关10 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关11 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关11 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关11 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关12 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关12 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关12 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关13 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关13 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关13 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关14 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关14 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关14 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关15 大波数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关15 威胁按用户新值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关15 前四大波保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "狐尾灯用户进化数值保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "狐尾灯用户三路保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "lantern 原型数值保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "shooter 原型数值保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "wall 原型数值保持",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关1 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关2 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关3 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关4 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关6 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关7 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关8 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关9 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关11 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关12 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关13 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关14 没有首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 替换整组队列",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 命门覆盖每行",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 不计入普通兵上限",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 不被收妖或门神直接处决",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 同弹多命门只结算一次",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 跨全部阈值按序入队",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 阈值各只释放一次",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 援兵受上限约束",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 快照共享生命与阈值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 快照保留随机状态",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 快照重建命门",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 死后无延迟拆卡",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 死亡清空预警与出兵",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领5 退散后结算",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 替换整组队列",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 命门覆盖每行",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 不计入普通兵上限",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 不被收妖或门神直接处决",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 同弹多命门只结算一次",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 跨全部阈值按序入队",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 阈值各只释放一次",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 援兵受上限约束",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 快照共享生命与阈值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 快照保留随机状态",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 快照重建命门",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 死后无延迟拆卡",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 死亡清空预警与出兵",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领10 退散后结算",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 替换整组队列",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 命门覆盖每行",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 不计入普通兵上限",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 不被收妖或门神直接处决",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 同弹多命门只结算一次",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 跨全部阈值按序入队",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 阈值各只释放一次",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 援兵受上限约束",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 快照共享生命与阈值",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 快照保留随机状态",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 快照重建命门",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 死后无延迟拆卡",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 死亡清空预警与出兵",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领15 退散后结算",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "水路只拆宿主不拆底座",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "回收累计实付80%",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "后两列经济受保护",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "拆卡预算耗尽伤害非致命",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "纸封可攻击拆除且立即复工",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "纸封拆除有碎裂事件",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "百分比伤害不随命门数翻倍",
+      "ok": true
+    },
+    {
+      "detail": "[false, 6.0, 0.0, (830.0, 284.0), (800.0, 280.0), false, \"\"]",
+      "name": "纸伞副槽忙时主槽仍可收妖",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "纸伞副槽不能瞬收大型敌人",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "存档保留飞行子弹和命门引用",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "存档续局同弹不重复结算",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "旧版续局保留四大波不插入首领",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "拆甲增援也遵守首领场上上限",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "地洞先在边界出兵",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "地洞延迟借道且不偷袭经济区",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "首领身上记号正常到期",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "固定爆发保留且跨命门不翻倍",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "最前列醒狮蹲桩能触及命门",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "拆宿主后旧纸封不缠住新草木",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "河螯接受灼烧伤害",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "河螯可被控场暂缓冲撞",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "存档保留已命中目标集合",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 126
+}

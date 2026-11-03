@@ -1,0 +1,23 @@
+{
+  "version": "0.4.0",
+  "build_hash": "73780aa",
+  "exe_bytes": 239354152,
+  "exe_sha256": "770242806efc4d4bd3f2601fb0760f049d7dd9e6c7e2756566a2e9eddccc0b7b",
+  "assertions": {
+    "logic-tests.json": 327,
+    "battle-tests.json": 38,
+    "boss-tests.json": 126,
+    "special-tests.json": 76,
+    "ui-tests.json": 71,
+    "click-tests.json": 20,
+    "player-ui-tests.json": 197
+  },
+  "assertion_total": 855,
+  "failures": 0,
+  "boss_simulations": 27,
+  "boss_reference_seconds": [
+    109.7,
+    120.0
+  ],
+  "scope": "Windows x64; headless tests and native rendered captures; no claim of human full clear, human listening or other-platform verification"
+}

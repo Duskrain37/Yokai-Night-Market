@@ -1,0 +1,7 @@
+{
+  "prompt": "Create ONE finished game inventory icon for a Chinese folklore night market tower defense. Subject: 龟甲罩, a protective ancient tortoise-shell ward. A squat upright domed carapace standing on its lower rim, broad clear silhouette, seven large dark muted moss-jade and aged bronze plates, warm pale parchment talisman attached by red cord, tiny carved curling cloud borders, no turtle head or living animal, no eyes, no character, no pedestal. Three-quarter front view with face clearly showing hexagonal shell plates. Match hand-painted Chinese folklore gouache game sprites, charming mysterious mature folk craft, soft readable volumetric shading, dry brush matte edges, subdued stone green and bronze with warm lantern amber highlights, not glossy CGI, not photorealistic, no neon. Simple broad shapes must read at 64 pixels. Fully opaque painted subject, transparent alpha background, no writing, no lettering, no watermarks. Centered isolated object fully visible occupying 80% image, empty transparent margin on all sides. This must be a complete colored painting not a wireframe or line icon.",
+  "file": "assets/sprites/shell-v040.png",
+  "source_file": "exec-e6bc8128-ba5f-4b5a-a610-bc8aa70da470.png",
+  "tool": "builtin imagegen",
+  "transparent_background": true
+}

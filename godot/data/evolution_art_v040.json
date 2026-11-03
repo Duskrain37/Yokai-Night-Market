@@ -1,0 +1,483 @@
+{
+  "lantern": {
+    "file": "assets/sprites/evolution/v040/lantern-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          13,
+          223,
+          517,
+          589
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          551,
+          178,
+          469,
+          635
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1087,
+          270,
+          420,
+          543
+        ]
+      }
+    ],
+    "sha256": "46c6cbf7c63230540ca6f5de51cb586bdecf23d4a7a5d7bfc0c8a7d121fcb34b"
+  },
+  "shooter": {
+    "file": "assets/sprites/evolution/v040/shooter-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          28,
+          194,
+          435,
+          633
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          534,
+          198,
+          528,
+          629
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1105,
+          203,
+          409,
+          629
+        ]
+      }
+    ],
+    "sha256": "b7e8e228d0abaef6764b83586be9f941f9bbaa165af3cbe88ceb2596c64e93c5"
+  },
+  "wall": {
+    "file": "assets/sprites/evolution/v040/wall-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          23,
+          383,
+          483,
+          433
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          553,
+          389,
+          460,
+          427
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1048,
+          227,
+          470,
+          592
+        ]
+      }
+    ],
+    "sha256": "f6343a18ddeddb240fce51ce30d9af9861a78f416c60a9a2a4abdca809924423"
+  },
+  "bell": {
+    "file": "assets/sprites/evolution/v040/bell-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          31,
+          209,
+          468,
+          565
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          528,
+          212,
+          494,
+          565
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1050,
+          205,
+          469,
+          570
+        ]
+      }
+    ],
+    "sha256": "4849a493f78db72a7bf0a5291af55adf30354b9ac8f7c4646dff2974eea5c20f"
+  },
+  "censer": {
+    "file": "assets/sprites/evolution/v040/censer-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          12,
+          411,
+          515,
+          417
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          558,
+          259,
+          491,
+          569
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1095,
+          264,
+          417,
+          563
+        ]
+      }
+    ],
+    "sha256": "d46dbcb36fce35b172302af4240f4b2d1eb0cfac1579f464f147170df58c3f55"
+  },
+  "umbrella": {
+    "file": "assets/sprites/evolution/v040/umbrella-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          13,
+          202,
+          438,
+          709
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          538,
+          247,
+          503,
+          663
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1062,
+          258,
+          473,
+          653
+        ]
+      }
+    ],
+    "sha256": "819e1f4f0dc1121777e23b06c5b8f352fbb5baded4691769f1ffe14efc069e3b"
+  },
+  "lion": {
+    "file": "assets/sprites/evolution/v040/lion-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          19,
+          254,
+          443,
+          524
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          516,
+          288,
+          507,
+          491
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1032,
+          291,
+          491,
+          492
+        ]
+      }
+    ],
+    "sha256": "b5777b74eeff57c92257500acbd165fc8944670b5f2283731dad9c337596fb3f"
+  },
+  "cat": {
+    "file": "assets/sprites/evolution/v040/cat-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          23,
+          170,
+          455,
+          672
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          512,
+          144,
+          483,
+          700
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1039,
+          189,
+          485,
+          653
+        ]
+      }
+    ],
+    "sha256": "d12b8e7d0aa24a6398508bce2753057461fd9c9dd28af7d5e906cb8faf8c14a9"
+  },
+  "lobber": {
+    "file": "assets/sprites/evolution/v040/lobber-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          27,
+          224,
+          469,
+          577
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          553,
+          190,
+          471,
+          607
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1054,
+          250,
+          471,
+          551
+        ]
+      }
+    ],
+    "sha256": "d47d9814f1f6d2d160a03421effc7b16ba9cf87ff38f2079446b4e3b3ea9c52e"
+  },
+  "torch": {
+    "file": "assets/sprites/evolution/v040/torch-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          18,
+          236,
+          436,
+          535
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          510,
+          339,
+          489,
+          435
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1060,
+          323,
+          454,
+          450
+        ]
+      }
+    ],
+    "sha256": "5d057532da09a34241a888ebfce6521436a4dfb3581742ef3973825e2f534b0e"
+  },
+  "star": {
+    "file": "assets/sprites/evolution/v040/star-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          33,
+          187,
+          450,
+          652
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          569,
+          190,
+          425,
+          657
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1089,
+          188,
+          435,
+          657
+        ]
+      }
+    ],
+    "sha256": "8e903d88fbf19c07d27aa02499fe8353bac7192f33aeb47add8dfa35a391854c"
+  },
+  "needle": {
+    "file": "assets/sprites/evolution/v040/needle-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          79,
+          98,
+          357,
+          796
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          625,
+          143,
+          414,
+          753
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1140,
+          124,
+          347,
+          775
+        ]
+      }
+    ],
+    "sha256": "2a33798bd64025e0e41bf9eb58a366ad2e87399ca1961465d350a71caa8c9958"
+  },
+  "judge": {
+    "file": "assets/sprites/evolution/v040/judge-capstones.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "frames": [
+      {
+        "path": 1,
+        "region": [
+          18,
+          107,
+          488,
+          763
+        ]
+      },
+      {
+        "path": 2,
+        "region": [
+          510,
+          158,
+          548,
+          722
+        ]
+      },
+      {
+        "path": 3,
+        "region": [
+          1077,
+          155,
+          446,
+          715
+        ]
+      }
+    ],
+    "sha256": "e0da394168927e631c125003cf2390e9423fc1ccbce7d7c75e3c546346e61afe"
+  }
+}

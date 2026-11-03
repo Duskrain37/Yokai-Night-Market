@@ -1,4 +1,4 @@
-; 《妖怪夜市》v0.3.0 — native Godot 2D build of the v0.2.4 content.
+; 《妖怪夜市》v0.4.0 — native 2D, fifteen nights and Ghost Market gauntlet.
 ; The v0.2.4 browser game is reference material only; nothing is embedded here.
 
 config_version=5
@@ -7,7 +7,7 @@ config_version=5
 
 config/name="妖怪夜市"
 config/description="中式夜市题材车道塔防 · 三天十五夜"
-config/version="0.3.0"
+config/version="0.4.0"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://assets/icon.png"
@@ -27,7 +27,7 @@ window/size/min_height=720
 window/size/resizable=true
 window/size/mode=2
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
+window/stretch/aspect="keep"
 
 [rendering]
 
@@ -42,6 +42,10 @@ environment/defaults/default_clear_color=Color(0.031, 0.055, 0.071, 1)
 
 driver/enable_input=false
 driver/mix_rate=44100
+
+[editor]
+
+import/use_multiple_threads=false
 
 [input_devices]
 

@@ -1,77 +1,87 @@
-## 设置：战斗 / 显示 / 经济 / 声音 四组。
+## 设置：分三页，按「战斗与操作 / 显示 / 声音」摆，留白多一点。
 ##
-## 本轮新增「场内描格子」——关掉后棋盘只保留外框，不再画每一格的边线，
-## 想看清楚画面的玩家可以关；默认保持开启，方便新手判断落点。
-##
-## 难度只在开战前可改（对局中锁定），其余设置立即生效并写盘。
+## 每项都是「左边标题+说明、右边一排药丸」，条目之间加分隔线，
+## 一页摆五六项不显空，摆八九项也不挤。
 extends Control
+
+const Build = preload("res://data/build_info.gd")
 
 var game = null
 
-const GROUPS = [
-	{
-		"title": "战斗",
-		"rows": [
-			{"key": "speed", "label": "战斗速度", "note": "整局的时间流速，局内暂停菜单里也能切",
-				"options": [[1.0, "1×"], [1.5, "1.5×"], [2.0, "2×"], [3.0, "3×"]]},
-			{"key": "difficulty", "label": "难度", "note": "出怪与血量 ×1 / ×1.25 / ×1.5；进入对局后锁定",
-				"options": [["easy", "简单"], ["normal", "普通"], ["hard", "困难"]],
-				"lock_in_run": true},
-			{"key": "quick_wave", "label": "快速唤波", "note": "开启后右侧出现「唤波」按钮，提前放下一波",
-				"options": [[true, "开"], [false, "关"]]},
-			{"key": "cheats", "label": "作弊菜单", "note": "开启后局内出现「作弊」按钮；训练场一直可用",
-				"options": [[true, "开"], [false, "关"]]},
-		],
-	},
-	{
-		"title": "显示",
-		"rows": [
-			{"key": "show_grid", "label": "场内描格子", "note": "关掉后棋盘不再画每一格的线，只留外框",
-				"options": [[true, "描格"], [false, "不描"]]},
-			{"key": "health_bars", "label": "恶客血条", "note": "血条为护具+本体双段，可选是否附带数字",
-				"options": [["off", "不显示"], ["bar", "血条"], ["barText", "血条+数值"]]},
-		],
-	},
-	{
-		"title": "香火",
-		"rows": [
-			{"key": "auto_collect", "label": "自动拾取", "note": "开启后香火落地一会儿自动收下",
-				"options": [[true, "开"], [false, "关"]]},
-			{"key": "collect_delay", "label": "拾取延迟", "note": "自动拾取开启后，落地到收取的等待",
-				"options": [[0.0, "立即"], [3.0, "3 秒"]], "requires": "auto_collect"},
-		],
-	},
-	{
-		"title": "声音",
-		"rows": [
-			{"key": "sound", "label": "总开关", "note": "关闭后全局静音",
-				"options": [[true, "开"], [false, "关"]]},
-			{"key": "music_volume", "label": "音乐音量", "note": "0—100，拖动即时生效",
-				"type": "range"},
-			{"key": "sfx_volume", "label": "音效音量", "note": "0—100，拖动即时生效",
-				"type": "range"},
-		],
-	},
-]
+const PAGES := ["战斗与操作", "显示", "声音"]
 
+const ROWS := {
+	0: [
+		{"key": "speed", "label": "战斗速度",
+			"note": "整局的时间流速；局内卡槽右边也能随时切。"
+				+ "0.1× 是训练观察档，只有训练场生效，正式对局最低 1×",
+			"options": [[0.1, "0.1× 观察"], [1.0, "1×"], [1.5, "1.5×"], [2.0, "2×"],
+				[3.0, "3×"]]},
+		{"key": "difficulty", "label": "难度",
+			"note": "初次守夜可选简单，熟悉布防后再挑战困难；开战后本局保持不变",
+			"options": [["easy", "简单"], ["normal", "普通"], ["hard", "困难"]],
+			"lock_in_run": true},
+		{"key": "auto_collect", "label": "自动拾取香火",
+			"note": "开启后香火落地一会儿自动收下",
+			"options": [[true, "开"], [false, "关"]]},
+		{"key": "collect_delay", "label": "拾取延迟",
+			"note": "自动拾取开启后，落地到收取的等待",
+			"options": [[0.0, "立即"], [3.0, "3 秒"]], "requires": "auto_collect"},
+		{"key": "quick_wave", "label": "快速唤波",
+			"note": "开启后右侧出现「唤波」按钮，提前放下一波",
+			"options": [[true, "开"], [false, "关"]]},
+		{"key": "cheats", "label": "作弊菜单",
+			"note": "开启后局内出现「作弊」按钮；训练场一直可用",
+			"options": [[true, "开"], [false, "关"]]},
+	],
+	1: [
+		{"key": "resolution", "label": "窗口分辨率",
+			"note": "自适应全屏按显示器走；固定档按所选像素开窗，画面保持 16:9",
+			"options": [["auto", "自适应全屏"], ["2560x1600", "2560×1600"],
+				["1920x1080", "1920×1080"], ["1280x720", "1280×720"]]},
+		{"key": "show_grid", "label": "场内描格子",
+			"note": "关掉后棋盘不再画每一格的线，只留台面外框",
+			"options": [[true, "描格"], [false, "不描"]]},
+		{"key": "health_bars", "label": "恶客血条",
+			"note": "血条为护具+本体双段，可选是否附带数字",
+			"options": [["off", "不显示"], ["bar", "血条"], ["barText", "血条+数值"]]},
+	],
+	2: [
+		{"key": "sound", "label": "声音总开关",
+			"note": "关闭后全局静音", "options": [[true, "开"], [false, "关"]]},
+		{"key": "music_style", "label": "音乐风格",
+			"note": "朴素：三套通用配乐；完整：第一天/第二天/第三天各用一套",
+			"options": [["plain", "朴素"], ["complete", "完整"]]},
+		{"key": "hot_variant", "label": "白热化音乐",
+			"note": "完整风格下第七波起的曲子：新篇=当天新版，延续=当天先锋段主题的变奏",
+			"options": [["new", "新篇"], ["continue", "延续"]],
+			"show_if": {"key": "music_style", "value": "complete"}},
+		{"key": "music_volume", "label": "音乐音量", "note": "0—100，拖动即时生效",
+			"type": "range"},
+		{"key": "sfx_volume", "label": "音效音量", "note": "0—100，拖动即时生效",
+			"type": "range"},
+	],
+}
+
+var page := 0
 var _panel: PanelContainer = null
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
-	var texture = load("res://assets/bg/menu.jpg") if ResourceLoader.exists(
-		"res://assets/bg/menu.jpg") else null
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var texture := load("res://assets/bg/menu.jpg") \
+		if ResourceLoader.exists("res://assets/bg/menu.jpg") else null
 	if texture != null:
-		var rect = TextureRect.new()
+		var rect := TextureRect.new()
 		rect.texture = texture
 		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		rect.modulate = Color(0.45, 0.5, 0.55, 1.0)
+		rect.modulate = Color(0.42, 0.46, 0.52, 1.0)
 		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(rect)
-	var shade = ColorRect.new()
-	shade.color = Color(0.02, 0.04, 0.06, 0.82)
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var shade := ColorRect.new()
+	shade.color = Color(0.02, 0.04, 0.06, 0.84)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(shade)
 	_build()
@@ -84,21 +94,22 @@ func _build() -> void:
 	_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_panel.anchor_left = 0.5
 	_panel.anchor_right = 0.5
-	_panel.offset_left = -420.0
-	_panel.offset_right = 420.0
-	_panel.offset_top = -382.0
-	_panel.offset_bottom = 382.0
+	_panel.offset_left = -540.0
+	_panel.offset_right = 540.0
+	_panel.offset_top = -368.0
+	_panel.offset_bottom = 368.0
 	add_child(_panel)
-	var outer = Ui.vbox(8)
+	var outer := Ui.vbox(12)
 	_panel.add_child(outer)
-	var head = Ui.hbox(12)
+
+	var head := Ui.hbox(12)
 	outer.add_child(head)
 	head.add_child(Ui.seal("设"))
 	head.add_child(Ui.title("设置", 40, Ui.GOLD_BRIGHT))
-	var spacer = Control.new()
+	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(spacer)
-	var back = Ui.button("返回 (Esc)", 18, 140, 42)
+	var back := Ui.button("返回 (Esc)", 18, 140, 42)
 	back.pressed.connect(func():
 		if game.overlay_from == "":
 			game.show_menu()
@@ -107,50 +118,91 @@ func _build() -> void:
 	head.add_child(back)
 	outer.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
 
-	var scroll = ScrollContainer.new()
+	var body := HBoxContainer.new()
+	body.add_theme_constant_override("separation", 22)
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	outer.add_child(body)
+
+	var rail := Ui.vbox(10)
+	rail.custom_minimum_size = Vector2(168, 0)
+	body.add_child(rail)
+	for i in PAGES.size():
+		var button := Ui.button(PAGES[i], 17, 168, 46)
+		if i == page:
+			button.add_theme_color_override("font_color", Ui.INK)
+			button.add_theme_stylebox_override("normal",
+				Ui.flat(Color(0.86, 0.72, 0.42, 0.95), Ui.GOLD_BRIGHT, 10, 2))
+			button.add_theme_stylebox_override("hover",
+				Ui.flat(Color(0.92, 0.8, 0.5, 1.0), Ui.GOLD_BRIGHT, 10, 2))
+		button.pressed.connect(_select_page.bind(i))
+		rail.add_child(button)
+	var hint := Ui.label("设置会自动保存；想换守夜方式，请在开战前选择。", 13, Ui.TEXT_FAINT)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.custom_minimum_size = Vector2(168, 0)
+	rail.add_child(hint)
+	var build := Ui.label("妖怪夜市 v%s" % String(Build.VERSION),12,Ui.TEXT_FAINT)
+	build.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	build.custom_minimum_size = Vector2(168, 0)
+	rail.add_child(build)
+
+	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	outer.add_child(scroll)
-	var list = Ui.vbox(6)
+	body.add_child(scroll)
+	var list := Ui.vbox(0)
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(list)
 
-	for group in GROUPS:
-		var title = Ui.strong(String(group["title"]), 18, Ui.GOLD)
-		list.add_child(title)
-		for row in group["rows"]:
-			list.add_child(_row(row))
-		list.add_child(Ui.spacer(4))
-	list.add_child(Ui.label("设置会立即写盘；难度请在对局开始前调整。", 15, Ui.TEXT_FAINT))
+	var rows: Array = ROWS.get(page, [])
+	var first := true
+	for row in rows:
+		if row.has("show_if"):
+			var cond = row["show_if"]
+			if not _matches(game.settings.get(String(cond["key"])), cond["value"]):
+				continue
+		if not first:
+			list.add_child(Ui.spacer(8))
+			list.add_child(Ui.hline(Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g,
+				Ui.GOLD_DIM.b, 0.35), 1.0))
+		first = false
+		list.add_child(Ui.spacer(12))
+		list.add_child(_row(row))
+		list.add_child(Ui.spacer(12))
+
+
+func _select_page(index: int) -> void:
+	page = index
+	_build()
 
 
 func _row(row: Dictionary) -> Control:
-	var box = VBoxContainer.new()
-	box.add_theme_constant_override("separation", 4)
-	var top = HBoxContainer.new()
-	top.add_theme_constant_override("separation", 16)
-	box.add_child(top)
-	var label_col = Ui.vbox(0)
-	label_col.custom_minimum_size = Vector2(300, 0)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 18)
+	var label_col := Ui.vbox(3)
+	label_col.custom_minimum_size = Vector2(360, 0)
+	label_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(label_col)
-	label_col.add_child(Ui.strong(String(row["label"]), 18, Ui.TEXT))
-	var note = Ui.label(String(row["note"]), 14, Ui.TEXT_FAINT)
+	label_col.add_child(Ui.strong(String(row["label"]), 19, Ui.TEXT))
+	var note := Ui.label(String(row["note"]), 14, Ui.TEXT_FAINT)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	note.custom_minimum_size = Vector2(300, 0)
+	note.custom_minimum_size = Vector2(330, 0)
 	label_col.add_child(note)
-	var controls = HBoxContainer.new()
-	controls.add_theme_constant_override("separation", 6)
-	controls.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	controls.alignment = BoxContainer.ALIGNMENT_END
+
+	var controls := HBoxContainer.new()
+	controls.add_theme_constant_override("separation", 8)
+	controls.custom_minimum_size = Vector2(430, 0)
+	controls.size_flags_horizontal = Control.SIZE_SHRINK_END
+	controls.alignment = BoxContainer.ALIGNMENT_BEGIN
 	top.add_child(controls)
-	var enabled = _row_enabled(row)
+	var enabled := _row_enabled(row)
 	if String(row.get("type", "options")) == "range":
 		controls.add_child(_slider(String(row["key"])))
 	else:
-		var options: Array = row["options"]
-		for option in options:
-			var selected = _matches(game.settings.get(String(row["key"])), option[0])
-			var button = Ui.button(String(option[1]), 16, 88, 36)
+		for option in row["options"]:
+			var selected: bool = _matches(game.settings.get(String(row["key"])),
+				option[0])
+			var button := Ui.button(String(option[1]), 16, 92, 40)
 			if selected:
 				button.add_theme_color_override("font_color", Ui.INK)
 				button.add_theme_stylebox_override("normal",
@@ -160,7 +212,7 @@ func _row(row: Dictionary) -> Control:
 			button.disabled = not enabled
 			button.pressed.connect(_set_option.bind(String(row["key"]), option[0]))
 			controls.add_child(button)
-	return box
+	return top
 
 
 func _set_option(key: String, value) -> void:
@@ -187,16 +239,16 @@ func _row_enabled(row: Dictionary) -> bool:
 
 
 func _slider(key: String) -> Control:
-	var box = HBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	var slider = HSlider.new()
+	var box := HBoxContainer.new()
+	box.add_theme_constant_override("separation", 12)
+	var slider := HSlider.new()
 	slider.min_value = 0
 	slider.max_value = 100
 	slider.step = 5
 	slider.value = float(game.settings.get(key, 70))
-	slider.custom_minimum_size = Vector2(240, 24)
+	slider.custom_minimum_size = Vector2(260, 26)
 	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var value_label = Ui.label("%d" % int(slider.value), 16, Ui.TEXT_DIM)
+	var value_label := Ui.label("%d" % int(slider.value), 16, Ui.TEXT_DIM)
 	value_label.custom_minimum_size = Vector2(38, 0)
 	slider.value_changed.connect(func(value: float):
 		value_label.text = "%d" % int(value)

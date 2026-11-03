@@ -13,9 +13,9 @@
       "ok": true
     },
     {
-      "detail": "实际 15",
+      "detail": "实际 16",
       "group": "内容",
-      "name": "十五夜关卡齐备",
+      "name": "十五夜与特殊关齐备",
       "ok": true
     },
     {
@@ -39,7 +39,13 @@
     {
       "detail": "",
       "group": "内容",
-      "name": "威胁倍率都在 0.8—3.0",
+      "name": "威胁按天落在 0.8-1.6 / 1.0-2.0 / 1.2-2.5",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "十五夜威胁都单调递增",
       "ok": true
     },
     {
@@ -57,7 +63,19 @@
     {
       "detail": "",
       "group": "内容",
-      "name": "每关 12 波",
+      "name": "每关 12 小波",
+      "ok": true
+    },
+    {
+      "detail": "4",
+      "group": "内容",
+      "name": "12 小波归成 4 大波",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "第 4 小波属于第 1 大波",
       "ok": true
     },
     {
@@ -73,21 +91,51 @@
       "ok": true
     },
     {
-      "detail": "本行输出：每 1.4 秒朝前方射出一发竹签，单发 20 伤害。一路连发（最高 6",
+      "detail": "射线 · 香火 100 · 冷却 5 秒，单发伤害 20。\n守住本行前方的恶客。",
       "group": "内容",
       "name": "图鉴本事按数据生成伤害",
       "ok": true
     },
     {
       "detail": "",
-      "group": "升阶",
-      "name": "所有升阶费用都是 5 的倍数且为正",
+      "group": "内容",
+      "name": "18 株图鉴都能按新数据生成",
       "ok": true
     },
     {
-      "detail": "90",
+      "detail": "追魂 · 香火 175 · 冷却 20 秒，尾火伤害 24。",
+      "group": "内容",
+      "name": "定位一句抄的是白板数",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "内容",
+      "name": "三张推荐表都排满 18 株",
+      "ok": true
+    },
+    {
+      "detail": "lily",
+      "group": "内容",
+      "name": "暗河的推荐先带夜莲",
+      "ok": true
+    },
+    {
+      "detail": "",
       "group": "升阶",
-      "name": "签筒连发一级 90 香火",
+      "name": "所有升阶费用都是 25 的倍数且逐阶递增",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "升阶",
+      "name": "13 株都是三路三阶",
+      "ok": true
+    },
+    {
+      "detail": "100",
+      "group": "升阶",
+      "name": "签筒连发一级 100 香火",
       "ok": true
     },
     {
@@ -117,7 +165,7 @@
     {
       "detail": "",
       "group": "升阶",
-      "name": "13 株都有费用系数",
+      "name": "白板数值在 content 与 upgrades 两处一致",
       "ok": true
     },
     {
@@ -139,7 +187,7 @@
       "ok": true
     },
     {
-      "detail": "{ \"ok\": true, \"tier\": 1, \"cost\": 90 }",
+      "detail": "{ \"ok\": true, \"tier\": 1, \"cost\": 100 }",
       "group": "升阶",
       "name": "升阶扣费等于 path_status 费用",
       "ok": true
@@ -148,6 +196,36 @@
       "detail": "",
       "group": "升阶",
       "name": "升阶后该路等级为 1",
+      "ok": true
+    },
+    {
+      "detail": "main=4 side=3",
+      "group": "新机制",
+      "name": "四发 + 全力 = 主行 4 发、邻行共 3 发",
+      "ok": true
+    },
+    {
+      "detail": "最多 12 支",
+      "group": "新机制",
+      "name": "六发满阶会偶发十二支",
+      "ok": true
+    },
+    {
+      "detail": "hp=900.0",
+      "group": "新机制",
+      "name": "碾磨自爆对 1 格内造成 900",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "新机制",
+      "name": "自爆炸不到一格开外",
+      "ok": true
+    },
+    {
+      "detail": "shots=1",
+      "group": "新机制",
+      "name": "火树产出时甩出 110 伤灯焰",
       "ok": true
     },
     {
@@ -332,6 +410,66 @@
     },
     {
       "detail": "",
+      "group": "音乐",
+      "name": "朴素风格始终用通用配乐",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "完整风格第一天用 day1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "完整风格第三天用 day3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "没有当天曲目时退回通用",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "菜单曲两种风格共用",
+      "ok": true
+    },
+    {
+      "detail": "16",
+      "group": "音乐",
+      "name": "十六首配乐都在资源里",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "白热化默认用新篇",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "选延续时用当天 hot-alt",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "延续缺曲时退回新篇",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "朴素风格不受新篇/延续影响",
+      "ok": true
+    },
+    {
+      "detail": "",
       "group": "波次",
       "name": "开局没有恶客",
       "ok": true
@@ -349,21 +487,39 @@
       "ok": true
     },
     {
-      "detail": "hard=234 easy=156",
+      "detail": "hard=213 easy=142",
       "group": "波次",
       "name": "困难难度恶客更硬",
       "ok": true
     },
     {
-      "detail": "156.0",
+      "detail": "142.0",
       "group": "波次",
-      "name": "血量按 sqrt(threat) 缩放",
+      "name": "血量按 sqrt(等效威胁) 缩放",
       "ok": true
     },
     {
       "detail": "",
       "group": "波次",
       "name": "威胁倍率同时影响出怪数",
+      "ok": true
+    },
+    {
+      "detail": "water=2.50 street=0.80",
+      "group": "波次",
+      "name": "新难度区间为实际系数，暗河不另加码",
+      "ok": true
+    },
+    {
+      "detail": "nights=3 ",
+      "group": "波次",
+      "name": "三夜样板各只突出一个问题",
+      "ok": true
+    },
+    {
+      "detail": "one=128 two=72",
+      "group": "波次",
+      "name": "出怪数随机取整，1 只的组不整组翻倍",
       "ok": true
     },
     {
@@ -416,8 +572,1202 @@
     },
     {
       "detail": "",
+      "group": "铜铃",
+      "name": "主铃减速本行恶客",
+      "ok": true
+    },
+    {
+      "detail": "1",
+      "group": "铜铃",
+      "name": "一阶只排下一声余音",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "余音到点自己清空",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "一阶余音不跨行",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "绕梁把相邻行半格内也熏到",
+      "ok": true
+    },
+    {
+      "detail": "3",
+      "group": "铜铃",
+      "name": "三叠排出三段余音",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "一阶概率定身走的是同一条账本",
+      "ok": true
+    },
+    {
+      "detail": "stun=0.40",
+      "group": "铜铃",
+      "name": "夺魄必定钉住正在啃草的那一个",
+      "ok": true
+    },
+    {
+      "detail": "far=0.50 near=0.00",
+      "group": "铜铃",
+      "name": "回头只叫前方最远那名",
+      "ok": true
+    },
+    {
+      "detail": "far=0.00",
+      "group": "铜铃",
+      "name": "四秒内同一名不被重复叫回头",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "成群把回头者身边的同伴一起减速",
+      "ok": true
+    },
+    {
+      "detail": "bleed=2.50 hp=1765.6",
+      "group": "铜铃",
+      "name": "魂断：大型啃铃会自己流血",
+      "ok": true
+    },
+    {
+      "detail": "rooted=8",
+      "group": "铜铃",
+      "name": "满街铃：被啃毁时全图定身",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "满街铃记下共享冷却",
+      "ok": true
+    },
+    {
+      "detail": "again=0",
+      "group": "铜铃",
+      "name": "冷却之内的第二声不响",
+      "ok": true
+    },
+    {
+      "detail": "rear=3955 front=4000",
+      "group": "香炉",
+      "name": "白板圈熏到身后 128、熏不到身前 168",
+      "ok": true
+    },
+    {
+      "detail": "front=3955 rear=4000",
+      "group": "香炉",
+      "name": "顺风把前向拉长半格、后向收掉 0.2 格",
+      "ok": true
+    },
+    {
+      "detail": "[{ \"t\": 0.8, \"damage\": 18.0, \"radius\": 140.0 }]",
+      "group": "香炉",
+      "name": "回风排进 0.8 秒后",
+      "ok": true
+    },
+    {
+      "detail": "掉 18",
+      "group": "香炉",
+      "name": "回风到点再扫一次（18 伤）",
+      "ok": true
+    },
+    {
+      "detail": "1",
+      "group": "香炉",
+      "name": "烟径留下一片地效",
+      "ok": true
+    },
+    {
+      "detail": "stacks=1 vuln=0.08",
+      "group": "香炉",
+      "name": "盖印：一层香印、受伤害 +8%",
+      "ok": true
+    },
+    {
+      "detail": "掉 265 层数 0",
+      "group": "香炉",
+      "name": "三印合一爆开、按已损失生命 20% 结算并受单次上限约束",
+      "ok": true
+    },
+    {
+      "detail": "9.9 vs 9.9",
+      "group": "香炉",
+      "name": "同一名的处决有 9 秒冷却",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "香炉",
+      "name": "传印把印带给身边的同伴",
+      "ok": true
+    },
+    {
+      "detail": "掉 47.7",
+      "group": "香炉",
+      "name": "旺客：每 5 名敌人主雾 +6%",
+      "ok": true
+    },
+    {
+      "detail": "掉 56.3",
+      "group": "香炉",
+      "name": "众口：单圈熏到 3 名以上 +25%，与旺客取较高",
+      "ok": true
+    },
+    {
+      "detail": "dead=false ash=true",
+      "group": "香炉",
+      "name": "冷炉：被摧毁后塌成香灰、仍占着这一格",
+      "ok": true
+    },
+    {
+      "detail": "掉 18",
+      "group": "香炉",
+      "name": "香灰仍放灰雾（白板四成 = 18）",
+      "ok": true
+    },
+    {
+      "detail": "{ \"ok\": true, \"text\": \"已铲除\" }",
+      "group": "香炉",
+      "name": "再铲一次才腾格",
+      "ok": true
+    },
+    {
+      "detail": "895 -> 853",
+      "group": "纸伞",
+      "name": "吸把伞口前的恶客拖近",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "纸伞",
+      "name": "同伞吸引有 6 秒冷却，不会每帧拖",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "纸伞",
+      "name": "主槽开始收化",
+      "ok": true
+    },
+    {
+      "detail": "1 枚",
+      "group": "纸伞",
+      "name": "一伞收：收完吐出一根伞骨",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "纸伞",
+      "name": "伞骨共享 4 秒冷却，不会连吐",
+      "ok": true
+    },
+    {
+      "detail": "50",
+      "group": "纸伞",
+      "name": "愿伞：主收妖给 50 香火",
+      "ok": true
+    },
+    {
+      "detail": "wish=200",
+      "group": "纸伞",
+      "name": "愿伞：身后友军拿到 200 点愿盾",
+      "ok": true
+    },
+    {
+      "detail": "hp=300 wish=0",
+      "group": "纸伞",
+      "name": "愿盾先替友军挨打（300 伤里 200 由盾吃）",
+      "ok": true
+    },
+    {
+      "detail": "armor=300",
+      "group": "纸伞",
+      "name": "满愿：收掉带甲的中阶恶客时记下残甲",
+      "ok": true
+    },
+    {
+      "detail": "100",
+      "group": "纸伞",
+      "name": "满愿：中阶以上收入 100",
+      "ok": true
+    },
+    {
+      "detail": "chew=6.0 sec={ \"busy\": true, \"t\": 15.0, \"max\": 15.0 }",
+      "group": "纸伞",
+      "name": "半开：主槽之外还有一个副槽",
+      "ok": true
+    },
+    {
+      "detail": "合计 60.0",
+      "group": "纸伞",
+      "name": "刺手：整伞反伤合计封顶 60/秒",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "纸伞",
+      "name": "不破：三层免死",
+      "ok": true
+    },
+    {
+      "detail": "hp=210 used=1",
+      "group": "纸伞",
+      "name": "不破：致命伤没打死它，回到新上限的 30%",
+      "ok": true
+    },
+    {
+      "detail": "attacker=1650",
+      "group": "纸伞",
+      "name": "不破：被阻止的那部分反弹给动手的",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "纸伞",
+      "name": "第二层免死接着生效",
+      "ok": true
+    },
+    {
+      "detail": "dx=122",
+      "group": "醒狮",
+      "name": "叼：把非大型多摔回一格",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "醒狮",
+      "name": "同一名四秒内不重复被摔",
+      "ok": true
+    },
+    {
+      "detail": "命中 12/12",
+      "group": "醒狮",
+      "name": "砸甲：对带护具的非大型十二次全部必摔、剥 100 护具且不溢出本体",
+      "ok": true
+    },
+    {
+      "detail": "charge=20",
+      "group": "醒狮",
+      "name": "吞煞：直接击杀才把本体伤害存进狮头",
+      "ok": true
+    },
+    {
+      "detail": "掉血=70 charge=0",
+      "group": "醒狮",
+      "name": "吞煞：下一次撞头把存下的煞一并放出并清空",
+      "ok": true
+    },
+    {
+      "detail": "near 掉 80 / far 掉 30",
+      "group": "醒狮",
+      "name": "跨街：前探路径上最多两名各吃 30 踩伤",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "醒狮",
+      "name": "踩街：撞后进入 0.8 秒蹲桩",
+      "ok": true
+    },
+    {
+      "detail": "hp=425",
+      "group": "醒狮",
+      "name": "衔青：命中才回 25 耐久",
+      "ok": true
+    },
+    {
+      "detail": "cheer=1 haste=0.05",
+      "group": "醒狮",
+      "name": "喝彩：把撞退换成同行左右友军的攻速",
+      "ok": true
+    },
+    {
+      "detail": "cheer=0",
+      "group": "醒狮",
+      "name": "喝彩：不传给别行的友军",
+      "ok": true
+    },
+    {
+      "detail": "dance=3.00",
+      "group": "醒狮",
+      "name": "最后一舞：致命一击没让它当场倒下",
+      "ok": true
+    },
+    {
+      "detail": "dance=0.00",
+      "group": "醒狮",
+      "name": "最后一舞：三秒到就强制退场",
+      "ok": true
+    },
+    {
+      "detail": "{ \"interval\": 1.6, \"damage\": 24.0, \"speed\": 300.0, \"count\": 1 }",
+      "group": "狐尾灯",
+      "name": "白板 24 伤 / 1.6 秒只留在 content，EFFECTS 不再抄一份",
+      "ok": true
+    },
+    {
+      "detail": "主掉=24",
+      "group": "狐尾灯",
+      "name": "绕：绕完半圈才落到主目标，主目标一轮只吃白板 24",
+      "ok": true
+    },
+    {
+      "detail": "擦到 1 名",
+      "group": "狐尾灯",
+      "name": "绕：一轮最多擦到 1 名",
+      "ok": true
+    },
+    {
+      "detail": "orbit=46.8",
+      "group": "狐尾灯",
+      "name": "大绕：绕圈半径提到 0.45 格",
+      "ok": true
+    },
+    {
+      "detail": "擦到 2 名",
+      "group": "狐尾灯",
+      "name": "大绕：一趟最多擦 2 名、每下 20",
+      "ok": true
+    },
+    {
+      "detail": "shots=2 首=12.0 末=24.0",
+      "group": "狐尾灯",
+      "name": "一串：两团尾火追同一个，首团 12、末团翻倍 24",
+      "ok": true
+    },
+    {
+      "detail": "主掉=36 擦到=2",
+      "group": "狐尾灯",
+      "name": "一串：一轮合计 36，擦伤仍只按整轮最多 2 名算",
+      "ok": true
+    },
+    {
+      "detail": "1 团 dmg=24.0",
+      "group": "狐尾灯",
+      "name": "白板：一次只放一团 24 伤",
+      "ok": true
+    },
+    {
+      "detail": "2 团",
+      "group": "狐尾灯",
+      "name": "双尾：一次两团、各追一个、每团仍是白板 24",
+      "ok": true
+    },
+    {
+      "detail": "3 团",
+      "group": "狐尾灯",
+      "name": "三尾：三团各吃 30",
+      "ok": true
+    },
+    {
+      "detail": "hits=2",
+      "group": "狐尾灯",
+      "name": "回魂：每团尾火还能再追一名",
+      "ok": true
+    },
+    {
+      "detail": "远处那名掉 90",
+      "group": "狐尾灯",
+      "name": "回魂：咬死第一个之后又追一名（两团直接 60 + 追上去的一团 30）",
+      "ok": true
+    },
+    {
+      "detail": "hits=1",
+      "group": "狐尾灯",
+      "name": "没点回魂：一团只咬一名",
+      "ok": true
+    },
+    {
+      "detail": "远处那名掉 60",
+      "group": "狐尾灯",
+      "name": "没点回魂：咬死之后尾火就灭，远处那名只挨两团直接的 60",
+      "ok": true
+    },
+    {
+      "detail": "层=1 vuln=0.05 t=3.20",
+      "group": "狐尾灯",
+      "name": "狐记：命中留一层记号，易伤 5%、3.2 秒",
+      "ok": true
+    },
+    {
+      "detail": "near 掉 40 层=0",
+      "group": "狐尾灯",
+      "name": "点火：第二层当场炸 40，身边一名一起吃，爆炸不留记号",
+      "ok": true
+    },
+    {
+      "detail": "near 掉 40 / marked 又多掉 25.2",
+      "group": "狐尾灯",
+      "name": "点火：同一目标 3.2 秒内只炸一次",
+      "ok": true
+    },
+    {
+      "detail": "层=2 stun=0.00",
+      "group": "狐尾灯",
+      "name": "锁魂：两层时只叠层、还不定身",
+      "ok": true
+    },
+    {
+      "detail": "stun=0.60 vuln=0.20 层=0",
+      "group": "狐尾灯",
+      "name": "锁魂：三层把人定住 0.6 秒、易伤顶到 20%、记号消耗",
+      "ok": true
+    },
+    {
+      "detail": "stun=0.20",
+      "group": "狐尾灯",
+      "name": "锁魂：大型只吃 0.2 秒这一档",
+      "ok": true
+    },
+    {
+      "detail": "层=1 until=6.4 t=0.0",
+      "group": "狐尾灯",
+      "name": "锁魂：同一名 6.4 秒内只结算一次，第二次只重新叠层",
+      "ok": true
+    },
+    {
+      "detail": "0.5 vs 0.5",
+      "group": "炭火盆",
+      "name": "白板增幅 50% 在 content 与 upgrades 两处一致",
+      "ok": true
+    },
+    {
+      "detail": "buff=0.50 burn=0.0 dmg=30.0 地效=0",
+      "group": "炭火盆",
+      "name": "白板：穿盆只吃 50% 增幅，不带灼烧不掉星",
+      "ok": true
+    },
+    {
+      "detail": "burn=5.0/2.0 buff=0.50",
+      "group": "炭火盆",
+      "name": "火箭：穿盆的弹附带 5/秒灼烧、2 秒，增幅仍是 50%",
+      "ok": true
+    },
+    {
+      "detail": "burn=9.0",
+      "group": "炭火盆",
+      "name": "余烬（未启用的替代案之外）：二阶灼烧 9/秒仍是这一份",
+      "ok": true
+    },
+    {
+      "detail": "burn=5.0",
+      "group": "炭火盆",
+      "name": "两路都有灼烧时只取最强，不相加",
+      "ok": true
+    },
+    {
+      "detail": "火星=2 弹=pea",
+      "group": "炭火盆",
+      "name": "掉星：一颗过盆的弹落两颗火星",
+      "ok": true
+    },
+    {
+      "detail": "火星=0",
+      "group": "炭火盆",
+      "name": "掉星：一秒的预算用完就不再掉",
+      "ok": true
+    },
+    {
+      "detail": "window=2.00",
+      "group": "炭火盆",
+      "name": "掉星：预算每秒攒回两颗",
+      "ok": true
+    },
+    {
+      "detail": "扣甲=10.0 hp=9000 火星={ \"kind\": \"spark\", \"pos\": (680.8112, 414.0), \"radius\": 26.0, \"life\": 0.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371977295657475\": 0.0 } }",
+      "group": "炭火盆",
+      "name": "火星只烧 10/秒，走护具不穿本体",
+      "ok": true
+    },
+    {
+      "detail": "buff=1.30 dmg=46.0 spd=780.0/520.0",
+      "group": "炭火盆",
+      "name": "不熄：增幅 130%%、弹速 +50%%，主弹无视护具",
+      "ok": true
+    },
+    {
+      "detail": "扣血=46 甲=320",
+      "group": "炭火盆",
+      "name": "不熄的主弹直接扣本体，护具纹丝不动",
+      "ok": true
+    },
+    {
+      "detail": "max_hp=300",
+      "group": "炭火盆",
+      "name": "厚胎之前：白板耐久 250",
+      "ok": true
+    },
+    {
+      "detail": "max=750 hp=480",
+      "group": "炭火盆",
+      "name": "厚胎：上限变 750，升阶只补 450 的差值，不满血复活",
+      "ok": true
+    },
+    {
+      "detail": "油=1",
+      "group": "炭火盆",
+      "name": "泼油：被啃到就在啃它的敌人脚下一摊油",
+      "ok": true
+    },
+    {
+      "detail": "0",
+      "group": "炭火盆",
+      "name": "泼油：同一盆 2 秒内只泼一摊",
+      "ok": true
+    },
+    {
+      "detail": "reflect=25.0",
+      "group": "炭火盆",
+      "name": "火胎满阶：反伤仍是每秒 25",
+      "ok": true
+    },
+    {
+      "detail": "hp=100.0",
+      "group": "炭火盆",
+      "name": "火墙：刚被啃过的 3 秒里不回填",
+      "ok": true
+    },
+    {
+      "detail": "hp=113",
+      "group": "炭火盆",
+      "name": "火墙：脱离啃食 3 秒后每秒回 40",
+      "ok": true
+    },
+    {
+      "detail": "墙=1 [{ \"kind\": \"wall\", \"pos\": (696.0, 414.0), \"radius\": 156.0, \"life\": 3.0, \"damage\": 60.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": {  } }]",
+      "group": "炭火盆",
+      "name": "火墙：被啃塌时炸开 1.5 格、每秒 60、烧 3 秒",
+      "ok": true
+    },
+    {
+      "detail": "[]",
+      "group": "炭火盆",
+      "name": "铲走的盆不欠这一圈火",
+      "ok": true
+    },
+    {
+      "detail": "{ \"interval\": 1.7, \"damage\": 18.0, \"speed\": 720.0 } / [1.7, 0, 0, 1]",
+      "group": "透骨针",
+      "name": "白板 18 伤 / 1.7 秒只在 content，出针间隔第 0 档仍是 1.7",
+      "ok": true
+    },
+    {
+      "detail": "掉血=18 甲=620",
+      "group": "透骨针",
+      "name": "白板：一根针扎一名，直接扣本体 18",
+      "ok": true
+    },
+    {
+      "detail": "18.0 / 10.8",
+      "group": "透骨针",
+      "name": "穿堂：一根针穿两名，18 + 10.8",
+      "ok": true
+    },
+    {
+      "detail": "a 又掉 18.0",
+      "group": "透骨针",
+      "name": "穿堂：同一根针不得重复命中同一名",
+      "ok": true
+    },
+    {
+      "detail": "18.0 / 10.8 / 10.8",
+      "group": "透骨针",
+      "name": "双穿：最多三名，18 + 10.8 + 10.8",
+      "ok": true
+    },
+    {
+      "detail": "掉血 18.0 / 18.0 / 18.0",
+      "group": "透骨针",
+      "name": "排针：三名各吃整针 18",
+      "ok": true
+    },
+    {
+      "detail": "削甲 40 / 40 / 40",
+      "group": "透骨针",
+      "name": "排针：每人另削 40 护具，不溢出本体",
+      "ok": true
+    },
+    {
+      "detail": "3 中 / 1 空",
+      "group": "透骨针",
+      "name": "三向：0.6 格内至多 3 名各吃 7.2，第四名不在名单里",
+      "ok": true
+    },
+    {
+      "detail": "整针 3 名 / 这一轮主针掉 18.0",
+      "group": "透骨针",
+      "name": "齐落：补针回到整针 18，主针仍只扎一下",
+      "ok": true
+    },
+    {
+      "detail": "[1.7, 0, 0, 1]",
+      "group": "透骨针",
+      "name": "无影：出针间隔压到 1.0 秒",
+      "ok": true
+    },
+    {
+      "detail": "钉了 0.00",
+      "group": "透骨针",
+      "name": "无影：前三针还不钉人",
+      "ok": true
+    },
+    {
+      "detail": "0.30 / 0.00",
+      "group": "透骨针",
+      "name": "无影：第四针把主针的第一个目标钉 0.3 秒，第二个不受",
+      "ok": true
+    },
+    {
+      "detail": "层=1 t=2.20 旁人=0",
+      "group": "透骨针",
+      "name": "记穴：主针留一层，易伤 8% 到 2.2 秒",
+      "ok": true
+    },
+    {
+      "detail": "穴=2 伴=1",
+      "group": "透骨针",
+      "name": "同穴：记号分给身边最多 2 名，只分一层不传染",
+      "ok": true
+    },
+    {
+      "detail": "针=3 易伤=0.20",
+      "group": "透骨针",
+      "name": "钉住：每轮最多一根、单敌至多三根",
+      "ok": true
+    },
+    {
+      "detail": "针=3",
+      "group": "透骨针",
+      "name": "钉住：往前走满一格还没拔针",
+      "ok": true
+    },
+    {
+      "detail": "掉血=30 针=2",
+      "group": "透骨针",
+      "name": "钉住：满一格拔一根、按本体血结算",
+      "ok": true
+    },
+    {
+      "detail": "nail_walk=1.0",
+      "group": "透骨针",
+      "name": "钉住：被击退推回去的距离不记账",
+      "ok": true
+    },
+    {
+      "detail": "掉血=30.0",
+      "group": "透骨针",
+      "name": "钉住：拔针的本体血按 25 计，易伤再放大一份",
+      "ok": true
+    },
+    {
+      "detail": "{ \"interval\": 5.5, \"damage\": 40.0, \"knock_cells\": 0.4, \"reach\": 260.0 }",
+      "group": "钟馗像",
+      "name": "白板只在 content：5.5 秒、40 伤、顶退 0.4 格、射程 260",
+      "ok": true
+    },
+    {
+      "detail": "第二掉 30 第三掉 0",
+      "group": "钟馗像",
+      "name": "带人：撞倒身后第一个，吃 30 碰撞伤，第三人不在账上",
+      "ok": true
+    },
+    {
+      "detail": "0.30 / 0.30",
+      "group": "钟馗像",
+      "name": "相撞：撞上的与被顶的各倒地 0.3 秒",
+      "ok": true
+    },
+    {
+      "detail": "又掉 0",
+      "group": "钟馗像",
+      "name": "相撞：同一名 3 秒内只撞这一次",
+      "ok": true
+    },
+    {
+      "detail": "x=1400 钉=0.60",
+      "group": "钟馗像",
+      "name": "巡街：顶到街口的那名被定住 0.6 秒",
+      "ok": true
+    },
+    {
+      "detail": "stun=0.15",
+      "group": "钟馗像",
+      "name": "巡街：大型只吃 0.2 秒这一档",
+      "ok": true
+    },
+    {
+      "detail": "前排掉 80 后排掉 0",
+      "group": "钟馗像",
+      "name": "点名：被点的那名吃双倍 80",
+      "ok": true
+    },
+    {
+      "detail": "后排掉 80",
+      "group": "钟馗像",
+      "name": "点名：下一轮换个人点",
+      "ok": true
+    },
+    {
+      "detail": "掉 160",
+      "group": "钟馗像",
+      "name": "点名：只有一个可点的人时也照样点他",
+      "ok": true
+    },
+    {
+      "detail": "队尾掉 80 队头掉 0",
+      "group": "钟馗像",
+      "name": "点后：点的是射程内最靠队尾那个",
+      "ok": true
+    },
+    {
+      "detail": "[0.0, 0.0, 0.0, 3.5]",
+      "group": "钟馗像",
+      "name": "显灵：间隔压到 3.5 秒",
+      "ok": true
+    },
+    {
+      "detail": "中阶=3.00 低阶=0.00",
+      "group": "钟馗像",
+      "name": "显灵：按住正带增益的最高阶那个，3 秒",
+      "ok": true
+    },
+    {
+      "detail": "5.00 → 5.00",
+      "group": "钟馗像",
+      "name": "封益期间增益不走表",
+      "ok": true
+    },
+    {
+      "detail": "0.00",
+      "group": "钟馗像",
+      "name": "显灵：同一名 7 秒内不重复封",
+      "ok": true
+    },
+    {
+      "detail": "0.00",
+      "group": "钟馗像",
+      "name": "显灵：没人带增益就不空施",
+      "ok": true
+    },
+    {
+      "detail": "层=2",
+      "group": "钟馗像",
+      "name": "死印：两层还不判",
+      "ok": true
+    },
+    {
+      "detail": "hp=0",
+      "group": "钟馗像",
+      "name": "死印：第三笔销印，非大型当场判死",
+      "ok": true
+    },
+    {
+      "detail": "掉 200 层=0",
+      "group": "钟馗像",
+      "name": "死印：大型不判死，改吃 80 本体伤害",
+      "ok": true
+    },
+    {
+      "detail": "层=3 掉=320",
+      "group": "钟馗像",
+      "name": "死印：同一名 11 秒内只结算一次",
+      "ok": true
+    },
+    {
+      "detail": "分了 2 名",
+      "group": "钟馗像",
+      "name": "连坐：0.35 格内至多分给 2 名",
+      "ok": true
+    },
+    {
+      "detail": "剩下那位有 0 层",
+      "group": "钟馗像",
+      "name": "连坐：分出去的印不再往外传",
+      "ok": true
+    },
+    {
+      "detail": "扣甲 100",
+      "group": "钟馗像",
+      "name": "判死：直伤提到 100",
+      "ok": true
+    },
+    {
+      "detail": "甲=0 until=11.0",
+      "group": "钟馗像",
+      "name": "判死：钉住过就一次勾光整层护具，一名 11 秒只勾一次",
+      "ok": true
+    },
+    {
+      "detail": "甲=20/320 until=0.0",
+      "group": "钟馗像",
+      "name": "判死：定身被免疫拒掉时不勾护具",
+      "ok": true
+    },
+    {
+      "detail": "{ \"interval\": 2.6, \"damage\": 40.0, \"flight\": 0.9 }",
+      "group": "汤圆仔",
+      "name": "白板 40 伤 / 2.6 秒只在 content，EFFECTS 不再抄一份",
+      "ok": true
+    },
+    {
+      "detail": "队尾掉 40 队头掉 0",
+      "group": "汤圆仔",
+      "name": "白板：抛的是本行最靠里那名，落地 40",
+      "ok": true
+    },
+    {
+      "detail": "最重一口 43.20",
+      "group": "汤圆仔",
+      "name": "数馅：四名存活就多 8%，只涨直接命中",
+      "ok": true
+    },
+    {
+      "detail": "甲=420 血=90000",
+      "group": "汤圆仔",
+      "name": "砸飞：这一下最多削 40，剥不穿就不掉残片",
+      "ok": true
+    },
+    {
+      "detail": "{ \"kind\": \"debris\", \"pos\": (788.0, 416.0), \"radius\": 30.0, \"life\": 3.98333333333333, \"damage\": 0.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"lobber\", \"cap\": 0, \"eater_damage\": 0.0, \"trip\": 0.2, \"trip_slow\": 0.1, \"trip_slow_duration\": 0.5, \"buff\": 0.0, \"hit\": { \"z-9223371974460307971\": 0.0 } }",
+      "group": "汤圆仔",
+      "name": "砸飞：护具见了底就掉一地残片",
+      "ok": true
+    },
+    {
+      "detail": "绊=0.20 大型钉=0.00 减速=0.10",
+      "group": "汤圆仔",
+      "name": "残片：普通绊 0.2 秒，大型只吃 10% 减速",
+      "ok": true
+    },
+    {
+      "detail": "t=2.00 dmg=160",
+      "group": "汤圆仔",
+      "name": "贴馅：大型身上挂一颗 2 秒的，伤害封顶 160",
+      "ok": true
+    },
+    {
+      "detail": "又掉 40",
+      "group": "汤圆仔",
+      "name": "贴馅：身上还挂着一颗时不再贴第二颗",
+      "ok": true
+    },
+    {
+      "detail": "t=0.00",
+      "group": "汤圆仔",
+      "name": "贴馅：两秒到就炸开，扣的是本体",
+      "ok": true
+    },
+    {
+      "detail": "t=0.00",
+      "group": "汤圆仔",
+      "name": "贴馅：非大型不挂这颗，只吃本体那一口",
+      "ok": true
+    },
+    {
+      "detail": "散的那名掉 0 / 那一伙最重一口 40",
+      "group": "汤圆仔",
+      "name": "拣密：抛的是身边最挤那一伙，不是最散那名",
+      "ok": true
+    },
+    {
+      "detail": "2 颗 gap=0.15",
+      "group": "汤圆仔",
+      "name": "连抛：一次两颗、第二颗隔 0.15 秒、两颗都还是白板 40",
+      "ok": true
+    },
+    {
+      "detail": "合计掉 80",
+      "group": "汤圆仔",
+      "name": "连抛：两颗各 40，攻击周期仍是 2.6 秒",
+      "ok": true
+    },
+    {
+      "detail": "第一颗 base=100",
+      "group": "汤圆仔",
+      "name": "三更：第四轮第一颗是大汤 100，第二颗不跟着升",
+      "ok": true
+    },
+    {
+      "detail": "溅到 3 名",
+      "group": "汤圆仔",
+      "name": "三更：大汤溅开的额外目标各吃四成，至多 3 名",
+      "ok": true
+    },
+    {
+      "detail": "{ \"kind\": \"soup\", \"pos\": (788.0, 428.0), \"radius\": 41.6, \"life\": 2.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.2, \"slow_duration\": 1.5, \"src\": \"lobber\", \"cap\": 0, \"eater_damage\": 0.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371973621447211\": 0.0 } }",
+      "group": "汤圆仔",
+      "name": "一摊：落点留 0.4 格汤，减速 20%、10/秒",
+      "ok": true
+    },
+    {
+      "detail": "{ \"kind\": \"broth\", \"pos\": (808.0, 428.0), \"radius\": 62.4, \"life\": 2.98333333333333, \"damage\": 18.0, \"icd\": 1.0, \"slow\": 0.25, \"slow_duration\": 1.5, \"src\": \"lobber\", \"cap\": 3, \"eater_damage\": 0.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371973621447211\": 0.0, \"z-9223371973571115539\": 0.0 } }",
+      "group": "汤圆仔",
+      "name": "合流：两摊相交熬成 0.6 格浓汤，18/秒、减速 25%",
+      "ok": true
+    },
+    {
+      "detail": "还留 0 摊",
+      "group": "汤圆仔",
+      "name": "合流：摊不再多了，浓汤只有一锅",
+      "ok": true
+    },
+    {
+      "detail": "life 2.98 → 5.97",
+      "group": "汤圆仔",
+      "name": "合流：新摊只续火，不再加大加烫",
+      "ok": true
+    },
+    {
+      "detail": "{ \"kind\": \"broth\", \"pos\": (828.0, 428.0), \"radius\": 62.4, \"life\": 2.98333333333333, \"damage\": 18.0, \"icd\": 1.0, \"slow\": 0.35, \"slow_duration\": 1.5, \"src\": \"lobber\", \"cap\": 3, \"eater_damage\": 12.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371973621447211\": 0.0, \"z-9223371973571115539\": 0.0 } }",
+      "group": "汤圆仔",
+      "name": "封口：浓汤减速提到 35%、不定身",
+      "ok": true
+    },
+    {
+      "detail": "啃的掉 30 站的掉 0",
+      "group": "汤圆仔",
+      "name": "封口：站在汤里啃草的另受 12/秒",
+      "ok": true
+    },
+    {
+      "detail": "烫了第 [2, 3, 4] 名",
+      "group": "汤圆仔",
+      "name": "每摊同时最多烫 3 名，先烫离防线近的",
+      "ok": true
+    },
+    {
+      "detail": "{ \"interval\": 1.6, \"damage\": 20.0, \"dirs\": 5 }",
+      "group": "五路巡灯",
+      "name": "白板 20 伤 / 1.6 秒 / 五向只在 content，EFFECTS 不再抄一份",
+      "ok": true
+    },
+    {
+      "detail": "1 道",
+      "group": "五路巡灯",
+      "name": "白板：只有头顶一向有敌，就只发一道 20 伤的灯",
+      "ok": true
+    },
+    {
+      "detail": "上道=30",
+      "group": "五路巡灯",
+      "name": "侧照：敌人最多的那一道 +50%，每轮只增强一道",
+      "ok": true
+    },
+    {
+      "detail": "上=30 下=20",
+      "group": "五路巡灯",
+      "name": "侧照：两样多时按固定方向序，只点亮序前的那道",
+      "ok": true
+    },
+    {
+      "detail": "合计 55.0",
+      "group": "五路巡灯",
+      "name": "聚照：同一名的第二道加两成半（侧照那道 30 + 这道的 25）",
+      "ok": true
+    },
+    {
+      "detail": "又掉 20.0",
+      "group": "五路巡灯",
+      "name": "聚照：一束只记一次名，重打不翻倍",
+      "ok": true
+    },
+    {
+      "detail": "掉 40.0",
+      "group": "五路巡灯",
+      "name": "没点聚照时第二道也不加钱",
+      "ok": true
+    },
+    {
+      "detail": "{ \"kind\": \"glow\", \"pos\": (830.0, 250.0), \"radius\": 36.4, \"life\": 1.0, \"damage\": 0.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"star\", \"cap\": 0, \"eater_damage\": 0.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.15, \"hit\": {  } }",
+      "group": "五路巡灯",
+      "name": "满城：命中处留 0.35 格余光、1 秒",
+      "ok": true
+    },
+    {
+      "detail": "glow=0.15 dmg=23.0/20.0",
+      "group": "五路巡灯",
+      "name": "满城：穿过后 +15%%",
+      "ok": true
+    },
+    {
+      "detail": "dmg=30.0",
+      "group": "五路巡灯",
+      "name": "满城：与炭火盆的增幅取最高，不相加",
+      "ok": true
+    },
+    {
+      "detail": "1.60",
+      "group": "五路巡灯",
+      "name": "借风：场上没有地效时仍是 1.6 秒",
+      "ok": true
+    },
+    {
+      "detail": "1.440",
+      "group": "五路巡灯",
+      "name": "借风：有一摊汤就 1.44 秒",
+      "ok": true
+    },
+    {
+      "detail": "1.440",
+      "group": "五路巡灯",
+      "name": "借风：三样地效也不再把间隔乘下去",
+      "ok": true
+    },
+    {
+      "detail": "1.60",
+      "group": "五路巡灯",
+      "name": "借风：灯自己的余光不当地效",
+      "ok": true
+    },
+    {
+      "detail": "1.20",
+      "group": "五路巡灯",
+      "name": "灯轮：没有地效时间隔 1.2 秒",
+      "ok": true
+    },
+    {
+      "detail": "1.200",
+      "group": "五路巡灯",
+      "name": "灯轮：借风 1.44 与下限 1.2 取更快者，不再相乘",
+      "ok": true
+    },
+    {
+      "detail": "重灯 1 道",
+      "group": "五路巡灯",
+      "name": "灯轮：每轮只一道重灯、三倍伤，方向一轮挪一格",
+      "ok": true
+    },
+    {
+      "detail": "x=807",
+      "group": "五路巡灯",
+      "name": "灯轮：重灯把小型推回 0.3 格",
+      "ok": true
+    },
+    {
+      "detail": "x=807",
+      "group": "五路巡灯",
+      "name": "灯轮：同一名 3 秒内只推一次",
+      "ok": true
+    },
+    {
+      "detail": "x=786",
+      "group": "五路巡灯",
+      "name": "灯轮：大型不会被推",
+      "ok": true
+    },
+    {
+      "detail": "5 道",
+      "group": "五路巡灯",
+      "name": "齐照（原稿锁定）：只要有一敌就五向齐发",
+      "ok": true
+    },
+    {
+      "detail": "homing dmg=10.0",
+      "group": "五路巡灯",
+      "name": "回焰（原稿锁定）：出界折返成追踪、伤害减半，也不再产生余光",
+      "ok": true
+    },
+    {
+      "detail": "5 道",
+      "group": "五路巡灯",
+      "name": "天网（原稿锁定）：五团自动追人且不减半",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "控制账本",
+      "name": "首次硬控照常给",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "控制账本",
+      "name": "控制期间不刷新已有时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "控制账本",
+      "name": "刚控完进入再控免疫",
+      "ok": true
+    },
+    {
+      "detail": "stun=0.40",
+      "group": "控制账本",
+      "name": "免疫期过后还能控，但只给剩余额度",
+      "ok": true
+    },
+    {
+      "detail": "stun=0.00",
+      "group": "控制账本",
+      "name": "4 秒窗口内累计满 1 秒后直接拒绝",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "控制账本",
+      "name": "窗口滑走后额度回来",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "控制账本",
+      "name": "不足 0.1 秒的事件被拒",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "控制账本",
+      "name": "大型也能被新机制定身",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "控制账本",
+      "name": "大型 4 秒窗口只有 0.5 秒",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "位移账本",
+      "name": "首次击退照给",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "位移账本",
+      "name": "超出 0.6 格的部分被截短",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "位移账本",
+      "name": "受保护的旧石磨击退不截短",
+      "ok": true
+    },
+    {
+      "detail": "x=962.4",
+      "group": "位移账本",
+      "name": "截短后确实还在动",
+      "ok": true
+    },
+    {
+      "detail": "",
       "group": "教学",
-      "name": "教学关只有签筒一张卡",
+      "name": "教学关卡是签筒与石磨两张",
       "ok": true
     },
     {
@@ -463,9 +1813,33 @@
       "ok": true
     },
     {
+      "detail": "这一株还要用来上课，先别铲",
+      "group": "教学",
+      "name": "教学签筒铲不掉",
+      "ok": true
+    },
+    {
       "detail": "",
       "group": "教学",
-      "name": "升阶后进入实战步",
+      "name": "升阶后进入挡怪步",
+      "ok": true
+    },
+    {
+      "detail": "step=plant sun=250",
+      "group": "教学",
+      "name": "签筒没了退回种植步并补够香火",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "重走一遍能再回到挡怪步",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "教学",
+      "name": "石磨落地后进入实战步",
       "ok": true
     },
     {
@@ -525,11 +1899,71 @@
     {
       "detail": "",
       "group": "存档",
+      "name": "作弊标记随存档往返",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "存档",
       "name": "存档可再次序列化",
+      "ok": true
+    },
+    {
+      "detail": "[1, 2]",
+      "group": "存档",
+      "name": "通关名单收成整数、去重、丢掉不存在的夜号",
+      "ok": true
+    },
+    {
+      "detail": "{ \"by_diff\": { \"easy\": { \"best_kills\": 41, \"best_wave\": 6, \"wins\": 1, \"best_time\": 120.0 } }, \"cheated\": { \"\": { \"best_kills\": 41, \"best_wave\": 6, \"runs\": 1 } } }",
+      "group": "纪录",
+      "name": "正经局按难度分册",
+      "ok": true
+    },
+    {
+      "detail": "{ \"best_kills\": 41, \"best_wave\": 6, \"runs\": 1 }",
+      "group": "纪录",
+      "name": "开过调整的另册不并进难度册",
+      "ok": true
+    },
+    {
+      "detail": "{ \"legacy\": { \"wins\": 3, \"best_kills\": 88, \"best_wave\": 9, \"best_time\": 100.0 } }",
+      "group": "纪录",
+      "name": "旧版总账挪进 legacy，不分给任何难度",
+      "ok": true
+    },
+    {
+      "detail": "1.0",
+      "group": "设置",
+      "name": "正式局把 0.1× 抬到 1×",
+      "ok": true
+    },
+    {
+      "detail": "0.1",
+      "group": "设置",
+      "name": "训练场保留 0.1× 观察档",
+      "ok": true
+    },
+    {
+      "detail": "2.0",
+      "group": "设置",
+      "name": "训练场照样能快进",
+      "ok": true
+    },
+    {
+      "detail": "0.4.0 vs 0.4.0",
+      "group": "构建",
+      "name": "戳记版本与 game.gd 一致",
+      "ok": true
+    },
+    {
+      "detail": "2026-11-03 01:02 f677df1",
+      "group": "构建",
+      "name": "构建时间与短哈希已写入",
       "ok": true
     }
   ],
   "failures": 0,
-  "total": 88,
-  "version": "0.3.0"
+  "total": 327,
+  "version": "0.4.0"
 }

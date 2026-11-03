@@ -55,6 +55,43 @@ static func display_font() -> Font:
 	return _display
 
 
+## 一张粗糙的宣纸纹：程序生成，避免再加图片资源。
+static var _grain: ImageTexture = null
+
+
+static func grain_texture(size: int = 128, strength: float = 0.05) -> ImageTexture:
+	if _grain != null:
+		return _grain
+	var img = Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 20261101
+	for y in size:
+		for x in size:
+			var n = rng.randf() * strength
+			var fibre = 0.0
+			if y % 7 == 0:
+				fibre = 0.02
+			img.set_pixel(x, y, Color(1, 1, 1, n + fibre))
+	_grain = ImageTexture.create_from_image(img)
+	return _grain
+
+
+## 铺一张纸纹/尘点，盖在面板或整屏上（不挡点击）
+static func grain(parent: Node, rect: Rect2 = Rect2(), alpha: float = 1.0) -> TextureRect:
+	var node = TextureRect.new()
+	node.texture = grain_texture()
+	node.stretch_mode = TextureRect.STRETCH_TILE
+	node.modulate = Color(1, 1, 1, 0.35 * alpha)
+	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if rect.size == Vector2.ZERO:
+		node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	else:
+		node.position = rect.position
+		node.size = rect.size
+	parent.add_child(node)
+	return node
+
+
 static func flat(color: Color, border: Color = Color(0, 0, 0, 0), radius: int = 10,
 		border_width: int = 0) -> StyleBoxFlat:
 	var box = StyleBoxFlat.new()
@@ -75,14 +112,30 @@ static func flat(color: Color, border: Color = Color(0, 0, 0, 0), radius: int = 
 
 ## 半透明夜色面板：界面的通用底。
 static func panel_style(alpha: float = 0.86, border: Color = GOLD_DIM,
-		radius: int = 12, border_width: int = 2) -> StyleBoxFlat:
+		radius: int = 4, border_width: int = 2) -> StyleBoxFlat:
 	var box = flat(Color(INK.r, INK.g, INK.b, alpha), border, radius, border_width)
-	box.shadow_color = Color(0, 0, 0, 0.45)
-	box.shadow_size = 10
+	box.shadow_color = Color(0, 0, 0, 0.55)
+	box.shadow_size = 14
 	box.content_margin_left = 18
 	box.content_margin_right = 18
 	box.content_margin_top = 14
 	box.content_margin_bottom = 14
+	return box
+
+
+## 木牌 / 匾额：暗红漆底 + 金线，边角近直角，用在主按钮与标题条上。
+static func plaque_style(primary: bool = false, hover: bool = false) -> StyleBoxFlat:
+	var base = Color("#5b2017") if primary else Color("#1b2530")
+	if hover:
+		base = base.lightened(0.10)
+	var box = flat(Color(base.r, base.g, base.b, 0.97),
+		GOLD_BRIGHT if hover else GOLD, 5, 2)
+	box.shadow_color = Color(0, 0, 0, 0.55)
+	box.shadow_size = 12
+	box.content_margin_left = 20
+	box.content_margin_right = 20
+	box.content_margin_top = 10
+	box.content_margin_bottom = 10
 	return box
 
 
@@ -101,21 +154,22 @@ static func make_theme() -> Theme:
 	theme.default_font = body_font()
 	theme.default_font_size = 20
 
+	# 按钮是一张宣纸签条：纸底、墨字、金边；按下像被朱砂按了一下
 	theme.set_stylebox("normal", "Button",
-		flat(Color(0.09, 0.13, 0.16, 0.92), GOLD_DIM, 10, 2))
+		flat(Color(PAPER.r, PAPER.g, PAPER.b, 0.93), GOLD_DIM, 3, 2))
 	theme.set_stylebox("hover", "Button",
-		flat(Color(0.15, 0.21, 0.25, 0.96), GOLD, 10, 2))
+		flat(Color(0.99, 0.95, 0.85, 0.98), GOLD_BRIGHT, 3, 2))
 	theme.set_stylebox("pressed", "Button",
-		flat(Color(0.32, 0.14, 0.11, 0.97), VERMILION_LIGHT, 10, 2))
+		flat(Color(VERMILION.r, VERMILION.g, VERMILION.b, 0.95), GOLD_BRIGHT, 3, 2))
 	theme.set_stylebox("disabled", "Button",
-		flat(Color(0.09, 0.11, 0.13, 0.7), Color(0.36, 0.32, 0.26, 0.8), 10, 1))
+		flat(Color(0.30, 0.28, 0.24, 0.55), Color(0.46, 0.42, 0.34, 0.7), 3, 1))
 	theme.set_stylebox("focus", "Button", StyleBoxEmpty.new())
-	theme.set_color("font_color", "Button", TEXT)
-	theme.set_color("font_hover_color", "Button", GOLD_BRIGHT)
-	theme.set_color("font_pressed_color", "Button", Color("#ffe9cf"))
-	theme.set_color("font_disabled_color", "Button", Color(0.55, 0.5, 0.42, 0.9))
-	theme.set_font("font", "Button", medium_font())
-	theme.set_font_size("font_size", "Button", 20)
+	theme.set_color("font_color", "Button", INK)
+	theme.set_color("font_hover_color", "Button", Color("#2b1a12"))
+	theme.set_color("font_pressed_color", "Button", Color("#fff3dc"))
+	theme.set_color("font_disabled_color", "Button", Color(0.72, 0.68, 0.6, 0.75))
+	theme.set_font("font", "Button", display_font())
+	theme.set_font_size("font_size", "Button", 22)
 
 	theme.set_stylebox("panel", "PanelContainer", panel_style(0.9))
 	theme.set_stylebox("panel", "Panel", panel_style(0.9))
@@ -178,29 +232,71 @@ static func title(text: String, size: int = 44, color: Color = GOLD_BRIGHT) -> L
 
 ## 按钮样式直接挂在控件上，不依赖主题继承：即使某个界面没接到主题，
 ## 也不会退化成一排只有文字的透明块。
-static func apply_button_style(node: Button, font_size: int = 20) -> void:
+static func apply_button_style(node: Button, font_size: int = 20,
+		plaque: bool = false) -> void:
+	if plaque:
+		# 朱漆匾：主操作才用
+		node.add_theme_stylebox_override("normal", plaque_style(true, false))
+		node.add_theme_stylebox_override("hover", plaque_style(true, true))
+		node.add_theme_stylebox_override("pressed",
+			flat(Color(VERMILION.r, VERMILION.g, VERMILION.b, 0.98), GOLD_BRIGHT, 5, 2))
+		node.add_theme_stylebox_override("disabled",
+			flat(Color(0.18, 0.16, 0.14, 0.7), Color(0.4, 0.36, 0.28, 0.8), 5, 1))
+		node.add_theme_color_override("font_color", GOLD_BRIGHT)
+		node.add_theme_color_override("font_hover_color", Color("#fff3d6"))
+		node.add_theme_color_override("font_pressed_color", Color("#fff8e8"))
+		node.add_theme_color_override("font_disabled_color",
+			Color(0.62, 0.57, 0.47, 0.85))
+		node.add_theme_font_override("font", display_font())
+		node.add_theme_font_size_override("font_size", font_size + 2)
+		node.add_theme_constant_override("outline_size", 2)
+		node.add_theme_color_override("font_outline_color", Color(0.16, 0.05, 0.03, 0.6))
+		return
+	# 宣纸签条：纸底墨字，边上一道金线，像贴在木牌上的纸条
 	node.add_theme_stylebox_override("normal",
-		flat(Color(0.08, 0.12, 0.15, 0.94), GOLD_DIM, 10, 2))
+		flat(Color(PAPER.r, PAPER.g, PAPER.b, 0.93), GOLD_DIM, 3, 2))
 	node.add_theme_stylebox_override("hover",
-		flat(Color(0.16, 0.22, 0.26, 0.97), GOLD, 10, 2))
+		flat(Color(0.99, 0.95, 0.85, 0.98), GOLD_BRIGHT, 3, 2))
 	node.add_theme_stylebox_override("pressed",
-		flat(Color(0.34, 0.15, 0.11, 0.98), VERMILION_LIGHT, 10, 2))
+		flat(Color(VERMILION.r, VERMILION.g, VERMILION.b, 0.95), GOLD_BRIGHT, 3, 2))
 	node.add_theme_stylebox_override("disabled",
-		flat(Color(0.07, 0.09, 0.11, 0.72), Color(0.34, 0.3, 0.24, 0.8), 10, 1))
+		flat(Color(0.30, 0.28, 0.24, 0.55), Color(0.46, 0.42, 0.34, 0.7), 3, 1))
 	node.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	node.add_theme_color_override("font_color", TEXT)
-	node.add_theme_color_override("font_hover_color", GOLD_BRIGHT)
-	node.add_theme_color_override("font_pressed_color", Color("#ffe9cf"))
-	node.add_theme_color_override("font_disabled_color", Color(0.52, 0.47, 0.39, 0.9))
-	node.add_theme_font_override("font", medium_font())
-	node.add_theme_font_size_override("font_size", font_size)
+	node.add_theme_color_override("font_color", INK)
+	node.add_theme_color_override("font_hover_color", Color("#2b1a12"))
+	node.add_theme_color_override("font_pressed_color", Color("#fff3dc"))
+	node.add_theme_color_override("font_disabled_color", Color(0.72, 0.68, 0.6, 0.75))
+	node.add_theme_font_override("font", display_font())
+	node.add_theme_font_size_override("font_size", font_size + 1)
+
+
+## 把纸签条按钮标成"已选中/已开启"：朱砂底、纸色字。
+## 注意：纸签条的常态是浅底墨字，所以不能只把字改成浅色——那样在纸上就看不见了。
+static func set_button_active(node: Button, active: bool) -> void:
+	if node == null:
+		return
+	if active:
+		node.add_theme_stylebox_override("normal",
+			flat(Color(VERMILION.r, VERMILION.g, VERMILION.b, 0.92), GOLD_BRIGHT, 3, 2))
+		node.add_theme_stylebox_override("hover",
+			flat(Color(VERMILION_LIGHT.r, VERMILION_LIGHT.g, VERMILION_LIGHT.b, 0.95),
+				GOLD_BRIGHT, 3, 2))
+		node.add_theme_color_override("font_color", Color("#fff3d6"))
+		node.add_theme_color_override("font_hover_color", Color("#fff8e8"))
+	else:
+		node.add_theme_stylebox_override("normal",
+			flat(Color(PAPER.r, PAPER.g, PAPER.b, 0.93), GOLD_DIM, 3, 2))
+		node.add_theme_stylebox_override("hover",
+			flat(Color(0.99, 0.95, 0.85, 0.98), GOLD_BRIGHT, 3, 2))
+		node.add_theme_color_override("font_color", INK)
+		node.add_theme_color_override("font_hover_color", Color("#2b1a12"))
 
 
 static func button(text: String, size: int = 20, min_width: float = 0,
-		min_height: float = 0) -> Button:
+		min_height: float = 0, plaque: bool = false) -> Button:
 	var node = Button.new()
 	node.text = text
-	apply_button_style(node, size)
+	apply_button_style(node, size, plaque)
 	if min_width > 0.0 or min_height > 0.0:
 		node.custom_minimum_size = Vector2(min_width, min_height)
 	node.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -248,7 +344,7 @@ static var _sprite_cache: Dictionary = {}
 static func sprite(name: String) -> Texture2D:
 	if _sprite_cache.has(name):
 		return _sprite_cache[name]
-	var path = "res://assets/sprites/%s.png" % name
+	var path = "res://assets/sprites/%s.png" % ("shell-v040" if name=="shell" else name)
 	var texture: Texture2D = null
 	if ResourceLoader.exists(path):
 		texture = load(path)
@@ -266,7 +362,7 @@ static func warm_sprites(names: Array) -> void:
 ## 没有立绘文件，这里同样手绘一个壳，保证卡面不空。
 static func draw_plant_icon(canvas: CanvasItem, plant_id: String, rect: Rect2,
 		modulate: Color = Color(1, 1, 1, 1)) -> void:
-	if plant_id == "shell":
+	if plant_id == "shell" and sprite("shell")==null:
 		_draw_shell_icon(canvas, rect, modulate)
 		return
 	var texture := sprite(plant_id)

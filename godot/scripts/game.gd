@@ -11,8 +11,9 @@ const PrepScreen = preload("res://ui/screen_prep.gd")
 const HudScreen = preload("res://ui/screen_hud.gd")
 const AlmanacScreen = preload("res://ui/screen_almanac.gd")
 const TrainingScreen = preload("res://ui/screen_training.gd")
+const Build = preload("res://data/build_info.gd")
 
-const VERSION = "0.3.0"
+const VERSION = "0.4.0"
 const SAVE_PATH = "user://run.json"
 const SETTINGS_PATH = "user://settings.json"
 const PROGRESS_PATH = "user://progress.json"
@@ -27,9 +28,12 @@ const DEFAULT_SETTINGS = {
 	"difficulty": "easy",
 	"cheats": false,
 	"sound": true,
+	"resolution": "auto",
+	"music_style": "complete",
+	"hot_variant": "new",
 	"music_volume": 70,
 	"sfx_volume": 80,
-	"show_grid": true,
+	"show_grid": false,
 }
 
 const DIFFICULTY_LABEL = {"easy": "简单", "normal": "普通", "hard": "困难"}
@@ -41,7 +45,7 @@ const DEFAULT_LOADOUT = [
 ]
 
 var settings: Dictionary = DEFAULT_SETTINGS.duplicate(true)
-var records: Dictionary = {"wins": 0, "best_kills": 0, "best_wave": 0, "best_time": null}
+var records: Dictionary = {}
 var progress: Dictionary = {"cleared": [], "selected": 1, "loadout": []}
 var save_data: Dictionary = {}
 
@@ -52,6 +56,7 @@ var overlay_from = ""
 var sim: Sim = null
 var board: BoardView = null
 var units: UnitView = null
+var boss_view: Node2D = null
 var hud: Control = null
 var ui_layer: CanvasLayer = null
 var ui_root: Control = null
@@ -64,6 +69,7 @@ var prep = {}
 var training = {}
 var paused = false
 var speed = 1.0
+var run_mode = "normal"
 var result = {}
 var tutorial_active = false
 
@@ -72,16 +78,18 @@ var _music_current = "menu"
 var _sfx_players: Array = []
 var _sfx_cache: Dictionary = {}
 var _sfx_cursor = 0
+var _sfx_gates: Dictionary = {}
 var _qa = false
 var _pending_capture = ""
 var _qa_sim_seconds = 0.0
+var _qa_prep_level = 1
 
 const MUSIC_SCENES = ["menu", "battle", "hot", "final"]
 
 
 func _ready() -> void:
 	get_tree().root.theme = Ui.make_theme()
-	_qa = "--qa" in OS.get_cmdline_user_args()
+	_qa = "--qa" in OS.get_cmdline_user_args() or DisplayServer.get_name()=="headless"
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--qa-size="):
 			var parts = arg.trim_prefix("--qa-size=").split("x")
@@ -103,6 +111,7 @@ func _ready() -> void:
 	Ui.warm_sprites(Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"])
 	_load_state()
 	_setup_audio()
+	_apply_resolution()
 	loadout = _clean_loadout(Array(progress.get("loadout", [])))
 	if loadout.is_empty():
 		loadout = DEFAULT_LOADOUT.duplicate()
@@ -138,6 +147,8 @@ func _set_screen(node: Control, name: String) -> void:
 
 
 func _clear_battle() -> void:
+	if boss_view!=null and is_instance_valid(boss_view):boss_view.queue_free()
+	boss_view=null
 	if hud != null and is_instance_valid(hud):
 		hud.queue_free()
 	hud = null
@@ -250,6 +261,7 @@ func start_battle(level_id: int, cards: Array, mode = "normal") -> void:
 	_finished = false
 	paused = false
 	selected_level = level_id
+	run_mode = String(mode)
 	sim = Sim.new()
 	sim.auto_collect = bool(settings["auto_collect"])
 	sim.collect_delay = float(settings["collect_delay"])
@@ -285,16 +297,24 @@ func start_battle(level_id: int, cards: Array, mode = "normal") -> void:
 	units.sim = sim
 	units.health_bars = String(settings["health_bars"])
 	add_child(units)
+	boss_view=preload("res://scripts/boss_view.gd").new()
+	boss_view.sim=sim
+	add_child(boss_view)
 	hud = HudScreen.new()
 	hud.game = self
 	ui_root.add_child(hud)
 	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var boss_ui=preload("res://ui/boss_hud.gd").new()
+	boss_ui.game=self
+	hud.add_child(boss_ui)
+	boss_ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	screen = "battle"
 	screen_node = null
-	speed = 1.0 if mode == "tutorial" else float(settings["speed"])
+	# 0.1× 慢放是训练场的观察档；教程一律 1×，免得旁白跟不上画面
+	apply_speed(1.0 if mode == "tutorial" else float(settings["speed"]))
 	if mode != "tutorial" and mode != "training":
 		save_run()
-	play_music_scene("battle")
+	_music_for_wave()
 
 
 func _tick_battle(delta: float) -> void:
@@ -364,16 +384,27 @@ func finish_run(won: bool, z = null) -> void:
 		"level_id": sim.level_id,
 		"training": sim.training,
 		"tutorial": sim.tutorial != null,
+		"summary": sim.battle_summary(),
 	}
 	_update_records(won)
+	if sim.tutorial != null:
+		# 教过一遍就记一笔：封面主按钮只带没学过的人进教程
+		if won and not bool(progress.get("taught", false)):
+			progress["taught"] = true
+			save_progress()
 	if not sim.training and sim.tutorial == null:
 		clear_run()
 		if won:
-			var cleared: Array = progress.get("cleared", [])
-			if not cleared.has(sim.level_id):
-				cleared.append(sim.level_id)
+			var cleared: Array = _night_ids(progress.get("cleared", []))
+			cleared.append(int(sim.level_id))
 			progress["cleared"] = cleared
 			progress["selected"] = mini(sim.level_id + 1, Content.LEVELS.size())
+			# 星级只记最好的一次，重打是为了刷星不是为了掉星
+			var stars: Dictionary = progress.get("stars", {})
+			var got = int(result["summary"].get("stars", 0))
+			if int(stars.get(str(sim.level_id), 0)) < got:
+				stars[str(sim.level_id)] = got
+			progress["stars"] = stars
 			save_progress()
 	paused = false
 	screen = "result"
@@ -447,7 +478,8 @@ func _update_hover() -> void:
 	if sim == null or board == null or units == null:
 		return
 	var pos = _mouse_world()
-	var cell = Geo.cell_at(pos, sim.rows)
+	# 舞台是透视的：屏幕点要先换算回平面格
+	var cell = Geo.screen_cell_at(pos, sim.rows)
 	board.hover_cell = cell if screen == "battle" and not paused else Vector2i(-1, -1)
 	units.hover_target = null
 
@@ -522,7 +554,7 @@ func _handle_battle_click(pos: Vector2) -> void:
 	if not orb.is_empty():
 		sim.collect_orb(orb)
 		return
-	var cell = Geo.cell_at(pos, sim.rows)
+	var cell = Geo.screen_cell_at(pos, sim.rows)
 	if hud.card_selected >= 0:
 		if cell.x >= 0:
 			var ok = sim.try_place_card(hud.card_selected, cell.x, cell.y, pos)
@@ -568,8 +600,49 @@ func set_setting(key: String, value) -> void:
 	elif key == "collect_delay" and sim != null:
 		sim.collect_delay = float(value)
 	elif key == "speed" and screen == "battle" and not tutorial_active:
-		speed = float(value)
+		apply_speed(float(value))
+	elif key == "resolution":
+		_apply_resolution()
+	elif key == "music_style" or key == "hot_variant":
+		if screen == "battle":
+			_music_for_wave()
+			play_music_scene(_music_current, true)
+		else:
+			play_music_scene("menu", true)
 	save_settings()
+
+
+## 0.1× 是训练场的观察档：正式对局一律抬到 1× 以上，
+## 局内切速度也走这里，免得从设置面板绕过下限。
+func speed_floor() -> float:
+	return 0.1 if run_mode == "training" else 1.0
+
+
+func apply_speed(value: float) -> void:
+	speed = maxf(speed_floor(), value)
+
+
+## 分辨率：自适应全屏按显示器走；固定档开窗并按所选像素、居中摆放。
+## 画面本身是 16:9 设计（stretch aspect=keep），非 16:9 窗口会有细窄留边。
+func _apply_resolution() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	# QA 截图时用 --qa-size 固定窗口，别被「自适应全屏」抢走
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--qa-size="):
+			return
+	var value = String(settings.get("resolution", "auto"))
+	if value == "auto":
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		return
+	var parts = value.split("x")
+	if parts.size() != 2:
+		return
+	var target = Vector2i(int(parts[0]), int(parts[1]))
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(target)
+	var screen = DisplayServer.screen_get_size()
+	DisplayServer.window_set_position((screen - target) / 2)
 
 
 func save_settings() -> void:
@@ -586,17 +659,57 @@ func save_records() -> void:
 	_write_json(RECORDS_PATH, records)
 
 
+## 通关名单只留真实存在的夜号，并且一律收成整数、去重。
+static func _night_ids(raw) -> Array:
+	var out: Array = []
+	for value in raw:
+		var id = int(value)
+		if id >= 1 and id <= Content.LEVELS.size() and not out.has(id):
+			out.append(id)
+	return out
+
+
 func _update_records(won: bool) -> void:
 	if sim == null or sim.training or sim.tutorial != null:
 		return
-	if won:
-		records["wins"] = int(records.get("wins", 0)) + 1
-		var best = records.get("best_time")
-		if best == null or float(best) > sim.time:
-			records["best_time"] = sim.time
-	records["best_kills"] = maxi(int(records.get("best_kills", 0)), sim.kills)
-	records["best_wave"] = maxi(int(records.get("best_wave", 0)), sim.wave_index)
+	if bool(sim.cheated):
+		# 动过调整面板的那一夜另册存放，不污染难度最好成绩
+		var book: Dictionary = _record_book("cheated", "")
+		book["runs"] = int(book.get("runs", 0)) + 1
+		_record_tally(book, won)
+	else:
+		_record_tally(_record_book("by_diff", String(sim.difficulty)), won)
 	save_records()
+
+
+func _record_tally(book: Dictionary, won: bool) -> void:
+	book["best_kills"] = maxi(int(book.get("best_kills", 0)), sim.kills)
+	book["best_wave"] = maxi(int(book.get("best_wave", 0)), sim.wave_index)
+	if not won:
+		return
+	book["wins"] = int(book.get("wins", 0)) + 1
+	var best = book.get("best_time")
+	if best == null or float(best) > sim.time:
+		book["best_time"] = sim.time
+
+
+func _record_book(group: String, name: String) -> Dictionary:
+	var books: Dictionary = records.get(group, {})
+	var book: Dictionary = books.get(name, {})
+	books[name] = book
+	records[group] = books
+	return book
+
+
+## v0.3.1 及更早只有一本不分难度的总账。旧数字不丢，整册挪进「旧版累计」一栏。
+func _records_v2() -> void:
+	var legacy = {}
+	for key in ["wins", "best_kills", "best_wave", "best_time"]:
+		if records.has(key):
+			legacy[key] = records[key]
+			records.erase(key)
+	if not legacy.is_empty() and not records.has("legacy"):
+		records["legacy"] = legacy
 
 
 func save_run() -> void:
@@ -616,8 +729,9 @@ func save_run() -> void:
 
 func clear_run() -> void:
 	save_data = {}
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+	var path=_data_path(SAVE_PATH)
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
 
 func has_save() -> bool:
@@ -654,14 +768,26 @@ func _load_state() -> void:
 			else:
 				settings[key] = value
 	progress = _read_json(PROGRESS_PATH, {"cleared": [], "selected": 1, "loadout": []})
-	records = _read_json(RECORDS_PATH, {"wins": 0, "best_kills": 0, "best_wave": 0,
-		"best_time": null})
+	# JSON 读回来的整数全是浮点，而 Array.has(1) 认不出 1.0——不收敛的话
+	# 每次读档后通关的那一夜都会被再追加一遍，守夜记录就凭空多出一夜。
+	progress["cleared"] = _night_ids(progress.get("cleared", []))
+	progress["selected"] = clampi(int(progress.get("selected", 1)), 1, Content.LEVELS.size())
+	records = _read_json(RECORDS_PATH, {})
+	_records_v2()
 	save_data = _read_json(SAVE_PATH, {})
 	if not save_data.is_empty() and not save_data.has("sim"):
 		save_data = {}
 
 
+func _data_path(path: String) -> String:
+	if not _qa:return path
+	var directory="user://qa-v040"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(directory))
+	return directory+"/"+path.get_file()
+
+
 func _write_json(path: String, data: Dictionary) -> void:
+	path=_data_path(path)
 	var file = FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		push_warning("无法写入 %s" % path)
@@ -671,6 +797,7 @@ func _write_json(path: String, data: Dictionary) -> void:
 
 
 func _read_json(path: String, fallback: Dictionary = {}) -> Dictionary:
+	path=_data_path(path)
 	if not FileAccess.file_exists(path):
 		return fallback.duplicate(true)
 	var file = FileAccess.open(path, FileAccess.READ)
@@ -697,10 +824,32 @@ func _clean_loadout(ids: Array) -> Array:
 
 
 # ── 音频 ────────────────────────────────────────────────────────────────────
+## 两条音乐风格：
+##   朴素：所有关卡都用 v0.2.4 那三套通用配乐（先锋/白热化/最终）；
+##   完整：第一大关用 day1 三套、第二大关 day2、第三大关 day3。
+## 两种风格共用同一首菜单曲。
+const MUSIC_BASE = ["menu", "battle", "hot", "final"]
+## 每天的曲目：先锋 / 白热化（新篇 dayN-hot、延续 dayN-hot-alt）/ 最终
+const MUSIC_DAY_TRACKS = [
+	"day1-battle", "day1-hot", "day1-hot-alt", "day1-final",
+	"day2-battle", "day2-hot", "day2-hot-alt", "day2-final",
+	"day3-battle", "day3-hot", "day3-hot-alt", "day3-final",
+]
+const MUSIC_STYLE_LABEL = {"plain": "朴素", "complete": "完整"}
+## 完整风格下「白热化」段落用哪一套：新篇=当天 hot；延续=当天 hot-alt（由先锋段主题变奏而来）
+const HOT_VARIANT_LABEL = {"new": "新篇", "continue": "延续"}
+
+
+func _music_path(name: String) -> String:
+	if name.begins_with("day"):
+		return "res://assets/music/complete/%s.ogg" % name
+	return "res://assets/music/%s.ogg" % name
+
+
 func _setup_audio() -> void:
-	for name in MUSIC_SCENES:
+	for name in MUSIC_BASE + MUSIC_DAY_TRACKS:
 		var player = AudioStreamPlayer.new()
-		var path = "res://assets/music/%s.ogg" % name
+		var path = _music_path(name)
 		if ResourceLoader.exists(path):
 			var stream: AudioStream = load(path)
 			if stream != null:
@@ -720,11 +869,63 @@ func _setup_audio() -> void:
 	_apply_volume()
 
 
-func play_music_scene(scene: String) -> void:
-	if _music_current == scene:
+func music_style() -> String:
+	var style = String(settings.get("music_style", "complete"))
+	return style if MUSIC_STYLE_LABEL.has(style) else "complete"
+
+
+## 波次 → 段落：前六波「先锋」，第七波起「白热化」，最后两波「最终」。
+func wave_phase() -> String:
+	var total = int(sim.level.get("waves", []).size())
+	var index = sim.wave_index
+	if total > 0 and index >= total - 2:
+		return "final"
+	if index >= 7:
+		return "hot"
+	return "battle"
+
+
+func hot_variant() -> String:
+	var variant = String(settings.get("hot_variant", "new"))
+	return variant if HOT_VARIANT_LABEL.has(variant) else "new"
+
+
+func _has_track(name: String) -> bool:
+	var player = _music_players.get(name)
+	return player != null and player.stream != null
+
+
+## 解析当前该放哪一首：朴素=通用三套；完整=当天那一套。
+## 完整风格的白热化段落再按「新篇 / 延续」二选一，缺哪首就退到另一首、再退到通用。
+func resolve_battle_track(day: int, phase: String) -> String:
+	if music_style() == "plain":
+		return phase
+	var lane = clampi(day, 1, 3)
+	if phase == "hot":
+		var fresh = "day%d-hot" % lane
+		var carry = "day%d-hot-alt" % lane
+		if hot_variant() == "continue":
+			if _has_track(carry):
+				return carry
+			if _has_track(fresh):
+				return fresh
+		else:
+			if _has_track(fresh):
+				return fresh
+			if _has_track(carry):
+				return carry
+		return phase
+	var name = "day%d-%s" % [lane, phase]
+	if _has_track(name):
+		return name
+	return phase
+
+
+func play_music_scene(scene: String, force: bool = false) -> void:
+	if _music_current == scene and not force:
 		return
 	_music_current = scene
-	if DisplayServer.get_name() == "headless":
+	if _qa or DisplayServer.get_name() == "headless":
 		return
 	var player: AudioStreamPlayer = _music_players.get(scene)
 	if player != null and player.stream != null and not player.playing:
@@ -734,12 +935,12 @@ func play_music_scene(scene: String) -> void:
 func _update_music(delta: float) -> void:
 	if _music_players.is_empty():
 		return
-	var on = bool(settings.get("sound", true))
+	var on = bool(settings.get("sound", true)) and not _qa
 	for name in _music_players:
 		var player: AudioStreamPlayer = _music_players[name]
 		if not player.playing:
 			if name == _music_current and on and player.stream != null \
-					and not DisplayServer.get_name() == "headless":
+					and DisplayServer.get_name() != "headless":
 				player.play()
 			continue
 		var goal = -60.0
@@ -751,18 +952,14 @@ func _update_music(delta: float) -> void:
 
 
 func _music_for_wave() -> void:
-	if sim == null or sim.training or sim.tutorial != null:
+	if sim == null or screen != "battle":
 		return
-	if screen != "battle":
-		return
-	var total = int(sim.level.get("waves", []).size())
-	var index = sim.wave_index
-	var scene = "battle"
-	if total > 0 and index >= total - 2:
-		scene = "final"
-	elif index >= 7:
-		scene = "hot"
-	play_music_scene(scene)
+	var day = 1
+	if sim.training:
+		day = int(training.get("day", 1))
+	elif sim.level.has("day"):
+		day = int(sim.level["day"])
+	play_music_scene(resolve_battle_track(day, wave_phase()))
 
 
 func _apply_volume() -> void:
@@ -774,30 +971,263 @@ var _music_duck = 0.0
 
 
 func play_sfx(name: String, detail: Dictionary = {}) -> void:
-	if not bool(settings["sound"]) or _qa or DisplayServer.get_name() == "headless":
+	if not bool(settings["sound"]) or _sfx_volume<=0.0001 or _qa or DisplayServer.get_name() == "headless":
 		return
-	var stream = _sfx_for(name)
+	var now=Time.get_ticks_msec()/1000.0
+	var gate=0.08
+	if name in ["collect","produce"]:gate=0.20
+	elif name in ["hit","eat","shoot","needle_shot","star_shot","cat_shot"]:gate=0.10
+	elif name.begins_with("boss"):gate=0.18
+	if now<float(_sfx_gates.get(name,-100.0))+gate:return
+	_sfx_gates[name]=now
+	var stream = _sfx_for(name, detail)
 	if stream == null:
 		return
 	var player: AudioStreamPlayer = _sfx_players[_sfx_cursor % _sfx_players.size()]
 	_sfx_cursor += 1
 	player.stream = stream
-	player.volume_db = lerpf(-26.0, -4.0, _sfx_volume)
+	player.volume_db = linear_to_db(_sfx_volume)-2.0
+	if name == "produce":
+		player.volume_db -= 4.0
 	player.pitch_scale = 1.0
-	match name:
-		"hit":
-			player.pitch_scale = 0.94 + float(_sfx_cursor % 5) * 0.03
-		"shoot", "needle_shot", "gravel_shot":
-			player.pitch_scale = 0.95 + float(_sfx_cursor % 4) * 0.04
+	if name in ["hit","armor_break","eat"]:player.volume_db-=3.0
 	player.play()
 
 
-func _sfx_for(name: String) -> AudioStream:
-	if _sfx_cache.has(name):
-		return _sfx_cache[name]
+## 命中音的材质：斗笠是草/纸，石帽是石，陶瓮是陶，铁面是铁，其余按纸算
+func _hit_material(armor_type: String, detail: Dictionary) -> String:
+	match armor_type:
+		"straw":
+			return "straw"
+		"stonehat":
+			return "stone"
+		"urn":
+			return "urn"
+		"mask":
+			return "iron"
+		"paper", "sedan", "charm":
+			return "paper"
+		_:
+			return "body"
+
+
+## 一击的声音：低频为主、几乎没有高频嘶声，打在本体与打在护具上各有材质感。
+## 每条都是"噪声瞬态 + 几个衰减正弦"手工叠出来的，不走原来的单音合成器。
+## 中式怪谈的四条基本音：木牌的叩、铜铃的响、烟气散、远处的鼓。
+## 都是"几个衰减正弦 + 一撮带通噪声"，没有电子味的上滑与颤音。
+func _synth_mood(key: String) -> AudioStreamWAV:
+	var rate = 22050
+	var dur = 0.3
+	var layers: Array = []          # [freq, amp, decay_ms]
+	var noise_amp = 0.0
+	var noise_lp = 1200.0
+	var noise_hp = 200.0
+	var noise_decay = 30.0
+	var attack = 0.004
+	match key:
+		"click":
+			# 木牌被指节轻叩一下：很干、很低
+			dur = 0.14
+			layers = [[196.0, 0.5, 42.0], [294.0, 0.22, 26.0]]
+			noise_amp = 0.35
+			noise_lp = 1500.0
+			noise_hp = 300.0
+			noise_decay = 8.0
+		"collect":
+			# 收香火：一声小铜铃，尾巴带一点烟气
+			dur = 0.55
+			layers = [[1046.0, 0.34, 300.0], [1568.0, 0.17, 210.0],
+				[2350.0, 0.08, 150.0]]
+			noise_amp = 0.10
+			noise_lp = 5200.0
+			noise_hp = 2400.0
+			noise_decay = 220.0
+			attack = 0.010
+		"kill":
+			# 恶客散了：一记闷响，随后气声往下沉
+			dur = 0.48
+			layers = [[72.0, 0.55, 90.0], [118.0, 0.25, 60.0]]
+			noise_amp = 0.5
+			noise_lp = 900.0
+			noise_hp = 120.0
+			noise_decay = 260.0
+		"alert":
+			# 一大波要来：远处的闷鼓 + 一记低锣
+			dur = 0.9
+			layers = [[58.0, 0.7, 220.0], [174.0, 0.3, 420.0], [261.0, 0.14, 320.0]]
+			noise_amp = 0.28
+			noise_lp = 700.0
+			noise_hp = 60.0
+			noise_decay = 160.0
+			attack = 0.012
+		_:
+			dur = 0.2
+			layers = [[220.0, 0.4, 60.0]]
+	var count = int(rate * dur)
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 4000 + key.hash()
+	var lp_state = 0.0
+	var hp_state = 0.0
+	var lp_a = clampf(1.0 - exp(-TAU * noise_lp / float(rate)), 0.001, 1.0)
+	var hp_a = clampf(1.0 - exp(-TAU * noise_hp / float(rate)), 0.001, 1.0)
+	var data = PackedByteArray()
+	data.resize(count * 2)
+	for i in count:
+		var t = float(i) / float(rate)
+		var v = 0.0
+		for layer in layers:
+			# 一点点失谐，听起来才像实物
+			var detune = 1.0 + 0.0025 * sin(t * 9.0)
+			v += sin(TAU * float(layer[0]) * detune * t) * float(layer[1]) \
+				* exp(-t / (float(layer[2]) / 1000.0))
+		if noise_amp > 0.0:
+			var white = rng.randf_range(-1.0, 1.0)
+			lp_state += (white - lp_state) * lp_a
+			hp_state += (lp_state - hp_state) * hp_a
+			v += (lp_state - hp_state) * noise_amp \
+				* exp(-t / (noise_decay / 1000.0)) * 2.2
+		v *= minf(1.0, t / maxf(0.001, attack))
+		v *= minf(1.0, (dur - t) / 0.012)
+		data.encode_s16(i * 2, int(clampf(v * 0.6, -1.0, 1.0) * 30000.0))
+	var stream = AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = rate
+	stream.stereo = false
+	stream.data = data
+	return stream
+
+
+func _synth_hit(key: String) -> AudioStreamWAV:
+	var rate = 22050
+	var breaking = key.begins_with("break_")
+	var kind = key.substr(key.find("_") + 1)
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 9001 + kind.hash()
+	var dur = 0.16
+	match kind:
+		"straw", "paper":
+			dur = 0.12
+		"urn":
+			dur = 0.22
+		"iron":
+			dur = 0.26
+		"stone":
+			dur = 0.2
+		_:
+			dur = 0.17
+	if breaking:
+		dur = 0.42
+	var count = int(rate * dur)
+	var samples = PackedFloat32Array()
+	samples.resize(count)
+	# 层定义：{freq, amp, decay, hp, lp}
+	var layers: Array = []
+	var noise_amp = 0.0
+	var noise_lp = 900.0
+	var noise_hp = 60.0
+	var noise_decay = 40.0
+	match kind:
+		"body":
+			layers = [[92.0, 0.9, 26.0], [148.0, 0.35, 18.0]]
+			noise_amp = 0.35
+			noise_lp = 520.0
+			noise_hp = 50.0
+			noise_decay = 34.0
+		"straw", "paper":
+			layers = []
+			noise_amp = 0.5
+			noise_lp = 2400.0
+			noise_hp = 700.0
+			noise_decay = 22.0
+		"stone":
+			layers = [[610.0, 0.5, 42.0], [121.0, 0.7, 58.0], [1540.0, 0.16, 22.0]]
+			noise_amp = 0.55
+			noise_lp = 5200.0
+			noise_hp = 900.0
+			noise_decay = 12.0
+		"urn":
+			layers = [[372.0, 0.55, 78.0], [742.0, 0.22, 52.0], [118.0, 0.5, 70.0]]
+			noise_amp = 0.4
+			noise_lp = 3400.0
+			noise_hp = 500.0
+			noise_decay = 16.0
+		"iron":
+			layers = [[1184.0, 0.32, 110.0], [1786.0, 0.2, 82.0], [2610.0, 0.10, 58.0],
+				[96.0, 0.45, 60.0]]
+			noise_amp = 0.45
+			noise_lp = 7000.0
+			noise_hp = 1500.0
+			noise_decay = 9.0
+	if breaking:
+		noise_amp = maxf(noise_amp, 0.6)
+		noise_lp = 3200.0
+		noise_hp = 200.0
+		noise_decay = 120.0
+		layers = [[78.0, 0.6, 140.0], [132.0, 0.4, 110.0]]
+		if kind == "iron":
+			layers.append([1184.0, 0.3, 90.0])
+		elif kind == "urn":
+			layers.append([372.0, 0.35, 100.0])
+	# 简单一阶滤波器的状态
+	var lp_state = 0.0
+	var hp_state = 0.0
+	var last_noise = 0.0
+	var lp_a = clampf(1.0 - exp(-TAU * noise_lp / float(rate)), 0.001, 1.0)
+	var hp_a = clampf(1.0 - exp(-TAU * noise_hp / float(rate)), 0.001, 1.0)
+	for i in count:
+		var t = float(i) / float(rate)
+		var v = 0.0
+		for layer in layers:
+			var env = exp(-t / (float(layer[2]) / 1000.0))
+			v += sin(TAU * float(layer[0]) * t) * float(layer[1]) * env
+		if noise_amp > 0.0:
+			var white = rng.randf_range(-1.0, 1.0)
+			lp_state += (white - lp_state) * lp_a        # 低通，削掉嘶声
+			hp_state += (lp_state - hp_state) * hp_a      # 再抬掉最低的嗡
+			var band = lp_state - hp_state
+			v += band * noise_amp * exp(-t / (noise_decay / 1000.0)) * 2.4
+		# 起音 2ms 淡入，避免咔哒
+		v *= minf(1.0, t / 0.002)
+		# 收尾 8ms 淡出
+		v *= minf(1.0, (dur - t) / 0.008)
+		samples[i] = clampf(v * 0.62, -1.0, 1.0)
+	var data = PackedByteArray()
+	data.resize(count * 2)
+	for i in count:
+		data.encode_s16(i * 2, int(samples[i] * 30000.0))
+	var stream = AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = rate
+	stream.stereo = false
+	stream.data = data
+	return stream
+
+
+func _sfx_for(name: String, detail: Dictionary = {}) -> AudioStream:
+	var key = name
+	if name == "hit":
+		key = "hit_" + _hit_material(String(detail.get("armor", "")), detail)
+	elif name == "armor_break":
+		key = "break_" + _hit_material(String(detail.get("armor", "")), detail)
+	if _sfx_cache.has(key):
+		return _sfx_cache[key]
+	var mastered="res://assets/sfx/v040/%s.wav" % key
+	if ResourceLoader.exists(mastered):
+		var sound: AudioStream=load(mastered)
+		_sfx_cache[key]=sound
+		return sound
+	if key in ["click", "collect", "kill", "alert"]:
+		var mood_stream = _synth_mood(key)
+		_sfx_cache[key] = mood_stream
+		return mood_stream
+	if key.begins_with("hit_") or key.begins_with("break_"):
+		var made = _synth_hit(key)
+		_sfx_cache[key] = made
+		return made
 	var recipe = _sfx_recipe(name)
 	var stream = _synth(recipe["freq"], recipe["duration"], recipe["wave"],
-		recipe["decay"], recipe.get("sweep", 0.0), recipe.get("noise", 0.0))
+		recipe["decay"], recipe.get("sweep", 0.0), recipe.get("noise", 0.0),
+		recipe.get("attack", 0.004), recipe.get("soft", 0.0))
 	_sfx_cache[name] = stream
 	return stream
 
@@ -809,11 +1239,11 @@ func _sfx_recipe(name: String) -> Dictionary:
 		"place_bad", "deny":
 			return {"freq": 180.0, "duration": 0.16, "wave": "square", "decay": 4.0}
 		"collect":
-			return {"freq": 720.0, "duration": 0.16, "wave": "sine", "decay": 2.4,
-				"sweep": 340.0}
+			return {"freq": 720.0, "duration": 0.16, "wave": "sine", "decay": 2.4}
 		"produce":
-			return {"freq": 520.0, "duration": 0.24, "wave": "sine", "decay": 2.0,
-				"sweep": 160.0}
+			# 旧版 520Hz 短促上滑，听起来"脆"；改成低频、慢起音、长衰减的暖调
+			return {"freq": 296.0, "duration": 0.42, "wave": "sine", "decay": 1.5,
+				"sweep": 54.0, "attack": 0.055, "soft": 0.34}
 		"shoot", "gravel_shot":
 			return {"freq": 880.0, "duration": 0.09, "wave": "triangle", "decay": 5.0,
 				"sweep": -260.0}
@@ -884,7 +1314,8 @@ func _sfx_recipe(name: String) -> Dictionary:
 
 
 func _synth(freq: float, duration: float, wave: String, decay: float,
-		sweep: float = 0.0, noise: float = 0.0) -> AudioStreamWAV:
+		sweep: float = 0.0, noise: float = 0.0, attack: float = 0.004,
+		soft: float = 0.0) -> AudioStreamWAV:
 	var rate = 22050
 	var count = int(rate * duration)
 	var bytes = PackedByteArray()
@@ -907,12 +1338,16 @@ func _synth(freq: float, duration: float, wave: String, decay: float,
 				sample = rng.randf_range(-1.0, 1.0)
 			_:
 				sample = sin(phase)
+		if soft > 0.0:
+			# 叠一层低幅二倍泛音，把纯正弦的"尖"磨掉
+			sample = sample * (1.0 - soft) + sin(phase * 2.0) * soft * 0.5
 		if noise > 0.0:
 			sample = sample * (1.0 - noise) + rng.randf_range(-1.0, 1.0) * noise
 		var envelope = pow(1.0 - k, decay)
-		# 起音留 4ms 淡入，避免爆音
-		var attack = minf(1.0, t / 0.004)
-		bytes.encode_s16(i * 2, int(clampf(sample * envelope * attack * 0.5, -1.0, 1.0) * 32000.0))
+		# 起音淡入：默认 4ms 防爆音，柔和音色可以放长
+		var attack_k = minf(1.0, t / maxf(0.001, attack))
+		bytes.encode_s16(i * 2, int(clampf(sample * envelope * attack_k * 0.5,
+			-1.0, 1.0) * 32000.0))
 	var stream = AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = rate
@@ -928,6 +1363,9 @@ func _handle_cli() -> void:
 			_pending_capture = arg.trim_prefix("--capture=")
 		if arg.begins_with("--sim-seconds="):
 			_qa_sim_seconds = float(arg.trim_prefix("--sim-seconds="))
+		if arg.begins_with("--prep="):
+			_qa_prep_level = clampi(int(arg.trim_prefix("--prep=")), 1,
+				Content.LEVELS.size())
 	for arg in args:
 		if arg.begins_with("--screen="):
 			var target = arg.trim_prefix("--screen=")
@@ -936,8 +1374,11 @@ func _handle_cli() -> void:
 					show_menu()
 				"levels":
 					show_levels()
+					if _qa and _qa_prep_level>1:screen_node.switch_to_level(_qa_prep_level)
 				"prep":
-					show_prep(1)
+					show_prep(_qa_prep_level)
+					if screen_node != null and screen_node.has_method("skip_cinema"):
+						screen_node.skip_cinema()
 				"almanac":
 					open_almanac("plant", 0)
 				"almanac-zombie":
@@ -948,15 +1389,56 @@ func _handle_cli() -> void:
 					show_training_menu()
 				"selftest":
 					_run_selftest()
+				"result":
+					# 真跑一夜再判胜，用来截图看结算页的复盘与星级
+					start_battle(1, loadout)
+					_qa_battle_seed()
+					for i in int(300.0 * 60.0):
+						sim.tick(1.0 / 60.0)
+					finish_run(true)
 				"battle":
 					start_battle(1, loadout)
 					_qa_battle_seed()
+				"fan":
+					# 升阶扇形验收台：三片叶子全开 + 一张悬停纸条，
+					# 配 --qa-size=1280x720 看低分辨率下小字够不够读
+					start_battle(1, loadout)
+					_qa_battle_seed()
+					var shooter = sim.place_free("shooter", 2, 2)
+					shooter.upgrades = {1: 1, 2: 0, 3: 0}
+					sim.refresh_plant_buffs()
+					for i in 2:
+						await get_tree().process_frame
+					hud.try_open_menu(shooter, Geo.to_screen(shooter.pos))
+					if hud._fan != null:
+						hud._fan._hover = 1
 				"battle2":
 					start_battle(6, loadout)
 					_qa_battle_seed()
 				"battle3":
 					start_battle(11, loadout)
 					_qa_battle_seed()
+				"evolve":
+					_qa_show_evolve()
+				"boss1", "boss2", "boss3":
+					_qa_show_boss(int(target.right(1))*5)
+				"gauntlet":
+					_qa_show_boss(16,clampi(_qa_prep_level-1,0,2))
+				"armor":
+					start_battle(6, loadout)
+					for row in 6:
+						var id = ["stonehat", "paper", "sedan", "straw", "bucket", "ironjudge"][row]
+						var enemy = sim.spawn_zombie(id, row, {"x": 1150.0})
+						enemy.armor *= [1.0, 0.5, 0.2, 1.0, 0.5, 0.2][row]
+				"armor-break":
+					start_battle(6, loadout)
+					for row in 6:
+						var id = ["stonehat", "paper", "sedan", "straw", "bucket", "ironjudge"][row]
+						sim.spawn_zombie(id, row, {"x": 1150.0})
+					for frame in 4:
+						await get_tree().process_frame
+					for enemy in sim.zombies:
+						enemy.armor = 0.0
 				"result":
 					start_battle(1, loadout)
 					_qa_battle_seed()
@@ -1007,10 +1489,20 @@ func _qa_battle_seed() -> void:
 		["lantern", 0, 0], ["lantern", 0, 1], ["lantern", 0, 2],
 		["shooter", 2, 0], ["shooter", 2, 1], ["shooter", 2, 3],
 		["wall", 4, 1], ["censer", 3, 2], ["torch", 1, 1], ["bell", 1, 3],
+		["star", 5, 2], ["cat", 6, 1], ["lion", 5, 3], ["lobber", 1, 2],
 	]
 	for item in setups:
 		if sim.can_place_at(String(item[0]), int(item[1]), int(item[2]))["ok"]:
 			sim.place_free(String(item[0]), int(item[1]), int(item[2]))
+	# 本轮新机制摆满合法的最高状态，截图与自动对局才真的走得到它们
+	var maxed = {
+		"star": {1: 0, 2: 2, 3: 3}, "cat": {1: 3, 2: 2, 3: 0},
+		"lion": {1: 3, 2: 0, 3: 3}, "lobber": {1: 3, 2: 0, 3: 2},
+	}
+	for plant in sim.plants:
+		if maxed.has(plant.type):
+			plant.upgrades = maxed[plant.type].duplicate()
+			sim.apply_hp_scale(plant)
 	var mid = sim.main_plant_at(2, 1)
 	if mid != null:
 		sim.sun = 4000
@@ -1032,6 +1524,66 @@ func _qa_battle_seed() -> void:
 		hud.refresh()
 
 
+## 三阶换建模的验收台：凡是做了毕业立绘的草木，各摆一排（原画 + 三条毕业路），
+## 配 --capture 出图，逐张核对新模与老画是不是同一批、脚有没有沾地。
+func _qa_show_evolve() -> void:
+	start_battle(1, loadout)
+	if sim == null:
+		return
+	sim.sun = 4000
+	var row = 0
+	var ids: Array=[]
+	for id in Content.PLANT_ORDER:
+		if ResourceLoader.exists("res://assets/sprites/%s-e1.png" % id):ids.append(id)
+	for type in ids.slice((_qa_prep_level-1)*5,_qa_prep_level*5):
+		var paths: Array = []
+		for path_id in [1, 2, 3]:
+			if ResourceLoader.exists("res://assets/sprites/%s-e%d.png" % [type, path_id]):
+				paths.append(path_id)
+		if paths.is_empty() or row >= sim.rows:
+			continue
+		sim.place_free(String(type), 1, row)
+		var col = 3
+		for path_id in paths:
+			var plant = sim.place_free(String(type), col, row)
+			if plant != null:
+				plant.upgrades[int(path_id)] = 3
+				sim.apply_hp_scale(plant)
+			col += 2
+		sim.refresh_plant_buffs()
+		row += 1
+	paused=true
+	if hud != null:
+		hud.refresh()
+
+
+func _qa_show_boss(id: int,checkpoint: int=0) -> void:
+	start_battle(id,loadout)
+	sim.time=500;sim.sun=500
+	for col in 7:
+		for row in sim.rows:
+			if String(sim.tile_at(col,row).kind) in ["blocked","object"]:continue
+			if String(sim.tile_at(col,row).kind)=="water":sim.place_free("lily",col,row)
+			var p=sim.place_free(["lantern","lantern","shooter","shooter","wall","censer","umbrella"][col],col,row)
+			if p!=null and col==2:p.upgrades={1:2,2:0,3:0}
+	sim.refresh_plant_buffs()
+	if id==16:
+		sim.special_bosses_completed=checkpoint
+		sim.count_mul=sqrt(float([2,2.5,3.5][checkpoint]));sim.hp_mul=sim.count_mul
+		sim.boss=preload("res://scripts/boss_encounter.gd").new()
+		sim.boss.begin(sim,String(sim.level.boss_checkpoints[checkpoint]))
+	else:
+		sim.wave_index=sim.level.waves.size()-3
+		sim.queue_wave(sim.level.waves[sim.wave_index],sim.wave_index)
+	sim.time+=3.1
+	sim.boss.state="idle"
+	sim.boss._start_major()
+	for i in 45:sim.tick(1.0/60.0)
+	sim.sounds.clear();sim.sound_detail.clear()
+	boss_view._pose=sim.boss.pose();boss_view._previous=boss_view._pose;boss_view._pose_at=sim.time-1.0
+	paused=true;hud.refresh()
+
+
 func _capture(path: String) -> void:
 	await RenderingServer.frame_post_draw
 	var image = get_viewport().get_texture().get_image()
@@ -1040,4 +1592,4 @@ func _capture(path: String) -> void:
 	print("CAPTURE %s code=%d size=%s" % [path, error, str(image.get_size())])
 	var args = OS.get_cmdline_user_args()
 	if "--quit-after-capture" in args:
-		get_tree().quit(0)
+		get_tree().call_deferred("quit",0)

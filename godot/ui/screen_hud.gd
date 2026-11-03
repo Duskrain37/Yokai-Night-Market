@@ -26,13 +26,15 @@ var _sun_label: Label = null
 var _wave_label: Label = null
 var _hint_label: Label = null
 var _banner_label: Label = null
+var _banner_sub: Label = null
+var _banner_band: ColorRect = null
 var _banner_t = 0.0
 var _card_nodes: Array = []
 var _tool_wave: Button = null
 var _tool_shovel: Button = null
 var _tool_cheat: Button = null
 var _speed_label: Label = null
-var _fan_panel: PanelContainer = null
+var _fan: UpgradeFan = null
 var _fan_sig = ""
 var _fan_rows: Array = []
 var _cheat_panel: PanelContainer = null
@@ -40,7 +42,51 @@ var _tutorial_panel: PanelContainer = null
 var _tutorial_label: Label = null
 var _tutorial_dots: Control = null
 var _wave_pips: Control = null
+var _danger: Control = null
 var _tooltip: Label = null
+var _speed_pills: Array = []
+
+const SPEEDS = [1.0, 1.5, 2.0, 3.0]
+# 0.1× 是训练场的观察档，正式对局不给，免得误点后以为游戏卡住
+const SPEEDS_TRAINING = [0.1, 1.0, 1.5, 2.0, 3.0]
+
+
+static func _speed_text(value: float) -> String:
+	if is_equal_approx(value, round(value)):
+		return str(int(round(value)))
+	return String.num(value, 1)
+
+
+## 局内直接切速度：写回设置，下次开局沿用
+func _set_speed(value: float) -> void:
+	if game == null:
+		return
+	if game.tutorial_active:
+		return
+	game.apply_speed(value)
+	game.set_setting("speed", value)
+	game.play_sfx("click")
+	refresh()
+
+
+func _refresh_speed_pills() -> void:
+	for pill in _speed_pills:
+		var value: float = float(pill.get_meta("speed_value"))
+		var active: bool = is_equal_approx(game.speed, value)
+		if active:
+			pill.add_theme_color_override("font_color", Ui.INK)
+			pill.add_theme_stylebox_override("normal",
+				Ui.flat(Color(0.86, 0.72, 0.42, 0.95), Ui.GOLD_BRIGHT, 8, 2))
+			pill.add_theme_stylebox_override("hover",
+				Ui.flat(Color(0.92, 0.8, 0.5, 1.0), Ui.GOLD_BRIGHT, 8, 2))
+		else:
+			pill.add_theme_color_override("font_color", Ui.TEXT_DIM)
+			pill.add_theme_stylebox_override("normal",
+				Ui.flat(Color(0.06, 0.09, 0.11, 0.9), Color(0.34, 0.31, 0.25, 0.9),
+					8, 1))
+			pill.add_theme_stylebox_override("hover",
+				Ui.flat(Color(0.14, 0.19, 0.23, 0.95), Ui.GOLD_DIM, 8, 1))
+		pill.disabled = game.tutorial_active
 
 
 func _ready() -> void:
@@ -87,18 +133,29 @@ func _build_hud() -> void:
 	var sun_text = Ui.vbox(0)
 	sun_row.add_child(sun_text)
 	sun_text.add_child(Ui.label("香火", 18, Ui.TEXT_DIM))
-	_wave_label = Ui.label("第 1 / 12 波", 17, Ui.TEXT)
+	_wave_label = Ui.label("第 1 / 4 大波", 17, Ui.TEXT)
 	sun_text.add_child(_wave_label)
+
+	_danger=preload("res://ui/threat_meter.gd").new()
+	_danger.custom_minimum_size=Vector2(112,16)
+	left.add_child(_danger)
 
 	_wave_pips = Control.new()
 	_wave_pips.custom_minimum_size = Vector2(120, 150)
 	_wave_pips.draw.connect(_draw_wave_pips)
 	left.add_child(_wave_pips)
 
-	_hint_label = Ui.label("", 17, Ui.TEXT_DIM)
-	_hint_label.custom_minimum_size = Vector2(270, 0)
+	# 建议压在灯笼与屋檐上会看不清：给一块窄暗底，字用亮色
+	var hint_plate = PanelContainer.new()
+	hint_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint_plate.add_theme_stylebox_override("panel", Ui.flat(
+		Color(0.05, 0.06, 0.08, 0.62), Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g,
+			Ui.GOLD_DIM.b, 0.28), 6, 1))
+	left.add_child(hint_plate)
+	_hint_label = Ui.label("", 17, Color(0.94, 0.90, 0.82))
+	_hint_label.custom_minimum_size = Vector2(258, 0)
 	_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	left.add_child(_hint_label)
+	hint_plate.add_child(_hint_label)
 
 	# 卡槽
 	var cards = HBoxContainer.new()
@@ -123,6 +180,26 @@ func _build_hud() -> void:
 		cards.add_child(card)
 		_card_nodes.append(card)
 
+	# 卡槽右边的战斗速度：随时切，含 0.1x 救场档
+	var speed_box := VBoxContainer.new()
+	speed_box.add_theme_constant_override("separation", 4)
+	speed_box.position = Vector2(1292, 16)
+	speed_box.custom_minimum_size = Vector2(200, 0)
+	speed_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(speed_box)
+	var speed_title := Ui.label("战斗速度", 13, Ui.TEXT_DIM)
+	speed_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	speed_box.add_child(speed_title)
+	var speed_row := HBoxContainer.new()
+	speed_row.add_theme_constant_override("separation", 4)
+	speed_box.add_child(speed_row)
+	for value in (SPEEDS_TRAINING if sim.training else SPEEDS):
+		var pill := Ui.button(_speed_text(value), 14, 36, 34)
+		pill.set_meta("speed_value", value)
+		pill.pressed.connect(func(): _set_speed(value))
+		speed_row.add_child(pill)
+		_speed_pills.append(pill)
+
 	# 右侧工具
 	var tools = VBoxContainer.new()
 	tools.add_theme_constant_override("separation", 10)
@@ -145,6 +222,29 @@ func _build_hud() -> void:
 	tools.add_child(_speed_label)
 
 	# 横幅
+	_banner_band = ColorRect.new()
+	_banner_band.color = Color(0.02, 0.02, 0.03, 0.78)
+	_banner_band.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_banner_band.anchor_left = 0.5
+	_banner_band.anchor_right = 0.5
+	_banner_band.offset_left = -560.0
+	_banner_band.offset_right = 560.0
+	_banner_band.offset_top = 128.0
+	_banner_band.offset_bottom = 268.0
+	_banner_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_banner_band.visible = false
+	add_child(_banner_band)
+	_banner_sub = Ui.label("", 20, Ui.GOLD)
+	_banner_sub.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_banner_sub.anchor_left = 0.5
+	_banner_sub.anchor_right = 0.5
+	_banner_sub.offset_left = -420.0
+	_banner_sub.offset_right = 420.0
+	_banner_sub.offset_top = 226.0
+	_banner_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_banner_sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_banner_sub.modulate.a = 0.0
+	add_child(_banner_sub)
 	_banner_label = Ui.title("", 46, Ui.GOLD_BRIGHT)
 	_banner_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_banner_label.anchor_left = 0.5
@@ -156,6 +256,7 @@ func _build_hud() -> void:
 	_banner_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_banner_label.modulate.a = 0.0
 	add_child(_banner_label)
+	move_child(_banner_band, 0)
 
 	_tooltip = Ui.label("", 17, Ui.GOLD_BRIGHT)
 	_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -205,31 +306,42 @@ func _draw_tutorial_dots() -> void:
 	if sim == null or sim.tutorial == null:
 		return
 	var step = String(sim.tutorial["step"])
-	var order = ["collect", "plant", "upgrade", "battle", "finishing", "done"]
+	var order = ["collect", "plant", "upgrade", "wall", "battle", "finishing", "done"]
 	var index = order.find(step)
 	for i in order.size():
 		var color = Ui.GOLD if i <= index else Color(1, 1, 1, 0.25)
 		_tutorial_dots.draw_circle(Vector2(8 + i * 22, 6), 5.0, color)
 
 
+## 波次条按大波分组：一大波 = 三小拨。拨与拨之间不留缝，大波之间留缝并在左边标大波号。
 func _draw_wave_pips() -> void:
 	var sim: Sim = game.sim
 	if sim == null:
 		return
-	var total = int(sim.level.get("waves", []).size())
-	if total == 0:
+	var waves: Array = sim.level.get("waves", [])
+	if waves.is_empty():
 		return
-	for i in total:
-		var y = 4.0 + i * 12.0
-		var flag = bool(sim.level["waves"][i].get("flag", false))
-		var done = i < sim.wave_index
-		var color = Color(1, 1, 1, 0.16)
-		if done:
-			color = Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g, Ui.GOLD_DIM.b, 0.9)
-		elif i == sim.wave_index:
-			color = Ui.GOLD_BRIGHT
-		var width = 22.0 if flag else 14.0
-		_wave_pips.draw_rect(Rect2(4, y, width, 5.0), color)
+	var font = Ui.body_font()
+	var group_count=Content.wave_groups(sim.level)
+	var group_now=Content.current_major_wave(sim.level,sim.wave_index)-1
+	# Permanent rule: show four major waves at a time; switch when entering the next four.
+	var page_start=int(group_now/4)*4
+	for g in Content.visible_wave_groups(sim.level,sim.wave_index):
+		var x=0.0
+		var y=4.0+(g-page_start)*35.0
+		for sub in Content.WAVES_PER_GROUP:
+			var i=g*Content.WAVES_PER_GROUP+sub
+			if i>=waves.size():break
+			var done=i<sim.wave_index
+			if sim.boss!=null and sim.boss.alive() and g==group_now:done=false
+			var color=Color(1,1,1,.16)
+			if done:color=Color(Ui.GOLD_DIM.r,Ui.GOLD_DIM.g,Ui.GOLD_DIM.b,.9)
+			elif i==sim.wave_index or (sim.boss!=null and g==group_now):color=Ui.GOLD_BRIGHT
+			_wave_pips.draw_rect(Rect2(x+20,y,24.0 if bool(waves[i].get("flag",false)) else 15.0,5),color)
+			y+=9
+		_wave_pips.draw_string(font,Vector2(x+2,y-11),str(g+1),HORIZONTAL_ALIGNMENT_LEFT,-1,11,
+			Ui.GOLD_BRIGHT if g==group_now else Color(1,1,1,.4))
+
 
 
 # ── 刷新 ────────────────────────────────────────────────────────────────────
@@ -241,39 +353,80 @@ func refresh() -> void:
 		_sun_label.text = str(sim.sun)
 	var total = int(sim.level.get("waves", []).size())
 	if _wave_label != null:
-		if sim.training:
+		if sim.boss!=null:
+			_wave_label.text="第 %d 大波 · 首领战" % Content.current_major_wave(sim.level,sim.wave_index)
+		elif bool(sim.level.get("special",false)):
+			_wave_label.text="第 %d / 12 大波" % Content.current_major_wave(sim.level,sim.wave_index)
+		elif sim.training:
 			_wave_label.text = "训练场 · 手动召唤"
 		elif total == 0:
 			_wave_label.text = "教学关"
 		else:
-			_wave_label.text = "第 %d / %d 波" % [mini(sim.wave_index + 1, total), total]
+			var groups = Content.wave_groups(sim.level)
+			var group_now = Content.current_major_wave(sim.level,sim.wave_index)
+			_wave_label.text = "第 %d / %d 大波 · 第 %d 拨" % [group_now, groups,
+				Content.wave_sub(maxi(0,sim.wave_index-1))]
+	if _danger!=null:
+		_danger.values=[float([2.0,2.5,3.5][mini(2,sim.special_bosses_completed)])] if bool(sim.level.get("special",false)) else [float(sim.level.get("threat",0))]
+		_danger.queue_redraw()
 	if _wave_pips != null:
 		_wave_pips.queue_redraw()
 	if _speed_label != null:
 		_speed_label.text = "×%s" % _format_speed(game.speed)
+	_refresh_speed_pills()
 	for card in _card_nodes:
 		card.state = _card_state(card.index)
 		card.queue_redraw()
 	if _tool_shovel != null:
-		_tool_shovel.add_theme_color_override("font_color",
-			Ui.GOLD_BRIGHT if shovel_mode else Ui.TEXT)
+		Ui.set_button_active(_tool_shovel, shovel_mode)
 	if _hint_label != null:
 		_hint_label.text = "" if game.tutorial_active else _hint_text()
 	if _banner_label != null:
 		if not sim.banner.is_empty():
+			var big = String(sim.banner["text"]) == "一大波恶客正在靠近"
 			_banner_label.text = String(sim.banner["text"])
-			_banner_label.modulate.a = clampf(float(sim.banner["t"]) / 0.8, 0.0, 1.0)
+			_banner_label.add_theme_font_size_override("font_size", 64 if big else 46)
+			var span = 0.9 if big else 0.8
+			var a = clampf(float(sim.banner["t"]) / span, 0.0, 1.0)
+			_banner_label.modulate.a = a
+			_banner_sub.text = "第 %d 大波 / 共 %d 大波" % [int(sim.banner.get("group", 1)),
+				int(sim.banner.get("groups", 4))] if big else ""
+			_banner_sub.modulate.a = a
+			_banner_band.visible = big
+			_banner_band.modulate.a = a * 0.85
 		else:
 			_banner_label.modulate.a = 0.0
+			_banner_sub.modulate.a = 0.0
+			_banner_band.visible = false
+	if sim.boss!=null:
+		_banner_label.modulate.a=0.0;_banner_sub.modulate.a=0.0;_banner_band.visible=false
 	if game.tutorial_active:
 		_refresh_tutorial()
 	if focus_plant != null and (focus_plant.dead or not sim.plants.has(focus_plant)):
 		close_fan()
-	elif _fan_panel != null:
+	elif _fan != null:
 		# 只有面板内容真的变了才重建：每帧重建会让按钮在按下与松开之间被释放，点不动。
 		var signature = _fan_signature()
 		if signature != _fan_sig:
-			_rebuild_fan()
+			_sync_fan()
+
+
+## 失败建议要对着这一夜真实发生过的事说。按"最该先改的那一件"排：
+## 整夜没人守的行 → 香火花不完 → 前排一直倒 → 已被突口 → 兜底一句。
+func _loss_advice(summary: Dictionary, breached_rows: Array) -> String:
+	var empty_rows: Array = summary.get("empty_rows", [])
+	if not empty_rows.is_empty():
+		return "第 %s 行整夜没人守。先把每一行都铺上一个，再谈升阶。" % [
+			"、".join(empty_rows.map(func(x): return str(int(x))))]
+	if int(summary.get("left_sun", 0)) >= 300:
+		return "手里还剩 %d 香火。攒钱守不住摊子，差哪行就补哪行。" % int(summary.get("left_sun", 0))
+	if int(summary.get("plants_lost", 0)) >= 4:
+		return "这一夜倒了 %d 株。前排补不上时，先种石磨挡一口，别硬堆输出。" % int(
+			summary.get("plants_lost", 0))
+	if not breached_rows.is_empty():
+		return "门神用完了，第 %s 行被穿了过去。给那一行补一株石磨，或把肉盾往前挪一格。" % [
+			"、".join(breached_rows.map(func(x): return str(int(x))))]
+	return "门神用完了，这一路被穿了过去。补一株石磨再试。"
 
 
 func _format_speed(value: float) -> String:
@@ -284,17 +437,19 @@ func _format_speed(value: float) -> String:
 
 func _hint_text() -> String:
 	var sim: Sim = game.sim
+	if sim.boss!=null:
+		return "预警落点会锁定；先拆机关，虚弱时集火。\n首领拆卡返还实付香火的80%。"
 	if sim.training:
 		return "训练场：不刷波次、不判负、不写存档。"
 	if not sim.banner.is_empty() or _banner_t > 0.0:
 		return ""
 	if sim.wave_index <= 1:
-		return "先铺产能，再补输出；每条路都留一份火力。"
+		return "先铺产能，再补输出，每行都留一份火力。"
 	if sim.wave_index <= 4:
-		return "护甲要磨：斗笠鬼先扣护具，用石磨挡住再破甲。"
+		return "斗笠先扣护具：石磨挡住，再交给破甲的。"
 	if sim.wave_index <= 7:
-		return "哭声会催快恶客，青色波纹一起，就该补缺路。"
-	return "守住最后几波：门神只有一次，别让它白费。"
+		return "哭声会催快恶客——青色波纹一起就补缺路。"
+	return "最后几波：门神只有一次，别让它白费。"
 
 
 func _card_state(index: int) -> Dictionary:
@@ -309,7 +464,20 @@ func _card_state(index: int) -> Dictionary:
 		"affordable": affordable,
 		"selected": card_selected == index,
 		"ready": cooldown <= 0.001 or sim.no_cooldown,
+		"taught": _card_is_taught(String(card["id"])),
 	}
+
+
+## 教程当前这一步要点哪张牌。牌在顶部卡栏，别再对玩家说"右下角"。
+func _card_is_taught(card_id: String) -> bool:
+	if not game.tutorial_active or game.sim == null:
+		return false
+	match game.sim.tutorial_step():
+		"plant":
+			return card_id == "shooter"
+		"wall":
+			return card_id == "wall"
+	return false
 
 
 func _refresh_tutorial() -> void:
@@ -318,17 +486,20 @@ func _refresh_tutorial() -> void:
 		return
 	var step = String(sim.tutorial["step"])
 	var cost = Upgrades.tier_cost("shooter", 1, 1)
+	var wall_cost = int(Content.PLANTS["wall"]["cost"])
 	var copy = {
 		"collect": ["第一步 · 收下这团香火",
 			"街上那团金色的是香火，点一下收下。教学里的这团不会自己消失。"],
 		"plant": ["第二步 · 请一株签筒出摊",
-			"点右下角的「签筒」牌，再点后排空格放下它。签筒只打本行前方。"],
+			"点最上面那一排、正发着光的「签筒」牌，再点靠后的空格放下它。签筒只打本行前方。"],
 		"upgrade": ["第三步 · 给签筒升阶",
 			"点已种下的签筒，在「连发」一行按「%d 香火」升到一级。" % cost],
-		"battle": ["第四步 · 看它自己出手",
-			"恶客从右边过来，签筒会自动瞄准开火；等这一只被击退。"],
+		"wall": ["第四步 · 请石磨挡在前面",
+			"光在闪的「石磨」牌点一下，种在签筒前面那一格（%d 香火）。它不打人，它负责挨咬。" % wall_cost],
+		"battle": ["第五步 · 看它们自己出手",
+			"恶客从右边过来：石磨咬住它，签筒自动瞄准开火。等这一只被击退。"],
 		"finishing": ["成了", "这一夜的第一课，你已经学会了。"],
-		"done": ["这一课成了", "灯、签、磨三样都在手上了。"],
+		"done": ["这一课成了", "收香火、出输出、挡怪、升阶——四样都在手上了。"],
 	}
 	var entry: Array = copy.get(step, ["", ""])
 	if _tutorial_label != null:
@@ -347,8 +518,15 @@ func _on_card(index: int) -> void:
 		if step == "collect":
 			sim.deny("先收下那团香火", _mouse())
 			return
-		if step == "plant" and String(sim.cards[index]["id"]) != "shooter":
+		var picked = String(sim.cards[index]["id"])
+		if step == "plant" and picked != "shooter":
 			sim.deny("先种下签筒", _mouse())
+			return
+		if step == "upgrade":
+			sim.deny("先点那株签筒，给它升一级", _mouse())
+			return
+		if step == "wall" and picked != "wall":
+			sim.deny("这一步请石磨出摊", _mouse())
 			return
 	card_selected = -1 if card_selected == index else index
 	shovel_mode = false
@@ -386,11 +564,13 @@ func try_open_menu(plant, at: Vector2) -> void:
 		return
 	if game.tutorial_active:
 		var step = sim.tutorial_step()
-		if step == "plant":
-			sim.deny("先种下签筒", at)
-			return
-		if step == "upgrade" and plant != sim.tutorial["shooter"]:
-			sim.deny("先给签筒升阶", at)
+		# 教学的香火只够这一课的份，花在别处会把课卡死，所以只放开该点的那一处
+		if step == "upgrade":
+			if plant != sim.tutorial["shooter"]:
+				sim.deny("先给签筒升阶", at)
+				return
+		elif step in ["collect", "plant", "wall"]:
+			sim.deny("这一课先跟着走，升阶等出了教程再试", at)
 			return
 	if plant.is_lily and sim.main_plant_at(plant.col, plant.row) != null:
 		plant = sim.main_plant_at(plant.col, plant.row)
@@ -415,21 +595,58 @@ func try_open_menu(plant, at: Vector2) -> void:
 
 func close_fan() -> void:
 	focus_plant = null
-	if _fan_panel != null and is_instance_valid(_fan_panel):
-		_fan_panel.queue_free()
-	_fan_panel = null
+	if _fan != null and is_instance_valid(_fan):
+		_fan.queue_free()
+	_fan = null
 	_fan_rows.clear()
 
 
 func _build_fan(plant, at: Vector2) -> void:
 	close_fan()
 	focus_plant = plant
-	_fan_panel = Ui.panel(0.94)
-	_fan_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(_fan_panel)
-	_fan_panel.add_child(Ui.vbox(6))
-	_rebuild_fan()
-	_layout_fan(at)
+	_fan = UpgradeFan.new()
+	_fan.plant = plant
+	_fan.picked.connect(_on_fan_pick)
+	_fan.dismissed.connect(close_fan)
+	add_child(_fan)
+	_sync_fan()
+
+
+## 把三路的当前状态喂给扇形菜单（级数、费用、能不能点）
+func _sync_fan() -> void:
+	if _fan == null or not is_instance_valid(_fan):
+		return
+	var plant = focus_plant
+	if plant == null:
+		return
+	var sim: Sim = game.sim
+	var entries: Array = []
+	for path in Upgrades.paths_for(String(plant.type)):
+		var status = Upgrades.path_status(String(plant.type), plant.upgrades,
+			int(path["id"]))
+		var cost = int(status["cost"]) if bool(status["ok"]) else 0
+		var tiers: Array = path["tiers"]
+		var tier_now = int(status["tier"])
+		var next_desc = ""
+		var next_name = ""
+		if bool(status["ok"]) and tier_now < tiers.size():
+			next_name = String(tiers[tier_now]["name"])
+			next_desc = String(tiers[tier_now]["desc"])
+		entries.append({
+			"id": int(path["id"]),
+			"name": String(path["name"]),
+			"color": Color(String(path["color"])),
+			"tier": tier_now,
+			"ok": bool(status["ok"]),
+			"cost": cost,
+			"reason": String(status["reason"]),
+			"affordable": sim.sun >= cost,
+			"next_name": next_name,
+			"next_desc": next_desc,
+		})
+	_fan.entries = entries
+	_fan.queue_redraw()
+	_fan_sig = _fan_signature()
 
 
 func _fan_signature() -> String:
@@ -450,83 +667,8 @@ func _fan_signature() -> String:
 	return "|".join(parts)
 
 
-func _rebuild_fan() -> void:
-	if _fan_panel == null or not is_instance_valid(_fan_panel):
-		return
-	var plant = focus_plant
-	if plant == null:
-		return
-	var sim: Sim = game.sim
-	var box: VBoxContainer = _fan_panel.get_child(0)
-	for child in box.get_children():
-		child.queue_free()
-	var header = Ui.hbox(10)
-	box.add_child(header)
-	header.add_child(Ui.strong(String(plant.def["name"]), 22, Ui.GOLD_BRIGHT))
-	header.add_child(Ui.label("%d / %d" % [int(ceil(plant.hp)), int(plant.max_hp)], 16,
-		Ui.GOOD))
-	if plant.shell > 0.0:
-		header.add_child(Ui.label("龟甲 %d" % int(ceil(plant.shell)), 16, Ui.JADE_LIGHT))
-	box.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
-	_fan_sig = _fan_signature()
-	var paths = Upgrades.paths_for(String(plant.type))
-	if paths.is_empty():
-		box.add_child(Ui.label("此物无法升阶", 17, Ui.TEXT_DIM))
-		return
-	for path in paths:
-		var path_id = int(path["id"])
-		var status = Upgrades.path_status(String(plant.type), plant.upgrades, path_id)
-		var row = HBoxContainer.new()
-		row.add_theme_constant_override("separation", 10)
-		box.add_child(row)
-		var dot = Control.new()
-		dot.custom_minimum_size = Vector2(12, 12)
-		dot.size = Vector2(12, 12)
-		var color = Color(String(path["color"]))
-		dot.draw.connect(func(): dot.draw_circle(Vector2(6, 9), 5.0, color))
-		row.add_child(dot)
-		var info = Ui.vbox(0)
-		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(info)
-		var title = "%s · %d 级" % [String(path["name"]), int(status["tier"])]
-		info.add_child(Ui.strong(title, 17, Ui.TEXT))
-		var line = ""
-		if bool(status["ok"]):
-			line = "%s：%s" % [String(status["name"]), String(status["desc"])]
-		else:
-			line = String(status["reason"])
-		var body = Ui.label(line, 15, Ui.TEXT_DIM)
-		body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		body.custom_minimum_size = Vector2(300, 0)
-		info.add_child(body)
-		if bool(status["ok"]):
-			var cost = int(status["cost"])
-			var affordable = sim.sun >= cost
-			var button = Ui.button("%d 香火" % cost, 16, 96, 34)
-			button.disabled = not affordable
-			if not affordable:
-				button.tooltip_text = "香火不足"
-			button.pressed.connect(_on_upgrade.bind(plant, path_id))
-			row.add_child(button)
-		else:
-			var locked = Ui.label("已锁", 16, Ui.TEXT_FAINT)
-			row.add_child(locked)
-
-
-func _layout_fan(at: Vector2) -> void:
-	if _fan_panel == null:
-		return
-	_fan_panel.reset_size()
-	await get_tree().process_frame
-	if _fan_panel == null or not is_instance_valid(_fan_panel):
-		return
-	var size = _fan_panel.get_combined_minimum_size()
-	var pos = at + Vector2(40, -size.y * 0.5)
-	if pos.x + size.x > 1600.0 - 20.0:
-		pos.x = at.x - size.x - 40.0
-	pos.y = clampf(pos.y, 120.0, 900.0 - size.y - 20.0)
-	pos.x = clampf(pos.x, 20.0, 1600.0 - size.x - 20.0)
-	_fan_panel.position = pos
+func _on_fan_pick(path_id: int) -> void:
+	_on_upgrade(focus_plant, path_id)
 
 
 func _on_upgrade(plant, path_id: int) -> void:
@@ -537,8 +679,7 @@ func _on_upgrade(plant, path_id: int) -> void:
 	if bool(outcome["ok"]):
 		if game.tutorial_active and sim.tutorial_step() == "battle":
 			close_fan()
-		_rebuild_fan()
-		_layout_fan(Vector2(plant.pos.x, plant.pos.y))
+		_sync_fan()
 	refresh()
 
 
@@ -588,7 +729,7 @@ func _build_cheat() -> void:
 				cheat_tab = String(pair[0])
 				_build_cheat())
 			if cheat_tab == String(pair[0]):
-				tab.add_theme_color_override("font_color", Ui.GOLD_BRIGHT)
+				Ui.set_button_active(tab, true)
 			tabs.add_child(tab)
 	if sim.training and cheat_tab == "spawn":
 		_build_spawn_tab(box)
@@ -646,11 +787,19 @@ func _build_misc_tab(box: VBoxContainer) -> void:
 			game.finish_run(true)])
 	for row in rows:
 		var button = Ui.button(String(row[0]), 18, 360, 40)
-		button.pressed.connect(row[1])
+		button.pressed.connect(_cheat(row[1]))
 		box.add_child(button)
 	var close = Ui.button("关闭", 17, 360, 36)
 	close.pressed.connect(_toggle_cheat)
 	box.add_child(close)
+
+
+## 正式局里动一次调整面板，这一夜就另册记录；训练场本来不写纪录，不必标。
+func _cheat(action: Callable) -> Callable:
+	return func():
+		if game.sim != null and not game.sim.training:
+			game.sim.cheated = true
+		action.call()
 
 
 func _build_spawn_tab(box: VBoxContainer) -> void:
@@ -664,7 +813,7 @@ func _build_spawn_tab(box: VBoxContainer) -> void:
 	for type in Content.ZOMBIE_ORDER:
 		var button = Ui.button(String(Content.ZOMBIES[type]["name"]), 15, 84, 34)
 		if type == spawn_type:
-			button.add_theme_color_override("font_color", Ui.GOLD_BRIGHT)
+			Ui.set_button_active(button, true)
 		button.pressed.connect(_set_spawn_type.bind(type))
 		grid.add_child(button)
 	box.add_child(Ui.label("数量", 16, Ui.TEXT_DIM))
@@ -673,7 +822,7 @@ func _build_spawn_tab(box: VBoxContainer) -> void:
 	for value in [1, 3, 5, 10]:
 		var button = Ui.button(str(value), 16, 60, 32)
 		if spawn_count == value:
-			button.add_theme_color_override("font_color", Ui.GOLD_BRIGHT)
+			Ui.set_button_active(button, true)
 		button.pressed.connect(_set_spawn_count.bind(value))
 		counts.add_child(button)
 	box.add_child(Ui.label("分路", 16, Ui.TEXT_DIM))
@@ -686,7 +835,7 @@ func _build_spawn_tab(box: VBoxContainer) -> void:
 		var lane = i - 1
 		var button = Ui.button(String(labels[i]), 15, 66, 32)
 		if spawn_lane == lane:
-			button.add_theme_color_override("font_color", Ui.GOLD_BRIGHT)
+			Ui.set_button_active(button, true)
 		button.pressed.connect(_set_spawn_lane.bind(lane))
 		lanes.add_child(button)
 	var summon = Ui.button("召来", 18, 360, 42)
@@ -740,13 +889,7 @@ func _build_pause() -> void:
 	mute.pressed.connect(func():
 		game.set_setting("sound", not bool(game.settings["sound"])))
 	footer.add_child(mute)
-	var speed_button = Ui.button("战斗速度 ×%s" % _format_speed(game.speed), 16, 190, 36)
-	speed_button.pressed.connect(func():
-		var options = [1.0, 1.5, 2.0, 3.0]
-		var index = options.find(game.speed)
-		game.speed = options[(index + 1) % options.size()]
-		speed_button.text = "战斗速度 ×%s" % _format_speed(game.speed))
-	footer.add_child(speed_button)
+	# 局内已在卡槽右边留了速度药丸，暂停页不再重复放一个
 
 
 func resume() -> void:
@@ -788,8 +931,9 @@ func _build_result() -> void:
 	box.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
 
 	var stats = GridContainer.new()
-	stats.columns = 3
-	stats.add_theme_constant_override("h_separation", 40)
+	stats.columns = 2
+	stats.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stats.add_theme_constant_override("h_separation", 24)
 	stats.add_theme_constant_override("v_separation", 10)
 	box.add_child(stats)
 	var seconds = float(result.get("time", 0.0))
@@ -798,10 +942,39 @@ func _build_result() -> void:
 		["击退", str(int(result.get("kills", 0)))],
 		["余香", str(int(result.get("sun", 0)))],
 	]
+	var summary: Dictionary = result.get("summary", {})
+	var breached_rows: Array = summary.get("breached_rows", [])
+	var mowers_used = int(summary.get("mowers_used", 0))
+	var plain = bool(result.get("tutorial", false)) or bool(result.get("training", false))
+	var played: Dictionary = Content.get_level(int(result.get("level_id", 1)))
+	if not summary.is_empty():
+		var stars = clampi(int(summary.get("stars", 0)), 0, 3)
+		if not plain:
+			# 失败不发通关星：星只属于守住天亮的那一夜，失败改说门神用了几次
+			if won:
+				stat_rows.append(["守夜评级",
+					"★★★".substr(0, stars) + "☆☆☆".substr(0, 3 - stars)])
+				if stars < 3:
+					stat_rows.append(["三星条件", "一夜不动用门神"])
+			else:
+				stat_rows.append(["这一夜", "没守住 · 门神用了 %d 次" % mowers_used])
+		var top_type = String(summary.get("top_type", ""))
+		if top_type != "" and Content.PLANTS.has(top_type):
+			stat_rows.append(["主力输出", "%s 合计 %d 伤害" % [
+				String(Content.PLANTS[top_type]["name"]), int(summary.get("top_damage", 0))]])
+		if summary.has("riskiest_wave"):
+			stat_rows.append(["最险时刻", "%s · 场上 %d 只" % [
+				Content.wave_text(played, maxi(0,int(summary.get("riskiest_wave",0))-1)),
+				int(summary.get("risk_peak", 0))]])
+		stat_rows.append(["被突破", "没有" if breached_rows.is_empty() else "%d 处 · 第 %s 行" % [
+			mowers_used, "、".join(breached_rows.map(func(x): return str(int(x))))]])
 	for row in stat_rows:
-		stats.add_child(Ui.label(String(row[0]), 17, Ui.TEXT_DIM))
-		stats.add_child(Ui.strong(String(row[1]), 24, Ui.GOLD_BRIGHT))
-		stats.add_child(Ui.label("", 10))
+		var key = Ui.label(String(row[0]), 17, Ui.TEXT_DIM)
+		key.custom_minimum_size = Vector2(96, 0)
+		stats.add_child(key)
+		var value = Ui.strong(String(row[1]), 24, Ui.GOLD_BRIGHT)
+		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stats.add_child(value)
 	box.add_child(Ui.spacer(6))
 	var comment = ""
 	if bool(result.get("tutorial", false)):
@@ -809,21 +982,23 @@ func _build_result() -> void:
 	elif won:
 		comment = "灯还亮着，今夜收摊。"
 	else:
-		comment = "门神用完了，这一路被穿了过去。补一株石磨再试。"
+		comment = _loss_advice(summary, breached_rows)
 	var comment_label = Ui.label(comment, 18, Ui.TEXT)
 	comment_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(comment_label)
 	box.add_child(Ui.spacer(8))
 
 	var row1 = Ui.hbox(12)
+	row1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(row1)
 	if bool(result.get("tutorial", false)):
 		var again = Ui.button("再练一次", 19, 200, 46)
 		again.pressed.connect(func(): game.start_battle(0, ["shooter"], "tutorial"))
 		row1.add_child(again)
-		var done = Ui.button("回到封面", 19, 200, 46)
-		done.pressed.connect(func(): game.back_to_menu())
-		row1.add_child(done)
+		# 教程结束后直接把人带进正式第一夜，而不是又扔回封面（另一个"回到封面"在下一行）
+		var first = Ui.button("开始第一夜", 19, 200, 46)
+		first.pressed.connect(func(): game.show_prep(1))
+		row1.add_child(first)
 	else:
 		var retry = Ui.button("再来一次", 19, 190, 46)
 		retry.pressed.connect(func(): game.restart_run())
@@ -839,11 +1014,14 @@ func _build_result() -> void:
 		select.pressed.connect(func(): game.show_levels())
 		row1.add_child(select)
 	var row2 = Ui.hbox(12)
+	row2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(row2)
-	var almanac = Ui.button("图鉴", 17, 140, 38)
+	var almanac = Ui.button("图鉴", 17, 0, 38)
+	almanac.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	almanac.pressed.connect(func(): game.open_almanac("plant", 0))
 	row2.add_child(almanac)
-	var menu = Ui.button("回到封面", 17, 180, 38)
+	var menu = Ui.button("回到封面", 17, 0, 38)
+	menu.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu.pressed.connect(func(): game.back_to_menu())
 	row2.add_child(menu)
 
@@ -887,6 +1065,17 @@ class CardButton extends Control:
 			Ui.GOLD_DIM if hovered else Color(0.32, 0.29, 0.23, 0.9))
 		draw_rect(rect, base)
 		draw_rect(rect, border, false, 2.0)
+		if bool(state.get("taught", false)):
+			# 这一步该点哪张牌：金框呼吸 + 牌底一个向上的箭头
+			var beat = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 260.0)
+			draw_rect(rect.grow(2.0), Color(1.0, 0.85, 0.42, 0.45 + beat * 0.5), false, 2.6)
+			var cx = rect.size.x * 0.5
+			var lift = 6.0 + beat * 5.0
+			draw_colored_polygon(PackedVector2Array([
+				Vector2(cx, rect.size.y + 4.0 - lift),
+				Vector2(cx - 8.0, rect.size.y + 16.0 - lift),
+				Vector2(cx + 8.0, rect.size.y + 16.0 - lift)]),
+				Color(1.0, 0.85, 0.42, 0.55 + beat * 0.45))
 		# 立绘
 		var tint = Color(1, 1, 1, 1.0 if bool(state.get("affordable", true)) else 0.45)
 		Ui.draw_plant_icon(self, card_id, Rect2(6, 8, rect.size.x - 12,

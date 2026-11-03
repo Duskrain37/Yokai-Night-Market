@@ -1,0 +1,1149 @@
+{
+  "schema_version": 1,
+  "filter": "linear",
+  "mipmaps": false,
+  "frames_order": "row_major",
+  "origin": "builtin_imagegen; original PNGs preserved; generated vector assets from this script",
+  "atlases": [
+    {
+      "file": "assets/boss/boss_earth_atlas.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "layout_hint": [
+        3,
+        2
+      ],
+      "use_explicit_regions": true,
+      "frames": [
+        {
+          "name": "idle",
+          "index": 0,
+          "region": [
+            0,
+            0,
+            508,
+            511
+          ],
+          "alpha_bbox_local": [
+            48,
+            56,
+            483,
+            447
+          ],
+          "anchor_px": [
+            265.5,
+            447
+          ]
+        },
+        {
+          "name": "anticipation",
+          "index": 1,
+          "region": [
+            508,
+            0,
+            507,
+            511
+          ],
+          "alpha_bbox_local": [
+            26,
+            58,
+            481,
+            452
+          ],
+          "anchor_px": [
+            253.5,
+            452
+          ]
+        },
+        {
+          "name": "small",
+          "index": 2,
+          "region": [
+            1015,
+            0,
+            521,
+            511
+          ],
+          "alpha_bbox_local": [
+            26,
+            114,
+            496,
+            499
+          ],
+          "anchor_px": [
+            261.0,
+            499
+          ]
+        },
+        {
+          "name": "major",
+          "index": 3,
+          "region": [
+            0,
+            511,
+            541,
+            513
+          ],
+          "alpha_bbox_local": [
+            56,
+            12,
+            506,
+            435
+          ],
+          "anchor_px": [
+            281.0,
+            435
+          ]
+        },
+        {
+          "name": "hurt",
+          "index": 4,
+          "region": [
+            541,
+            511,
+            486,
+            513
+          ],
+          "alpha_bbox_local": [
+            36,
+            75,
+            438,
+            427
+          ],
+          "anchor_px": [
+            237.0,
+            427
+          ]
+        },
+        {
+          "name": "defeat",
+          "index": 5,
+          "region": [
+            1027,
+            511,
+            509,
+            513
+          ],
+          "alpha_bbox_local": [
+            48,
+            88,
+            484,
+            444
+          ],
+          "anchor_px": [
+            266.0,
+            444
+          ]
+        }
+      ],
+      "gutter_diagnostics": [
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 508,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 1015,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 541,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 1027,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "y",
+          "position": 511,
+          "solid_pixels": 0
+        }
+      ],
+      "sha256": "6bbe29658e903a1370c0ee34ebc24a4e79e827c8e546afe41154eb893f71a8ee"
+    },
+    {
+      "file": "assets/boss/boss_paper_atlas.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "layout_hint": [
+        3,
+        2
+      ],
+      "use_explicit_regions": true,
+      "frames": [
+        {
+          "name": "idle",
+          "index": 0,
+          "region": [
+            0,
+            0,
+            509,
+            510
+          ],
+          "alpha_bbox_local": [
+            113,
+            51,
+            458,
+            478
+          ],
+          "anchor_px": [
+            285.5,
+            478
+          ]
+        },
+        {
+          "name": "anticipation",
+          "index": 1,
+          "region": [
+            509,
+            0,
+            487,
+            510
+          ],
+          "alpha_bbox_local": [
+            51,
+            54,
+            454,
+            478
+          ],
+          "anchor_px": [
+            252.5,
+            478
+          ]
+        },
+        {
+          "name": "small",
+          "index": 2,
+          "region": [
+            996,
+            0,
+            540,
+            510
+          ],
+          "alpha_bbox_local": [
+            34,
+            66,
+            474,
+            478
+          ],
+          "anchor_px": [
+            254.0,
+            478
+          ]
+        },
+        {
+          "name": "major",
+          "index": 3,
+          "region": [
+            0,
+            510,
+            571,
+            514
+          ],
+          "alpha_bbox_local": [
+            29,
+            33,
+            539,
+            421
+          ],
+          "anchor_px": [
+            284.0,
+            421
+          ]
+        },
+        {
+          "name": "hurt",
+          "index": 4,
+          "region": [
+            571,
+            510,
+            484,
+            514
+          ],
+          "alpha_bbox_local": [
+            55,
+            60,
+            446,
+            417
+          ],
+          "anchor_px": [
+            250.5,
+            417
+          ]
+        },
+        {
+          "name": "defeat",
+          "index": 5,
+          "region": [
+            1055,
+            510,
+            481,
+            514
+          ],
+          "alpha_bbox_local": [
+            39,
+            108,
+            417,
+            428
+          ],
+          "anchor_px": [
+            228.0,
+            428
+          ]
+        }
+      ],
+      "gutter_diagnostics": [
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 509,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 996,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 571,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 1055,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "y",
+          "position": 510,
+          "solid_pixels": 0
+        }
+      ],
+      "sha256": "8037f82b6120fa551f8a55801e5933cd8376a800f2dba0a96d04ac115409b8ad"
+    },
+    {
+      "file": "assets/boss/boss_river_atlas.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "layout_hint": [
+        3,
+        2
+      ],
+      "use_explicit_regions": true,
+      "frames": [
+        {
+          "name": "idle",
+          "index": 0,
+          "region": [
+            0,
+            0,
+            531,
+            504
+          ],
+          "alpha_bbox_local": [
+            26,
+            58,
+            515,
+            470
+          ],
+          "anchor_px": [
+            270.5,
+            470
+          ]
+        },
+        {
+          "name": "anticipation",
+          "index": 1,
+          "region": [
+            531,
+            0,
+            492,
+            504
+          ],
+          "alpha_bbox_local": [
+            17,
+            67,
+            482,
+            480
+          ],
+          "anchor_px": [
+            249.5,
+            480
+          ]
+        },
+        {
+          "name": "small",
+          "index": 2,
+          "region": [
+            1023,
+            0,
+            513,
+            504
+          ],
+          "alpha_bbox_local": [
+            11,
+            90,
+            489,
+            475
+          ],
+          "anchor_px": [
+            250.0,
+            475
+          ]
+        },
+        {
+          "name": "major",
+          "index": 3,
+          "region": [
+            0,
+            504,
+            544,
+            520
+          ],
+          "alpha_bbox_local": [
+            33,
+            24,
+            538,
+            443
+          ],
+          "anchor_px": [
+            285.5,
+            443
+          ]
+        },
+        {
+          "name": "hurt",
+          "index": 4,
+          "region": [
+            544,
+            504,
+            472,
+            520
+          ],
+          "alpha_bbox_local": [
+            7,
+            55,
+            454,
+            437
+          ],
+          "anchor_px": [
+            230.5,
+            437
+          ]
+        },
+        {
+          "name": "defeat",
+          "index": 5,
+          "region": [
+            1016,
+            504,
+            520,
+            520
+          ],
+          "alpha_bbox_local": [
+            19,
+            121,
+            483,
+            446
+          ],
+          "anchor_px": [
+            251.0,
+            446
+          ]
+        }
+      ],
+      "gutter_diagnostics": [
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 531,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 1023,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 544,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 1016,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "y",
+          "position": 504,
+          "solid_pixels": 0
+        }
+      ],
+      "sha256": "800a7ea7ae5d39e86b9c237bd58cc76b06ba9a5c1ef96f822977ffe07a19a300"
+    },
+    {
+      "file": "assets/boss/props_atlas.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "layout_hint": [
+        4,
+        2
+      ],
+      "use_explicit_regions": true,
+      "frames": [
+        {
+          "name": "tunnel",
+          "index": 0,
+          "region": [
+            0,
+            0,
+            406,
+            538
+          ],
+          "alpha_bbox_local": [
+            31,
+            91,
+            397,
+            491
+          ],
+          "anchor_px": [
+            214.0,
+            491
+          ]
+        },
+        {
+          "name": "tunnel_broken",
+          "index": 1,
+          "region": [
+            406,
+            0,
+            375,
+            538
+          ],
+          "alpha_bbox_local": [
+            9,
+            94,
+            363,
+            491
+          ],
+          "anchor_px": [
+            186.0,
+            491
+          ]
+        },
+        {
+          "name": "paper_ferry",
+          "index": 2,
+          "region": [
+            781,
+            0,
+            367,
+            538
+          ],
+          "alpha_bbox_local": [
+            13,
+            126,
+            356,
+            455
+          ],
+          "anchor_px": [
+            184.5,
+            455
+          ]
+        },
+        {
+          "name": "paper_ferry_broken",
+          "index": 3,
+          "region": [
+            1148,
+            0,
+            388,
+            538
+          ],
+          "alpha_bbox_local": [
+            12,
+            170,
+            365,
+            481
+          ],
+          "anchor_px": [
+            188.5,
+            481
+          ]
+        },
+        {
+          "name": "crab_idle",
+          "index": 4,
+          "region": [
+            0,
+            538,
+            403,
+            486
+          ],
+          "alpha_bbox_local": [
+            24,
+            105,
+            389,
+            347
+          ],
+          "anchor_px": [
+            206.5,
+            347
+          ]
+        },
+        {
+          "name": "crab_charge",
+          "index": 5,
+          "region": [
+            403,
+            538,
+            389,
+            486
+          ],
+          "alpha_bbox_local": [
+            14,
+            47,
+            366,
+            356
+          ],
+          "anchor_px": [
+            190.0,
+            356
+          ]
+        },
+        {
+          "name": "crab_broken",
+          "index": 6,
+          "region": [
+            792,
+            538,
+            355,
+            486
+          ],
+          "alpha_bbox_local": [
+            23,
+            86,
+            329,
+            348
+          ],
+          "anchor_px": [
+            176.0,
+            348
+          ]
+        },
+        {
+          "name": "paper_seal",
+          "index": 7,
+          "region": [
+            1147,
+            538,
+            389,
+            486
+          ],
+          "alpha_bbox_local": [
+            27,
+            48,
+            361,
+            377
+          ],
+          "anchor_px": [
+            194.0,
+            377
+          ]
+        }
+      ],
+      "gutter_diagnostics": [
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 406,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 781,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 1148,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 403,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 792,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 1147,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "y",
+          "position": 538,
+          "solid_pixels": 0
+        }
+      ],
+      "sha256": "f98296ad3a782e3ece94b87137faee2aa9e9fbcadc2abbf7f14940f56d65fcf4"
+    },
+    {
+      "file": "assets/boss/fx_atlas.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "layout_hint": [
+        4,
+        4
+      ],
+      "use_explicit_regions": true,
+      "frames": [
+        {
+          "name": "earth_0",
+          "index": 0,
+          "region": [
+            0,
+            0,
+            306,
+            326
+          ],
+          "alpha_bbox_local": [
+            47,
+            127,
+            285,
+            298
+          ],
+          "anchor_px": [
+            166.0,
+            298
+          ]
+        },
+        {
+          "name": "earth_1",
+          "index": 1,
+          "region": [
+            306,
+            0,
+            325,
+            326
+          ],
+          "alpha_bbox_local": [
+            21,
+            43,
+            321,
+            310
+          ],
+          "anchor_px": [
+            171.0,
+            310
+          ]
+        },
+        {
+          "name": "earth_2",
+          "index": 2,
+          "region": [
+            631,
+            0,
+            331,
+            326
+          ],
+          "alpha_bbox_local": [
+            5,
+            66,
+            302,
+            314
+          ],
+          "anchor_px": [
+            153.5,
+            314
+          ]
+        },
+        {
+          "name": "earth_3",
+          "index": 3,
+          "region": [
+            962,
+            0,
+            292,
+            326
+          ],
+          "alpha_bbox_local": [
+            29,
+            120,
+            239,
+            303
+          ],
+          "anchor_px": [
+            134.0,
+            303
+          ]
+        },
+        {
+          "name": "paper_0",
+          "index": 4,
+          "region": [
+            0,
+            326,
+            307,
+            301
+          ],
+          "alpha_bbox_local": [
+            54,
+            52,
+            288,
+            285
+          ],
+          "anchor_px": [
+            171.0,
+            285
+          ]
+        },
+        {
+          "name": "paper_1",
+          "index": 5,
+          "region": [
+            307,
+            326,
+            331,
+            301
+          ],
+          "alpha_bbox_local": [
+            20,
+            13,
+            302,
+            290
+          ],
+          "anchor_px": [
+            161.0,
+            290
+          ]
+        },
+        {
+          "name": "paper_2",
+          "index": 6,
+          "region": [
+            638,
+            326,
+            326,
+            301
+          ],
+          "alpha_bbox_local": [
+            29,
+            46,
+            295,
+            288
+          ],
+          "anchor_px": [
+            162.0,
+            288
+          ]
+        },
+        {
+          "name": "paper_3",
+          "index": 7,
+          "region": [
+            964,
+            326,
+            290,
+            301
+          ],
+          "alpha_bbox_local": [
+            50,
+            79,
+            225,
+            263
+          ],
+          "anchor_px": [
+            137.5,
+            263
+          ]
+        },
+        {
+          "name": "water_0",
+          "index": 8,
+          "region": [
+            0,
+            627,
+            304,
+            295
+          ],
+          "alpha_bbox_local": [
+            42,
+            103,
+            287,
+            261
+          ],
+          "anchor_px": [
+            164.5,
+            261
+          ]
+        },
+        {
+          "name": "water_1",
+          "index": 9,
+          "region": [
+            304,
+            627,
+            328,
+            295
+          ],
+          "alpha_bbox_local": [
+            18,
+            11,
+            320,
+            286
+          ],
+          "anchor_px": [
+            169.0,
+            286
+          ]
+        },
+        {
+          "name": "water_2",
+          "index": 10,
+          "region": [
+            632,
+            627,
+            322,
+            295
+          ],
+          "alpha_bbox_local": [
+            9,
+            47,
+            300,
+            281
+          ],
+          "anchor_px": [
+            154.5,
+            281
+          ]
+        },
+        {
+          "name": "water_3",
+          "index": 11,
+          "region": [
+            954,
+            627,
+            300,
+            295
+          ],
+          "alpha_bbox_local": [
+            23,
+            111,
+            261,
+            264
+          ],
+          "anchor_px": [
+            142.0,
+            264
+          ]
+        },
+        {
+          "name": "release_0",
+          "index": 12,
+          "region": [
+            0,
+            922,
+            293,
+            332
+          ],
+          "alpha_bbox_local": [
+            72,
+            82,
+            250,
+            237
+          ],
+          "anchor_px": [
+            161.0,
+            237
+          ]
+        },
+        {
+          "name": "release_1",
+          "index": 13,
+          "region": [
+            293,
+            922,
+            346,
+            332
+          ],
+          "alpha_bbox_local": [
+            36,
+            10,
+            328,
+            282
+          ],
+          "anchor_px": [
+            182.0,
+            282
+          ]
+        },
+        {
+          "name": "release_2",
+          "index": 14,
+          "region": [
+            639,
+            922,
+            321,
+            332
+          ],
+          "alpha_bbox_local": [
+            18,
+            30,
+            285,
+            267
+          ],
+          "anchor_px": [
+            151.5,
+            267
+          ]
+        },
+        {
+          "name": "release_3",
+          "index": 15,
+          "region": [
+            960,
+            922,
+            294,
+            332
+          ],
+          "alpha_bbox_local": [
+            66,
+            82,
+            207,
+            221
+          ],
+          "anchor_px": [
+            136.5,
+            221
+          ]
+        }
+      ],
+      "gutter_diagnostics": [
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 306,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 631,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 0,
+          "position": 962,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 307,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 638,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 1,
+          "position": 964,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 2,
+          "position": 304,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 2,
+          "position": 632,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 2,
+          "position": 954,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 3,
+          "position": 293,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 3,
+          "position": 639,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "x",
+          "row": 3,
+          "position": 960,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "y",
+          "position": 326,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "y",
+          "position": 627,
+          "solid_pixels": 0
+        },
+        {
+          "axis": "y",
+          "position": 922,
+          "solid_pixels": 0
+        }
+      ],
+      "sha256": "6a9d3d01223c8c8896b8cda9ebef6168a186153139eb0e9aee8e0e34fc865d20"
+    }
+  ]
+}

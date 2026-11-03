@@ -175,7 +175,8 @@ const ZOMBIES = {
 }
 
 ## 「格」是图鉴唯一的长度单位：1 格 = 一个棋盘格宽。
-const CELL_PX = 88.0
+## 必须与 Geo.CELL_W 一致——之前沿用 v0.2.4 JS 的 88，图鉴里的射程一律比实际短 18%。
+const CELL_PX = 104.0
 
 
 static func in_cells(px: float, decimals: int = 1) -> String:
@@ -223,15 +224,15 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("范围", in_cells(bomb["radius"]), "desc"))
 		"bell":
 			var pulse: Dictionary = d["pulse"]
-			rows.append(_row("减速", percent(Upgrades.EFFECTS["bell"]["slow"][0]), "time"))
-			rows.append(_row("持续", "%s 秒" % String.num(pulse["slow"], 1), "time"))
+			rows.append(_row("减速", percent(Content.PLANTS["bell"]["pulse"]["slow"]), "time"))
+			rows.append(_row("持续", "%s 秒" % String.num(pulse["slow_duration"], 1), "time"))
 			rows.append(_row("摇铃间隔", "%s 秒" % String.num(pulse["interval"], 1), "time"))
 			rows.append(_row("范围", "本行前方", "desc"))
 		"censer":
-			var fx: Dictionary = Upgrades.EFFECTS["censer"]
-			rows.append(_row("香雾伤害", str(int(fx["damage"][0])), "atk"))
-			rows.append(_row("喷烟间隔", "%s 秒" % String.num(fx["interval"], 1), "time"))
-			rows.append(_row("半径", in_cells(fx["radius"][0]), "desc"))
+			var cd: Dictionary = d["censer"]
+			rows.append(_row("香雾伤害", str(int(float(cd["damage"]))), "atk"))
+			rows.append(_row("喷烟间隔", "%s 秒" % String.num(float(cd["interval"]), 1), "time"))
+			rows.append(_row("半径", in_cells(float(cd["radius"])), "desc"))
 		"umbrella":
 			var chomp: Dictionary = d["chomp"]
 			rows.append(_row("收妖时间", "%s 秒" % String.num(chomp["chew"], 1), "time"))
@@ -239,9 +240,9 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("收妖范围", in_cells(chomp["reach"]), "desc"))
 			rows.append(_row("特性", "非大型即收", "desc"))
 		"lion":
-			var melee: Dictionary = Upgrades.EFFECTS["lion"]
-			rows.append(_row("撞头伤害", str(int(melee["damage"][0])), "atk"))
-			rows.append(_row("攻击间隔", "%s 秒" % String.num(melee["interval"][0], 2), "time"))
+			var melee: Dictionary = d["melee"]
+			rows.append(_row("撞头伤害", str(int(melee["damage"])), "atk"))
+			rows.append(_row("攻击间隔", "%s 秒" % String.num(melee["interval"], 2), "time"))
 			rows.append(_row("触及距离", in_cells(melee["reach"]), "desc"))
 			rows.append(_row("击退", "%s 格" % String.num(melee["knock_cells"], 1), "time"))
 		"cat":
@@ -262,7 +263,8 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("目标", "本行最右", "desc"))
 			rows.append(_row("轨迹", "抛物线越过前排", "desc"))
 		"torch":
-			rows.append(_row("射弹增幅", "+%d%% 伤害" % 50, "atk"))
+			var t_orch: Dictionary = Upgrades.EFFECTS["torch"]
+			rows.append(_row("射弹增幅", "+%d%% 伤害" % int(round(t_orch["buff"][0] * 100)), "atk"))
 			rows.append(_row("作用", "穿过火盆的友方射弹", "desc"))
 			rows.append(_row("类别", "增幅 · 不主动攻击", "cost"))
 			rows.append(_row("特性", "同类取最高", "desc"))
@@ -300,88 +302,41 @@ static func _row(label: String, value: String, tone: String) -> Dictionary:
 	return {"label": label, "value": value, "tone": tone}
 
 
+## 定位一句：这株管什么、多少钱、白板最要紧的那个数。
+## 数字全部从底细行取，图鉴不再另抄一份，改了数值这句话跟着变。
+static func plant_pitch(type: String) -> String:
+	var d: Dictionary = Content.PLANTS[type]
+	var rows := plant_rows(type)
+	var head := ""
+	if rows.size() > 3:
+		head = "，%s %s" % [String(rows[3]["label"]), String(rows[3]["value"])]
+	return "%s · 香火 %d · 冷却 %d 秒%s。" % [String(d["role"]), int(d["cost"]),
+		int(d.get("cooldown", 0)), head]
+
+
 ## 「本事」：由数据推导的一句话说明，含基础数值与升阶方向。
 static func plant_ability(type: String) -> String:
-	var d: Dictionary = Content.PLANTS[type]
-	var e: Dictionary = Upgrades.EFFECTS.get(type, {})
-	match type:
-		"lantern":
-			return "产能：每 %s 秒吐出一团 %d 香火，首次 %s 秒，落地后收取。一路提产量（最高 %d），一路缩间隔（最低 %s 秒），一路增幅身前友军（伤害 +%d%%，满阶 +%d%%）。增幅多盏只取最高。" % [
-				String.num(d["produce"]["interval"], 1), int(d["produce"]["value"]),
-				String.num(d["produce"]["first"], 1), int(e["value"][3]),
-				String.num(e["interval"][3], 1), int(round(e["buff_damage"][1] * 100)),
-				int(round(e["buff_damage"][3] * 100))]
-		"shooter":
-			return "本行输出：每 %s 秒朝前方射出一发竹签，单发 %d 伤害。一路连发（最高 %d 发），一路借射相邻行（半伤到满伤），一路甩出双倍伤害的大签（最高 %d%% 概率，满阶命中减速 50%%，持续 %s 秒）。" % [
-				String.num(d["shot"]["interval"], 1), int(d["shot"]["damage"]),
-				int(e["volley"][3]), int(round(e["crit_chance"][3] * 100)),
-				String.num(e["crit_slow"][3], 0)]
-		"wall":
-			return "肉盾：耐久 %d，替同行挡下啃食。一路自愈（最高 %d/秒，满阶被啃也能回），一路反伤（最高 %d/秒），一路磨出碎石（%d 伤害；满阶把非大型恶客击退 %s 格，对大型改为双倍伤害）。" % [
-				int(d["hp"]), int(e["heal"][3]), int(e["reflect"][3]),
-				int(e["gravel_damage"][3]), String.num(e["knock_cells"][3], 1)]
-		"bomb":
-			return "灰烬类 · 一次性：点燃后引信 %s 秒，在 %s 半径内造成 %d 伤害。不可升阶。" % [
-				String.num(d["bomb"]["fuse"], 1), in_cells(d["bomb"]["radius"]),
-				int(d["bomb"]["damage"])]
-		"mushroom":
-			return "灰烬类 · 一次性陷阱：埋下后 %d 秒长成，恶客踩中即喷发鬼火，造成 %d 伤害并同归于尽。不可升阶。" % [
-				int(d["mine"]["arm"]), int(d["mine"]["damage"])]
-		"bell":
-			return "控制与辅助：每 %s 秒摇铃，使本行前方恶客减速 %d%%、持续 %s 秒。一路加快摇铃并把减速提到 %d%%，一路用铃声增幅友军攻速，一路让铃浪造成 %d 伤害乃至定身 %s 秒。减速只取最强值。" % [
-				String.num(d["pulse"]["interval"], 1), int(round(e["slow"][0] * 100)),
-				String.num(e["slow_duration"], 1), int(round(e["slow"][3] * 100)),
-				int(e["damage"][1]), String.num(e["root_duration"], 1)]
-		"censer":
-			return "范围输出：每 %s 秒喷出一圈香雾，对圈内恶客造成 %d 伤害。一路加伤害（最高 %d），一路把烟圈从 %s 扩到 %s，一路让被熏到的恶客减速（最高 %d%%、持续 %s 秒）。" % [
-				String.num(e["interval"], 1), int(e["damage"][0]), int(e["damage"][3]),
-				in_cells(e["radius"][0]), in_cells(e["radius"][3]),
-				int(round(e["slow"][3] * 100)), String.num(e["slow_duration"][3], 1)]
-		"umbrella":
-			return "收妖 · 肉盾：耐久 %d，非大型恶客靠近即被收入伞中，%s 秒收化；大型恶客撑不进伞，只能被伞骨击打，每次 %d 伤害。一路加快收妖，一路收妖后产香火（最高 %d），一路减少收妖期间的伤害（最高 %d%%）。" % [
-				int(d["hp"]), String.num(d["chomp"]["chew"], 1),
-				int(d["chomp"]["large_damage"]), int(e["sun"][3]),
-				int(round(e["chew_guard"][3] * 100))]
-		"lion":
-			return "近战守卫：恶客靠近到 %s 内时，每 %s 秒撞头一次，造成 %d 伤害并击退 %s 格。一路加伤害与击退（最高 %d），一路加快撞击并有 %d%% 概率撞晕 %s 秒，一路命中回耐久（最高 %d）。" % [
-				in_cells(e["reach"]), String.num(e["interval"][0], 2),
-				int(e["damage"][0]), String.num(e["knock_cells"], 1),
-				int(e["damage"][3]), int(round(e["stun_chance"][3] * 100)),
-				String.num(e["stun_duration"], 2), int(e["heal"][3])]
-		"cat":
-			return "跨行追踪：每 %s 秒放出 %d 团尾火，自动追向全场最近的恶客，每团 %d 伤害。一路增加尾火数量（最高 %d 团），一路提伤害并让尾火再追一个目标，一路附加易伤与减速。易伤、减速只取最强值。" % [
-				String.num(e["interval"], 1), int(e["count"][0]), int(e["damage"][0]),
-				int(e["count"][3])]
-		"shell":
-			return "护罩：只能罩在已种下的草木上，提供 %d 点护罩耐久；恶客先啃龟甲，壳碎后里面的草木仍在。不可升阶；用铲子可单独拆下。" % [
-				int(e["hp"])]
-		"lobber":
-			return "后排打击：每 %s 秒向本行最右侧的恶客抛出一颗汤圆，走抛物线越过前排，落地造成 %d 伤害。一路加伤害（最高 %d），一路加快投掷，一路让落点附带减速（最高 %d%%）。" % [
-				String.num(e["interval"][0], 1), int(e["damage"][0]), int(e["damage"][3]),
-				int(round(e["slow"][3] * 100))]
-		"torch":
-			return "增幅：不主动攻击，只有穿过火盆火焰的友方射弹才会被增幅，伤害 +%d%%。一路把增幅提到 +%d%%，一路为穿过的射弹附加灼烧（最高 %d/秒），一路附加减速（最高 %d%%）。多盆只取最高，不叠加。" % [
-				int(round(e["buff"][0] * 100)), int(round(e["buff"][3] * 100)),
-				int(e["burn"][3]), int(round(e["slow"][3] * 100))]
-		"star":
-			return "多方向：每 %s 秒检查正后、正上、正下、右上、右下五个方向，哪个方向有恶客就射出一道 %d 伤害的灯焰，没有敌人的方向不发灯。一路加伤害（最高 %d），一路加快转灯，一路附加易伤。" % [
-				String.num(e["interval"][0], 1), int(e["damage"][0]), int(e["damage"][3])]
-		"needle":
-			return "破甲：优先攻击本行带护具的恶客，骨针无视护具直接扣本体血量，每 %s 秒一针、%d 伤害。一路加伤害（最高 %d），一路加快出针，一路附加易伤。" % [
-				String.num(e["interval"][0], 1), int(e["damage"][0]), int(e["damage"][3])]
-		"judge":
-			return "控制：每 %s 秒睁眼，望向本行 %s 内最近的恶客，造成 %d 伤害并把它顶回去 %s 格。一路加击退（最高 %s 格），一路缩短显灵间隔（最低 %s 秒），一路提高伤害（最高 %d）。一次只盯一只，大型恶客也会被顶退。" % [
-				String.num(e["interval"][0], 1), in_cells(e["reach"]),
-				int(e["damage"][0]), String.num(e["knock_cells"][0], 2),
-				String.num(e["knock_cells"][3], 1), String.num(e["interval"][3], 1),
-				int(e["damage"][3])]
-		"lily":
-			return "浮台：只能放在水面，为其他草木提供一块落脚地，上面的草木正常生长与攻击。不可升阶；水面没有夜莲时，普通草木无法直接种下。"
-		"kelp":
-			return "灰烬类 · 一次性：只能种在水面，恶客进入 %s 范围后用 %s 秒把它拖入水底，造成 %d 伤害，随后自己散掉。不可升阶。" % [
-				in_cells(d["tangle"]["range"]), String.num(d["tangle"]["drag"], 1),
-				int(d["tangle"]["damage"])]
-	return ""
+	const GUIDE = {
+	"lantern": "持续产出香火，是添置草木与进化的根本。适合放在后排；进化后可以增加产量、加快产出，或照亮前方友军，让它们打得更重。",
+	"shooter": "守住本行前方的恶客。连发擅长磨掉护具，借射可以照应相邻行，大签则能打出重击。把石磨放在它前面，留给它出手的时间。",
+	"wall": "替后方草木挡住啃咬。进化可以让它自行修复、反伤恶客，或磨出碎石还手。能挡多久，往往就决定后排能打多久。",
+	"bomb": "点燃后稍等片刻便会爆开，重创周围的恶客。只能使用一次，适合挽救突然吃紧的一段防线。",
+	"mushroom": "埋下后需要时间长成。恶客靠近时喷出鬼火，与敌人同归于尽；要提前种，别等对方贴到门口才下手。",
+	"bell": "让本行前方的恶客放慢脚步，为整条防线争取时间。进化后的余音能照应邻行，也能让敌人停步、回头，或反噬啃咬者。",
+	"censer": "香雾能同时熏伤身边多名恶客。进化可以改变烟的去向、给敌人留下香印，或让倒塌的炉子继续守着一缕余烟。",
+	"umbrella": "能把靠近的非大型恶客收进伞中，消化时暂时不能再次收妖；遇到大型敌人则用伞骨击打。进化可以打开第二个收妖位，或把收下的妖气化作香火和护盾。",
+	"lion": "贴身撞击并推开恶客，适合守住前排。进化可以摔落护具、踩伤附近敌人，或为同伴喝彩；最后一舞能在倒下前再争取几秒。",
+	"cat": "尾火会追向全场最近的恶客，也能跨行救急。进化可以让尾火绕行、同时追击多名敌人，或留下令友军打得更重的狐火记号。",
+	"shell": "给已有草木披上一层龟甲。恶客先啃壳，壳碎了才伤到里面的草木；用铲子可以单独拆下龟甲，不伤及被保护的草木。",
+	"lobber": "把汤圆越过前排，抛向本行队尾。进化可以追着密集的敌人落点、砸碎护具，或留下能减速和烫伤敌人的热汤。",
+	"torch": "友军射出的竹签、尾火等穿过火焰时会变得更有威力。适合种在射手前方；进化还能留下火星、灼烧与火油。穿过多个火盆也只得到最强的一次加成。",
+	"star": "向有敌人的方向送出灯焰，适合照应多行。进化可以加强密集处的火力、加快发灯，或让错过敌人的灯焰折回追击。",
+	"needle": "骨针优先寻找本行带护具的恶客，直接扎伤本体。进化可以贯穿、补针，或在敌人身上留针，让继续向前走的恶客付出代价。",
+	"judge": "守望本行，将靠近防线的恶客打退。进化可以让敌人彼此撞倒、压住它们得到的助力，或盖下逐渐催命的死印。",
+	"lily": "先在水面放一片夜莲，其他草木才有地方落脚。它只负责承载，不会攻击；水路要提前留出放夜莲的香火。",
+	"kelp": "只能在水面等候。恶客靠近时将它拖入水底，随后自己也会散去；适合在水路最吃紧时换掉一个难缠的对手。"
+}
+	return plant_pitch(type)+"\n"+String(GUIDE.get(type,""))
 
 
 static func zombie_rows(type: String) -> Array:
@@ -393,7 +348,7 @@ static func zombie_rows(type: String) -> Array:
 		_row("本体血量", str(int(d["hp"])), "hp"),
 		_row("护具", "%s %d" % [d["armor_name"], int(d["armor"])]
 			if float(d.get("armor", 0)) > 0 else "无", "hp" if float(d.get("armor", 0)) > 0 else "desc"),
-		_row("速度", str(int(d["speed"])), "time"),
+		_row("行进速度", in_cells(float(d["speed"]),2)+"/秒", "time"),
 		_row("啃食", "%d / 秒" % int(d["dps"]), "atk"),
 	]
 	match type:
@@ -409,7 +364,7 @@ static func zombie_rows(type: String) -> Array:
 			rows.append(_row("破轿", "%d 只饿鬼 · %d%% 血量" % [
 				int(split["count"]), int(round(float(split["hp"]) * 100))], "desc"))
 		"vault":
-			rows.append(_row("跳幡", "跳过首株 · 落地速度 %d" % int(d["vault"]["speed_after"]),
+			rows.append(_row("跳幡", "跳过首株 · 落地速度 %s/秒" % in_cells(float(d["vault"]["speed_after"]),2),
 				"desc"))
 		"artisan":
 			var support: Dictionary = d["support"]
@@ -418,7 +373,7 @@ static func zombie_rows(type: String) -> Array:
 				int(support["armor"]), int(support["targets"])], "gold"))
 			rows.append(_row("发甲范围", in_cells(support["radius"]), "desc"))
 	if bool(d.get("large", false)):
-		rows.append(_row("体型", "大型 · 尸体停留 1 秒", "desc"))
+		rows.append(_row("体型", "大型 · 倒下后会短暂挡住射弹", "desc"))
 	var appearance = Content.first_appearance(type)
 	if appearance != "":
 		rows.append(_row("初遇", appearance, "desc"))
@@ -444,7 +399,7 @@ static func zombie_ability(type: String) -> String:
 		head += "，%s %d（先破护具才伤本体）" % [d["armor_name"], int(d["armor"])]
 	else:
 		head += "，无护具"
-	head += "；速度 %d，啃食 %d/秒。" % [int(d["speed"]), int(d["dps"])]
+	head += "；行进速度 %s/秒，啃食伤害 %d/秒。" % [in_cells(float(d["speed"]),2),int(d["dps"])]
 	match type:
 		"tongue":
 			head += "约 %s 外就会停下开咬，比别的低阶更早动手。" % in_cells(d["reach"])
@@ -459,15 +414,14 @@ static func zombie_ability(type: String) -> String:
 				int(split["count"]), int(round(float(split["hp"]) * 100))]
 		"vault":
 			var vault: Dictionary = d["vault"]
-			head += "第一次遇到草木会撑幡跳过它，落地后速度降到 %d，跳过时不啃食。" % int(
-				vault["speed_after"])
+			head += "第一次遇到草木会撑幡跳过它，落地后速度降至%s/秒，跳过时不啃食。" % in_cells(float(vault["speed_after"]),2)
 		"artisan":
 			var support: Dictionary = d["support"]
 			head += "每 %s 秒给 %s 内最多 %d 只低阶恶客发 %d 点纸甲；纸甲与已有护具不叠加，只取更厚的一层。" % [
 				String.num(support["interval"], 1), in_cells(support["radius"]),
 				int(support["targets"]), int(support["armor"])]
 		"mountain", "ironjudge":
-			head += "体型大，能正面啃穿石磨，尸体停留 1 秒。"
+			head += "体型大，能正面啃穿石磨；倒地后还会短暂挡住射弹。"
 		"paper", "straw", "stonehat", "bucket":
 			head += "攻击先扣护具，壳碎后本体才倒；破具后仍会继续前进。"
 	return head

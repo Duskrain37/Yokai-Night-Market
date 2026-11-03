@@ -1,8 +1,10 @@
-## 战场底图：三天地图的绘制底、棋盘线框、格子状态（水/物件/障碍）、
-## 悬停与射程提示、门神。
+## 战场底图：三天地图的绘制底 + 一块有透视的「舞台台面」。
 ##
-## 「场内地图是否描格子」是设置项（Ui/settings.show_grid）：关掉线框后棋盘仍然
-## 存在，只是不再画出每一格的边，方便想看清画面的玩家。
+## 台面是按深度收窄的梯形：远处窄、近处宽，行线水平、列线向远处汇聚；
+## 格子、水面、障碍物、射程提示、门神都按同一套投影画，单位也随深度缩放，
+## 所以战场是摆进布景里的，而不是贴上去的一张平面网格。
+##
+## 「场内地图是否描格子」是设置项：关掉后不画格线，台面与外框仍在。
 class_name BoardView
 extends Node2D
 
@@ -13,10 +15,11 @@ var focus_cell = Vector2i(-1, -1)
 var range_hint = 0.0
 var range_cells = 0.0
 var map_key = "street"
-var dim = 0.32
+var dim = 0.16
 var _textures: Dictionary = {}
 var _time = 0.0
 var _guardian: Texture2D = null
+var mower_art: Dictionary = {}
 
 
 func _ready() -> void:
@@ -26,8 +29,14 @@ func _ready() -> void:
 
 func set_map(key: String) -> void:
 	map_key = key
+	# 切底图同时切舞台：每天的台面在画里的位置不一样
+	Geo.set_stage(key)
 	if not _textures.has(key):
-		var path = "res://assets/bg/map-%s.jpg" % key
+		var path := "res://assets/bg/map-%s.png" % key
+		if not ResourceLoader.exists(path):
+			path = "res://assets/bg/map-%s.jpg" % key
+		if not ResourceLoader.exists(path):
+			path = "res://assets/bg/map-day1.png"
 		if not ResourceLoader.exists(path):
 			path = "res://assets/bg/map-day1.jpg"
 		_textures[key] = load(path)
@@ -42,190 +51,345 @@ func _draw() -> void:
 	if sim == null:
 		return
 	_draw_background()
-	_draw_board_floor()
+	_draw_stage()
 	_draw_tiles()
 	if show_grid:
 		_draw_grid()
+	else:
+		_draw_row_lines()
 	_draw_hover()
 	_draw_range_hint()
 	_draw_mowers()
 
 
+# ── 投影小工具 ──────────────────────────────────────────────────────────────
+static func _p(u: float, t: float) -> Vector2:
+	var rows = 0
+	if Geo.BANDS.size() >= 2:
+		rows = Geo.BANDS.size() - 1
+	if rows > 0:
+		var f = clampf(t, 0.0, 1.0) * float(rows)
+		var idx = mini(int(f), rows - 1)
+		var k = f - float(idx)
+		var y = lerpf(float(Geo.BANDS[idx]), float(Geo.BANDS[idx + 1]), k)
+		var half = lerpf(float(Geo.HALVES[idx]), float(Geo.HALVES[idx + 1]), k) \
+			if Geo.HALVES.size() == rows + 1 else Geo.half_width_at_depth(t)
+		return Vector2(Geo.STAGE_CX + (u * 2.0 - 1.0) * half, y)
+	return Vector2(Geo.STAGE_CX + (u * 2.0 - 1.0) * Geo.half_width_at_depth(t),
+		Geo.y_at_depth(t))
+
+
+func _cell_quad(col: int, row: int) -> PackedVector2Array:
+	var u0 := float(col) / Geo.COLS
+	var u1 := float(col + 1) / Geo.COLS
+	var t0 := float(row) / float(sim.rows)
+	var t1 := float(row + 1) / float(sim.rows)
+	return PackedVector2Array([_p(u0, t0), _p(u1, t0), _p(u1, t1), _p(u0, t1)])
+
+
+# ── 背景 ────────────────────────────────────────────────────────────────────
 func _draw_background() -> void:
-	var key = map_key
-	if not _textures.has(key):
-		set_map(key)
-	var texture: Texture2D = _textures.get(key)
+	if not _textures.has(map_key):
+		set_map(map_key)
+	var texture: Texture2D = _textures.get(map_key)
 	if texture == null:
 		draw_rect(Rect2(Vector2.ZERO, Geo.VIEW), Ui.INK)
 		return
-	var size = texture.get_size()
-	var scale = maxf(Geo.VIEW.x / size.x, Geo.VIEW.y / size.y)
-	var drawn = size * scale
-	var offset = (Geo.VIEW - drawn) * 0.5
+	var size := texture.get_size()
+	var scale := maxf(Geo.VIEW.x / size.x, Geo.VIEW.y / size.y)
+	var drawn := size * scale
+	var offset := (Geo.VIEW - drawn) * 0.5
 	draw_texture_rect(texture, Rect2(offset, drawn), false)
-	# 夜色压暗：底图偏亮，压一层让单位与金线读得清。
 	draw_rect(Rect2(Vector2.ZERO, Geo.VIEW), Color(0.02, 0.05, 0.07, dim))
 
 
-func _draw_board_floor() -> void:
-	var rect = Geo.board_rect(sim.rows)
-	# 棋盘压在画出来的空地上：先铺一层半透明夜色，再压四边渐隐。
-	draw_rect(rect, Color(0.02, 0.05, 0.07, 0.18))
-	var edge = 26.0
-	var top = rect.position
-	draw_rect(Rect2(top, Vector2(rect.size.x, edge)),
-		Color(0.01, 0.03, 0.05, 0.16))
-	draw_rect(Rect2(Vector2(rect.position.x, rect.end.y - edge),
-		Vector2(rect.size.x, edge)), Color(0.01, 0.03, 0.05, 0.16))
-
-
-func _draw_tiles() -> void:
-	var cell_h = Geo.cell_h(sim.rows)
-	for row in sim.rows:
-		for col in Geo.COLS:
-			var tile: Dictionary = sim.tiles[row][col]
-			var pos = Vector2(Geo.BOARD_X + col * Geo.CELL_W, Geo.BOARD_Y + row * cell_h)
-			var rect = Rect2(pos, Vector2(Geo.CELL_W, cell_h))
-			match String(tile["kind"]):
-				"water":
-					_draw_water(rect, String(tile["water"]))
-				"object":
-					_draw_water(rect, String(tile["water"]))
-					_draw_object(rect, int(tile["obj"]))
-				"blocked":
-					_draw_blocked(rect, int(tile["obj"]))
-
-
-func _draw_water(rect: Rect2, kind: String) -> void:
-	var tint = Color(0.09, 0.24, 0.29, 0.5) if kind == "river" \
-		else Color(0.10, 0.22, 0.20, 0.55)
-	draw_rect(rect, tint)
-	var wave = Color(0.45, 0.72, 0.72, 0.10)
-	for i in 3:
-		var y = rect.position.y + rect.size.y * (0.28 + i * 0.22)
-		var wobble = sin(_time * 1.3 + i * 1.7 + rect.position.x * 0.02) * 3.0
-		draw_line(Vector2(rect.position.x + 8.0, y + wobble),
-			Vector2(rect.end.x - 8.0, y - wobble), wave, 1.6)
-
-
-func _draw_object(rect: Rect2, variant: int) -> void:
-	var center = rect.get_center() + Vector2(0, 6)
-	var dark = Color(0.16, 0.19, 0.19, 0.9)
-	match variant % 3:
-		0:  # 系船石桩
-			draw_rect(Rect2(center + Vector2(-9, -22), Vector2(18, 40)), dark)
-			draw_rect(Rect2(center + Vector2(-13, -26), Vector2(26, 7)),
-				Color(0.24, 0.27, 0.26, 0.95))
-		1:  # 旧木桶
-			draw_circle(center + Vector2(0, -4), 15.0, dark)
-			draw_rect(Rect2(center + Vector2(-15, -12), Vector2(30, 5)),
-				Color(0.30, 0.24, 0.18, 0.9))
-		2:  # 破渔网架
-			draw_line(center + Vector2(-16, 14), center + Vector2(16, -18),
-				Color(0.30, 0.29, 0.24, 0.9), 3.0)
-			draw_line(center + Vector2(-16, 14), center + Vector2(10, 16),
-				Color(0.30, 0.29, 0.24, 0.9), 2.0)
-			for i in 3:
-				draw_line(center + Vector2(-10 + i * 7, 10),
-					center + Vector2(-2 + i * 5, -8),
-					Color(0.42, 0.40, 0.32, 0.45), 1.0)
-
-
-func _draw_blocked(rect: Rect2, variant: int) -> void:
-	var center = rect.get_center() + Vector2(0, 8)
-	var body = Color(0.22, 0.18, 0.14, 0.95)
-	draw_rect(Rect2(center + Vector2(-20, -24), Vector2(40, 38)), body)
-	draw_rect(Rect2(center + Vector2(-22, -28), Vector2(44, 8)),
-		Color(0.30, 0.25, 0.19, 0.95))
-	draw_line(center + Vector2(-20, -6), center + Vector2(20, -6),
-		Color(0.14, 0.11, 0.09, 0.9), 2.0)
-	if variant % 2 == 1:
-		draw_rect(Rect2(center + Vector2(-14, -18), Vector2(12, 10)),
-			Color(0.36, 0.30, 0.22, 0.9))
+# ── 台面 ────────────────────────────────────────────────────────────────────
+func _draw_stage() -> void:
+	# 不再画台面的黑边、护栏和台唇：关掉描格子时，草木与恶客就是直接在背景图里打。
+	# 只保留一层几乎看不见的暖光与轻压暗，让单位有"落地"的感觉。
+	var bands := 14
+	for i in bands:
+		var t0 := float(i) / bands
+		var t1 := float(i + 1) / bands
+		var quad := PackedVector2Array([
+			_p(0.0, t0), _p(1.0, t0), _p(1.0, t1), _p(0.0, t1),
+		])
+		var tint := Color(0.06, 0.10, 0.12, 0.012)
+		if map_key == "day2":
+			tint = Color(0.10, 0.08, 0.06, 0.016)
+		elif map_key == "day3":
+			tint = Color(0.04, 0.10, 0.10, 0.014)
+		draw_colored_polygon(quad, tint)
+	# 灯下的一滩暖光：靠中前，像摊前的灯笼照下来
+	var pool := _p(0.5, 0.66)
+	for i in 4:
+		var k := 1.0 - i * 0.22
+		draw_set_transform(pool, 0.0, Vector2(1.0, 0.45))
+		draw_circle(Vector2.ZERO, 340.0 * k, Color(1.0, 0.72, 0.36, 0.014))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_grid() -> void:
-	var cell_h = Geo.cell_h(sim.rows)
-	var line = Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.16)
-	var strong = Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.42)
-	# 交替格微亮，让九列不至于糊成一片；关掉网格时这层也一起消失。
+	# 只要格线，不要外框：外框会在背景上切出一条生硬的边
+	var line := Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.13)
+	for col in Geo.COLS + 1:
+		var u := float(col) / Geo.COLS
+		draw_line(_p(u, 0.0), _p(u, 1.0), line, 1.0)
+	for row in sim.rows + 1:
+		var t := float(row) / float(sim.rows)
+		draw_line(_p(0.0, t), _p(1.0, t), line, 1.0)
+
+
+## 关掉描格子也要留一道淡行界：五条行是这游戏的骨架，
+## 全抹掉就只能凭感觉判断"这株到底罩不罩得住那一行"。
+func _draw_row_lines() -> void:
+	var line := Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.055)
+	for row in sim.rows + 1:
+		var t := float(row) / float(sim.rows)
+		draw_line(_p(0.0, t), _p(1.0, t), line, 1.0)
+
+
+# ── 格子内容：水面 / 物件 / 障碍 ────────────────────────────────────────────
+func _draw_tiles() -> void:
 	for row in sim.rows:
 		for col in Geo.COLS:
-			if (row + col) % 2 == 0:
-				continue
-			draw_rect(Rect2(Geo.BOARD_X + col * Geo.CELL_W,
-				Geo.BOARD_Y + row * cell_h, Geo.CELL_W, cell_h),
-				Color(1, 0.92, 0.78, 0.022))
-	for col in Geo.COLS + 1:
-		var x = Geo.BOARD_X + col * Geo.CELL_W
-		draw_line(Vector2(x, Geo.BOARD_Y), Vector2(x, Geo.BOARD_Y + Geo.BOARD_H),
-			line, 1.0)
-	for row in sim.rows + 1:
-		var y = Geo.BOARD_Y + row * cell_h
-		draw_line(Vector2(Geo.BOARD_X, y), Vector2(Geo.BOARD_X + Geo.BOARD_W, y),
-			line, 1.0)
-	# 外框：金线双层，把棋盘从底图上框出来。
-	var rect = Geo.board_rect(sim.rows)
-	draw_rect(rect, strong, false, 2.0)
-	draw_rect(rect.grow(4.0), Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g, Ui.GOLD_DIM.b, 0.5),
-		false, 1.0)
+			var tile: Dictionary = sim.tiles[row][col]
+			match String(tile["kind"]):
+				"water":
+					_draw_water(_cell_quad(col, row), String(tile["water"]))
+				"object":
+					_draw_water(_cell_quad(col, row), String(tile["water"]))
+					_draw_object(col, row, int(tile["obj"]))
+				"blocked":
+					_draw_blocked(col, row, int(tile["obj"]))
 
 
+func _draw_water(quad: PackedVector2Array, kind: String) -> void:
+	# 底图自己画了水道，这里只压一层极淡的提示色，避免"又刷了一遍水"
+	var tint := Color(0.07, 0.20, 0.24, 0.10) if kind == "river" \
+		else Color(0.08, 0.18, 0.16, 0.12)
+	draw_colored_polygon(quad, tint)
+	for i in 2:
+		var k := 0.32 + i * 0.34
+		var y := quad[0].y + (quad[3].y - quad[0].y) * k
+		var wobble := sin(_time * 1.6 + quad[0].x * 0.03 + i * 1.7) * 2.0
+		draw_line(Vector2(quad[0].x + 6, y + wobble),
+			Vector2(quad[1].x - 6, y - wobble),
+			Color(0.55, 0.86, 0.84, 0.10), 1.4)
+
+
+## 水面上的石磴 / 系船桩 / 破渔网架：有顶面与正面的小体块，跟着投影走。
+func _draw_object(col: int, row: int, variant: int) -> void:
+	var flat := Geo.cell_center(col, row, sim.rows)
+	var center := Geo.to_screen(flat, sim.rows)
+	var s := Geo.scale_at_flat(flat, sim.rows)
+	var w := 44.0 * s
+	var h := 30.0 * s
+	match variant % 3:
+		0:  # 石磴
+			draw_colored_polygon(PackedVector2Array([
+				center + Vector2(-w * 0.42, -h * 0.1),
+				center + Vector2(0, -h * 0.42),
+				center + Vector2(w * 0.42, -h * 0.1),
+				center + Vector2(0, h * 0.22),
+			]), Color(0.30, 0.32, 0.30, 0.95))
+			draw_rect(Rect2(center + Vector2(-w * 0.42, -h * 0.1),
+				Vector2(w * 0.84, h * 0.34)), Color(0.20, 0.22, 0.21, 0.95))
+		1:  # 系船桩 + 缆绳
+			draw_rect(Rect2(center + Vector2(-w * 0.13, -h * 0.62),
+				Vector2(w * 0.26, h * 0.86)), Color(0.24, 0.19, 0.14, 0.96))
+			draw_rect(Rect2(center + Vector2(-w * 0.2, -h * 0.66),
+				Vector2(w * 0.4, h * 0.12)), Color(0.34, 0.27, 0.18, 0.96))
+			draw_line(center + Vector2(w * 0.1, -h * 0.5),
+				center + Vector2(w * 0.6, h * 0.1), Color(0.42, 0.36, 0.24, 0.7), 1.4)
+		2:  # 破渔网架
+			draw_line(center + Vector2(-w * 0.32, h * 0.16),
+				center + Vector2(w * 0.3, -h * 0.44), Color(0.32, 0.28, 0.2, 0.95), 2.6)
+			draw_line(center + Vector2(-w * 0.32, h * 0.16),
+				center + Vector2(w * 0.24, h * 0.2), Color(0.32, 0.28, 0.2, 0.95), 2.0)
+			for i in 3:
+				draw_line(center + Vector2(-w * 0.2 + i * w * 0.14, h * 0.1),
+					center + Vector2(-w * 0.06 + i * w * 0.12, -h * 0.16),
+					Color(0.46, 0.44, 0.34, 0.4), 1.0)
+
+
+## 第二天的障碍：堆叠货箱与竹筐麻袋，2.5D 画法与台面同源。
+func _draw_blocked(col: int, row: int, variant: int) -> void:
+	var flat := Geo.cell_center(col, row, sim.rows)
+	var center := Geo.to_screen(flat, sim.rows)
+	var s := Geo.scale_at_flat(flat, sim.rows)
+	var w := 40.0 * s
+	var h := 32.0 * s
+	var wood := Color(0.30, 0.22, 0.14, 1.0)
+	var wood_hi := Color(0.46, 0.35, 0.22, 1.0)
+	draw_set_transform(center + Vector2(0, h * 0.18), 0.0, Vector2(1.0, 0.34))
+	draw_circle(Vector2.ZERO, w * 0.58, Color(0, 0, 0, 0.32))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if variant % 2 == 0:
+		for level in 2:
+			var lift := h * 0.5 * (1 - level)
+			var box := Rect2(center + Vector2(-w * 0.46, -h * 0.5 - lift),
+				Vector2(w * 0.92, h * 0.52))
+			draw_rect(box, wood)
+			draw_rect(Rect2(box.position, Vector2(box.size.x, h * 0.12)), wood_hi)
+			draw_line(Vector2(box.position.x, box.position.y + box.size.y),
+				Vector2(box.position.x + box.size.x, box.position.y + box.size.y),
+				Color(0.06, 0.04, 0.03, 0.9), 2.0)
+			draw_line(Vector2(box.position.x, box.position.y + box.size.y * 0.5),
+				Vector2(box.position.x + box.size.x,
+					box.position.y + box.size.y * 0.5),
+				Color(0.14, 0.11, 0.08, 0.8), 1.4)
+	else:
+		draw_circle(center + Vector2(-w * 0.14, -h * 0.22), w * 0.36, wood)
+		draw_arc(center + Vector2(-w * 0.14, -h * 0.22), w * 0.36, PI, TAU, 14,
+			wood_hi, 2.0)
+		draw_colored_polygon(PackedVector2Array([
+			center + Vector2(w * 0.16, h * 0.1),
+			center + Vector2(w * 0.2, -h * 0.42),
+			center + Vector2(w * 0.46, -h * 0.06),
+			center + Vector2(w * 0.42, h * 0.14),
+		]), Color(0.34, 0.28, 0.19, 0.95))
+
+
+# ── 悬停、射程、门神 ────────────────────────────────────────────────────────
 func _draw_hover() -> void:
-	if hover_cell.x < 0:
+	if hover_cell.x < 0 or hover_cell.x >= Geo.COLS or hover_cell.y < 0 \
+			or hover_cell.y >= sim.rows:
 		return
-	var cell_h = Geo.cell_h(sim.rows)
-	var rect = Rect2(Vector2(Geo.BOARD_X + hover_cell.x * Geo.CELL_W,
-		Geo.BOARD_Y + hover_cell.y * cell_h), Vector2(Geo.CELL_W, cell_h))
-	draw_rect(rect, Color(1, 0.9, 0.62, 0.09))
-	draw_rect(rect, Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.55), false, 2.0)
-	# 四角小折角，像纸上的记号
-	var c = rect.position
-	var e = rect.end
-	var arm = 12.0
-	for corner in [[c, 1, 1], [Vector2(e.x, c.y), -1, 1],
-			[Vector2(c.x, e.y), 1, -1], [e, -1, -1]]:
-		var p: Vector2 = corner[0]
-		var sx: float = corner[1]
-		var sy: float = corner[2]
-		draw_line(p, p + Vector2(arm * sx, 0), Ui.GOLD_BRIGHT, 2.0)
-		draw_line(p, p + Vector2(0, arm * sy), Ui.GOLD_BRIGHT, 2.0)
+	var quad := _cell_quad(hover_cell.x, hover_cell.y)
+	draw_colored_polygon(quad, Color(1, 0.9, 0.62, 0.10))
+	draw_polyline(PackedVector2Array([quad[0], quad[1], quad[2], quad[3], quad[0]]),
+		Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.6), 2.0)
+	var arm := 9.0
+	for i in 4:
+		var p := quad[i]
+		var q := quad[(i + 1) % 4]
+		draw_line(p, p + (q - p).normalized() * arm,
+			Color(Ui.GOLD_BRIGHT.r, Ui.GOLD_BRIGHT.g, Ui.GOLD_BRIGHT.b, 0.75), 1.6)
 
 
 func _draw_range_hint() -> void:
 	if focus_cell.x < 0:
 		return
-	var center = Geo.cell_center(focus_cell.x, focus_cell.y, sim.rows)
-	var cell_h = Geo.cell_h(sim.rows)
+	var flat := Geo.cell_center(focus_cell.x, focus_cell.y, sim.rows)
+	var center := Geo.to_screen(flat)
 	if range_hint > 0.0:
-		var ring = Color(Ui.GOLD_BRIGHT.r, Ui.GOLD_BRIGHT.g, Ui.GOLD_BRIGHT.b, 0.32)
-		draw_arc(center, range_hint, 0.0, TAU, 64, ring, 2.0)
-		draw_circle(center, range_hint, Color(1, 0.86, 0.55, 0.05))
+		var r := Geo.range_ellipse(flat, range_hint)
+		draw_set_transform(center, 0.0, Vector2(1.0, r.y / maxf(1.0, r.x)))
+		draw_arc(Vector2.ZERO, r.x, 0.0, TAU, 56,
+			Color(Ui.GOLD_BRIGHT.r, Ui.GOLD_BRIGHT.g, Ui.GOLD_BRIGHT.b, 0.3), 2.0)
+		draw_circle(Vector2.ZERO, r.x, Color(1, 0.86, 0.55, 0.05))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if range_cells > 0.0:
-		var width = range_cells * Geo.CELL_W
-		var rect = Rect2(center.x, center.y - cell_h * 0.5, width, cell_h)
-		draw_rect(rect, Color(1, 0.85, 0.5, 0.06))
-		draw_line(Vector2(center.x, rect.position.y), Vector2(center.x + width,
-			rect.position.y), Color(1, 0.85, 0.5, 0.25), 1.5)
-		draw_line(Vector2(center.x, rect.end.y), Vector2(center.x + width, rect.end.y),
-			Color(1, 0.85, 0.5, 0.25), 1.5)
+		var t := Geo.row_depth(focus_cell.y, sim.rows)
+		var u0 := (float(focus_cell.x) + 0.5) / Geo.COLS
+		var u1 := minf(1.0, u0 + range_cells / Geo.COLS)
+		var quad := PackedVector2Array([
+			_p(u0, t - 0.5 / float(sim.rows)), _p(u1, t - 0.5 / float(sim.rows)),
+			_p(u1, t + 0.5 / float(sim.rows)), _p(u0, t + 0.5 / float(sim.rows)),
+		])
+		draw_colored_polygon(quad, Color(1, 0.85, 0.5, 0.07))
+		draw_polyline(PackedVector2Array([quad[0], quad[1], quad[2], quad[3], quad[0]]),
+			Color(1, 0.85, 0.5, 0.25), 1.4)
 
 
+## 门神：站在本行左侧的"门"上，脚底线与该行草木一致；
+## 样貌随地图换——街上是石狮，河埠口是铜锣架，暗河是石灯笼。
 func _draw_mowers() -> void:
-	if _guardian == null:
-		return
-	var cell_h = Geo.cell_h(sim.rows)
 	for mower in sim.mowers:
 		var row = int(mower["row"])
-		var x = float(mower["x"])
-		var y = Geo.BOARD_Y + row * cell_h + cell_h * 0.5
-		var height = cell_h * 0.8
-		var alpha = 1.0 if bool(mower["ready"]) else 0.28
-		var size = _guardian.get_size()
-		var scale = height / size.y
-		var draw_size = size * scale
-		var rect = Rect2(Vector2(x - draw_size.x * 0.5, y + cell_h * 0.35 - draw_size.y),
-			draw_size)
+		var flat = Vector2(float(mower["x"]), Geo.row_y(row, sim.rows) + Geo.cell_h(sim.rows) * 0.3)
+		var foot = Geo.to_screen(flat)
+		var s = Geo.scale_at_flat(flat)
+		var cell_h = Geo.cell_h(sim.rows)
+		var alpha = 1.0 if bool(mower["ready"]) else 0.3
+		var moving = bool(mower["active"])
+		# 脚下的一块石台，让门神"站"在画的地面上
+		draw_set_transform(foot, 0.0, Vector2(1.0, 0.34))
+		draw_circle(Vector2.ZERO, 26.0 * s, Color(0, 0, 0, 0.30 * alpha))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		draw_texture_rect(_guardian, rect, false, Color(1, 1, 1, alpha))
+		draw_colored_polygon(PackedVector2Array([
+			foot + Vector2(-22 * s, 0), foot + Vector2(0, -8 * s),
+			foot + Vector2(22 * s, 0), foot + Vector2(0, 8 * s),
+		]), Color(0.24, 0.22, 0.19, 0.9 * alpha))
+		draw_colored_polygon(PackedVector2Array([
+			foot + Vector2(-22 * s, 0), foot + Vector2(0, 8 * s),
+			foot + Vector2(22 * s, 0), foot + Vector2(0, 26 * s),
+		]), Color(0.15, 0.14, 0.12, 0.95 * alpha))
+		var height = cell_h * 0.86 * s
+		# 美术交付后用 mower-dayN.png；没有就退回程序画的临时样子
+		var art = _mower_art()
+		if art != null:
+			var size = art.get_size()
+			var scale = height / size.y
+			var draw_size = size * scale
+			draw_texture_rect(art, Rect2(
+				Vector2(foot.x - draw_size.x * 0.5, foot.y + 2.0 - draw_size.y),
+				draw_size), false, Color(1, 1, 1, alpha))
+		else:
+			match map_key:
+				"day2":
+					_draw_drum_gate(foot, height, alpha, moving)
+				"day3":
+					_draw_stone_lantern(foot, height, alpha, moving)
+				_:
+					if _guardian != null:
+						var size = _guardian.get_size()
+						var scale = height / size.y
+						var draw_size = size * scale
+						draw_texture_rect(_guardian, Rect2(
+							Vector2(foot.x - draw_size.x * 0.5,
+								foot.y + 2.0 - draw_size.y),
+							draw_size), false, Color(1, 1, 1, alpha))
+
+
+## 门神立绘：assets/sprites/mower-dayN.png（美术交付后放这里）
+func _mower_art() -> Texture2D:
+	var key = "mower-%s" % map_key
+	if mower_art.has(key):
+		return mower_art[key]
+	var path = "res://assets/sprites/%s-v2.png" % key
+	if not ResourceLoader.exists(path):
+		path = "res://assets/sprites/%s.png" % key
+	var texture = load(path) if ResourceLoader.exists(path) else null
+	mower_art[key] = texture
+	return texture
+
+
+## 河埠口：一副铜锣架
+func _draw_drum_gate(foot: Vector2, height: float, alpha: float, moving: bool) -> void:
+	var h = height * 0.92
+	var w = height * 0.5
+	var wood = Color(0.26, 0.19, 0.13, alpha)
+	var gold = Color(0.72, 0.55, 0.28, alpha)
+	draw_rect(Rect2(foot + Vector2(-w * 0.5, -h), Vector2(w * 0.16, h)), wood)
+	draw_rect(Rect2(foot + Vector2(w * 0.34, -h), Vector2(w * 0.16, h)), wood)
+	draw_rect(Rect2(foot + Vector2(-w * 0.56, -h), Vector2(w * 1.12, h * 0.1)), wood)
+	var gong_c = foot + Vector2(0, -h * 0.62)
+	var gong_r = w * 0.46
+	draw_circle(gong_c, gong_r, gold)
+	draw_arc(gong_c, gong_r, 0.0, TAU, 24, Color(0.35, 0.24, 0.12, alpha), 1.6)
+	draw_circle(gong_c, gong_r * 0.16, Color(0.92, 0.78, 0.45, alpha))
+	if moving:
+		draw_arc(gong_c, gong_r * (1.2 + 0.2 * sin(_time * 20.0)), 0.0, TAU, 20,
+			Color(0.95, 0.82, 0.5, 0.4 * alpha), 2.0)
+
+
+## 暗河：一盏石灯笼
+func _draw_stone_lantern(foot: Vector2, height: float, alpha: float, moving: bool) -> void:
+	var h = height * 0.9
+	var w = height * 0.42
+	var stone = Color(0.30, 0.32, 0.31, alpha)
+	var stone_hi = Color(0.42, 0.44, 0.42, alpha)
+	draw_rect(Rect2(foot + Vector2(-w * 0.5, -h * 0.18), Vector2(w, h * 0.18)), stone)
+	draw_rect(Rect2(foot + Vector2(-w * 0.22, -h * 0.72), Vector2(w * 0.44, h * 0.56)), stone)
+	var lamp = foot + Vector2(0, -h * 0.8)
+	draw_circle(lamp, w * 0.5, Color(1.0, 0.78, 0.42, 0.5 * alpha + (0.25 if moving else 0.0)))
+	draw_rect(Rect2(lamp + Vector2(-w * 0.42, -w * 0.42), Vector2(w * 0.84, w * 0.84)),
+		Color(0.9, 0.72, 0.4, 0.55 * alpha))
+	draw_colored_polygon(PackedVector2Array([
+		lamp + Vector2(-w * 0.62, -w * 0.42), lamp + Vector2(w * 0.62, -w * 0.42),
+		lamp + Vector2(0, -w * 1.05),
+	]), stone_hi)
+
+

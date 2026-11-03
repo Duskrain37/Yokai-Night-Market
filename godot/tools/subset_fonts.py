@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import hashlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,6 +28,7 @@ OUT = ROOT / "assets" / "fonts"
 SOURCES = [
     *ROOT.glob("scripts/**/*.gd"),
     *ROOT.glob("data/**/*.gd"),
+    *ROOT.glob("data/**/*.json"),
     *ROOT.glob("ui/**/*.gd"),
     *ROOT.glob("tools/*.gd"),
     *(ROOT.parent / "www" / "src").glob("**/*.js"),
@@ -77,17 +79,29 @@ def main() -> int:
                   file=sys.stderr)
             continue
         target = OUT / out_name
+        recipe = hashlib.sha256(source.read_bytes()+ordered.encode("utf-8")+b"subset-no-timestamp-v040").hexdigest()
+        recipe_path=OUT/(out_name+".recipe")
+        if target.exists() and recipe_path.exists() and recipe_path.read_text()==recipe:
+            print(f"  keep {out_name} (same charset/source)")
+            continue
+        temporary=OUT/(out_name+".tmp")
         cmd = [
             sys.executable, "-m", "fontTools.subset", str(source),
             f"--text-file={text_file}",
             "--layout-features=*",
             "--no-hinting", "--desubroutinize", "--drop-tables+=DSIG",
-            f"--output-file={target}",
+            "--no-recalc-timestamp",
+            f"--output-file={temporary}",
         ]
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
             print(f"  !! subset failed for {source_name}\n{result.stderr}", file=sys.stderr)
-            continue
+            return 1
+        if not target.exists() or target.read_bytes()!=temporary.read_bytes():
+            temporary.replace(target)
+        else:
+            temporary.unlink()
+        recipe_path.write_text(recipe)
         print(f"  {source_name} {source.stat().st_size // 1024} KB -> "
               f"{target.name} {target.stat().st_size // 1024} KB")
 

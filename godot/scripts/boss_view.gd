@@ -1,0 +1,153 @@
+## Pure presentation: projections come from Geo; all events/clocks come from BossEncounter.
+extends Node2D
+var sim: Sim
+var textures: Dictionary={}
+var sheets: Dictionary={}
+var frames: Dictionary={}
+var font: Font
+var _pose="idle"
+var _previous="idle"
+var _pose_at=0.0
+
+func _ready() -> void:
+	z_index=20
+	font=Ui.body_font()
+	var manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_art_manifest.json"))
+	for sheet in manifest.atlases:
+		var name=String(sheet.file).get_file()
+		sheets[name]=load("res://assets/boss/"+name)
+		for f in sheet.frames:frames[name+":"+String(f.name)]=f
+	for key in ["telegraph_tile","telegraph_ring","telegraph_lane","weakpoint","repair_mark","ground_shadow"]:
+		textures[key]=load("res://assets/boss/"+key+".svg")
+	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR
+
+func _process(_delta: float) -> void:
+	queue_redraw()
+
+func _point(flat: Vector2) -> Vector2:
+	return Geo.to_screen(flat+Vector2(0,Geo.cell_h(sim.rows)*0.28),sim.rows)
+
+func _frame(sheet: String, name: String, foot: Vector2, height: float, alpha: float=1.0, idle_scale: bool=false,deform: Vector2=Vector2.ONE) -> void:
+	var f: Dictionary=frames.get(sheet+":"+name,{})
+	if f.is_empty():return
+	var r: Array=f.region
+	var b: Array=f.alpha_bbox_local
+	var anchor: Array=f.anchor_px
+	if idle_scale:b=frames[sheet+":idle"].alpha_bbox_local
+	var scale=height/maxf(1,float(b[3])-float(b[1]))
+	draw_set_transform(foot,0,deform)
+	draw_texture_rect_region(sheets[sheet],Rect2(-Vector2(anchor[0],anchor[1])*scale,Vector2(r[2],r[3])*scale),
+		Rect2(r[0],r[1],r[2],r[3]),Color(1,1,1,alpha),false,true)
+	draw_set_transform(Vector2.ZERO,0,Vector2.ONE)
+
+func _text(value: String,point: Vector2,size: int=20,color: Color=Color("#f0d9a9")) -> void:
+	draw_string(font,point,value,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)
+
+func _draw() -> void:
+	if sim==null or sim.boss==null or sheets.is_empty():return
+	var boss=sim.boss
+	var body_foot=Vector2(1470,570)
+	var sheet="boss_%s_atlas.png" % String(boss.id)
+	var pose=String(boss.pose())
+	if pose!=_pose:
+		_previous=_pose;_pose=pose;_pose_at=sim.time
+	var mix=clampf((sim.time-_pose_at)/0.1,0,1)
+	var alpha=1.0
+	if not boss.alive():alpha=1.0-smoothstep(0.7,2.0,sim.time-float(boss.died_at))
+	elif sim.time<float(boss.combat_at):alpha=clampf((sim.time-float(boss.began_at))/0.8,0,1)
+	var bob=sin(sim.time*2.4)*1.4 if pose=="idle" else 0.0
+	var body_height=260.0 if String(boss.id)=="paper" else 225.0
+	draw_texture_rect(textures.ground_shadow,Rect2(body_foot-Vector2(105,40),Vector2(210,80)),false,Color(1,1,1,alpha))
+	if _previous!=_pose and mix<1:_frame(sheet,_previous,body_foot,body_height,alpha*(1-mix),true)
+	var impact=0.0
+	for event in boss.effects:
+		var age=sim.time-float(event.at)
+		if age>=0 and age<.18 and String(event.kind) in ["earth","paper","water"]:impact=maxf(impact,sin(age/.18*PI))
+	_frame(sheet,pose,body_foot+Vector2(0,bob),body_height,alpha*mix,true,Vector2(1+impact*.035,1-impact*.06))
+	if boss.alive():
+		for z in boss.weakpoints:
+			var at=_point(z.pos)
+			draw_line(at,body_foot-Vector2(0,105),Color(0.76,0.60,0.33,0.20),1.4,true)
+			var glow=Color("#f2dcab") if String(boss.state)=="recovery" else Color.WHITE
+			if z.hurt>0:glow=Color(1.6,1.5,1.25,1)
+			draw_texture_rect(textures.weakpoint,Rect2(at-Vector2(18,38),Vector2(36,36)),false,glow)
+			if z.bomb_t>0:_text("贴馅",at-Vector2(20,50),15)
+	for z in boss.props:
+		if not z.alive():continue
+		var at=_point(z.pos)
+		var name=String(z.boss_meta.kind)
+		if name=="crab":name="crab_charge"
+		elif name=="paper_seal":
+			at.y-=34
+		_frame("props_atlas.png",name,at,72 if name=="paper_seal" else 83)
+		var ratio=clampf(z.hp/maxf(1,z.max_hp),0,1)
+		draw_rect(Rect2(at+Vector2(-25,5),Vector2(50,4)),Color(0.03,0.05,0.06,0.8))
+		draw_rect(Rect2(at+Vector2(-25,5),Vector2(50*ratio,4)),Color("#c7a269"))
+	if not boss.action.is_empty() and String(boss.state) in ["small_warning","major_warning","major_hits"]:
+		_warning(boss)
+	for mark in boss.repair_marks:
+		var at=_point(sim.cell_pos(int(mark.c),int(mark.r)))
+		var a=clampf(float(mark.until)-sim.time,0,1)
+		draw_texture_rect(textures.repair_mark,Rect2(at-Vector2(19,39),Vector2(38,38)),false,Color(1,1,1,a*0.8))
+	for fx in boss.effects:
+		var at=_point(Vector2(float(fx.x),float(fx.y)))
+		var age=sim.time-float(fx.at)
+		if String(fx.kind)=="break":_break(String(fx.prop),at,age)
+		else:_effect(String(fx.kind),at,age)
+	if not boss.alive():_effect("release",body_foot-Vector2(0,70),sim.time-float(boss.died_at),240)
+
+func _warning(boss) -> void:
+	var action: Dictionary=boss.action
+	var major=String(action.kind)=="major"
+	for i in Array(action.targets).size():
+		var cell: Dictionary=action.targets[i]
+		var impact=float(action.warning_end)+(i*float(boss.config.major.hit_spacing_s) if major else 0.0)
+		if sim.time>impact+0.18:continue
+		var corners: PackedVector2Array=Geo.screen_cell_polygon(int(cell.c),int(cell.r),sim.rows)
+		var at=_point(sim.cell_pos(int(cell.c),int(cell.r)))
+		var rect=Rect2(corners[0],Vector2.ZERO)
+		for p in corners:rect=rect.expand(p)
+		draw_texture_rect(textures.telegraph_tile,rect,false)
+		var center=rect.get_center()
+		draw_texture_rect(textures.telegraph_ring,Rect2(center-Vector2(30,30),Vector2(60,60)),false)
+		var remaining=clampf((impact-sim.time)/maxf(0.1,impact-float(action.warning_start)),0,1)
+		draw_arc(center,34,-PI/2,-PI/2+TAU*remaining,40,Color("#f5daa5"),3,true)
+		_text(str(i+1) if major else "!",center+Vector2(-8,9),26)
+		if String(action.kind)=="crab" or (major and String(boss.id)!="earth"):
+			var edge=_point(Vector2(Geo.SPAWN_X,sim.row_y(int(cell.r))))
+			draw_texture_rect(textures.telegraph_lane,Rect2(Vector2(at.x+40,center.y-12),Vector2(maxf(10,edge.x-at.x-40),24)),false)
+
+func _effect(kind: String, at: Vector2,age: float,size_px: float=140) -> void:
+	if age<0 or age>0.75:return
+	var first=mini(2,int(age/0.75*3))
+	var blend=age/0.75*3-first
+	var scale=lerpf(0.8,1.12,age/0.75)
+	var families=["earth","paper","water","release"]
+	if not families.has(kind):return
+	for i in 2:
+		var f: Dictionary=frames["fx_atlas.png:%s_%d" % [kind,first+i]]
+		var r: Array=f.region
+		var sz=size_px*scale
+		var weight=1-blend if i==0 else blend
+		draw_texture_rect_region(sheets["fx_atlas.png"],Rect2(at-Vector2(sz/2,sz*0.85),Vector2(sz,sz)),
+			Rect2(r[0],r[1],r[2],r[3]),Color(1,1,1,weight*(1-smoothstep(0.55,0.75,age))),false,true)
+
+func _break(kind: String, at: Vector2,age: float) -> void:
+	var paper=kind in ["paper_ferry","paper_seal"]
+	var duration=0.9 if paper else 0.65
+	if age>duration:return
+	var name={"tunnel":"tunnel_broken","paper_ferry":"paper_ferry_broken","paper_seal":"paper_seal","crab":"crab_broken"}.get(kind,"tunnel_broken")
+	var f: Dictionary=frames["props_atlas.png:"+String(name)]
+	var b: Array=f.alpha_bbox_local
+	var r: Array=f.region
+	var width=float(b[2]-b[0]);var height=float(b[3]-b[1])
+	var scale=90/maxf(width,height)
+	for i in 5:
+		var source=Rect2(r[0]+b[0]+width*i/5.0,r[1]+b[1],width/5.0,height)
+		var spin=(-1 if i<2 else 1)*(1.2+i*0.16)
+		var pos=at+Vector2((i-2)*width*scale/5.0+(i-2)*28*age,-height*scale/2-(70+i*9)*age+190*age*age)
+		draw_set_transform(pos,spin*age,Vector2(scale,scale))
+		draw_texture_rect_region(sheets["props_atlas.png"],Rect2(-source.size/2,source.size),source,
+			Color(1,1,1,1-smoothstep(duration*0.5,duration,age)),false,true)
+	draw_set_transform(Vector2.ZERO,0,Vector2.ONE)
+	_effect("paper" if paper else ("water" if kind=="crab" else "earth"),at,age,105)

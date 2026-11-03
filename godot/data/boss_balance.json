@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "status": "integrated_v0.4.0",
+  "difficulty": "normal",
+  "time_unit": "game_seconds",
+  "index_base": 1,
+  "intro_s": 3,
+  "victory_s": 2,
+  "target_operable_to_kill_s": [
+    105,
+    135
+  ],
+  "shared": {
+    "global_spawn_gate_s": 1.5,
+    "prop_live_cap": 2,
+    "protected_columns": [
+      1,
+      2
+    ],
+    "boss_target_columns": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "same_cell_cooldown_s": 6,
+    "refund_paid_fraction": 0.8,
+    "refund_round_down_to": 5,
+    "repair_mark_s": 8,
+    "cc_duration_multiplier": 0.25,
+    "cc_single_cap_s": 0.75,
+    "cc_rolling_window_s": 10,
+    "cc_rolling_cap_s": 1.5,
+    "percent_hp_hit_cap": 0.01,
+    "percent_hp_source_per_s_cap": 0.01,
+    "nonlethal_hp_floor": 1,
+    "post_budget_stagger_s": 2,
+    "stagger_continuous_cap_s": 4,
+    "addons_pause_during_major_queue": true,
+    "death_cancels_all_delayed_boss_damage": true
+  },
+  "bosses": [
+    {
+      "id": "earth",
+      "name": "地脉獾王",
+      "stage": "1-5",
+      "max_hp": 56000,
+      "reference_net_dps": 467,
+      "small_first_s": 8,
+      "small_period_s": 14,
+      "major_thresholds": [
+        0.7,
+        0.35
+      ],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          6.5,
+          8.5
+        ],
+        "live_cap": 7,
+        "weights": {
+          "light": 75,
+          "armor": 25,
+          "heavy": 0
+        }
+      },
+      "destruction_budget": 2,
+      "entry_incense": 150,
+      "major": {
+        "warning_s": 2.4,
+        "hit_spacing_s": 0.75,
+        "hit_count": 3,
+        "damage_per_hit": 240,
+        "max_kills_per_cast": 1,
+        "settle_s": 0.6,
+        "vulnerable_s": 3,
+        "vulnerable_multiplier": 1.25,
+        "extra_gap_s": 1
+      },
+      "atlas": "assets/boss/boss_earth_atlas.png",
+      "small": {
+        "id": "tunnel",
+        "warning_s": 2.2,
+        "damage": 140,
+        "target_columns": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "prop_hp": 160,
+        "prop_lifetime_s": 9,
+        "summon_at_s": [
+          4,
+          8
+        ],
+        "summon_role": "light",
+        "exit_fx_min_column": 6
+      }
+    },
+    {
+      "id": "paper",
+      "name": "缚愿纸官",
+      "stage": "2-5",
+      "max_hp": 68000,
+      "reference_net_dps": 567,
+      "small_first_s": 7,
+      "small_period_s": 13,
+      "major_thresholds": [
+        0.75,
+        0.45,
+        0.2
+      ],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          5.5,
+          7.5
+        ],
+        "live_cap": 9,
+        "weights": {
+          "light": 55,
+          "armor": 35,
+          "heavy": 10
+        }
+      },
+      "destruction_budget": 3,
+      "entry_incense": 200,
+      "major": {
+        "warning_s": 2.6,
+        "hit_spacing_s": 0.5,
+        "hit_count": 2,
+        "damage_per_hit": 320,
+        "max_kills_per_cast": 1,
+        "settle_s": 0.6,
+        "vulnerable_s": 3,
+        "vulnerable_multiplier": 1.25,
+        "extra_gap_s": 1
+      },
+      "atlas": "assets/boss/boss_paper_atlas.png",
+      "small": {
+        "id": "alternating_seal_ferry",
+        "start": "seal",
+        "seal_warning_s": 1.8,
+        "seal_count": 2,
+        "seal_hp": 120,
+        "seal_duration_s": 5,
+        "economy_seal_cap_s": 2,
+        "ferry_warning_s": 1.8,
+        "ferry_hp": 240,
+        "ferry_lifetime_s": 12,
+        "summon_at_s": [
+          3,
+          7,
+          11
+        ],
+        "summon_role": "armor"
+      }
+    },
+    {
+      "id": "river",
+      "name": "暗河傩主",
+      "stage": "3-5",
+      "max_hp": 46000,
+      "reference_net_dps": 383,
+      "small_first_s": 6,
+      "small_period_s": 12,
+      "major_thresholds": [
+        0.75,
+        0.5,
+        0.25
+      ],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          5,
+          7
+        ],
+        "live_cap": 10,
+        "weights": {
+          "light": 45,
+          "armor": 40,
+          "heavy": 15
+        }
+      },
+      "destruction_budget": 4,
+      "entry_incense": 250,
+      "major": {
+        "warning_s": 2.8,
+        "hit_spacing_s": 0.65,
+        "hit_count": 3,
+        "damage_per_hit": 360,
+        "max_kills_per_cast": 1,
+        "settle_s": 0.6,
+        "vulnerable_s": 3,
+        "vulnerable_multiplier": 1.25,
+        "extra_gap_s": 1
+      },
+      "atlas": "assets/boss/boss_river_atlas.png",
+      "small": {
+        "id": "crab_charge",
+        "warning_s": 2,
+        "crab_hp": 180,
+        "speed_cells_per_s": 1.54,
+        "damage": 300,
+        "stop_at_column": 3,
+        "max_major_wait_s": 3
+      }
+    }
+  ],
+  "calibration": "qa/boss-balance.json: normal, three supplied legal upgrade profiles, three seeds each (27 runs); reference target 105–135 seconds, not human playtest"
+}

@@ -19,39 +19,81 @@
       "ok": true
     },
     {
+      "detail": "[\"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
+      "group": "封面",
+      "name": "新玩家主按钮导向教程",
+      "ok": true
+    },
+    {
+      "detail": "[\"F11 全屏 · Esc 返回\", \"开过局内调整 2 夜：另册，不并入上面\", \"普通：天亮 1 · 退 40 · 第 2 大波\", \"守夜评级 0 / 48 ★\", \"通关 0 / 16 夜\", \"录\", \"守夜记录\", \"第一课约两分钟：收香火、种签筒、升一阶、请石磨挡一次。\", \"香火为钱，草木为兵。守到天亮，摊子才算收。\", \"YOKAI NIGHT MARKET · 子时开张\", \"夜\", \"妖怪夜市\"]",
+      "group": "封面",
+      "name": "守夜记录按难度分档",
+      "ok": true
+    },
+    {
+      "detail": "[\"F11 全屏 · Esc 返回\", \"开过局内调整 2 夜：另册，不并入上面\", \"普通：天亮 1 · 退 40 · 第 2 大波\", \"守夜评级 0 / 48 ★\", \"通关 0 / 16 夜\", \"录\", \"守夜记录\", \"第一课约两分钟：收香火、种签筒、升一阶、请石磨挡一次。\", \"香火为钱，草木为兵。守到天亮，摊子才算收。\", \"YOKAI NIGHT MARKET · 子时开张\", \"夜\", \"妖怪夜市\"]",
+      "group": "封面",
+      "name": "开过调整的那几夜另册单列",
+      "ok": true
+    },
+    {
       "detail": "",
       "group": "选关",
       "name": "选关页已建立",
       "ok": true
     },
     {
-      "detail": "nights=15",
+      "detail": "nights=16",
       "group": "选关",
-      "name": "十五夜都在页面里",
+      "name": "十五夜与特殊关都可选",
+      "ok": true
+    },
+    {
+      "detail": "buttons=4",
+      "group": "选关",
+      "name": "选关页有返回与进入按钮",
+      "ok": true
+    },
+    {
+      "detail": "3",
+      "group": "选关",
+      "name": "能切到第三天",
+      "ok": true
+    },
+    {
+      "detail": "11",
+      "group": "选关",
+      "name": "点第三天的第一夜选中第十一夜",
       "ok": true
     },
     {
       "detail": "",
       "group": "选关",
-      "name": "选关页带详情面板",
-      "ok": true
-    },
-    {
-      "detail": "buttons=3",
-      "group": "选关",
-      "name": "选关页有返回按钮",
+      "name": "特殊关有独立可进入入口",
       "ok": true
     },
     {
       "detail": "",
       "group": "选关",
-      "name": "可以选到第十一夜",
+      "name": "特殊关可用第三周题签返回主线",
       "ok": true
     },
     {
       "detail": "",
       "group": "备战",
       "name": "备战页已建立",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "水路备战开战按钮完整处于画面内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "样板夜写明这一夜练什么",
       "ok": true
     },
     {
@@ -76,6 +118,36 @@
       "detail": "",
       "group": "备战",
       "name": "不存在的卡不会进卡组",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "水路缺夜莲时露出换卡按钮",
+      "ok": true
+    },
+    {
+      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"bell\", \"censer\", \"umbrella\", \"torch\", \"needle\", \"cat\"]",
+      "group": "备战",
+      "name": "一键换进夜莲且仍是十张",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "换完不再提示缺夜莲",
+      "ok": true
+    },
+    {
+      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"kelp\", \"bell\", \"cat\", \"lobber\", \"censer\", \"torch\"]",
+      "group": "备战",
+      "name": "推荐配卡随地图：暗河先带夜莲",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "备战",
+      "name": "没有样板的夜不摆题签",
       "ok": true
     },
     {
@@ -141,13 +213,13 @@
     {
       "detail": "",
       "group": "升阶",
-      "name": "点草木后弹出升阶面板",
+      "name": "点草木后弹出扇形菜单",
       "ok": true
     },
     {
-      "detail": "",
+      "detail": "entries=3",
       "group": "升阶",
-      "name": "面板列出三条路",
+      "name": "扇形菜单列出三条路",
       "ok": true
     },
     {
@@ -157,13 +229,13 @@
       "ok": true
     },
     {
-      "detail": "900 -> 810",
+      "detail": "900 -> 800",
       "group": "升阶",
       "name": "升阶扣香火",
       "ok": true
     },
     {
-      "detail": "90 vs 90",
+      "detail": "100 vs 100",
       "group": "升阶",
       "name": "面板费用与实际扣费一致",
       "ok": true
@@ -171,7 +243,7 @@
     {
       "detail": "",
       "group": "升阶",
-      "name": "关闭面板后回到无选中",
+      "name": "关闭扇形后回到无选中",
       "ok": true
     },
     {
@@ -196,6 +268,36 @@
       "detail": "",
       "group": "图鉴",
       "name": "从局内能打开图鉴",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "图鉴",
+      "name": "进化默认收着，另有「展开全表」",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "图鉴",
+      "name": "展开后看得见三阶",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "图鉴",
+      "name": "展开后按钮换成收起全表",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "图鉴",
+      "name": "定位一句写在页面最前",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "图鉴",
+      "name": "没有升阶路的草木不摆进化表",
       "ok": true
     },
     {
@@ -241,6 +343,72 @@
       "ok": true
     },
     {
+      "detail": "[\"won\", \"time\", \"kills\", \"sun\", \"level_id\", \"training\", \"tutorial\", \"summary\"]",
+      "group": "结算",
+      "name": "结算带复盘数据",
+      "ok": true
+    },
+    {
+      "detail": "{ \"top_type\": \"\", \"top_damage\": 0, \"riskiest_wave\": 0, \"risk_peak\": 0, \"breached_rows\": [], \"mowers_used\": 0, \"stars\": 3, \"left_sun\": 800, \"plants_lost\": 0, \"empty_rows\": [1, 2, 4, 5], \"bosses_defeated\": 0, \"boss_history\": [] }",
+      "group": "结算",
+      "name": "复盘含主力输出/最险一波/被突破/星级",
+      "ok": true
+    },
+    {
+      "detail": "{ \"1\": 3 }",
+      "group": "结算",
+      "name": "星级写进进度",
+      "ok": true
+    },
+    {
+      "detail": "day1-battle",
+      "group": "音乐",
+      "name": "完整风格：第一夜解析到 day1 先锋",
+      "ok": true
+    },
+    {
+      "detail": "day1-hot",
+      "group": "音乐",
+      "name": "完整风格：白热化仍是同一天的曲子",
+      "ok": true
+    },
+    {
+      "detail": "hot",
+      "group": "音乐",
+      "name": "切朴素后立刻改用通用配乐",
+      "ok": true
+    },
+    {
+      "detail": "day2-battle",
+      "group": "音乐",
+      "name": "完整风格：第二天用 day2 曲子",
+      "ok": true
+    },
+    {
+      "detail": "16",
+      "group": "音乐",
+      "name": "十六首配乐都已装载",
+      "ok": true
+    },
+    {
+      "detail": "day2-hot",
+      "group": "音乐",
+      "name": "白热化默认新篇",
+      "ok": true
+    },
+    {
+      "detail": "day2-hot-alt",
+      "group": "音乐",
+      "name": "切延续后白热化改用 hot-alt",
+      "ok": true
+    },
+    {
+      "detail": "complete=true plain=false",
+      "group": "音乐",
+      "name": "「白热化音乐」只在完整风格下出现",
+      "ok": true
+    },
+    {
       "detail": "",
       "group": "续局",
       "name": "封面认出存档",
@@ -260,6 +428,6 @@
     }
   ],
   "failures": 0,
-  "total": 43,
-  "version": "0.3.0"
+  "total": 71,
+  "version": "0.4.0"
 }

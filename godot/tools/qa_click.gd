@@ -103,17 +103,23 @@ func _run() -> void:
 		check("封面：点按钮真的切到选关页", game.screen == "levels", str(game.screen))
 
 	var screen: Node = game.screen_node
-	var card: Control = screen._cards[10]
-	await click(_button_center(card))
-	check("选关：点夜卡选中第十一夜", int(screen.selected) == 11,
+	# 先点到第三天的题签，再点画上的第一个夜点
+	await click(Vector2(56 + 107, 150 + 2 * 104 + 44))
+	check("选关：点题签切到第三天", int(screen.day) == 3, str(screen.day))
+	await click(screen._node_pos(0))
+	check("选关：点夜点选中第十一夜", int(screen.selected) == 11,
 		str(screen.selected))
 
-	var prep_button: Button = _find_button(screen, "进入备战")
-	check("选关：有「进入备战」按钮", prep_button != null)
+	var prep_button: Button = _find_button(screen, "进入第")
+	check("选关：有「进入第X夜」按钮", prep_button != null)
 	if prep_button != null:
 		await click(_button_center(prep_button))
 		check("选关：点进备战页", game.screen == "prep", str(game.screen))
 
+	# 备战页先放镜头：点一下跳过，再等界面淡入
+	await click(Vector2(800, 420))
+	for i in 20:
+		await process_frame
 	screen = game.screen_node
 	# 卡组默认满十张，所以点「已在组里」的卡应当是取下
 	var index = 0
@@ -140,38 +146,25 @@ func _run() -> void:
 	await click(_button_center(card_node))
 	check("开战：点卡槽选中该卡", hud.card_selected == 0, str(hud.card_selected))
 	var sun_before: int = game.sim.sun
-	await click(Geo.cell_center(1, 2, game.sim.rows))
+	await click(Geo.screen_cell_center(1, 2, game.sim.rows))
 	check("开战：点棋盘真的种下草木", game.sim.main_plant_at(1, 2) != null)
 	check("开战：落子扣香火", game.sim.sun < sun_before,
 		"%d -> %d" % [sun_before, game.sim.sun])
 
-	await click(Geo.cell_center(1, 2, game.sim.rows))
-	check("升阶：点草木弹出升阶面板", hud._fan_panel != null)
-	if hud._fan_panel != null:
-		var upgrade_button: Button = _find_button(hud._fan_panel, "香火")
-		check("升阶：面板里有带费用的升阶按钮", upgrade_button != null)
-		if upgrade_button != null:
-			var center: Vector2 = _button_center(upgrade_button)
-			var motion: InputEventMouseMotion = InputEventMouseMotion.new()
-			motion.position = center
-			motion.global_position = center
-			root.push_input(motion, true)
-			await process_frame
-			print("  upgrade btn text=", upgrade_button.text, " disabled=",
-				upgrade_button.disabled, " rect=", upgrade_button.get_global_rect(),
-				" hovered=", root.gui_get_hovered_control(), " sun=", game.sim.sun)
-			upgrade_button.pressed.connect(func(): print("  >> pressed signal fired"))
-			var tier_before: int = game.sim.main_plant_at(1, 2).tier(1)
-			await click(center)
-			var pl = game.sim.main_plant_at(1, 2)
-			print("  tiers after click=", pl.tier(1), pl.tier(2), pl.tier(3),
-				" sun=", game.sim.sun, " path_in_tutorial=", pl.type)
-			print("  after click tier=", game.sim.main_plant_at(1, 2).tier(1),
-				" fan_alive=", is_instance_valid(hud._fan_panel),
-				" same_btn=", is_instance_valid(upgrade_button))
-			check("升阶：点按钮真的升了一级",
-				game.sim.main_plant_at(1, 2).tier(1) == tier_before + 1,
-				"%d -> %d" % [tier_before, game.sim.main_plant_at(1, 2).tier(1)])
+	await click(Geo.screen_cell_center(1, 2, game.sim.rows))
+	check("升阶：点草木弹出扇形菜单", hud._fan != null)
+	if hud._fan != null:
+		var petal: Vector2 = hud._fan._point(104.0, hud._fan._petal_angle(0))
+		check("升阶：第一片扇叶在可点范围内", hud._fan.hit_test(petal) == 0,
+			str(hud._fan.hit_test(petal)))
+		var tier_before: int = game.sim.main_plant_at(1, 2).tier(1)
+		await click(petal)
+		check("升阶：点扇叶真的升了一级",
+			game.sim.main_plant_at(1, 2).tier(1) == tier_before + 1,
+			"%d -> %d" % [tier_before, game.sim.main_plant_at(1, 2).tier(1)])
+		# 点空地应关掉扇形
+		await click(Vector2(200, 760))
+		check("升阶：点别处关掉扇形", hud._fan == null)
 
 	var pause_button: Button = _find_button(hud, "暂停")
 	check("暂停：找得到暂停按钮", pause_button != null)

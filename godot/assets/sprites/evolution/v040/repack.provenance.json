@@ -1,0 +1,8 @@
+{
+  "ids": [
+    "lantern",
+    "lion"
+  ],
+  "prompt": "Technical edit of the attached three-character transparent game sprite sheet. KEEP THE EXACT SAME three characters, dry gouache style, features and materials. Repack only: make all THREE complete characters 70 percent of their present size. Spread them into equal left, middle and right thirds of a 1536x1024 canvas. Each entire character, cloth, lantern, canopy, fire and paper strip MUST fit inside a 340px wide x 600px tall rectangle in its own third. Center each in x, align feet at y=820. x=512 and x=1024 must each have an empty 80px transparent gutter. Entire outer 50px margins also transparent. The left and right characters must NOT be clipped. No environment, no ground shadow, no painted background. Genuinely transparent RGBA background. Preserve the matte paint, no new design or lettering.",
+  "note": "Technical repack through builtin imagegen; originals retained. Runtime PNGs are copied intact, regions measured from alpha."
+}

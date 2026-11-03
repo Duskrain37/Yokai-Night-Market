@@ -48,107 +48,25 @@ func run() -> void:
 	check_tutorial_flow()
 
 
-const LOADOUT = [
-	"lantern", "shooter", "wall", "bell", "censer",
-	"umbrella", "lion", "torch", "needle", "lily",
-]
-
-
-## 简易策略：左两列铺灯，中间三列放输出，右三列放肉盾与控制。
-func strategy(sim, rng: RandomNumberGenerator) -> void:
-	# 按「列」推进：先给每一行铺灯，再补输出，最后才上肉盾与水面浮台，
-	# 并且始终留一点香火应急，避免把香火全砸在便宜货上。
-	var plan = [
-		[0, "lantern"], [1, "lantern"], [2, "shooter"], [3, "shooter"],
-		[4, "wall"], [5, "censer"], [6, "umbrella"],
-	]
-	for item in plan:
-		var col = int(item[0])
-		var type = String(item[1])
-		for row in sim.rows:
-			var tile = sim.tile_at(col, row)
-			if String(tile["kind"]) == "water":
-				if sim.lily_at(col, row) == null:
-					var lily_index = _card_index(sim, "lily")
-					if lily_index >= 0 and sim.sun >= 150 \
-							and float(sim.cards[lily_index]["cd"]) <= 0.0:
-						sim.try_place_card(lily_index, col, row, Vector2.ZERO)
-					continue
-			var index = _card_index(sim, type)
-			if index < 0:
-				continue
-			if sim.main_plant_at(col, row) != null:
-				continue
-			var cost = int(Content.PLANTS[type]["cost"])
-			if sim.sun < cost + 40:
-				continue
-			if float(sim.cards[index]["cd"]) > 0.0:
-				continue
-			var check = sim.can_place_at(type, col, row)
-			if not bool(check["ok"]):
-				continue
-			sim.try_place_card(index, col, row, Vector2.ZERO)
-	# 有余钱就把中间几株签筒升上去
-	for row in sim.rows:
-		var primary = sim.main_plant_at(2, row)
-		if primary != null and primary.tier(1) < 3 and sim.sun > 360:
-			sim.try_upgrade(primary, 1, Vector2.ZERO)
-		var second = sim.main_plant_at(3, row)
-		if second != null and second.tier(1) < 2 and sim.sun > 560:
-			sim.try_upgrade(second, 1, Vector2.ZERO)
-
-
-func _card_index(sim, type: String) -> int:
-	for i in sim.cards.size():
-		if String(sim.cards[i]["id"]) == type:
-			return i
-	return -1
+const LOADOUT = QaBot.LOADOUT
 
 
 func play_level(level_id: int, label: String) -> void:
-	var sim = Sim.new()
-	sim.setup(Content.get_level(level_id), LOADOUT, "easy")
-	var rng = RandomNumberGenerator.new()
-	rng.seed = 7
-	var won = [false]
-	var lost = [false]
-	sim.on_win = func(): won[0] = true
-	sim.on_lose = func(_z): lost[0] = true
-	var dt = 1.0 / 60.0
-	var steps = 0
-	var max_steps = int(900.0 / dt)
-	var strategy_timer = 0.0
-	var shots_seen = 0
-	var bad = ""
-	while steps < max_steps and not won[0] and not lost[0]:
-		sim.tick(dt)
-		sim.sounds.clear()
-		sim.sound_detail.clear()
-		steps += 1
-		strategy_timer += dt
-		if strategy_timer >= 0.5:
-			strategy_timer = 0.0
-			strategy(sim, rng)
-		shots_seen = maxi(shots_seen, sim.shots.size())
-		if not is_finite(sim.sun) or sim.sun < -10000:
-			bad = "香火异常 %s" % str(sim.sun)
-			break
-		for z in sim.zombies:
-			if not is_finite(z.hp):
-				bad = "恶客血量 NaN"
-				break
-		if bad != "":
-			break
+	var run = QaBot.play(level_id, 7)
+	var sim = run["sim"]
+	var won: bool = run["won"]
+	var bad: String = run["bad"]
 	check("对局", "%s 跑完不崩溃" % label, bad == "", bad)
 	# 第一夜与第六夜必须被这套朴素策略打通；第十一夜（威胁 2.65 的暗河）
 	# 只要求推进到第 8 波之后——脚本策略打得比人差，不能拿它当平衡结论。
 	var must_win = level_id <= 6
-	check("对局", "%s 状态最终为胜（策略可行）" % label, won[0] if must_win
-			else (won[0] or sim.wave_index >= 8),
+	check("对局", "%s 能推进到后段并正常终局" % label, won if must_win
+			else (won or sim.wave_index >= 8),
 		"won=%s lost=%s t=%.1f kills=%d wave=%d sun=%d plants=%d" % [
-			str(won[0]), str(lost[0]), sim.time, sim.kills, sim.wave_index,
+			str(won), str(not won), sim.time, sim.kills, sim.wave_index,
 			sim.sun, sim.plants.size()])
-	check("对局", "%s 有射弹出手" % label, shots_seen > 0, "max_shots=%d" % shots_seen)
+	check("对局", "%s 有射弹出手" % label, int(run["max_shots"]) > 0,
+		"max_shots=%d" % run["max_shots"])
 	check("对局", "%s 击退数合理" % label, sim.kills >= 5, "kills=%d" % sim.kills)
 	check("对局", "%s 波次推进到后段" % label,
 		sim.wave_index >= (12 if level_id <= 6 else 8), "wave=%d" % sim.wave_index)
@@ -157,7 +75,7 @@ func play_level(level_id: int, label: String) -> void:
 	print("  %s: t=%.1f kills=%d sun=%d plants=%d mowers=%s" % [label, sim.time,
 		sim.kills, sim.sun, sim.plants.size(), str(sim.mowers.map(
 			func(m): return m["ready"]))])
-	if not won[0]:
+	if not won:
 		var parts: Array = []
 		for z in sim.zombies:
 			parts.append("%s@%.0f:hp%.0f%s" % [z.type, z.pos.x, z.hp,
@@ -232,7 +150,7 @@ func check_midrun_save() -> void:
 		timer += dt
 		if timer >= 0.5:
 			timer = 0.0
-			strategy(sim, rng)
+			QaBot.strategy(sim, rng)
 	var snapshot = sim.serialize()
 	check("存档", "对局中段存档非空", snapshot["plants"].size() > 0
 		and int(snapshot["wave_index"]) > 0,
@@ -250,7 +168,7 @@ func check_midrun_save() -> void:
 		timer += dt
 		if timer >= 0.5:
 			timer = 0.0
-			strategy(restored, rng)
+			QaBot.strategy(restored, rng)
 	check("存档", "读回存档后能继续打完这一夜", won[0],
 		"t=%.1f kills=%d wave=%d" % [restored.time, restored.kills,
 			restored.wave_index])
@@ -278,7 +196,26 @@ func check_tutorial_flow() -> void:
 	var shooter = sim.main_plant_at(2, 2)
 	check("教学", "签筒落地", shooter != null)
 	sim.try_upgrade(shooter, 1, Vector2.ZERO)
-	check("教学", "升阶后进入实战", String(sim.tutorial["step"]) == "battle")
+	check("教学", "升阶后进入挡怪一步", String(sim.tutorial["step"]) == "wall",
+		sim.tutorial_step())
+	# 评测实测：误铲教学株会把教程卡死。现在铲不动；就算株没了也会退回能继续的一步
+	var blocked = sim.shovel_at(2, 2)
+	check("教学", "教学签筒不许铲", not bool(blocked["ok"]), String(blocked.get("text", "")))
+	sim.kill_plant(shooter, true)
+	sim.update_tutorial(1.0 / 60.0)
+	check("教学", "目标没了退回种签筒并补够香火",
+		String(sim.tutorial["step"]) == "plant" and sim.sun >= 250,
+		"step=%s sun=%d" % [sim.tutorial_step(), int(sim.sun)])
+	for i in int(6.0 / dt):        # 等签筒那张牌过冷却，和真人一样
+		sim.tick(dt)
+		sim.sounds.clear()
+	sim.try_place_card(0, 2, 2, Vector2.ZERO)
+	sim.try_upgrade(sim.main_plant_at(2, 2), 1, Vector2.ZERO)
+	check("教学", "重来一遍仍能走到挡怪", String(sim.tutorial["step"]) == "wall",
+		sim.tutorial_step())
+	sim.try_place_card(1, 3, 2, Vector2.ZERO)
+	check("教学", "石磨落地后进入实战", String(sim.tutorial["step"]) == "battle"
+		and sim.main_plant_at(3, 2) != null, sim.tutorial_step())
 	steps = 0
 	while steps < int(40.0 / dt) and not won[0]:
 		sim.tick(dt)

@@ -22,8 +22,10 @@ func check(group: String, name: String, ok: bool, detail: String = "") -> void:
 func run() -> void:
 	# 自检从干净状态开始，不受本机既有存档影响
 	game.clear_run()
+	game.set_setting("music_style", "complete")
 	game.progress = {"cleared": [], "selected": 1, "loadout": []}
-	game.records = {"wins": 0, "best_kills": 0, "best_wave": 0, "best_time": null}
+	game.records = {"by_diff": {"normal": {"wins": 1, "best_kills": 40, "best_wave": 6}},
+		"cheated": {"runs": 2}}
 	game.loadout = game.DEFAULT_LOADOUT.duplicate()
 	game.save_progress()
 	game.save_records()
@@ -38,6 +40,7 @@ func run() -> void:
 	await _stage_upgrade()
 	await _stage_pause()
 	await _stage_result()
+	await _stage_music()
 	await _stage_continue()
 	_report()
 
@@ -49,25 +52,42 @@ func _stage_menu() -> void:
 	check("封面", "封面按钮不少于六组", buttons.size() >= 6,
 		"buttons=%d" % buttons.size())
 	check("封面", "封面读得到存档状态", game.has_save() or true)
+	# 一夜未守、也没学过教程：主按钮该把人带去第一课，而不是丢进选关页
+	check("封面", "新玩家主按钮导向教程", _has_text(_button_texts(buttons), "先学一夜守夜"),
+		str(_button_texts(buttons)))
+	var texts := _label_texts(game.screen_node)
+	check("封面", "守夜记录按难度分档", _has_text(texts, "普通"), str(texts))
+	check("封面", "开过调整的那几夜另册单列", _has_text(texts, "另册"), str(texts))
 
 
 func _stage_levels() -> void:
 	game.show_levels()
 	var screen = game.screen_node
 	check("选关", "选关页已建立", game.screen == "levels" and screen != null)
-	var nights = screen._cards.size()
-	check("选关", "十五夜都在页面里", nights == 15, "nights=%d" % nights)
-	check("选关", "选关页带详情面板", screen._detail_panel != null)
-	check("选关", "选关页有返回按钮", _all_buttons(screen).size() >= 3,
+	var nights = screen.night_total()
+	check("选关", "十五夜与特殊关都可选", nights == 16, "nights=%d" % nights)
+	check("选关", "选关页有返回与进入按钮", _all_buttons(screen).size() >= 3,
 		"buttons=%d" % _all_buttons(screen).size())
-	screen.select_level(11)
-	check("选关", "可以选到第十一夜", int(screen.selected) == 11)
+	screen.select_day(3)
+	check("选关", "能切到第三天", int(screen.day) == 3, str(screen.day))
+	screen.select_night(0)
+	check("选关", "点第三天的第一夜选中第十一夜", int(screen.selected) == 11,
+		str(screen.selected))
+	screen.switch_to_level(16)
+	check("选关","特殊关有独立可进入入口",screen.selected==16 and screen._enter.text=="进入鬼市深处" and screen._special!=null)
+	screen.select_day(3)
+	check("选关","特殊关可用第三周题签返回主线",screen.selected==11)
 	game.show_prep(11)
 
 
 func _stage_prep() -> void:
 	var screen = game.screen_node
 	check("备战", "备战页已建立", game.screen == "prep" and screen != null)
+	var launch=_all_buttons(screen).filter(func(b):return b.text=="开战")
+	check("备战","水路备战开战按钮完整处于画面内",launch.size()==1 and launch[0].get_global_rect().end.y<=Geo.VIEW.y)
+	# 第十一夜是三夜样板之一：页面上要写明这一夜只练什么
+	check("备战", "样板夜写明这一夜练什么",
+		_has_text(_label_texts(screen), "只练一件事"))
 	check("备战", "备战默认带上十张卡", Array(game.prep["selected"]).size() == 10,
 		"cards=%d" % Array(game.prep["selected"]).size())
 	screen.toggle_plant("cat")
@@ -76,8 +96,23 @@ func _stage_prep() -> void:
 	check("备战", "再点回来变十张", Array(screen._picked).size() == 10)
 	screen.toggle_plant("shield")
 	check("备战", "不存在的卡不会进卡组", Array(screen._picked).size() == 10)
+	# 第十一夜是暗河：默认卡组没有夜莲，就该露出补救按钮
+	check("备战", "水路缺夜莲时露出换卡按钮", screen._fix_row.visible
+		and screen._needs_lily())
+	screen._swap_in_lily()
+	check("备战", "一键换进夜莲且仍是十张",
+		Array(screen._picked).has("lily") and Array(screen._picked).size() == 10,
+		str(screen._picked))
+	check("备战", "换完不再提示缺夜莲", not screen._needs_lily()
+		and not screen._fix_row.visible)
+	screen._auto_pick()
+	check("备战", "推荐配卡随地图：暗河先带夜莲",
+		Array(screen._picked).has("lily") and String(screen._picked[0]) == "lily",
+		str(screen._picked))
 	# 回到第一夜开战
 	game.show_prep(1)
+	check("备战", "没有样板的夜不摆题签",
+		not _has_text(_label_texts(game.screen_node), "只练一件事"))
 
 
 func _stage_battle() -> void:
@@ -97,7 +132,7 @@ func _stage_battle() -> void:
 	# 点第一张卡，再点棋盘第 0 列第 2 行
 	game.hud._on_card(0)
 	check("对局", "点卡后处于待落子状态", game.hud.card_selected == 0)
-	var cell = Geo.cell_center(0, 2, sim.rows)
+	var cell = Geo.screen_cell_center(0, 2, sim.rows)
 	game._handle_battle_click(cell)
 	check("对局", "点空地后种下草木", sim.main_plant_at(0, 2) != null)
 	check("对局", "种植扣了香火", sim.sun < sun_before,
@@ -106,14 +141,14 @@ func _stage_battle() -> void:
 	# 冷却中的卡不能重复摆放
 	game.hud._on_card(0)
 	check("对局", "冷却中的卡点不动", game.hud.card_selected == 0)
-	game._handle_battle_click(Geo.cell_center(1, 2, sim.rows))
+	game._handle_battle_click(Geo.screen_cell_center(1, 2, sim.rows))
 	check("对局", "冷却中落子是无效操作", sim.main_plant_at(1, 2) == null)
 	game.hud.cancel_selection()
 	# 种签筒并检查升级面板
 	sim.sun = 1000
 	sim.cards[1]["cd"] = 0.0
 	game.hud._on_card(1)
-	game._handle_battle_click(Geo.cell_center(2, 2, sim.rows))
+	game._handle_battle_click(Geo.screen_cell_center(2, 2, sim.rows))
 	await game.get_tree().process_frame
 	check("对局", "签筒落在第 2 列", sim.main_plant_at(2, 2) != null)
 
@@ -123,9 +158,10 @@ func _stage_upgrade() -> void:
 	var plant = sim.main_plant_at(2, 2)
 	game.hud.try_open_menu(plant, Vector2(900, 450))
 	await game.get_tree().process_frame
-	check("升阶", "点草木后弹出升阶面板", game.hud._fan_panel != null)
-	check("升阶", "面板列出三条路", game.hud._fan_panel != null and
-		game.hud._fan_panel.get_child(0).get_child_count() >= 4)
+	check("升阶", "点草木后弹出扇形菜单", game.hud._fan != null)
+	check("升阶", "扇形菜单列出三条路", game.hud._fan != null and
+		game.hud._fan.entries.size() == 3,
+		"entries=%d" % (0 if game.hud._fan == null else game.hud._fan.entries.size()))
 	var sun_before = sim.sun
 	var shown = Upgrades.path_status("shooter", plant.upgrades, 1)
 	game.hud._on_upgrade(plant, 1)
@@ -134,7 +170,7 @@ func _stage_upgrade() -> void:
 	check("升阶", "面板费用与实际扣费一致", int(shown["cost"]) == sun_before - sim.sun,
 		"%d vs %d" % [int(shown["cost"]), sun_before - sim.sun])
 	game.hud.close_fan()
-	check("升阶", "关闭面板后回到无选中", game.hud._fan_panel == null)
+	check("升阶", "关闭扇形后回到无选中", game.hud._fan == null)
 
 
 func _stage_pause() -> void:
@@ -149,9 +185,33 @@ func _stage_pause() -> void:
 	await game.get_tree().process_frame
 	check("暂停", "继续后恢复推进", not game.paused)
 	# 图鉴与设置是覆盖层，关闭后要回到战场
-	game.open_almanac("plant", 3)
+	# 红灯笼有三条路，正好用来看进化表的展开与收起
+	game.open_almanac("plant", 0)
 	await game.get_tree().process_frame
 	check("图鉴", "从局内能打开图鉴", game.screen == "almanac")
+	# 进化表默认只给「白板 → 下一级」，全表靠按钮展开
+	var toggle = null
+	for button in _all_buttons(game.screen_node):
+		if String(button.text) == "展开全表":
+			toggle = button
+	check("图鉴", "进化默认收着，另有「展开全表」", toggle != null)
+	if toggle != null:
+		toggle.pressed.emit()
+		await game.get_tree().process_frame
+		check("图鉴", "展开后看得见三阶", _has_text(_label_texts(game.screen_node), "三阶"))
+		check("图鉴", "展开后按钮换成收起全表",
+			_has_text(_button_texts(_all_buttons(game.screen_node)), "收起全表"))
+		check("图鉴", "定位一句写在页面最前",
+			_has_text(_label_texts(game.screen_node), "香火"))
+		# 换到爆竹（没有升阶路的那一株）：同一页里换条目，不重开覆盖层
+		game.screen_node._select_entry(3)
+		var no_paths = true
+		for button in _all_buttons(game.screen_node):
+			if String(button.text) == "展开全表":
+				no_paths = false
+		check("图鉴", "没有升阶路的草木不摆进化表", no_paths
+			and not _label_texts(game.screen_node).is_empty())
+		game.screen_node._select_entry(0)
 	game.close_overlay()
 	await game.get_tree().process_frame
 	check("图鉴", "关闭图鉴回到战场", game.screen == "battle" and game.sim != null)
@@ -174,8 +234,89 @@ func _stage_result() -> void:
 	check("结算", "结算记录了胜负", bool(game.result.get("won", false)))
 	check("结算", "胜利后写入通关进度",
 		Array(game.progress.get("cleared", [])).has(1))
+	var summary: Dictionary = game.result.get("summary", {})
+	check("结算", "结算带复盘数据", not summary.is_empty(), str(game.result.keys()))
+	check("结算", "复盘含主力输出/最险一波/被突破/星级",
+		summary.has("top_type") and summary.has("riskiest_wave")
+		and summary.has("breached_rows") and summary.has("stars"), str(summary))
+	check("结算", "星级写进进度",
+		int(Dictionary(game.progress.get("stars", {})).get("1", 0)) >= 1,
+		str(game.progress.get("stars", {})))
 	game.show_menu()
 	await game.get_tree().process_frame
+
+
+func _stage_music() -> void:
+	# 完整风格：第一天用 day1 三套，第二天用 day2
+	game.set_setting("music_style", "complete")
+	game.show_prep(1)
+	await game.get_tree().process_frame
+	game.screen_node._start()
+	await game.get_tree().process_frame
+	check("音乐", "完整风格：第一夜解析到 day1 先锋",
+		String(game._music_current).begins_with("day1-"), str(game._music_current))
+	game.sim.wave_index = 9
+	game._music_for_wave()
+	check("音乐", "完整风格：白热化仍是同一天的曲子",
+		String(game._music_current) == "day1-hot", str(game._music_current))
+	# 切到朴素：立刻回到通用三套
+	game.set_setting("music_style", "plain")
+	game._music_for_wave()
+	check("音乐", "切朴素后立刻改用通用配乐",
+		String(game._music_current) == "hot", str(game._music_current))
+	# 第二天第一夜：完整风格应是 day2
+	game.set_setting("music_style", "complete")
+	game.show_prep(6)
+	await game.get_tree().process_frame
+	game.screen_node._start()
+	await game.get_tree().process_frame
+	check("音乐", "完整风格：第二天用 day2 曲子",
+		String(game._music_current).begins_with("day2-"), str(game._music_current))
+	check("音乐", "十六首配乐都已装载", game._music_players.size() == 16,
+		str(game._music_players.size()))
+	# 白热化二选一：默认新篇，切到延续立刻换曲
+	game.set_setting("music_style", "complete")
+	game.set_setting("hot_variant", "new")
+	game.sim.wave_index = 9
+	game._music_for_wave()
+	check("音乐", "白热化默认新篇", String(game._music_current) == "day2-hot",
+		str(game._music_current))
+	game.set_setting("hot_variant", "continue")
+	game._music_for_wave()
+	check("音乐", "切延续后白热化改用 hot-alt",
+		String(game._music_current) == "day2-hot-alt", str(game._music_current))
+	# 设置界面：这一行只在完整风格下出现
+	game.set_setting("music_style", "complete")
+	game.open_settings()
+	await game.get_tree().process_frame
+	# 设置已分页，声音在第 3 页
+	game.screen_node.page = 2
+	game.screen_node._build()
+	await game.get_tree().process_frame
+	var found_complete = _has_setting_row("白热化音乐")
+	game.close_overlay()
+	await game.get_tree().process_frame
+	game.set_setting("music_style", "plain")
+	game.open_settings()
+	await game.get_tree().process_frame
+	game.screen_node.page = 2
+	game.screen_node._build()
+	await game.get_tree().process_frame
+	var found_plain = _has_setting_row("白热化音乐")
+	check("音乐", "「白热化音乐」只在完整风格下出现",
+		found_complete and not found_plain,
+		"complete=%s plain=%s" % [str(found_complete), str(found_plain)])
+	game.close_overlay()
+	await game.get_tree().process_frame
+	game.set_setting("music_style", "complete")
+	game.set_setting("hot_variant", "new")
+
+
+func _has_setting_row(label: String) -> bool:
+	for node in _all_nodes(game.screen_node):
+		if node is Label and String(node.text) == label:
+			return true
+	return false
 
 
 func _stage_continue() -> void:
@@ -241,3 +382,25 @@ func _all_buttons(root: Node) -> Array:
 		if node is Button:
 			out.append(node)
 	return out
+
+
+func _button_texts(buttons: Array) -> Array:
+	var out: Array = []
+	for button in buttons:
+		out.append(String(button.text))
+	return out
+
+
+func _label_texts(root: Node) -> Array:
+	var out: Array = []
+	for node in _all_nodes(root):
+		if node is Label:
+			out.append(String(node.text))
+	return out
+
+
+func _has_text(texts: Array, needle: String) -> bool:
+	for text in texts:
+		if String(text).find(needle) >= 0:
+			return true
+	return false
