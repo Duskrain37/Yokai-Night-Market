@@ -17,7 +17,7 @@ var _loading_screen: Control
 var _loading_hold: Dictionary = {}
 var _loading_busy := false
 
-const VERSION = "0.4.2"
+const VERSION = "0.5.0"
 const SAVE_PATH = "user://run.json"
 const SETTINGS_PATH = "user://settings.json"
 const PROGRESS_PATH = "user://progress.json"
@@ -34,7 +34,6 @@ const DEFAULT_SETTINGS = {
 	"sound": true,
 	"resolution": "auto",
 	"music_style": "complete",
-	"hot_variant": "new",
 	"music_volume": 70,
 	"sfx_volume": 80,
 	"show_grid": false,
@@ -120,7 +119,7 @@ func _ready() -> void:
 			paths.append(_music_path(track))
 		for actor in Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"]:
 			paths.append("res://assets/sprites/%s.png" % actor)
-		await _load_transition(paths, "灯火将明", "res://assets/bg/loading-menu.png", true)
+		await _load_transition(paths, "灯火将明", "res://assets/bg/loading-night.png", true)
 	Ui.warm_sprites(Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"])
 	_setup_audio()
 	loadout = _clean_loadout(Array(progress.get("loadout", [])))
@@ -280,10 +279,11 @@ func start_battle(level_id: int, cards: Array, mode = "normal", restore_data: Di
 		var background = "res://assets/bg/map-%s.png" % map
 		if not ResourceLoader.exists(background):
 			background = "res://assets/bg/map-%s.jpg" % map
-		await _load_transition(_battle_resources(level_id, cards, background, map), "守夜将启", background)
+		await _load_transition(_battle_resources(level_id, cards, background, map), "守夜将启", "res://assets/bg/loading-night.png")
 	_start_battle_now(level_id, cards, mode)
 	if not restore_data.is_empty():
 		sim.restore(restore_data)
+		board.set_map(Content.map_key(sim.level))
 		settings["difficulty"] = sim.difficulty
 		hud.refresh()
 	if _loading_screen != null:
@@ -350,10 +350,7 @@ func _start_battle_now(level_id: int, cards: Array, mode: String) -> void:
 func _battle_map(level_id: int, mode: String) -> String:
 	if mode == "tutorial":
 		return "day1"
-	match String(Content.get_level(level_id)["map"]):
-		"market": return "day2"
-		"water": return "day3"
-		_: return "day1"
+	return Content.map_key(Content.get_level(level_id))
 
 
 func _battle_resources(level_id: int, cards: Array, background: String, map: String) -> Array[String]:
@@ -362,9 +359,9 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 		paths.append("res://assets/sprites/armor-%s-atlas.png" % material)
 	for index in [1, 2, 3]:
 		paths.append("res://assets/sprites/mushroom-growth-%d.png" % index)
-		for kind in ["market", "water"]:
+		for kind in ["market", "water", "island"]:
 			paths.append("res://assets/sprites/obstacle-%s-%d.png" % [kind, index])
-	paths.append("res://assets/sprites/mower-%s.png" % map)
+	paths.append("res://assets/sprites/mower-%s.png" % {"day4": "day2", "day5": "day3"}.get(map, map))
 	paths.append("res://assets/sprites/guest-gear-v042.png")
 	for role in ["sedan-unarmored", "paper-unarmored-v2"]:
 		paths.append("res://assets/sprites/%s.png" % role)
@@ -378,6 +375,13 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 	var motion = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json"))
 	if motion is Dictionary:
 		for actor in allies + foes:
+			if motion.has(actor):
+				paths.append("res://" + String(motion[actor]["file"]))
+		var level := Content.get_level(level_id)
+		var bosses: Array = level.get("boss_checkpoints", []).duplicate()
+		bosses.append_array([level.get("mid_boss", ""), level.get("boss_id", "")])
+		for id in bosses:
+			var actor := "boss-%s" % id
 			if motion.has(actor):
 				paths.append("res://" + String(motion[actor]["file"]))
 	var forms = JSON.parse_string(FileAccess.get_file_as_string("res://data/evolution_art_v040.json"))
@@ -746,7 +750,7 @@ func set_setting(key: String, value) -> void:
 		apply_speed(float(value))
 	elif key == "resolution":
 		_apply_resolution()
-	elif key == "music_style" or key == "hot_variant":
+	elif key == "music_style":
 		if screen == "battle":
 			_music_for_wave()
 			play_music_scene(_music_current, true)
@@ -969,18 +973,17 @@ func _clean_loadout(ids: Array) -> Array:
 # ── 音频 ────────────────────────────────────────────────────────────────────
 ## 两条音乐风格：
 ##   朴素：所有关卡都用 v0.2.4 那三套通用配乐（先锋/白热化/最终）；
-##   完整：第一大关用 day1 三套、第二大关 day2、第三大关 day3。
+##   完整：每周各有先锋、白热化、最终三首。
 ## 两种风格共用同一首菜单曲。
 const MUSIC_BASE = ["menu", "battle", "hot", "final"]
-## 每天的曲目：先锋 / 白热化（新篇 dayN-hot、延续 dayN-hot-alt）/ 最终
 const MUSIC_DAY_TRACKS = [
-	"day1-battle", "day1-hot", "day1-hot-alt", "day1-final",
-	"day2-battle", "day2-hot", "day2-hot-alt", "day2-final",
-	"day3-battle", "day3-hot", "day3-hot-alt", "day3-final",
+	"day1-battle", "day1-hot", "day1-final",
+	"day2-battle", "day2-hot", "day2-final",
+	"day3-battle", "day3-hot", "day3-final",
+	"day4-battle", "day4-hot", "day4-final",
+	"day5-battle", "day5-hot", "day5-final",
 ]
 const MUSIC_STYLE_LABEL = {"plain": "朴素", "complete": "完整"}
-## 完整风格下「白热化」段落用哪一套：新篇=当天 hot；延续=当天 hot-alt（由先锋段主题变奏而来）
-const HOT_VARIANT_LABEL = {"new": "新篇", "continue": "延续"}
 
 
 func _music_path(name: String) -> String:
@@ -1028,36 +1031,16 @@ func wave_phase() -> String:
 	return "battle"
 
 
-func hot_variant() -> String:
-	var variant = String(settings.get("hot_variant", "new"))
-	return variant if HOT_VARIANT_LABEL.has(variant) else "new"
-
-
 func _has_track(name: String) -> bool:
 	var player = _music_players.get(name)
 	return player != null and player.stream != null
 
 
 ## 解析当前该放哪一首：朴素=通用三套；完整=当天那一套。
-## 完整风格的白热化段落再按「新篇 / 延续」二选一，缺哪首就退到另一首、再退到通用。
 func resolve_battle_track(day: int, phase: String) -> String:
 	if music_style() == "plain":
 		return phase
-	var lane = clampi(day, 1, 3)
-	if phase == "hot":
-		var fresh = "day%d-hot" % lane
-		var carry = "day%d-hot-alt" % lane
-		if hot_variant() == "continue":
-			if _has_track(carry):
-				return carry
-			if _has_track(fresh):
-				return fresh
-		else:
-			if _has_track(fresh):
-				return fresh
-			if _has_track(carry):
-				return carry
-		return phase
+	var lane = clampi(day, 1, Content.DAYS.size())
 	var name = "day%d-%s" % [lane, phase]
 	if _has_track(name):
 		return name
@@ -1119,6 +1102,7 @@ func play_sfx(name: String, detail: Dictionary = {}) -> void:
 	var now=Time.get_ticks_msec()/1000.0
 	var gate=0.08
 	if name in ["collect","produce"]:gate=0.20
+	elif name == "splash":gate=0.24
 	elif name in ["hit","eat","shoot","needle_shot","star_shot","cat_shot"]:gate=0.10
 	elif name.begins_with("boss"):gate=0.18
 	if now<float(_sfx_gates.get(name,-100.0))+gate:return
@@ -1213,6 +1197,14 @@ func _synth_mood(key: String) -> AudioStreamWAV:
 			noise_amp = 0.32
 			noise_lp = 760.0
 			noise_decay = 70.0
+		"splash":
+			dur = 0.32
+			layers = [[118.0, 0.12, 64.0], [261.0, 0.06, 90.0]]
+			noise_amp = 0.32
+			noise_lp = 1190.0
+			noise_hp = 280.0
+			noise_decay = 95.0
+			attack = 0.012
 		_:
 			dur = 0.2
 			layers = [[220.0, 0.4, 60.0]]
@@ -1369,7 +1361,7 @@ func _sfx_for(name: String, detail: Dictionary = {}) -> AudioStream:
 		var sound: AudioStream=load(mastered)
 		_sfx_cache[key]=sound
 		return sound
-	if key in ["click", "collect", "kill", "alert", "capstone", "shovel"]:
+	if key in ["click", "collect", "kill", "alert", "capstone", "shovel", "splash"]:
 		var mood_stream = _synth_mood(key)
 		_sfx_cache[key] = mood_stream
 		return mood_stream
@@ -1537,7 +1529,7 @@ func _handle_cli() -> void:
 				"almanac-zombie":
 					open_almanac("zombie", 6)
 				"almanac-boss":
-					open_almanac("boss", 2)
+					open_almanac("boss", Almanac.BOSS_ORDER.size() - 1)
 				"settings":
 					open_settings()
 				"training":
@@ -1573,12 +1565,21 @@ func _handle_cli() -> void:
 				"battle3":
 					start_battle(11, loadout)
 					_qa_battle_seed()
+				"island", "cavern":
+					start_battle(Content.level_id_for(4 if target == "island" else 5), ["lantern", "shooter", "lily", "wall"])
+					for row in sim.rows:
+						var column := 2
+						if sim.tile_at(column, row).kind == "water":
+							sim.place_free("lily", column, row)
+						sim.place_free("lantern", column, row)
 				"evolve":
 					_qa_show_evolve()
 				"boss1", "boss2", "boss3":
 					_qa_show_boss(int(target.right(1))*5)
+				"boss4", "boss5", "boss-bound":
+					_qa_show_boss(Content.level_id_for(4 if target == "boss4" else 5, 4), 0, target == "boss-bound")
 				"gauntlet":
-					_qa_show_boss(16,clampi(_qa_prep_level-1,0,2))
+					_qa_show_boss(16,clampi(_qa_prep_level-1,0,Content.SPECIAL_THREATS.size()-1))
 				"armor":
 					start_battle(6, loadout)
 					for row in 6:
@@ -1712,7 +1713,7 @@ func _qa_show_evolve() -> void:
 		hud.refresh()
 
 
-func _qa_show_boss(id: int,checkpoint: int=0) -> void:
+func _qa_show_boss(id: int,checkpoint: int=0, bound := false) -> void:
 	start_battle(id,loadout)
 	sim.time=500;sim.sun=500
 	for col in 7:
@@ -1724,15 +1725,18 @@ func _qa_show_boss(id: int,checkpoint: int=0) -> void:
 	sim.refresh_plant_buffs()
 	if id==16:
 		sim.special_bosses_completed=checkpoint
-		sim.count_mul=sqrt(float([2,2.5,3.5][checkpoint]));sim.hp_mul=sim.count_mul
+		sim.count_mul=sqrt(Content.checkpoint_threat(sim.level, checkpoint) / Content.terrain_factor(sim.level));sim.hp_mul=sim.count_mul
 		sim.boss=preload("res://scripts/boss_encounter.gd").new()
 		sim.boss.begin(sim,String(sim.level.boss_checkpoints[checkpoint]))
 	else:
-		sim.wave_index=sim.level.waves.size()-3
+		sim.wave_index=9 if bound else sim.level.waves.size()-3
 		sim.queue_wave(sim.level.waves[sim.wave_index],sim.wave_index)
 	sim.time+=3.1
 	sim.boss.state="idle"
-	sim.boss._start_major()
+	if bound:
+		sim.boss._start_small()
+	else:
+		sim.boss._start_major()
 	for i in 45:sim.tick(1.0/60.0)
 	sim.sounds.clear();sim.sound_detail.clear()
 	boss_view._pose=sim.boss.pose();boss_view._previous=boss_view._pose;boss_view._pose_at=sim.time-1.0

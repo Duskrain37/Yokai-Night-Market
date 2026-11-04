@@ -26,7 +26,7 @@ var obstacle_art: Dictionary = {}
 func _ready() -> void:
 	z_index = 0
 	_guardian = Ui.sprite("guardian")
-	for kind in ["market", "water"]:
+	for kind in ["market", "water", "island"]:
 		for variant in [1, 2, 3]:
 			var key = "%s-%d" % [kind, variant]
 			obstacle_art[key] = load("res://assets/sprites/obstacle-%s.png" % key)
@@ -135,6 +135,14 @@ func _draw_stage() -> void:
 
 
 func _draw_grid() -> void:
+	if map_key == "day4":
+		for row in sim.rows:
+			for col in Geo.COLS:
+				if sim.tile_at(col, row).kind == "edge":
+					continue
+				var quad := _cell_quad(col, row)
+				draw_polyline(PackedVector2Array([quad[0], quad[1], quad[2], quad[3], quad[0]]), Color(0.9, 0.82, 0.65, 0.065), 1.0, true)
+		return
 	# 只要格线，不要外框：外框会在背景上切出一条生硬的边
 	var line := Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.13)
 	for col in Geo.COLS + 1:
@@ -148,6 +156,8 @@ func _draw_grid() -> void:
 ## 关掉描格子也要留一道淡行界：五条行是这游戏的骨架，
 ## 全抹掉就只能凭感觉判断"这株到底罩不罩得住那一行"。
 func _draw_row_lines() -> void:
+	if map_key in ["day4", "day5"]:
+		return
 	var line := Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.055)
 	for row in sim.rows + 1:
 		var t := float(row) / float(sim.rows)
@@ -161,12 +171,15 @@ func _draw_tiles() -> void:
 			var tile: Dictionary = sim.tiles[row][col]
 			match String(tile["kind"]):
 				"water":
-					_draw_water(_cell_quad(col, row), String(tile["water"]))
+					if map_key != "day5":
+						_draw_water(_cell_quad(col, row), String(tile["water"]))
 				"object":
 					_draw_water(_cell_quad(col, row), String(tile["water"]))
 					_draw_object(col, row, int(tile["obj"]))
 				"blocked":
 					_draw_blocked(col, row, int(tile["obj"]))
+				"obstacle":
+					_paint_obstacle("island", col, row, int(tile["obj"]))
 
 
 func _draw_water(quad: PackedVector2Array, kind: String) -> void:
@@ -194,7 +207,9 @@ func _paint_obstacle(kind: String, col: int, row: int, variant: int) -> void:
 	var center = Geo.to_screen(flat, sim.rows)
 	var scale = Geo.scale_at_flat(flat, sim.rows) * Geo.unit_scale(sim.rows)
 	var art = _obstacle_texture(kind, variant)
-	var size = Vector2(68.0, 68.0) * scale
+	if art == null:
+		return
+	var size = (Vector2(87.0, 87.0 * art.get_height() / art.get_width()) if kind == "island" else Vector2(68.0, 68.0)) * scale
 	var foot = center + Vector2(0.0, 20.0 * scale)
 	draw_texture_rect(art, Rect2(foot - Vector2(size.x * 0.5, size.y), size), false)
 
@@ -211,6 +226,8 @@ func _draw_blocked(col: int, row: int, variant: int) -> void:
 func _draw_hover() -> void:
 	if hover_cell.x < 0 or hover_cell.x >= Geo.COLS or hover_cell.y < 0 \
 			or hover_cell.y >= sim.rows:
+		return
+	if sim.tile_at(hover_cell.x, hover_cell.y).kind in ["edge", "pit", "obstacle"]:
 		return
 	var quad := _cell_quad(hover_cell.x, hover_cell.y)
 	draw_colored_polygon(quad, Color(1, 0.9, 0.62, 0.10))
@@ -301,7 +318,7 @@ func _draw_mowers() -> void:
 
 ## 门神立绘：assets/sprites/mower-dayN.png（美术交付后放这里）
 func _mower_art() -> Texture2D:
-	var key = "mower-%s" % map_key
+	var key = "mower-%s" % ({"day4": "day2", "day5": "day3"}.get(map_key, map_key))
 	if mower_art.has(key):
 		return mower_art[key]
 	var path = "res://assets/sprites/%s-v2.png" % key

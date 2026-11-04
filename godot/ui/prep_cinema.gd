@@ -29,9 +29,7 @@ func _ready() -> void:
 	set_anchors_and_presets_to_full()
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	# 关卡里的 map 是 street/market/water，底图文件名是 day1/2/3
-	var key := String({ "street": "day1", "market": "day2", "water": "day3" }.get(
-		String(level.get("map", "street")), "day1"))
-	var path := "res://assets/bg/map-%s.jpg" % key
+	var path := Content.map_picture(level, true)
 	if ResourceLoader.exists(path):
 		bg = load(path)
 	# QA：--cinema-t=3.5 直接从第 3.5 秒开始，方便截报幕那一帧

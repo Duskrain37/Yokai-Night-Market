@@ -69,13 +69,7 @@ func _backdrop() -> void:
 	fill.set_anchors_preset(Control.PRESET_FULL_RECT)
 	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(fill)
-	var map = String(_level()["map"])
-	var file = "res://assets/bg/map-day1.jpg"
-	match map:
-		"market":
-			file = "res://assets/bg/map-day2.jpg"
-		"water":
-			file = "res://assets/bg/map-day3.jpg"
+	var file := Content.map_picture(_level(), true)
 	if ResourceLoader.exists(file):
 		var rect = TextureRect.new()
 		rect.texture = load(file)
@@ -108,12 +102,12 @@ func _header() -> void:
 	var detail = "%s·%s · %s · %d 大波 · 三星：一夜不动用门神" % [
 		level["day_name"],level["day_sub"],level["tag"],Content.wave_groups(level)]
 	if bool(level.get("special",false)):
-		detail="十二大波 · 每四波后迎战一位首领 · 阵容与香火保留，越往里越凶险"
+		detail="二十大波 · 每四波后迎战一位首领 · 阵容与香火保留，越往里越凶险"
 	var danger_label=Ui.label("今夜凶险",16,Ui.TEXT_DIM)
 	danger_label.position=Vector2(1070,103);add_child(danger_label)
 	var danger=preload("res://ui/threat_meter.gd").new()
 	danger.position=Vector2(1180,108);danger.size=Vector2(330,16)
-	danger.values=[2.0,2.5,3.5] if bool(level.get("special",false)) else [float(level.threat)]
+	danger.values=Content.SPECIAL_THREATS if bool(level.get("special",false)) else [float(level.threat)]
 	add_child(danger)
 	if training:
 		detail = "训练场 · %s·%s · 不刷波次、不判负、起手 1000 香火" % [
@@ -149,25 +143,30 @@ func _header() -> void:
 func _roster() -> void:
 	var panel = Ui.panel(0.88)
 	panel.position = Vector2(56, 200)
-	panel.custom_minimum_size = Vector2(1010, 660)
+	panel.size = Vector2(1010, 660)
 	add_child(panel)
 	var box = Ui.vbox(8)
 	panel.add_child(box)
 	var head = Ui.hbox(12)
 	box.add_child(head)
 	head.add_child(Ui.strong("草木名册", 22, Ui.GOLD))
-	head.add_child(Ui.label("点一下入卡组，再点一下取下来；一局最多十张。", 15, Ui.TEXT_DIM))
+	head.add_child(Ui.label("滚动翻阅，点选或取下，一局最多十张。", 15, Ui.TEXT_DIM))
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(scroll)
 	var grid = GridContainer.new()
 	grid.columns = 6
 	grid.add_theme_constant_override("h_separation", 8)
 	grid.add_theme_constant_override("v_separation", 8)
-	box.add_child(grid)
+	scroll.add_child(grid)
 	_roster_nodes.clear()
 	for type in Content.PLANT_ORDER:
 		var card = PlantPickCard.new()
 		card.plant_id = String(type)
 		card.screen = self
-		card.custom_minimum_size = Vector2(156, 176)
+		card.custom_minimum_size = Vector2(151, 174)
 		grid.add_child(card)
 		_roster_nodes.append(card)
 
@@ -202,6 +201,7 @@ func _slots() -> void:
 	scroll.custom_minimum_size=Vector2(0,140)
 	scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode=ScrollContainer.SCROLL_MODE_RESERVE
 	box.add_child(scroll)
 	var details=Ui.vbox(6)
 	details.size_flags_horizontal=Control.SIZE_EXPAND_FILL
@@ -218,7 +218,7 @@ func _slots() -> void:
 	fix.pressed.connect(_swap_in_lily)
 	_fix_row.add_child(fix)
 	details.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
-	details.add_child(Ui.label("今夜恶客", 17, Ui.GOLD))
+	details.add_child(Ui.label("今夜恶客 · 滚动翻阅", 17, Ui.GOLD))
 	var enemies = Ui.vbox(2)
 	details.add_child(enemies)
 	var seen = Content.plants_in_level(_level())
@@ -226,6 +226,8 @@ func _slots() -> void:
 	var bosses: Array = level.get("boss_checkpoints", [])
 	if String(level.get("boss_id", "")) != "":
 		bosses = [level["boss_id"]]
+		if String(level.get("mid_boss", "")) != "":
+			bosses.push_front(level["mid_boss"])
 	seen = bosses.map(func(id): return "boss-" + String(id)) + seen
 	var debut_prefix = "%s·%s" % [String(level["day_name"]), String(level["name"])]
 	var strip = FlowContainer.new()
@@ -345,7 +347,7 @@ func _refresh() -> void:
 		elif not _has_producer():
 			_warning.text = "没有产能草木，香火只靠天上掉的，会很难撑住。"
 		elif _needs_lily():
-			_warning.text = "第2、4行为水路，要先放夜莲。\n当前卡组没有夜莲，可用下方按钮换入。"
+			_warning.text = "水面要先放夜莲。\n当前卡组没有夜莲，可用下方按钮换入。"
 		elif _picked.size() > 10:
 			_warning.text = "卡组超出十张。"
 		else:
@@ -355,7 +357,7 @@ func _refresh() -> void:
 
 
 func _needs_lily() -> bool:
-	return String(_level().get("map", "")) == "water" and not _picked.has("lily")
+	return not _level().get("water_rows", []).is_empty() and not _picked.has("lily")
 
 
 func _has_producer() -> bool:
@@ -506,7 +508,7 @@ class EnemyChip:
 	var _hovered := false
 
 	func _ready() -> void:
-		custom_minimum_size = Vector2(62, 54)
+		custom_minimum_size = Vector2(126 if zombie_id.begins_with("boss-magistrate-") else 62, 54)
 		size = custom_minimum_size
 		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
@@ -529,7 +531,7 @@ class EnemyChip:
 		var fill := Color(0.23, 0.12, 0.09, 0.92) if boss else Color(0.09, 0.11, 0.13, 0.86)
 		var edge := Ui.GOLD if boss else Color(0.34, 0.30, 0.22, 0.9)
 		Ui.draw_plate(self, rect, fill, Ui.GOLD_BRIGHT if _hovered else edge, 12, 1)
-		var icon := Rect2(9, 3, 44, 32)
+		var icon := Rect2((size.x - 44) * 0.5, 3, 44, 32)
 		var texture := Almanac.boss_portrait(boss_id) if boss else Ui.sprite(zombie_id)
 		if texture != null:
 			var tex_size := texture.get_size()

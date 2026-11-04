@@ -67,9 +67,13 @@ func _stage_levels() -> void:
 	var screen = game.screen_node
 	check("选关", "选关页已建立", game.screen == "levels" and screen != null)
 	var nights = screen.night_total()
-	check("选关", "十五夜与特殊关都可选", nights == 16, "nights=%d" % nights)
+	check("选关", "二十五夜与特殊关都可选", nights == 26, "nights=%d" % nights)
 	check("选关", "选关页有返回与进入按钮", _all_buttons(screen).size() >= 3,
 		"buttons=%d" % _all_buttons(screen).size())
+	for week in [4, 5]:
+		var overview = Content.map_picture(Content.DAYS[week - 1], true)
+		check("选关", "第 %d 周已接入独立选关图" % week,
+			ResourceLoader.exists(overview) and overview != Content.map_picture(Content.DAYS[week - 1]))
 	screen.select_day(3)
 	check("选关", "能切到第三天", int(screen.day) == 3, str(screen.day))
 	screen.select_night(0)
@@ -273,44 +277,27 @@ func _stage_music() -> void:
 	await game.get_tree().process_frame
 	check("音乐", "完整风格：第二天用 day2 曲子",
 		String(game._music_current).begins_with("day2-"), str(game._music_current))
-	check("音乐", "十六首配乐都已装载", game._music_players.size() == 16,
+	check("音乐", "十九首配乐都已装载", game._music_players.size() == 19,
 		str(game._music_players.size()))
-	# 白热化二选一：默认新篇，切到延续立刻换曲
-	game.set_setting("music_style", "complete")
-	game.set_setting("hot_variant", "new")
 	game.sim.wave_index = 9
 	game._music_for_wave()
-	check("音乐", "白热化默认新篇", String(game._music_current) == "day2-hot",
+	check("音乐", "白热化使用新篇", String(game._music_current) == "day2-hot",
 		str(game._music_current))
-	game.set_setting("hot_variant", "continue")
-	game._music_for_wave()
-	check("音乐", "切延续后白热化改用 hot-alt",
-		String(game._music_current) == "day2-hot-alt", str(game._music_current))
-	# 设置界面：这一行只在完整风格下出现
-	game.set_setting("music_style", "complete")
+	for week in [4, 5]:
+		for phase in ["battle", "hot", "final"]:
+			var track = "day%d-%s" % [week, phase]
+			check("音乐", "新曲 %s 装载且可循环" % track,
+				game.resolve_battle_track(week, phase) == track and game._music_players[track].stream.loop)
 	game.open_settings()
 	await game.get_tree().process_frame
 	# 设置已分页，声音在第 3 页
 	game.screen_node.page = 2
 	game.screen_node._build()
 	await game.get_tree().process_frame
-	var found_complete = _has_setting_row("白热化音乐")
+	check("音乐", "声音设置移除白热化曲目选项",
+		not _has_setting_row("白热化音乐") and _has_setting_row("音乐风格"))
 	game.close_overlay()
 	await game.get_tree().process_frame
-	game.set_setting("music_style", "plain")
-	game.open_settings()
-	await game.get_tree().process_frame
-	game.screen_node.page = 2
-	game.screen_node._build()
-	await game.get_tree().process_frame
-	var found_plain = _has_setting_row("白热化音乐")
-	check("音乐", "「白热化音乐」只在完整风格下出现",
-		found_complete and not found_plain,
-		"complete=%s plain=%s" % [str(found_complete), str(found_plain)])
-	game.close_overlay()
-	await game.get_tree().process_frame
-	game.set_setting("music_style", "complete")
-	game.set_setting("hot_variant", "new")
 
 
 func _has_setting_row(label: String) -> bool:

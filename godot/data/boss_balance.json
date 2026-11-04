@@ -208,6 +208,136 @@
         "stop_at_column": 3,
         "max_major_wait_s": 3
       }
+    },
+    {
+      "id": "island",
+      "name": "潮灯夜叉",
+      "stage": "4-5",
+      "max_hp": 26500,
+      "small_first_s": 8,
+      "small_period_s": 12,
+      "major_thresholds": [
+        0.7,
+        0.35
+      ],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          6.5,
+          8.5
+        ],
+        "live_cap": 9,
+        "weights": {
+          "light": 70,
+          "armor": 25,
+          "heavy": 5
+        }
+      },
+      "destruction_budget": 4,
+      "entry_incense": 225,
+      "small_skill": {
+        "kind": "tide_surge",
+        "label": "提灯引潮",
+        "warning": 2.0,
+        "targets": 2,
+        "damage": 260,
+        "seal_s": 1.0,
+        "first_column": 4
+      },
+      "major": {
+        "warning_s": 3.1,
+        "hit_count": 4,
+        "damage_per_hit": 840,
+        "hit_spacing_s": 0.55
+      },
+      "summon_final": true,
+      "summon_first_cast": 5,
+      "summon_cast_interval": 8
+    },
+    {
+      "id": "magistrate-bound",
+      "name": "玄冥判官（限制）",
+      "stage": "5-5 · 第四大波",
+      "max_hp": 17800,
+      "small_first_s": 10,
+      "small_period_s": 15,
+      "major_thresholds": [],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          6.5,
+          8.5
+        ],
+        "live_cap": 9,
+        "weights": {
+          "light": 70,
+          "armor": 25,
+          "heavy": 5
+        }
+      },
+      "destruction_budget": 1,
+      "entry_incense": 100,
+      "small_skill": {
+        "kind": "verdict",
+        "label": "点名",
+        "warning": 2.5,
+        "targets": 1,
+        "damage": 170,
+        "seal_s": 1.5
+      },
+      "major": {
+        "warning_s": 0,
+        "hit_count": 0,
+        "damage_per_hit": 0,
+        "hit_spacing_s": 0.55
+      },
+      "summon_final": false
+    },
+    {
+      "id": "magistrate-full",
+      "name": "玄冥判官（完整）",
+      "stage": "5-5 · 第八大波",
+      "max_hp": 33000,
+      "small_first_s": 7,
+      "small_period_s": 10.5,
+      "major_thresholds": [
+        0.75,
+        0.45,
+        0.2
+      ],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          6.5,
+          8.5
+        ],
+        "live_cap": 9,
+        "weights": {
+          "light": 70,
+          "armor": 25,
+          "heavy": 5
+        }
+      },
+      "destruction_budget": 5,
+      "entry_incense": 300,
+      "small_skill": {
+        "kind": "verdict",
+        "label": "鬼印点卯",
+        "warning": 2.0,
+        "targets": 3,
+        "damage": 310,
+        "seal_s": 2.4,
+        "first_column": 4
+      },
+      "major": {
+        "warning_s": 3.0,
+        "hit_count": 5,
+        "damage_per_hit": 1050,
+        "hit_spacing_s": 0.55
+      },
+      "summon_final": true,
+      "summon_first_cast": 5,
+      "summon_cast_interval": 8
     }
   ],
   "calibration": "qa/boss-balance.json: normal, three supplied legal upgrade profiles, three seeds each (27 runs); reference target 105–135 seconds, not human playtest"

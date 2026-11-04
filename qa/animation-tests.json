@@ -1497,6 +1497,58 @@
 			"ok": true
 		},
 		{
+			"name": "boss-island 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-island blink 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-island idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-island major 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-island small 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-magistrate-bound 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-magistrate-bound blink 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-magistrate-bound idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-magistrate-bound small 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-magistrate-full 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "boss-magistrate-full idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-magistrate-full major 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "boss-magistrate-full small 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "boss-paper-anticipation 图集可加载",
 			"ok": true
 		},
@@ -2758,5 +2810,5 @@
 		}
 	],
 	"failures": 0,
-	"total": 689
+	"total": 702
 }

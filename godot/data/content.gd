@@ -251,10 +251,33 @@ const DAYS = [
 		"blurb": "临河的六道木栈，靠右四列有杂物挡道。"},
 	{"id": 3, "name": "第三周", "sub": "暗河", "map": "water", "rows": 5,
 		"blurb": "暗河两岸，第二、四行是水，得先铺夜莲。"},
+	{"id": 4, "name": "第四周", "sub": "孤灯屿", "map": "island", "rows": 6,
+		"blurb": "潮落才显露的海岛夜市。摊面两端收窄，落石每次换位置。"},
+	{"id": 5, "name": "第五周", "sub": "冥判窟", "map": "cavern", "rows": 6,
+		"blurb": "地下府衙前的暗河蜿蜒穿过石道，石台有数处断裂。"},
 ]
 
 const WATER_ROWS = [1, 3]
 const WATER_OBJECTS = [[1, 2], [1, 5], [1, 7], [3, 3], [3, 6]]
+const SPECIAL_ID := 16 # Keep existing save identifiers stable.
+const CAVERN_WATER_ROWS = [4, 5]
+const CAVERN_WATER_CELLS = [[1], [1, 2], [1, 2, 3], [2, 3], [0, 2, 3, 4, 5, 6, 7, 8], [0, 2, 3, 4, 5, 6, 7, 8]]
+const CAVERN_PITS = [[4, 6, 7], [6, 7], [6], [], [], []]
+const ISLAND_EDGE = [[0, 1, 7, 8], [0, 8], [], [], [0, 8], [0, 1, 7, 8]]
+const SPECIAL_THREATS = [1.8, 2.3, 3.3, 3.8, 4.4]
+
+
+static func level_id_for(week: int, night: int = 0) -> int:
+	return (week - 1) * 5 + night + 1 + int(week >= 4)
+
+
+static func map_key(level: Dictionary) -> String:
+	return String({"street": "day1", "market": "day2", "water": "day3", "island": "day4", "cavern": "day5"}.get(level.get("map", "street"), "day1"))
+
+
+static func map_picture(level: Dictionary, overview := false) -> String:
+	var key := map_key(level)
+	return "res://assets/bg/map-%s.%s" % [key, "jpg" if overview else "png"]
 
 # 每周的推荐配卡顺序：备战「按今夜推荐配卡」取前十张，缺夜莲的一键替换也按这张表挑替身。
 # 三张表都排满全部草木，漏排的那张表会让「最不该带的」判不出来。
@@ -350,16 +373,39 @@ static func visible_wave_groups(level: Dictionary,released: int) -> Array:
 
 ## 玩家语言只有一套：一夜 = 几大波，一大波里 = 三小拨。
 ## 内部仍按 12 小波排波（wave_index），所有界面都走这两个函数换算。
-static func _is_third_week_main(level: Dictionary) -> bool:
-	return int(level.get("day", 0)) == 3 and not bool(level.get("special", false))
-
-
 static func wave_mass_ratio(level: Dictionary, wave_index: int) -> float:
-	return 0.60 if _is_third_week_main(level) and wave_index < 2 * WAVES_PER_GROUP else 1.0
+	if not level.has("night"):
+		return 0.60 if int(level.get("day", 0)) == 3 and not bool(level.get("special", false)) and wave_index in range(6) else 1.0
+	if wave_index < 0 or level.get("waves", []).is_empty():
+		return 1.0
+	var group := int(wave_index / WAVES_PER_GROUP)
+	var count := wave_groups(level)
+	var phase := mini(2, int(float(group) * 3.0 / count))
+	return [0.7, 0.9, 1.05][phase] * (0.60 if group < 2 else 1.0)
 
 
 static func wave_low_only(level: Dictionary, wave_index: int) -> bool:
-	return _is_third_week_main(level) and wave_index < 2
+	return wave_index in [0, 1] and (level.has("night") or (int(level.get("day", 0)) == 3 and not bool(level.get("special", false))))
+
+
+static func checkpoint_threat(level: Dictionary, checkpoint: int) -> float:
+	var waves: Array = level.get("waves", [])
+	var index := clampi(checkpoint * 4 * WAVES_PER_GROUP, 0, maxi(0, waves.size() - 1))
+	return float(waves[index].get("threat", level.get("threat", 1.0))) if not waves.is_empty() else 1.0
+
+
+## Convert weighted terrain loss to combat pressure. Water remains usable after planting a float.
+static func terrain_factor(level: Dictionary) -> float:
+	var map := String(level.get("map", ""))
+	if map not in ["island", "cavern"]:
+		return 1.0
+	var weights: Array = level["lane_weights"]
+	var burden := 0.0
+	for row in 6:
+		var denied := float(ISLAND_EDGE[row].size()) if map == "island" else float(CAVERN_PITS[row].size())
+		var extra: float = (1.25 if row in [1, 2, 3, 4] else 0.0) if map == "island" else CAVERN_WATER_CELLS[row].size() * 0.40
+		burden += float(weights[row]) * (denied + extra)
+	return 1.0 + burden / 900.0
 
 
 static func wave_sub(wave_index: int) -> int:
@@ -374,9 +420,11 @@ static func wave_text(level: Dictionary, wave_index: int) -> String:
 ## 每周的威胁区间（用户 2026-11-01 定）：第一周 0.8—1.6、第二周 1.0—2.0、第三周 1.2—2.5。
 ## 每夜在当天的区间里等距取点，天数之间因此是「区间递进」而不是硬跳。
 const DAY_THREAT_RANGE = [
-	[0.8, 1.6],
-	[1.0, 2.0],
-	[1.2, 2.5],
+	[0.6, 1.4],
+	[0.8, 1.8],
+	[1.0, 2.3],
+	[1.2, 3.2],
+	[1.6, 3.8],
 ]
 
 const DAY_LEVELS = [
@@ -407,6 +455,20 @@ const DAY_LEVELS = [
 		{"name": "第四夜", "tag": "水鬼", "threat": 2.18, "band": "late"},
 		{"name": "第五夜", "tag": "天亮前", "threat": 2.5, "band": "late"},
 	],
+	[
+		{"name": "第一夜", "tag": "靠岸", "band": "mid_soft"},
+		{"name": "第二夜", "tag": "盐雾", "band": "mid"},
+		{"name": "第三夜", "tag": "碎石", "band": "mid"},
+		{"name": "第四夜", "tag": "潮祠", "band": "mid_late"},
+		{"name": "第五夜", "tag": "潮灯", "band": "late"},
+	],
+	[
+		{"name": "第一夜", "tag": "入窟", "band": "mid"},
+		{"name": "第二夜", "tag": "断桥", "band": "mid_late"},
+		{"name": "第三夜", "tag": "渡影", "band": "late"},
+		{"name": "第四夜", "tag": "听审", "band": "late"},
+		{"name": "第五夜", "tag": "鬼官", "band": "late"},
+	],
 ]
 
 const NIGHT_LESSONS = [
@@ -431,6 +493,16 @@ const NIGHT_LESSONS = [
 		["梦铃婆会让草木打盹。关键一行留两处输出，别只指望一株。", "dreambell"],
 		["水陆各路恶客都会出没。暗河傩主现身后，留意它占住哪两行。", ""],
 	],
+	[["海岛摊面收窄，外缘不能落子。先守住中间两路。", ""],
+	 ["恶客会跃过祈石与碎木。让抛射草木守住障碍后的空当。", "stonehat"],
+	 ["回灯鬼会在落石旁复生。继续盯住那一行。", "returner"],
+	 ["巡相师会在别行唤来双相傀。给各路留好直射和抛射。", "tamer"],
+	 ["潮灯夜叉踏潮来袭。它的灯光所照之处将掀起潮涌。", ""]],
+	[["水道在每行弯折。浅青水面先放夜莲，黑色坑洞无法种植。", ""],
+	 ["恶客会跨过断桥的坑洞。把阻挡放在跳跃落点之后。", "vault"],
+	 ["蒲舟客只从最后两路来。击沉船之后，它仍会游向岸边。", "reedboat"],
+	 ["梦铃婆能让草木睡去。留几株备用输出接替。", "dreambell"],
+	 ["第四大波鬼官会以受限之身出现。逼退它，守到第八大波再迎真身。", ""]],
 ]
 
 const NIGHT_INTRODUCTIONS = [
@@ -439,6 +511,10 @@ const NIGHT_INTRODUCTIONS = [
 		["shieldguard", "vault", "returner"], ["artisan", "sedan", "ironjudge"]],
 	[["ghost", "tongue", "straw", "paper", "mountain"], ["reedboat", "stonehat", "bucket"],
 		["phaseguard", "returner", "vault", "shieldguard", "tamer"], ["dreambell", "mourner", "sedan", "matchmaker"]],
+	[["ghost", "tongue", "straw", "paper", "mountain"], ["stonehat", "bucket", "vault"],
+		["returner", "phaseguard", "mourner"], ["tamer", "shieldguard", "artisan"]],
+	[["ghost", "tongue", "straw", "paper", "mountain"], ["vault", "stonehat", "bucket"],
+		["reedboat", "returner", "phaseguard", "shieldguard"], ["dreambell", "tamer", "artisan", "sedan"]],
 ]
 
 
@@ -455,41 +531,46 @@ static func _build_levels() -> Array:
 		var day: Dictionary = DAYS[day_index]
 		for night in 5:
 			var info: Dictionary = DAY_LEVELS[day_index][night]
-			var id = day_index * 5 + night + 1
+			var id := level_id_for(day_index + 1, night)
+			var span: Array = DAY_THREAT_RANGE[day_index]
+			var threat := snappedf(lerpf(float(span[0]), float(span[1]), night / 4.0) + 0.000001, 0.01)
 			out.append({
 				"id": id,
 				"day": day["id"],
+				"night": night,
 				"day_name": day["name"],
 				"day_sub": day["sub"],
 				"map": day["map"],
 				"rows": day["rows"],
 				"name": info["name"],
 				"tag": info["tag"],
-				"threat": info["threat"],
+				"threat": threat,
 				"band": info["band"],
 				"theme": NIGHT_LESSONS[day_index][night][0],
 				"theme_zombie": NIGHT_LESSONS[day_index][night][1],
-				"water_rows": WATER_ROWS if day["map"] == "water" else [],
+				"water_rows": CAVERN_WATER_ROWS if day_index == 4 else (WATER_ROWS if day_index == 2 else []),
+				"lane_weights": [10, 16, 24, 24, 16, 10] if day_index == 3 else ([10, 20, 20, 20, 15, 15] if day_index == 4 else []),
 				"object_cells": WATER_OBJECTS if day["map"] == "water" else [],
 				"start_sun": 100,
 				"wave_groups": [4, 4, 6, 6, 8][night],
-				"boss_id": ["earth", "paper", "river"][day_index] if night == 4 else "",
+				"boss_id": ["earth", "paper", "river", "island", "magistrate-full"][day_index] if night == 4 else "",
+				"mid_boss": "magistrate-bound" if day_index == 4 and night == 4 else "",
 				"waves": _night_roster(_with_guest_variants(build_waves(info["band"], [4, 4, 6, 6, 8][night]),
 					day_index + 1, night), day_index, night),
 			})
 	# Special gauntlet: twelve regular major waves PLUS three checkpoint bosses.
 	var special_waves: Array=[]
-	for section in 3:
+	for section in SPECIAL_THREATS.size():
 		var chunk = _with_guest_variants(build_waves("late", 4), 3, 4)
 		for wave in chunk:
 			wave.t=float(wave.t)+section*216.0
-			wave.threat=[2.0,2.5,3.5][section]
+			wave.threat= SPECIAL_THREATS[section]
 			special_waves.append(wave)
-	out.append({"id":16,"special":true,"day":3,"day_name":"特殊关","day_sub":"鬼市深处",
-		"map":"water","rows":5,"name":"鬼市深处","tag":"终极守夜","threat":2.0,"band":"late",
-		"water_rows":WATER_ROWS,"object_cells":WATER_OBJECTS,"start_sun":100,"wave_groups":12,"boss_id":"",
-		"boss_checkpoints":["earth","paper","river"],"waves":special_waves,
-		"theme":"十二大波，三场首领。每四波结束后击退首领，保留阵容与香火，再进入更深一层。",
+	out.insert(SPECIAL_ID - 1, {"id":SPECIAL_ID,"special":true,"day":5,"night":0,"day_name":"特殊关","day_sub":"鬼市深处",
+		"map":"cavern","rows":6,"name":"鬼市深处","tag":"终极守夜","threat":SPECIAL_THREATS[0],"band":"late",
+		"water_rows":CAVERN_WATER_ROWS,"lane_weights":[10,20,20,20,15,15],"object_cells":[],"start_sun":100,"wave_groups":20,"boss_id":"",
+		"boss_checkpoints":["earth","paper","river","island","magistrate-full"],"waves":special_waves,
+		"theme":"二十大波，五场首领。每四波击退一位首领，带着阵容和香火继续深入。",
 		"theme_zombie":""})
 	return out
 
@@ -499,7 +580,7 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 	var allowed: Array = []
 	if night == 4:
 		for type in ZOMBIE_ORDER:
-			if not bool(ZOMBIES[type].get("sedan_only", false)) and (week == 2 or not bool(ZOMBIES[type].get("water_only", false))):
+			if not bool(ZOMBIES[type].get("sedan_only", false)) and (week in [2, 4] or not bool(ZOMBIES[type].get("water_only", false))):
 				allowed.append(type)
 	else:
 		for i in range(night + 1):
@@ -517,7 +598,7 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 			var replacements: Array = []
 			for i in int(group[1]):
 				replacements.append(type)
-				if index >= (2 if week == 2 else 0) and index < waves.size() - (WAVES_PER_GROUP if night == 4 else 0):
+				if index >= 2 and index < waves.size() - (WAVES_PER_GROUP if night == 4 else 0):
 					slots.append({"picks": replacements, "slot": i})
 					previous[type] = int(previous.get(type, 0)) + 1
 			wave["guest_slots"].append(replacements)

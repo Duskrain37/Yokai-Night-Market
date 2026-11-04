@@ -55,6 +55,10 @@ const STAGES = {
 		# 照画量出来的六条边界：石台—水—石台—水—石台
 		"bands": [200.0, 303.0, 397.0, 522.0, 642.0, 790.0],
 		"halves": [615.0, 622.0, 630.0, 640.0, 652.0, 660.0]},
+	"day4": {"cx": 798.0, "far_y": 134.0, "near_y": 746.0, "far_half": 612.0,
+		"near_half": 612.0, "far_scale": 0.94, "near_scale": 1.04},
+	"day5": {"cx": 840.0, "far_y": 187.0, "near_y": 751.0, "far_half": 640.0,
+		"near_half": 640.0, "far_scale": 0.94, "near_scale": 1.04},
 }
 
 static var STAGE_CX = (BOARD_X + BOARD_W * 0.5)
@@ -174,7 +178,13 @@ static func screen_cell_polygon(col: int, row: int, rows: int) -> PackedVector2A
 
 
 static func screen_cell_at(point: Vector2, rows: int) -> Vector2i:
+	if point.y < STAGE_FAR_Y or point.y >= STAGE_NEAR_Y:
+		return Vector2i(-1, -1)
 	var flat = to_flat(point, rows)
+	var left := to_screen(Vector2(BOARD_X, flat.y), rows).x
+	var right := to_screen(Vector2(BOARD_X + BOARD_W, flat.y), rows).x
+	if point.x < left or point.x >= right:
+		return Vector2i(-1, -1)
 	var col = int((flat.x - BOARD_X) / CELL_W)
 	var row = clampi(int((flat.y - BOARD_Y) / cell_h(rows)), 0, rows - 1)
 	if col < 0 or col >= COLS:

@@ -11,6 +11,156 @@
       "ok": true
     },
     {
+      "detail": "",
+      "name": "选关：第 1 周题签可点击",
+      "ok": true
+    },
+    {
+      "detail": "1",
+      "name": "选关：第 1 周第 1 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "2",
+      "name": "选关：第 1 周第 2 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "3",
+      "name": "选关：第 1 周第 3 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "4",
+      "name": "选关：第 1 周第 4 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "5",
+      "name": "选关：第 1 周第 5 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "选关：第 2 周题签可点击",
+      "ok": true
+    },
+    {
+      "detail": "6",
+      "name": "选关：第 2 周第 1 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "7",
+      "name": "选关：第 2 周第 2 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "8",
+      "name": "选关：第 2 周第 3 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "9",
+      "name": "选关：第 2 周第 4 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "10",
+      "name": "选关：第 2 周第 5 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "选关：第 3 周题签可点击",
+      "ok": true
+    },
+    {
+      "detail": "11",
+      "name": "选关：第 3 周第 1 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "12",
+      "name": "选关：第 3 周第 2 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "13",
+      "name": "选关：第 3 周第 3 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "14",
+      "name": "选关：第 3 周第 4 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "15",
+      "name": "选关：第 3 周第 5 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "选关：第 4 周题签可点击",
+      "ok": true
+    },
+    {
+      "detail": "17",
+      "name": "选关：第 4 周第 1 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "18",
+      "name": "选关：第 4 周第 2 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "19",
+      "name": "选关：第 4 周第 3 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "20",
+      "name": "选关：第 4 周第 4 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "21",
+      "name": "选关：第 4 周第 5 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "选关：第 5 周题签可点击",
+      "ok": true
+    },
+    {
+      "detail": "22",
+      "name": "选关：第 5 周第 1 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "23",
+      "name": "选关：第 5 周第 2 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "24",
+      "name": "选关：第 5 周第 3 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "25",
+      "name": "选关：第 5 周第 4 夜地标可点击",
+      "ok": true
+    },
+    {
+      "detail": "26",
+      "name": "选关：第 5 周第 5 夜地标可点击",
+      "ok": true
+    },
+    {
       "detail": "3",
       "name": "选关：点题签切到第三天",
       "ok": true
@@ -31,12 +181,12 @@
       "ok": true
     },
     {
-      "detail": "4 -> 3",
+      "detail": "2 -> 1",
       "name": "备战：点名册卡会改变卡组",
       "ok": true
     },
     {
-      "detail": "4",
+      "detail": "2",
       "name": "备战：再点一次恢复原样",
       "ok": true
     },
@@ -119,8 +269,23 @@
       "detail": "",
       "name": "暂停：点继续后恢复",
       "ok": true
+    },
+    {
+      "detail": "",
+      "name": "备战：草木与恶客有独立滚动区",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "备战：第1列名册响应滚轮",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "备战：第2列名册响应滚轮",
+      "ok": true
     }
   ],
   "failures": 0,
-  "total": 24
+  "total": 57
 }

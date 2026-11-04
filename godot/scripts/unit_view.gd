@@ -598,6 +598,12 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	if z.type == "phaseguard":
 		actor = "phase-kite" if z.phase_form == 1 else "phase-veil"
 	var frame_foot = foot + Vector2(0.0, lift)
+	if z.raft_sink_t > 0.0:
+		var raft: Texture2D = _guest_gear.get("raft")
+		var sink: float = 1.0 - z.raft_sink_t / 0.52
+		if raft != null:
+			_sprite(raft, frame_foot + Vector2(0, 8.0 + sink * 25.0), height * 0.26,
+				true, Color(0.76, 0.87, 0.89, 1.0 - sink), 0.32 * sink)
 	if swimming:
 		frame_foot.y += 3.0
 	var cabin_drawn = false
@@ -610,20 +616,27 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 			_draw_wounds(cabin_foot, height * 0.65, 0.65 if z.armor < z.max_armor * 0.33 else 0.32)
 	var drawn = false
 	if not z.dying or (z.type == "sedan" and z.split_done):
-		if swimming and z.water_entry_t > 0.0:
-			var entry = smoothstep(0.0, 0.44, 0.68 - z.water_entry_t)
+		if swimming and (z.water_entry_t > 0.0 or z.raft_sink_t > 0.0):
+			var entry = smoothstep(0.0, 0.44, 0.68 - z.water_entry_t) if z.raft_sink_t <= 0.0 else 1.0 - z.raft_sink_t / 0.52
 			_actor_frames.draw_pose(self, actor, "walk", frame,
-				frame_foot + Vector2(0, height * 0.22 * entry), height, z.reverse_t <= 0.0,
+				frame_foot + Vector2(0, height * 0.32 * entry), height, z.reverse_t <= 0.0,
 				Color(tint.r, tint.g, tint.b, tint.a * (1.0 - entry)))
 			tint.a *= entry
+		elif not swimming and z.water_exit_t > 0.0 and not (z.type == "reedboat" and z.armor > 0.0):
+			var wet: float = z.water_exit_t / 0.44
+			_actor_frames.draw_pose(self, actor, "swim", frame, frame_foot + Vector2(0, 3),
+				height, z.reverse_t <= 0.0, Color(tint.r, tint.g, tint.b, tint.a * wet))
+			tint.a *= 1.0 - wet
 		if z.type == "phaseguard" and sim.time - z.guest_action_at < 0.3:
 			var amount = smoothstep(0.0, 0.3, sim.time - z.guest_action_at)
 			var previous = "phase-veil" if z.phase_form == 1 else "phase-kite"
 			_actor_frames.draw_pose(self, previous, clip, frame, frame_foot, height,
 				z.reverse_t <= 0.0, Color(tint.r, tint.g, tint.b, tint.a * (1.0 - amount)))
 			tint.a *= amount
+		var airborne := sin(PI * clampf(z.object_hop / 0.34, 0.0, 1.0)) if z.terrain_hop_from != z.terrain_hop_to else 0.0
+		var tuck := airborne * (0.09 if String(z.def.get("tier", "")) == "h" else 0.19)
 		drawn = _actor_frames.draw_pose(self, actor, clip, frame,
-			frame_foot, height, z.reverse_t <= 0.0, tint)
+			frame_foot - Vector2(0, airborne * 16.0), height, z.reverse_t <= 0.0, tint, Vector2(1.0 + tuck, 1.0 - tuck))
 	if not drawn and texture != null:
 		_sprite(texture, foot + Vector2(sway, bob + lift), height, true, tint,
 			rotation + lean * 0.35, squash)
@@ -751,7 +764,7 @@ func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
 	var ratio = clampf(z.armor / maxf(1.0, z.max_armor), 0.0, 1.0)
 	var prev = float(_armor_memory.get(key, ratio))
 	# Every armor material breaks into independently moving pieces, even on a lethal hit.
-	if prev > 0.01 and z.armor <= 0.0:
+	if prev > 0.01 and z.armor <= 0.0 and z.raft_sink_t <= 0.0:
 		var fall_texture: Texture2D = null
 		var lift = 0.7
 		if z.type == "sedan":

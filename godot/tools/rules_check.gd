@@ -38,7 +38,7 @@ static func _check_content(h) -> void:
 		"实际 %d" % Content.PLANTS.size())
 	h.check("内容", "20 种恶客齐备", Content.ZOMBIES.size() == 20,
 		"实际 %d" % Content.ZOMBIES.size())
-	h.check("内容", "十五夜与特殊关齐备", Content.LEVELS.size() == 16 and Content.get_level(16).get("special",false),
+	h.check("内容", "二十五夜与特殊关齐备", Content.LEVELS.size() == 26 and Content.get_level(16).get("special",false),
 		"实际 %d" % Content.LEVELS.size())
 	var missing = []
 	for id in Content.PLANT_ORDER:
@@ -59,10 +59,10 @@ static func _check_content(h) -> void:
 			detail += "关%d 行数=%d " % [level["id"], level["rows"]]
 	h.check("内容", "行数按天地图分配（5/6/5）", rows_ok, detail)
 	# 每天各自的威胁区间：0.8—2.0 / 1.0—2.5 / 1.2—3.0，五夜等距
-	var ranges = [[0.8, 1.6], [1.0, 2.0], [1.2, 2.5]]
+	var ranges = [[0.6, 1.4], [0.8, 1.8], [1.0, 2.3], [1.2, 3.2], [1.6, 3.8]]
 	var range_ok = true
 	var range_detail = ""
-	for day in 3:
+	for day in ranges.size():
 		var levels = []
 		for level in Content.LEVELS:
 			if int(level["day"]) == day + 1 and not bool(level.get("special",false)):
@@ -80,7 +80,7 @@ static func _check_content(h) -> void:
 			if levels[i] <= levels[i - 1]:
 				range_ok = false
 				range_detail += "day%d 非递增 " % [day + 1]
-	h.check("内容", "威胁按天落在 0.8-1.6 / 1.0-2.0 / 1.2-2.5", range_ok, range_detail)
+	h.check("内容", "五周威胁按指定范围递增", range_ok, range_detail)
 	h.check("内容", "十五夜威胁都单调递增",
 		Content.LEVELS[0]["threat"] < Content.LEVELS[4]["threat"]
 		and Content.LEVELS[5]["threat"] < Content.LEVELS[9]["threat"]
@@ -258,7 +258,8 @@ static func _check_status_rules(h) -> void:
 
 static func _check_armor_and_corpse(h) -> void:
 	# 用威胁正好 1.0 的第六夜（第二天第一夜）：护具与本体按 sqrt(1.0)=1 缩放。
-	var sim = h.sim_for(6, ["shooter"], "easy")
+	var sim = h.sim_for(2, ["shooter"], "easy")
+	sim.hp_mul = 1.0
 	var z = sim.spawn_zombie("straw", 0, {"x": 900.0})
 	h.check("护具", "斗笠鬼有 90 点斗笠", is_equal_approx(z.armor, 90.0))
 	sim.damage_zombie(z, 50.0)
@@ -291,6 +292,7 @@ static func _check_armor_and_corpse(h) -> void:
 	h.check("护具", "轿壳破裂后排出两只饿鬼", sim4.pending_spawns.size() == 2)
 	# 纸扎匠发甲不叠加，只取更厚
 	var sim5 = h.sim_for(6, ["shooter"], "easy")
+	sim5.hp_mul = 1.0
 	sim5.spawn_zombie("ghost", 0, {"x": 860.0})
 	var artisan = sim5.spawn_zombie("artisan", 0, {"x": 1000.0})
 	sim5.artisan_grant(artisan)
@@ -379,17 +381,11 @@ static func _check_music(h) -> void:
 		h.resolve_track("complete", 1, "battle", false) == "battle")
 	h.check("音乐", "菜单曲两种风格共用",
 		h.music_menu_track() == "menu")
-	h.check("音乐", "十六首配乐都在资源里",
-		h.music_assets_present() == 16, str(h.music_assets_present()))
-	h.check("音乐", "白热化默认用新篇",
-		h.resolve_track("complete", 2, "hot", true, "new") == "day2-hot")
-	h.check("音乐", "选延续时用当天 hot-alt",
-		h.resolve_track("complete", 2, "hot", true, "continue") == "day2-hot-alt")
-	h.check("音乐", "延续缺曲时退回新篇",
-		h.resolve_track("complete", 3, "hot", true, "continue", false)
-		== "day3-hot")
-	h.check("音乐", "朴素风格不受新篇/延续影响",
-		h.resolve_track("plain", 1, "hot", true, "continue") == "hot")
+	h.check("音乐", "十九首配乐都在资源里",
+		h.music_assets_present() == 19, str(h.music_assets_present()))
+	for day in range(1, Content.DAYS.size() + 1):
+		h.check("音乐", "第 %d 周只保留新篇" % day,
+			not ResourceLoader.exists("res://assets/music/complete/day%d-hot-alt.ogg" % day))
 
 
 static func _check_waves(h) -> void:
@@ -414,8 +410,8 @@ static func _check_waves(h) -> void:
 	h.check("波次", "威胁倍率同时影响出怪数",
 		absf(easy.count_mul - sqrt(eff)) < 0.001)
 	h.check("波次", "新难度区间为实际系数，暗河不另加码",
-		is_equal_approx(eff, 2.5) and is_equal_approx(
-			Sim.effective_threat(Content.get_level(1)), 0.8),
+		is_equal_approx(eff, 2.3) and is_equal_approx(
+			Sim.effective_threat(Content.get_level(1)), 0.6),
 		"water=%.2f street=%.2f" % [eff, Sim.effective_threat(Content.get_level(1))])
 	# 题签点了哪种恶客，这一夜就得真的会出那种恶客
 	var theme_bad = ""
@@ -452,7 +448,8 @@ static func _check_wave_rounding(h) -> void:
 	for i in 200:
 		sim.rng.seed = 1000 + i
 		sim.spawn_queue.clear()
-		sim.queue_wave({"groups": [["ghost", 1]], "flag": false}, 0)
+		sim.count_mul = 1.5
+		sim.queue_roster({"groups": [["ghost", 1]]}, 0)
 		if sim.spawn_queue.size() == 1:
 			one += 1
 		elif sim.spawn_queue.size() == 2:
@@ -1696,6 +1693,8 @@ static func _check_v042_cards_and_guests(h) -> void:
 	var river = h.sim_for(11, ["lantern"], "easy")
 	var boat = river.spawn_zombie("reedboat", 0, {"x": Geo.SPAWN_X + 15.0})
 	var x = boat.pos.x
+	boat.pos.x = Geo.BOARD_X + Geo.BOARD_W - 20.0
+	x = boat.pos.x
 	river.update_zombies(0.3)
 	var first = x - boat.pos.x
 	boat.armor = 0.0

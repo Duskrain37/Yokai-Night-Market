@@ -418,7 +418,7 @@ func refresh() -> void:
 			_wave_label.text = "第 %d / %d 大波 · 第 %d 拨" % [group_now, groups,
 				Content.wave_sub(maxi(0,sim.wave_index-1))]
 	if _danger!=null:
-		_danger.values=[float([2.0,2.5,3.5][mini(2,sim.special_bosses_completed)])] if bool(sim.level.get("special",false)) else [float(sim.level.get("threat",0))]
+		_danger.values=[Content.checkpoint_threat(sim.level, sim.special_bosses_completed)] if bool(sim.level.get("special",false)) else [float(sim.level.get("threat",0))]
 		_danger.queue_redraw()
 	if _wave_pips != null:
 		_wave_pips.queue_redraw()
@@ -871,13 +871,13 @@ func _build_misc_tab(box: VBoxContainer) -> void:
 			sim.clear_plants()
 			_toggle_cheat()])
 		rows.append(["切换地图", func():
-			var day = (int(game.training.get("day", 1)) % 3) + 1
+			var day = (int(game.training.get("day", 1)) % Content.DAYS.size()) + 1
 			game.training["day"] = day
-			var level_id = (day - 1) * 5 + 1
+			var level_id = Content.level_id_for(day)
 			game.start_battle(level_id, game.loadout, "training")
 			])
 		rows.append(["退回选草", func():
-			game.show_prep((int(game.training.get("day", 1)) - 1) * 5 + 1, true,
+			game.show_prep(Content.level_id_for(int(game.training.get("day", 1))), true,
 				int(game.training.get("day", 1)))])
 	elif not game.tutorial_active:
 		rows.push_front(["常规战斗 0.1× · %s" % ("已开" if slow_battle else "已关"), func():

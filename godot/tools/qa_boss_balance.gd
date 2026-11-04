@@ -7,17 +7,23 @@ const TACTICAL_LOADOUT = ["lantern", "needle", "firework", "wall", "shooter", "t
 static func army(id: int,seed_value: int,profile: String="reference") -> Sim:
 	var s=Sim.new()
 	var tactical := profile == "reference"
-	var loadout = TACTICAL_LOADOUT if tactical else QaBot.LOADOUT
+	var late := id > 16 and tactical
+	var loadout: Array = (TACTICAL_LOADOUT if tactical else QaBot.LOADOUT).duplicate()
+	if late:
+		loadout[loadout.find("squash")] = "dragon"
 	s.setup(Content.get_level(id), loadout.duplicate(), "normal")
+	if String(s.level.map) == "island":
+		s.island_seed = seed_value
+		s.tiles = s._make_tiles()
 	s.rng.seed=seed_value
 	s.time=500
-	for col in 7:
+	for col in (9 if late else 7):
 		for row in s.rows:
 			if String(s.tile_at(col,row).kind) in ["blocked","object"]:continue
 			if String(s.tile_at(col,row).kind)=="water":s.place_free("lily",col,row)
 			var type: String
 			if tactical:
-				type = ["lantern", "lantern", "needle", "firework", "torch", "shooter", "wall"][col]
+				type = ["lantern", "lantern", "needle", "firework", "torch", "shooter", "wall", "dragon", "wall"][col]
 			else:
 				type = ["lantern", "lantern", "shooter", "shooter", "wall", "censer", "umbrella"][col]
 			var p=s.place_free(type,col,row)
@@ -27,6 +33,9 @@ static func army(id: int,seed_value: int,profile: String="reference") -> Sim:
 					0, 1, 4: p.upgrades[1] = 2
 					2, 5: p.upgrades[1] = 3
 					3: p.upgrades[2] = 3
+					7:
+						p.upgrades[2] = 2
+						p.upgrades[3] = 3
 			else:
 				if col == 2: p.upgrades[1] = 1 if profile == "low" else 3
 				if col == 3: p.upgrades[1] = 0 if profile == "low" else 2
@@ -68,6 +77,8 @@ static func defend_burst(sim: Sim) -> void:
 	]
 	for choice in choices:
 		var card = QaBot._card_index(sim, choice.type)
+		if card < 0:
+			continue
 		if float(sim.cards[card]["cd"]) > 0.0:
 			continue
 		var best := Vector2i(-1, -1)
@@ -98,8 +109,11 @@ static func defend_burst(sim: Sim) -> void:
 func _init() -> void:
 	var results: Array=[]
 	var failures=0
-	for id in [5,10,15]:
-		for profile in ["low","reference","high"]:
+	var stages := [5, 10, 15, Content.level_id_for(4, 4), Content.level_id_for(5, 4)]
+	if "--new-only" in OS.get_cmdline_user_args():
+		stages = stages.slice(3)
+	for id in stages:
+		for profile in (["low", "reference", "high"] if id <= 15 else ["reference"]):
 			for seed_value in [7,19,41]:
 				var s=army(id,seed_value,profile)
 				var rng=RandomNumberGenerator.new();rng.seed=seed_value

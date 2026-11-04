@@ -20,7 +20,7 @@ func _backdrop() -> void:
 
 func _start_training_day(day: int) -> void:
 	game.prep = {"training_day": day}
-	game.show_prep((day - 1) * 5 + 1, true, day)
+	game.show_prep(Content.level_id_for(day), true, day)
 
 
 func _build() -> void:
@@ -100,7 +100,7 @@ func _build() -> void:
 	box2.add_child(Ui.label("选一张地图开始：", 16, Ui.TEXT_DIM))
 	var days = Ui.hbox(10)
 	box2.add_child(days)
-	for day_index in 3:
+	for day_index in Content.DAYS.size():
 		var day: Dictionary = Content.DAYS[day_index]
 		var button = Ui.button("%s·%s" % [day["name"], day["sub"]], 17, 190, 48)
 		button.pressed.connect(_start_training_day.bind(day_index + 1))

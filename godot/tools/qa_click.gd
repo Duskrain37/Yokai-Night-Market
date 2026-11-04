@@ -103,8 +103,14 @@ func _run() -> void:
 		check("封面：点按钮真的切到选关页", game.screen == "levels", str(game.screen))
 
 	var screen: Node = game.screen_node
-	# 先点到第三天的题签，再点画上的第一个夜点
-	await click(Vector2(56 + 107, 150 + 2 * 104 + 44))
+	for week in range(1, Content.DAYS.size() + 1):
+		await click(screen._tab_rect(week - 1).get_center())
+		check("选关：第 %d 周题签可点击" % week, int(screen.day) == week)
+		for index in 5:
+			await click(screen._node_pos(index))
+			check("选关：第 %d 周第 %d 夜地标可点击" % [week, index + 1],
+				int(screen.selected) == Content.level_id_for(week, index), str(screen.selected))
+	await click(screen._tab_rect(2).get_center())
 	check("选关：点题签切到第三天", int(screen.day) == 3, str(screen.day))
 	await click(screen._node_pos(0))
 	check("选关：点夜点选中第十一夜", int(screen.selected) == 11,
@@ -188,3 +194,20 @@ func _run() -> void:
 		if resume_button != null:
 			await click(_button_center(resume_button))
 			check("暂停：点继续后恢复", not game.paused)
+	game.show_prep(Content.level_id_for(5, 4))
+	game.screen_node.skip_cinema()
+	for i in 3:
+		await process_frame
+	var scrolls: Array[Node] = game.screen_node.find_children("*", "ScrollContainer", true, false)
+	check("备战：草木与恶客有独立滚动区", scrolls.size() == 2)
+	for i in scrolls.size():
+		var scroll: ScrollContainer = scrolls[i]
+		var event := InputEventMouseButton.new()
+		event.button_index = MOUSE_BUTTON_WHEEL_DOWN
+		event.pressed = true
+		event.factor = 3.0
+		event.position = scroll.get_global_rect().get_center()
+		event.global_position = event.position
+		root.push_input(event, true)
+		await process_frame
+		check("备战：第%d列名册响应滚轮" % (i + 1), scroll.scroll_vertical > 0)

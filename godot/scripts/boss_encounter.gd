@@ -56,7 +56,7 @@ var wave_end = 0
 var major_wait_since = -1.0
 var adds_were_paused = false
 
-func begin(owner, boss_id: String) -> void:
+func begin(owner, boss_id: String, last_batch: int = -1) -> void:
 	_owner = weakref(owner)
 	id = boss_id
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_balance.json"))
@@ -74,6 +74,7 @@ func begin(owner, boss_id: String) -> void:
 	adds_at = combat_at + 5.0
 	wave_end = Array(sim.level.waves).size()
 	if bool(sim.level.get("special",false)):wave_end=(sim.special_bosses_completed+1)*12
+	if last_batch >= 0: wave_end = last_batch
 	sim.wave_index = wave_end
 	sim.last_group = int(wave_end/Content.WAVES_PER_GROUP)-1
 	sim.spawn_queue.clear()
@@ -346,8 +347,10 @@ func _random_cell(first: int,last: int,empty: bool=false) -> Dictionary:
 
 func _start_small() -> void:
 	small_casts += 1
-	if small_casts >= FINAL_WAVE_FIRST_CAST \
-			and (small_casts - FINAL_WAVE_FIRST_CAST) % FINAL_WAVE_CAST_INTERVAL == 0:
+	var first_summon := int(config.get("summon_first_cast", FINAL_WAVE_FIRST_CAST))
+	var summon_interval := int(config.get("summon_cast_interval", FINAL_WAVE_CAST_INTERVAL))
+	if bool(config.get("summon_final", true)) and small_casts >= first_summon \
+			and (small_casts - first_summon) % summon_interval == 0:
 		action = {"kind": "summon_wave", "targets": [], "warning_start": sim.time,
 			"warning_end": sim.time + 2.4, "hit": 0, "kills": 0}
 		state = "small_warning"
@@ -357,6 +360,9 @@ func _start_small() -> void:
 		return
 	var kind="tunnel" if id=="earth" else ("seal" if alternate%2==0 else "paper_ferry")
 	if id=="river":kind="crab"
+	var skill: Dictionary = config.get("small_skill", {})
+	if not skill.is_empty():
+		kind = String(skill.kind)
 	alternate+=1
 	var targets: Array=[]
 	var warning=2.2
@@ -368,13 +374,13 @@ func _start_small() -> void:
 		if not cell.is_empty():targets.append(cell)
 		warning=1.8
 	else:
-		warning=1.8 if kind=="seal" else 2.0
+		warning=float(skill.get("warning", 1.8 if kind=="seal" else 2.0))
 		var candidates: Array=[]
 		for p in sim.plants:
-			if not p.dead and not p.is_lily and not p.ash and _cell_ok(p.col,p.row):candidates.append(p)
+			if not p.dead and not p.is_lily and not p.ash and p.col >= int(skill.get("first_column", 2)) and _cell_ok(p.col,p.row):candidates.append(p)
 		var picked_rows: Array=[]
 		var economy_chosen=false
-		for i in (2 if kind=="seal" else 1):
+		for i in int(skill.get("targets", 2 if kind=="seal" else 1)):
 			var valid: Array=candidates.filter(func(p):return not picked_rows.has(p.row) and not (kind=="seal" and economy_chosen and p.def.has("produce")))
 			if valid.is_empty():break
 			var p=valid[sim.rng.randi_range(0,valid.size()-1)]
@@ -423,6 +429,13 @@ func _resolve_small() -> void:
 	for cell in action.targets:
 		var pos: Vector2=sim.cell_pos(int(cell.c),int(cell.r))
 		match String(action.kind):
+			"tide_surge", "verdict":
+				var skill: Dictionary = config.small_skill
+				_hurt_cell(cell, float(skill.damage))
+				var host = sim.main_plant_at(int(cell.c), int(cell.r))
+				if host != null and not host.dead:
+					host.sealed_until = maxf(host.sealed_until, sim.time + float(skill.seal_s) * SKILL_FORCE)
+				emit("water" if String(action.kind) == "tide_surge" else "paper", pos)
 			"tunnel":
 				_hurt_cell(cell,140)
 				_add_prop("tunnel",cell,160,9)
@@ -540,10 +553,10 @@ func _resolve_major() -> void:
 		if sim.time<float(action.warning_end)+index*float(config.major.hit_spacing_s):break
 		var cell: Dictionary=targets[index]
 		_hurt_cell(cell,float(config.major.damage_per_hit))
-		if id=="paper":
+		if id in ["paper", "magistrate-full"]:
 			var host=sim.main_plant_at(int(cell.c),int(cell.r))
 			if host!=null and not host.dead:host.sealed_until=maxf(host.sealed_until,sim.time + 2.0 * SKILL_FORCE)
-		emit("earth" if id=="earth" else ("paper" if id=="paper" else "water"),sim.cell_pos(int(cell.c),int(cell.r)))
+		emit("earth" if id=="earth" else ("paper" if id in ["paper", "magistrate-full"] else "water"),sim.cell_pos(int(cell.c),int(cell.r)))
 		sim.shake=maxf(sim.shake,3.0);sim.sfx("boss_impact")
 		action.hit=index+1
 	var last_hit=float(action.warning_end)+maxi(0,targets.size()-1)*float(config.major.hit_spacing_s)
@@ -559,7 +572,7 @@ func _die() -> void:
 		z.dead=true;z.eating=false
 	for p in sim.plants:p.sealed_until=0.0
 	sim.spawn_queue.clear();sim.pending_spawns.clear()
-	sim.banner={"text":String(config.name)+"退散", "group":Content.wave_groups(sim.level),
+	sim.banner={"text":String(config.name)+"退散", "group":int(wave_end / Content.WAVES_PER_GROUP),
 		"groups":Content.wave_groups(sim.level),"t":2.0,"max":2.0}
 	sim.sfx("boss_defeat")
 
@@ -569,7 +582,7 @@ func serialize() -> Dictionary:
 		"major_queue","fired","action","cell_cooldowns","repair_marks","destruction_used","supply_given","alternate","last_lane",
 		"lane_streak","last_major_row","cc_log","stun_until","total_damage","add_count","peak_adds","major_count","last_boss_destroy_at",
 		"major_wait_since","adds_were_paused","hit_tokens","effects", "body_row", "blink_from",
-		"blink_at", "smalls_to_blink", "small_casts", "reinforcement_index"]:
+		"blink_at", "smalls_to_blink", "small_casts", "reinforcement_index", "wave_end"]:
 		saved[name]=get(name)
 	var proxy_rows: Array=[]
 	for z in body_targets+props:
@@ -578,7 +591,7 @@ func serialize() -> Dictionary:
 	return saved
 
 func restore(owner,data: Dictionary) -> void:
-	begin(owner,String(data.id))
+	begin(owner,String(data.id), int(data.get("wave_end", -1)))
 	for z in body_targets:z.dead=true
 	body_targets.clear();props.clear()
 	for name in data:

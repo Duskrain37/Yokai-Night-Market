@@ -6,26 +6,78 @@
 class_name Almanac
 extends RefCounted
 
-const BOSS_ORDER = ["earth", "paper", "river"]
+const BOSS_ORDER = ["earth", "paper", "river", "island", "magistrate-bound", "magistrate-full"]
+const BossRules = preload("res://scripts/boss_encounter.gd")
 const BOSS_PAGES = {
 	"earth": ["街下有主", "第一周 · 第五夜", "震地前先有红纹，随后石俑沿街扑来。快拆挡路的石俑，把火力转到獾王所在的两行。"],
 	"paper": ["纸上有愿", "第二周 · 第五夜", "纸符会封住草木的本事，纸官还会从栈道唤来帮手。尽快打散符纸，留些香火补上空缺。"],
 	"river": ["潮底戴傩", "第三周 · 第五夜", "盯住涨潮的红纹和横冲的水蟹。傩主会闪到别处，把输出布在几行就能接住它。"],
+	"island": ["提灯引潮", "第四周 · 第五夜", "夜叉守着孤岛岸边，铃一响便借潮水冲击摊位。"],
+	"magistrate-bound": ["锁印听审", "第五周 · 第五夜 · 第四大波", "鬼官的印玺仍被铁链束缚。击退它之后，还有四大波要守。"],
+	"magistrate-full": ["开印断生", "第五周 · 第五夜 · 第八大波", "地底府衙真正的主人。官印已开，它会接连点名并降下重判。"],
 }
 static var _boss_data: Dictionary = {}
 static var _boss_portraits: Dictionary = {}
 
 
 static func boss_name(id: String) -> String:
+	return String(boss_record(id).get("name", "首领"))
+
+
+static func boss_record(id: String) -> Dictionary:
 	if _boss_data.is_empty():
 		var config = JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_balance.json"))
 		for entry in config.bosses:
-			_boss_data[String(entry.id)] = String(entry.name)
-	return String(_boss_data.get(id, "首领"))
+			_boss_data[String(entry.id)] = entry
+	return _boss_data.get(id, {})
+
+
+static func boss_skills(id: String) -> Array:
+	var data := boss_record(id)
+	var hp := float(data.max_hp) * BossRules.HEALTH_SCALE
+	var rows := [["首领底细", "生命　简单 %d · 普通 %d · 困难 %d\n现身预警 3 秒，入场援香 %d。身躯占相邻两行，每出 1–2 次小技能随机换行，闪影约 %.2f 秒。" % [roundi(hp * .85), roundi(hp), roundi(hp * 1.15), int(data.entry_incense), BossRules.BLINK_TIME]],
+		["小技能节奏", "首次出招 %.2f 秒，之后间隔 %.2f 秒。" % [float(data.small_first_s) / BossRules.SKILL_RATE, float(data.small_period_s) / BossRules.SKILL_RATE]]]
+	match id:
+		"earth":
+			rows.append(["开凿地穴", "预警 2.2 秒，一格受 %.1f 点伤害。地穴耐久 %.1f，存续 9 秒，每 4 秒可唤来饿鬼。" % [140.0 * BossRules.SKILL_FORCE, 160.0 * BossRules.SKILL_FORCE]])
+		"paper":
+			rows.append(["缚愿纸符", "预警 1.8 秒，最多封住两行各一株。纸符耐久 %.1f，产香草木受封 %.2f 秒，其他草木 %.2f 秒。打碎纸符即可解封。" % [120.0 * BossRules.SKILL_FORCE, 2.0 * BossRules.SKILL_FORCE, 5.0 * BossRules.SKILL_FORCE]])
+			rows.append(["纸渡接客", "与纸符交替出招。预警 1.8 秒，空格出现耐久 %.1f 的纸渡，存续 12 秒。3 秒后首次唤来斗笠鬼，之后每 4 秒可再召唤。" % (240.0 * BossRules.SKILL_FORCE)])
+		"river":
+			rows.append(["遣潮蟹", "预警 2 秒，耐久 %.1f 的潮蟹冲过一行，速度 1.54 格/秒，最多存续 10 秒。撞到第一株草木时造成 %.1f 点伤害后退散。" % [180.0 * BossRules.SKILL_FORCE, 300.0 * BossRules.SKILL_FORCE]])
+		_:
+			var skill: Dictionary = data.small_skill
+			rows.append([String(skill.label), "预警 %.2f 秒，最多点中 %d 路各一株，每株受 %.1f 点伤害，幸存草木被封 %.2f 秒。" % [float(skill.warning), int(skill.targets), float(skill.damage) * BossRules.SKILL_FORCE, float(skill.seal_s) * BossRules.SKILL_FORCE]])
+	if bool(data.get("summon_final", true)):
+		rows.append(["首领号令", "第 %d 次小技能起每隔 %d 次施放，预警 2.4 秒，召来一整轮最终大波。" % [int(data.get("summon_first_cast", BossRules.FINAL_WAVE_FIRST_CAST)), int(data.get("summon_cast_interval", BossRules.FINAL_WAVE_CAST_INTERVAL))]])
+	var thresholds: Array = data.major_thresholds
+	if thresholds.is_empty():
+		rows.append(["受限官印", "限制形态只能点名，无法施展强力技能与首领号令。"])
+	else:
+		var marks: PackedStringArray = []
+		for threshold in thresholds:
+			marks.append("%d%%" % roundi(float(threshold) * 100))
+		var major: Dictionary = data.major
+		var name := String({"earth":"裂街震地", "paper":"缚愿大阵", "river":"暗河决堤", "island":"潮灯压岸", "magistrate-full":"冥府重判"}.get(id))
+		var extra := "。幸存草木另受 %.2f 秒封印" % (2.0 * BossRules.SKILL_FORCE) if id in ["paper", "magistrate-full"] else ""
+		rows.append([name, "生命降至 %s 各发动一次。预警 %.2f 秒，最多 %d 次落击，每击 %.1f 点伤害，相邻落击间隔 %.2f 秒%s。" % ["、".join(marks), float(major.warning_s), int(major.hit_count), float(major.damage_per_hit) * BossRules.SKILL_FORCE, float(major.hit_spacing_s), extra]])
+	rows.append(["常驻援军与抗性", "开战 5 秒后开始召援，按常规波次总耐久的 75% 调派。控制时长仅保留四分之一，单次至多 0.75 秒，10 秒内累计至多 1.5 秒。比例伤害每次及同源每秒上限为最大生命的 1%。"])
+	return rows
 
 
 static func boss_portrait(id: String) -> Texture2D:
 	if not _boss_portraits.has(id):
+		if id in ["island", "magistrate-bound", "magistrate-full"]:
+			var actor := "boss-" + id
+			var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_frames.json"))
+			if manifest is Dictionary and manifest.has(actor):
+				var r: Array = manifest[actor].clips.idle[0].rect
+				var portrait := AtlasTexture.new()
+				portrait.atlas = load("res://" + String(manifest[actor].file))
+				portrait.region = Rect2(r[0], r[1], r[2], r[3])
+				portrait.filter_clip = true
+				_boss_portraits[id] = portrait
+			return _boss_portraits.get(id)
 		var path := "assets/boss/boss_%s_atlas.png" % id
 		var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_art_manifest.json"))
 		for sheet in manifest.atlases:

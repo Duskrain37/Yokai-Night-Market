@@ -50,12 +50,8 @@ const ROWS := {
 		{"key": "sound", "label": "声音总开关",
 			"note": "关闭后全局静音", "options": [[true, "开"], [false, "关"]]},
 		{"key": "music_style", "label": "音乐风格",
-			"note": "朴素：三套通用配乐；完整：第一天/第二天/第三天各用一套",
+			"note": "朴素：三首通用战曲；完整：每周都有自己的战曲",
 			"options": [["plain", "朴素"], ["complete", "完整"]]},
-		{"key": "hot_variant", "label": "白热化音乐",
-			"note": "完整风格下第七波起的曲子：新篇=当天新版，延续=当天先锋段主题的变奏",
-			"options": [["new", "新篇"], ["continue", "延续"]],
-			"show_if": {"key": "music_style", "value": "complete"}},
 		{"key": "music_volume", "label": "音乐音量", "note": "0—100，拖动即时生效",
 			"type": "range"},
 		{"key": "sfx_volume", "label": "音效音量", "note": "0—100，拖动即时生效",
@@ -157,10 +153,6 @@ func _build() -> void:
 	var rows: Array = ROWS.get(page, [])
 	var first := true
 	for row in rows:
-		if row.has("show_if"):
-			var cond = row["show_if"]
-			if not _matches(game.settings.get(String(cond["key"])), cond["value"]):
-				continue
 		if not first:
 			list.add_child(Ui.spacer(8))
 			list.add_child(Ui.hline(Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g,

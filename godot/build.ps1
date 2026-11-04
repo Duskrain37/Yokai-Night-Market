@@ -74,12 +74,16 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw '补丁功能检查失败' }
     & $enginePath --headless --path $projectPath --script res://tools/qa_animation.gd --log-file (Join-Path $qa 'animation-tests.log')
     if ($LASTEXITCODE -ne 0) { throw '动画与射弹检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_v050.gd --log-file (Join-Path $qa 'v050-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw '新地图与双形态首领检查失败' }
 }
 
 Write-Host '[7/7] 导出 Windows 单文件…'
 & $enginePath --headless --editor --path $projectPath --export-release 'Windows Desktop' `
     (Join-Path $out 'YokaiNightMarket.exe') --log-file (Join-Path $qa 'export.log')
 if ($LASTEXITCODE -ne 0) { throw '导出失败' }
+& $python (Join-Path $projectPath 'tools\trim_export.py') (Join-Path $out 'YokaiNightMarket.exe') (Join-Path $qa 'pack-audit.json')
+if ($LASTEXITCODE -ne 0) { throw '发行包瘦身或逐文件校验失败' }
 $exe = Get-Item -LiteralPath (Join-Path $out 'YokaiNightMarket.exe')
 $hash = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLower()
 Write-Host ("完成：{0}  {1:N0} 字节  SHA-256 {2}" -f $exe.FullName, $exe.Length, $hash)

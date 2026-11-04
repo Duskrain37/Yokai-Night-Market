@@ -66,7 +66,7 @@ func run() -> void:
 	for level in Content.LEVELS.slice(0,15):
 		var expected=[4,4,6,6,8][(int(level.id)-1)%5]
 		check("关%d 大波数" % int(level.id),Content.wave_groups(level)==expected)
-		check("关%d 威胁按用户新值" % int(level.id),is_equal_approx(float(level.threat),float([.8,1.,1.2,1.4,1.6,1.,1.25,1.5,1.75,2.,1.2,1.53,1.85,2.18,2.5][int(level.id)-1])))
+		check("关%d 威胁按用户新值" % int(level.id),is_equal_approx(float(level.threat),float([.6,.8,1.,1.2,1.4,.8,1.05,1.3,1.55,1.8,1.,1.33,1.65,1.98,2.3][int(level.id)-1])))
 		check("关%d 前四大波刷怪拨次与阶级数量保持" % int(level.id), same_wave_slots(
 			Array(level.waves).slice(0, 12), fixtures.levels[int(level.id)-1].waves))
 	check("狐尾灯新疾焰与十焰数值",same(Upgrades.EFFECTS.cat.interval_reduction,

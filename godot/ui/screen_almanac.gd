@@ -320,6 +320,10 @@ func _render_page() -> void:
 		_page.add_child(_paragraph("初遇 · %s" % page[1]))
 		_page.add_child(_paragraph(String(page[2])))
 		_page.add_child(_paragraph("首领占据相邻两行，两行的射弹都能打中它。留意出招前的红纹和号令，后者会唤来一整大波援军。"))
+		for skill in Almanac.boss_skills(type):
+			_page.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
+			_page.add_child(Ui.strong(String(skill[0]), 22, Ui.GOLD_BRIGHT))
+			_page.add_child(_paragraph(String(skill[1])))
 	else:
 		_render_zombie(type)
 

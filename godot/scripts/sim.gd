@@ -203,6 +203,10 @@ class Zombie:
 	var wave_no = -1
 	var water_entered = false
 	var water_entry_t = 0.0
+	var water_exit_t = 0.0
+	var raft_sink_t = 0.0
+	var terrain_hop_from = 0.0
+	var terrain_hop_to = 0.0
 	var vaulted = false
 	var vault_t = 0.0
 	var vault_from = 0.0
@@ -335,6 +339,7 @@ var level: Dictionary = {}
 var level_id = 1
 var rows = 5
 var tiles: Array = []                 # rows × COLS，元素 {kind, obj, water}
+var island_seed := 0
 var cells: Array = []                 # rows × COLS，主植物或 null
 var lilies: Dictionary = {}           # "r:c" -> Plant
 var plants: Array = []
@@ -405,7 +410,7 @@ func setup(p_level: Dictionary, loadout: Array, p_difficulty: String = "easy") -
 	level_id = int(p_level.get("id", 1))
 	rows = clampi(int(p_level.get("rows", 5)), 5, 6)
 	difficulty = p_difficulty if DIFFICULTY.has(p_difficulty) else "easy"
-	var scale = sqrt(maxf(0.1, effective_threat(p_level)))
+	var scale = sqrt(maxf(0.1, effective_threat(p_level) / Content.terrain_factor(p_level)))
 	count_mul = scale
 	hp_mul = scale
 	training = false
@@ -417,6 +422,7 @@ func setup(p_level: Dictionary, loadout: Array, p_difficulty: String = "easy") -
 
 
 func _reset(loadout: Array) -> void:
+	island_seed = int(Time.get_ticks_usec()) if String(level.get("map", "")) == "island" else 0
 	tiles = _make_tiles()
 	lilies.clear()
 	cells = []
@@ -471,7 +477,26 @@ func _make_tiles() -> Array:
 			line.append({"kind": "land", "obj": 0, "water": ""})
 		grid.append(line)
 	var map = String(level.get("map", "street"))
-	if map == "water":
+	if map == "cavern":
+		for row in rows:
+			for col in Content.CAVERN_WATER_CELLS[row]:
+				grid[row][col] = {"kind": "water", "obj": -1, "water": "cavern"}
+			for col in Content.CAVERN_PITS[row]:
+				grid[row][col]["kind"] = "pit"
+	elif map == "island":
+		for row in rows:
+			for col in Content.ISLAND_EDGE[row]:
+				grid[row][col]["kind"] = "edge"
+		var pool: Array[Vector2i] = []
+		for row in range(1, rows - 1):
+			for col in range(1, Geo.COLS - 1):
+				pool.append(Vector2i(col, row))
+		var local := RandomNumberGenerator.new()
+		local.seed = island_seed
+		for i in 5:
+			var cell: Vector2i = pool.pop_at(local.randi_range(0, pool.size() - 1))
+			grid[cell.y][cell.x] = {"kind": "obstacle", "obj": i % 3, "water": ""}
+	elif map == "water":
 		for r in level.get("water_rows", []):
 			if r < 0 or r >= rows:
 				continue
@@ -586,6 +611,8 @@ func can_place_at(type: String, col: int, row: int) -> Dictionary:
 	var lily = lily_at(col, row)
 	if tile["kind"] == "blocked":
 		return {"ok": false, "reason": "障碍挡住了，不能种"}
+	if tile["kind"] in ["edge", "pit", "obstacle"]:
+		return {"ok": false, "reason": {"edge": "这是摊面的外缘", "pit": "这里是坑洞", "obstacle": "这里有障碍"}[tile["kind"]]}
 	if tile["kind"] == "object":
 		return {"ok": false, "reason": "这里有物件，不能种"}
 	if bool(def.get("lily", false)):
@@ -934,7 +961,7 @@ func update_waves() -> void:
 	if boss != null:
 		if boss.alive():
 			_release_queued_zombies()
-		elif bool(level.get("special", false)) and boss.finished():
+		elif boss.finished() and (bool(level.get("special", false)) or boss.id == String(level.get("mid_boss", ""))):
 			_finish_checkpoint()
 		return
 	var waves: Array = level.get("waves", [])
@@ -967,29 +994,38 @@ func _release_queued_zombies() -> void:
 
 
 func checkpoint_waiting() -> bool:
-	return bool(level.get("special",false)) and special_bosses_completed<3 \
+	return bool(level.get("special",false)) and special_bosses_completed < level.get("boss_checkpoints", []).size() \
 		and wave_index>=(special_bosses_completed+1)*12
 
 
 func _finish_checkpoint() -> void:
 	boss_history.append({"id":boss.id,"combat_s":maxf(0,float(boss.died_at)-float(boss.combat_at)),
 		"direct_losses":boss.destruction_used,"damage":boss.total_damage})
-	special_bosses_completed+=1
+	var special := bool(level.get("special", false))
+	if special:
+		special_bosses_completed += 1
 	special_rest_until = time
 	if wave_index < Array(level.waves).size():
 		var first_wave_lead = float(level.waves[0].t)
 		wave_time_offset = time + first_wave_lead - float(level.waves[wave_index].t)
 	boss=null
 	# Preserve the actual surviving army, card timers and incense; no free field reset.
-	if special_bosses_completed<3:
-		var threat=float([2.0,2.5,3.5][special_bosses_completed])
-		count_mul=sqrt(threat);hp_mul=sqrt(threat)
+	if special and special_bosses_completed < level.get("boss_checkpoints", []).size():
+		var threat := Content.checkpoint_threat(level, special_bosses_completed)
+		count_mul=sqrt(threat / Content.terrain_factor(level));hp_mul=count_mul
 		banner={"text":"首领退散 · 继续深入鬼市", "t":4.0,"max":4.0}
+	elif not special:
+		banner = {"text": "鬼官暂退 · 整阵迎敌", "t": 4.0, "max": 4.0}
 
 
 func queue_wave(wave: Dictionary, wave_no: int = -1) -> void:
 	if wave_no < 0:
 		wave_no = maxi(0, wave_index - 1)
+	var mid_id := String(level.get("mid_boss", ""))
+	if not training and tutorial == null and mid_id != "" and wave_no == 3 * Content.WAVES_PER_GROUP and boss == null:
+		boss = preload("res://scripts/boss_encounter.gd").new()
+		boss.begin(self, mid_id, 4 * Content.WAVES_PER_GROUP)
+		return
 	if not training and tutorial == null and String(level.get("boss_id", "")) != "" \
 			and wave_no >= Array(level["waves"]).size() - Content.WAVES_PER_GROUP:
 		if boss == null:
@@ -1015,6 +1051,7 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 		low_only: bool = false, boss_wave: bool = false, delay: float = 0.0) -> void:
 	var count_mult = count_mul * float(difficulty_mult()["count"])
 	var original: Array = []
+	var cavern: bool = String(level.get("map", "")) == "cavern" and not level.get("lane_weights", []).is_empty()
 	var mass = 0.0
 	var budget_groups: Array = wave.get("budget_groups", wave["groups"])
 	var guest_slots: Array = wave.get("guest_slots", [])
@@ -1029,15 +1066,17 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 			var type := String(picks[mini(picks.size() - 1, int(float(i) * picks.size() / count))])
 			original.append({
 				"t": time + delay + original.size() * 0.38 + rng.randf() * 0.25,
-				"type": type, "row": choose_spawn_row(type), "wave_no": wave_no,
+				"type": type, "row": -1 if cavern else choose_spawn_row(type), "wave_no": wave_no,
 				"boss_wave": boss_wave,
 			})
 			actual_mass += _enemy_mass(type)
 		mass += _enemy_mass(source) * count
 	if mass_ratio >= 1.0:
-		if actual_mass > 0.0 and not is_equal_approx(actual_mass, mass):
+		if actual_mass > 0.0 and not is_equal_approx(actual_mass, mass * mass_ratio):
 			for entry in original:
-				entry["mass_scale"] = mass / actual_mass
+				entry["mass_scale"] = mass * mass_ratio / actual_mass
+		if cavern:
+			_assign_cavern_rows(original)
 		spawn_queue.append_array(original)
 		return
 	var roster: Array[String] = []
@@ -1063,13 +1102,48 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 			kept_mass += _enemy_mass(type)
 		roster = kept
 		durability = budget / kept_mass if kept_mass > 0.0 else 1.0
+	var entries: Array = []
 	for i in roster.size():
 		var type = roster[i]
-		spawn_queue.append({
+		entries.append({
 			"t": time + delay + i * 0.38 + rng.randf() * 0.25,
-			"type": type, "row": choose_spawn_row(type), "wave_no": wave_no,
+			"type": type, "row": -1 if cavern else choose_spawn_row(type), "wave_no": wave_no,
 			"mass_scale": durability, "boss_wave": boss_wave,
 		})
+	if cavern:
+		_assign_cavern_rows(entries)
+	spawn_queue.append_array(entries)
+
+
+## 用可走水陆两路的恶客补足耐久权重，水生和高阶恶客仍只进合法行。
+func _assign_cavern_rows(entries: Array) -> void:
+	var water: Array = level.get("water_rows", [])
+	var weights: Array = level.get("lane_weights", [])
+	var water_share := 0.0
+	var weight_total := 0.0
+	for row in weights.size():
+		weight_total += float(weights[row])
+		if water.has(row):
+			water_share += float(weights[row])
+	if weight_total > 0.0:
+		water_share /= weight_total
+	var forced_water := 0.0
+	var flexible := 0.0
+	var total := 0.0
+	for entry in entries:
+		var type := String(entry["type"])
+		var guest: Dictionary = Content.ZOMBIES[type]
+		var mass := _enemy_mass(type) * float(entry.get("mass_scale", 1.0))
+		total += mass
+		if bool(guest.get("water_only", false)):
+			forced_water += mass
+		elif String(guest.get("tier", "")) != "h":
+			flexible += mass
+	var flexible_water := water_share
+	if flexible > 0.0:
+		flexible_water = clampf((water_share * total - forced_water) / flexible, 0.0, 1.0)
+	for entry in entries:
+		entry["row"] = choose_spawn_row(String(entry["type"]), flexible_water, water_share)
 
 
 func _enemy_mass(type: String) -> float:
@@ -1078,7 +1152,8 @@ func _enemy_mass(type: String) -> float:
 
 
 func special_opening() -> bool:
-	return bool(level.get("special", false)) and boss == null and special_bosses_completed in [1, 2] \
+	return bool(level.get("special", false)) and boss == null and special_bosses_completed > 0 \
+		and special_bosses_completed < level.get("boss_checkpoints", []).size() \
 		and wave_index == special_bosses_completed * 12
 
 
@@ -1118,21 +1193,29 @@ const PROJECTILE_SPEED_SCALE = 0.6
 
 
 ## 暗河两条水路各按陆路的 2/3 抽取。高阶恶客只走石台。
-func choose_spawn_row(type: String) -> int:
+func choose_spawn_row(type: String, flexible_water: float = -1.0, water_share: float = 0.0) -> int:
 	var water: Array = level.get("water_rows", [])
-	if bool(Content.ZOMBIES.get(type, {}).get("water_only", false)):
-		return int(water[rng.randi_range(0, water.size() - 1)]) if not water.is_empty() else -1
-	if String(level.get("map", "")) != "water":
-		return rng.randi_range(0, rows - 1)
-	var high_tier = String(Content.ZOMBIES.get(type, {}).get("tier", "")) == "h"
+	var def: Dictionary = Content.ZOMBIES.get(type, {})
+	var water_only := bool(def.get("water_only", false))
+	var high_tier := String(def.get("tier", "")) == "h"
+	var weights: Array = level.get("lane_weights", [])
+	if weights.is_empty() and water.is_empty():
+		return -1 if water_only else rng.randi_range(0, rows - 1)
 	var choices: Array = []
 	var total = 0.0
 	for row in rows:
-		if water.has(row) and high_tier:
+		if (water.has(row) and high_tier) or (water_only and not water.has(row)):
 			continue
-		var weight = 2.0 / 3.0 if water.has(row) else 1.0
+		var weight = float(weights[row]) if not weights.is_empty() else (2.0 / 3.0 if water.has(row) else 1.0)
+		if flexible_water >= 0.0 and not water_only and not high_tier and water_share > 0.0 and water_share < 1.0:
+			var share := flexible_water / water_share if water.has(row) else (1.0 - flexible_water) / (1.0 - water_share)
+			weight *= share
+		if weight <= 0.0:
+			continue
 		total += weight
 		choices.append([row, total])
+	if choices.is_empty():
+		return -1
 	var draw = rng.randf() * total
 	for choice in choices:
 		if draw < float(choice[1]):
@@ -1162,7 +1245,7 @@ func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 		z.row = choose_spawn_row(type)
 		if z.row < 0:
 			return null
-	if String(level.get("map", "")) == "water" and z.row in level.get("water_rows", []) \
+	if z.row in level.get("water_rows", []) \
 			and String(def.get("tier", "")) == "h":
 		z.row = choose_spawn_row(type)
 	z.pos = Vector2(float(opts.get("x", Geo.SPAWN_X + rng.randf() * 70.0)),
@@ -1519,7 +1602,7 @@ func battle_summary() -> Dictionary:
 		"left_sun": int(sun),
 		"plants_lost": plants_lost,
 		"empty_rows": empty_rows,
-		"bosses_defeated":boss_history.size() if bool(level.get("special",false)) else (1 if boss!=null and not boss.alive() else 0),
+		"bosses_defeated":boss_history.size() + int(boss != null and not boss.alive()),
 		"boss_history":boss_history.duplicate(true),
 	}
 
@@ -1535,9 +1618,9 @@ func active_zombies() -> int:
 func is_cleared() -> bool:
 	if training or tutorial != null:
 		return false
-	if bool(level.get("special",false)) and special_bosses_completed<3:return false
+	if bool(level.get("special",false)) and special_bosses_completed < level.get("boss_checkpoints", []).size():return false
 	if boss != null:
-		return boss.finished()
+		return boss.id != String(level.get("mid_boss", "")) and boss.finished()
 	var waves: Array = level.get("waves", [])
 	return wave_index >= waves.size() and spawn_queue.is_empty() and zombies.is_empty()
 
@@ -3577,6 +3660,23 @@ func _revive_guest(z: Zombie) -> void:
 	sfx("bell")
 
 
+func _update_water_pose(z: Zombie, dt: float) -> void:
+	z.water_entry_t = maxf(0.0, z.water_entry_t - dt)
+	z.water_exit_t = maxf(0.0, z.water_exit_t - dt)
+	z.raft_sink_t = maxf(0.0, z.raft_sink_t - dt)
+	if level.get("water_rows", []).is_empty():
+		return
+	var column := floori((z.pos.x - Geo.BOARD_X) / Geo.CELL_W)
+	var in_water := column >= 0 and column < Geo.COLS and String(tile_at(column, z.row).get("water", "")) != ""
+	if z.water_entered == in_water:
+		return
+	z.water_entered = in_water
+	z.water_entry_t = 0.68 if in_water else 0.0
+	z.water_exit_t = 0.0 if in_water else 0.44
+	ring(z.pos + Vector2(0, 22), Color(0.45, 0.75, 0.78, 0.7), 24, 0.52)
+	sfx("splash")
+
+
 func update_zombies(dt: float) -> void:
 	for z in zombies:
 		if z.dead:
@@ -3588,6 +3688,7 @@ func update_zombies(dt: float) -> void:
 				_revive_guest(z)
 			continue
 		if z.dying:
+			z.raft_sink_t = maxf(0.0, z.raft_sink_t - dt)
 			z.death_t += dt
 			if z.death_t >= z.death_dur:
 				z.dead = true
@@ -3595,18 +3696,13 @@ func update_zombies(dt: float) -> void:
 			continue
 		_tick_guest_special(z)
 		z.hurt = maxf(0.0, z.hurt - dt)
-		z.water_entry_t = maxf(0.0, z.water_entry_t - dt)
-		if not z.water_entered and String(level.get("map", "")) == "water" \
-				and z.row in level.get("water_rows", []) and z.pos.x <= Geo.BOARD_X + Geo.BOARD_W:
-			z.water_entered = true
-			z.water_entry_t = 0.68
-			ring(z.pos + Vector2(0, 22), Color(0.45, 0.75, 0.78, 0.7), 24, 0.6)
-			for i in 12:
-				particles.append({"x": z.pos.x + rng.randf_range(-18, 18),
-					"y": z.pos.y + 24, "vx": rng.randf_range(-46, 46),
-					"vy": rng.randf_range(-72, -20), "life": 0.45,
-					"max": 0.45, "size": rng.randf_range(1.5, 3.5),
-					"color": Color("#8cbdc0"), "kind": "circle"})
+		_update_water_pose(z, dt)
+		if z.terrain_hop_from != z.terrain_hop_to:
+			z.object_hop = maxf(0.0, z.object_hop - dt)
+			z.pos.x = lerpf(z.terrain_hop_from, z.terrain_hop_to, 1.0 - z.object_hop / 0.34)
+			if z.object_hop <= 0.0:
+				z.terrain_hop_from = z.terrain_hop_to
+			continue
 		if z.slow_t > 0.0:
 			z.slow_t = maxf(0.0, z.slow_t - dt)
 			if z.slow_t <= 0.0:
@@ -3762,7 +3858,7 @@ func update_zombies(dt: float) -> void:
 		z.eat_snd_t = 0.0
 		var slow_mult = (1.0 - z.slow_amount) if z.slow_t > 0.0 else 1.0
 		var rage = maxf(1.0, z.rage_mult) if z.rage_t > 0.0 and z.suppress_t <= 0.0 else 1.0
-		var armor_speed = float(z.def.get("armor_speed", 1.0)) if z.armor > 0.0 else 1.0
+		var armor_speed = float(z.def.get("armor_speed", 1.0)) if z.armor > 0.0 and (z.type != "reedboat" or z.water_entered) else 1.0
 		var step = z.speed * armor_speed * slow_mult * rage * dt
 		if z.reverse_t > 0.0:
 			# 回头：往进场方向走一小段，不传送、不换行、不强制停止啃食
@@ -3774,6 +3870,15 @@ func update_zombies(dt: float) -> void:
 		var col = int((z.pos.x - Geo.BOARD_X) / Geo.CELL_W)
 		if col >= 0 and col < Geo.COLS:
 			var tile = tile_at(col, z.row)
+			if tile["kind"] in ["pit", "obstacle"]:
+				var direction := 1 if z.reverse_t > 0.0 else -1
+				var end_col: int = col + direction
+				while end_col >= 0 and end_col < Geo.COLS and tile_at(end_col, z.row)["kind"] in ["pit", "obstacle"]:
+					end_col += direction
+				z.terrain_hop_from = z.pos.x
+				z.terrain_hop_to = Geo.BOARD_X + (end_col + (0.04 if direction > 0 else 0.96)) * Geo.CELL_W
+				z.object_hop = 0.34
+				continue
 			if tile["kind"] == "object":
 				var key = "%d:%d" % [z.row, col]
 				if z.last_object != key:
@@ -4433,7 +4538,9 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 func break_armor(z: Zombie) -> void:
 	sfx("shell")
 	if z.type == "reedboat":
-		z.water_entry_t = 0.42
+		z.raft_sink_t = 0.52 if z.water_entered else 0.0
+		if z.raft_sink_t > 0.0:
+			ring(z.pos + Vector2(0, 22), Color("#8cbdc0"), 33.0, 0.55)
 	var colors = {
 		"shield": Color("#a88b61"), "raft": Color("#a18d65"),
 		"paper": Color("#efe6cf"), "sedan": Color("#c77a55"), "straw": Color("#d7b26a"),
@@ -4844,6 +4951,7 @@ func serialize() -> Dictionary:
 		"cards": cards.map(func(c): return String(c["id"])),
 		"spawn_queue": spawn_queue.duplicate(true),
 		"training": training, "no_cooldown": no_cooldown,
+		"island_seed": str(island_seed),
 		"cheated": cheated,
 		"format":4,"level_snapshot":level.duplicate(true),
 		"boss":boss.serialize() if boss!=null else {},
@@ -4866,6 +4974,9 @@ func restore(data: Dictionary) -> void:
 		lvl=lvl.duplicate(true);lvl.waves=Content.build_waves(String(lvl.band),4)
 		lvl.wave_groups=4;lvl.boss_id=""
 	setup(lvl, data.get("cards", []), String(data.get("difficulty", "easy")))
+	if data.has("island_seed") and String(lvl.get("map", "")) == "island":
+		island_seed = int(data["island_seed"])
+		tiles = _make_tiles()
 	time = float(data.get("time", 0.0))
 	sun = int(data.get("sun", 100))
 	wave_index = int(data.get("wave_index", 0))

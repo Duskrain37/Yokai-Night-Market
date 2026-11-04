@@ -63,7 +63,7 @@ func run() -> void:
   var base_mass = roster_mass(base, base.spawn_queue)
   var actual_mass = roster_mass(sim, sim.spawn_queue)
   check("暗河第%d拨总耐久比例" % (wave_no + 1),
-   is_equal_approx(actual_mass / base_mass, 0.60 if wave_no < 6 else 1.0))
+   is_equal_approx(actual_mass / base_mass, Content.wave_mass_ratio(sim.level, wave_no)))
   if wave_no < 2:
    check("暗河第一大波第%d拨只有低阶" % (wave_no + 1), sim.spawn_queue.all(
     func(entry): return Content.ZOMBIES[String(entry.type)].tier == "l"))
@@ -136,7 +136,7 @@ func run() -> void:
  game.sim.sun = 3000
  for i in 3: game.sim.try_upgrade(upgraded, 1, Vector2.ZERO)
  check("三阶升级触发专属音效与符印动画", game.sim.sounds.has("capstone") and game.sim.particles.any(func(effect): return effect.kind == "capstone_seal"))
- for boss_index in Almanac.BOSS_ORDER.size():
+ for boss_index in 3:
   var id: String = Almanac.BOSS_ORDER[boss_index]
   game.show_prep((boss_index + 1) * 5)
   game.screen_node.skip_cinema()

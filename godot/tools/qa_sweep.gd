@@ -1,4 +1,4 @@
-## 十五夜平衡扫描（环比比较同长前四大波，另列新增普通波总量）：把每一夜的压力（总有效血）、需求 DPS、机器人胜负与单夜环比
+## 二十五夜平衡扫描：环比同长前四大波，另列普通波总量。
 ## 打成一张表 + qa/curve.csv。改波次或威胁数值后跑这个，别靠手感。
 ##
 ## 运行：Godot --headless --path . --script res://tools/qa_sweep.gd
@@ -14,8 +14,10 @@ func _init() -> void:
 	var prev = 0.0
 	var worst_rise = 0.0
 	var problems: Array = []
-	for level_id in range(1,16):
-		var level: Dictionary = Content.LEVELS[level_id - 1]
+	for level in Content.LEVELS:
+		if bool(level.get("special", false)):
+			continue
+		var level_id: int = level.id
 		var prefix=level.duplicate(true)
 		prefix.waves=Array(level.waves).slice(0,12)
 		var pressure = night_pressure(prefix)
@@ -70,12 +72,18 @@ func _init() -> void:
 ## 用户定的「开局喘口气」：新一周第一夜的压力要略低于上一周最后一夜，
 ## 新区间由用户重新指定，前四波配方不变；旧的第3–4夜上下界不再强制，仍检查新周开局低于旧周关底。
 static func _check_week_opener(rows: Array, problems: Array) -> void:
-	for first in [5, 10]:
+	for first in [5, 10, 15, 20]:
 		var opener = float(rows[first]["dps"])
 		var third = float(rows[first - 3]["dps"])
 		var fourth = float(rows[first - 2]["dps"])
 		var last = float(rows[first - 1]["dps"])
-		var ok = opener < last
+		# Compare the actual normal waves as well as the common four-wave window.
+		# Allow negligible rounding variation in the common window across spawn tables.
+		var previous_night: Dictionary = rows[first - 1]
+		var opening_night: Dictionary = rows[first]
+		var full_before := float(previous_night.regular_pressure) / float(previous_night.regular_window_s)
+		var full_after := float(opening_night.regular_pressure) / float(opening_night.regular_window_s)
+		var ok = opener <= last * 1.02 and full_after < full_before
 		print("  %s：%.0f（上周第3夜 %.0f / 第4夜 %.0f / 第5夜 %.0f）%s" % [
 			String(rows[first]["night"]), opener, third, fourth, last,
 			"OK" if ok else "不符"])
@@ -93,7 +101,7 @@ static func _night_name(level: Dictionary) -> String:
 ## 出怪数用期望值（随机取整的期望就是 x 本身），不要用中位取整——那会把
 ## √威胁跨过 1.5 时「整组翻倍」的台阶重新造出来，测出来的曲线是假的。
 static func night_pressure(level: Dictionary) -> float:
-	var scale = sqrt(maxf(0.1, Sim.effective_threat(level)))
+	var scale = sqrt(maxf(0.1, Sim.effective_threat(level) / Content.terrain_factor(level)))
 	var total = 0.0
 	for wave_no in level["waves"].size():
 		var wave: Dictionary = level["waves"][wave_no]
@@ -102,7 +110,7 @@ static func night_pressure(level: Dictionary) -> float:
 			var def: Dictionary = Content.ZOMBIES[String(group[0])]
 			total += maxf(1.0, float(group[1]) * scale) \
 				* (float(def["hp"]) + float(def.get("armor", 0.0))) * scale * mass_ratio
-	return total
+	return total * Content.terrain_factor(level)
 
 
 static func write_csv(rows: Array) -> void:

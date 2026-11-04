@@ -13,9 +13,9 @@
       "ok": true
     },
     {
-      "detail": "实际 16",
+      "detail": "实际 26",
       "group": "内容",
-      "name": "十五夜与特殊关齐备",
+      "name": "二十五夜与特殊关齐备",
       "ok": true
     },
     {
@@ -39,7 +39,7 @@
     {
       "detail": "",
       "group": "内容",
-      "name": "威胁按天落在 0.8-1.6 / 1.0-2.0 / 1.2-2.5",
+      "name": "五周威胁按指定范围递增",
       "ok": true
     },
     {
@@ -211,7 +211,7 @@
       "ok": true
     },
     {
-      "detail": "hp=900.0",
+      "detail": "hp=710.0",
       "group": "新机制",
       "name": "碾磨自爆对 1 格内造成 900",
       "ok": true
@@ -427,7 +427,7 @@
       "ok": true
     },
     {
-      "detail": "hp=238.0 armor=555.0",
+      "detail": "hp=202.0 armor=480.0",
       "group": "护具",
       "name": "透骨针直接扣本体",
       "ok": true
@@ -559,33 +559,39 @@
       "ok": true
     },
     {
-      "detail": "16",
+      "detail": "19",
       "group": "音乐",
-      "name": "十六首配乐都在资源里",
+      "name": "十九首配乐都在资源里",
       "ok": true
     },
     {
       "detail": "",
       "group": "音乐",
-      "name": "白热化默认用新篇",
+      "name": "第 1 周只保留新篇",
       "ok": true
     },
     {
       "detail": "",
       "group": "音乐",
-      "name": "选延续时用当天 hot-alt",
+      "name": "第 2 周只保留新篇",
       "ok": true
     },
     {
       "detail": "",
       "group": "音乐",
-      "name": "延续缺曲时退回新篇",
+      "name": "第 3 周只保留新篇",
       "ok": true
     },
     {
       "detail": "",
       "group": "音乐",
-      "name": "朴素风格不受新篇/延续影响",
+      "name": "第 4 周只保留新篇",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "音乐",
+      "name": "第 5 周只保留新篇",
       "ok": true
     },
     {
@@ -607,13 +613,13 @@
       "ok": true
     },
     {
-      "detail": "hard=213 easy=142",
+      "detail": "hard=205 easy=136",
       "group": "波次",
       "name": "困难难度恶客更硬",
       "ok": true
     },
     {
-      "detail": "142.0",
+      "detail": "136.0",
       "group": "波次",
       "name": "血量按 sqrt(等效威胁) 缩放",
       "ok": true
@@ -625,7 +631,7 @@
       "ok": true
     },
     {
-      "detail": "water=2.50 street=0.80",
+      "detail": "water=2.30 street=0.60",
       "group": "波次",
       "name": "新难度区间为实际系数，暗河不另加码",
       "ok": true
@@ -637,7 +643,7 @@
       "ok": true
     },
     {
-      "detail": "one=128 two=72",
+      "detail": "one=99 two=101",
       "group": "波次",
       "name": "出怪数随机取整，1 只的组不整组翻倍",
       "ok": true
@@ -763,7 +769,7 @@
       "ok": true
     },
     {
-      "detail": "bleed=2.50 hp=1765.6",
+      "detail": "bleed=2.50 hp=1575.6",
       "group": "铜铃",
       "name": "魂断：大型啃铃会自己流血",
       "ok": true
@@ -1141,7 +1147,7 @@
       "ok": true
     },
     {
-      "detail": "扣甲=10.0 hp=9000 火星={ \"kind\": \"spark\", \"pos\": (680.8112, 414.0), \"radius\": 26.0, \"life\": 0.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"large_slow\": -1.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371977060776484\": 0.0 } }",
+      "detail": "扣甲=10.0 hp=9000 火星={ \"kind\": \"spark\", \"pos\": (680.8112, 414.0), \"radius\": 26.0, \"life\": 0.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"large_slow\": -1.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371976423242276\": 0.0 } }",
       "group": "炭火盆",
       "name": "火星只烧 10/秒，走护具不穿本体",
       "ok": true
@@ -1153,7 +1159,7 @@
       "ok": true
     },
     {
-      "detail": "扣血=0 甲=274",
+      "detail": "扣血=0 甲=240",
       "group": "炭火盆",
       "name": "不熄主弹全额结算护具，不穿甲",
       "ok": true
@@ -1813,19 +1819,19 @@
       "ok": true
     },
     {
-      "detail": "0.4.2 vs 0.4.2",
+      "detail": "0.5.0 vs 0.5.0",
       "group": "构建",
       "name": "戳记版本与 game.gd 一致",
       "ok": true
     },
     {
-      "detail": "2026-11-04 01:36 effd0d1",
+      "detail": "2026-11-04 18:19 9c17f57",
       "group": "构建",
       "name": "构建时间与短哈希已写入",
       "ok": true
     }
   ],
   "failures": 0,
-  "total": 304,
-  "version": "0.4.2"
+  "total": 305,
+  "version": "0.5.0"
 }

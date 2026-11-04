@@ -71,9 +71,15 @@ func _draw() -> void:
 	var action_pose = pose in ["anticipation", "small", "major", "hurt", "defeat"]
 	var index = clampf((sim.time - _pose_at) * 8.0, 0.0, 3.99) if action_pose else sim.time * 5.0
 	var actor = "boss-%s-%s" % [boss.id, pose]
+	var combined: bool = not boss.id in ["earth", "paper", "river"]
+	if combined:
+		actor = "boss-%s" % boss.id
+	var clip := "action" if action_pose else "idle"
+	if combined:
+		clip = "major" if pose == "major" and boss.id != "magistrate-bound" else ("small" if action_pose else "idle")
 	if pose == "blink":
 		_draw_blink(boss, body_foot, body_height)
-	elif not actor_frames.draw_pose(self, actor, "action" if action_pose else "idle", index,
+	elif not actor_frames.draw_pose(self, actor, clip, index,
 			body_foot, body_height, true, Color(1, 1, 1, alpha * mix)):
 		_frame(sheet,pose,body_foot+Vector2(0,bob),body_height,alpha*mix,true,Vector2(1+impact*.035,1-impact*.06))
 	for z in boss.props:
@@ -111,12 +117,17 @@ func _draw_blink(boss, destination: Vector2, height: float) -> void:
 	var t = clampf(elapsed / length, 0.0, 1.0)
 	var origin = _body_foot(boss.blink_from)
 	var actor = "boss-%s-anticipation" % boss.id
+	var clip := "action"
+	var landing = "boss-%s-idle" % boss.id
+	if not boss.id in ["earth", "paper", "river"]:
+		actor = "boss-%s" % boss.id
+		landing = actor
+		clip = "blink" if boss.id != "magistrate-full" else "idle"
 	for i in 3:
 		var progress = clampf(t * 1.4 - i * 0.15, 0.0, 1.0)
 		var at = origin.lerp(destination, progress)
-		actor_frames.draw_pose(self, actor, "action", minf(3.99, progress * 4.0),
+		actor_frames.draw_pose(self, actor, clip, minf(3.99, progress * 4.0),
 			at, height, true, Color(0.67, 0.83, 0.88, sin(t * PI) * (0.58 - 0.12 * i)))
-	var landing = "boss-%s-idle" % boss.id
 	actor_frames.draw_pose(self, landing, "idle", t * 7.0, destination, height,
 		true, Color(1, 1, 1, smoothstep(0.43, 1.0, t)))
 

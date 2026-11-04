@@ -35,7 +35,7 @@ BACKGROUNDS = ["menu", "board", "map-day1", "map-day2", "map-day3"]
 MUSIC = ["menu", "battle", "hot", "final"]
 # 三天配乐包（「完整」音乐风格用）：../music/dayN-{battle,hot,final}.ogg
 MUSIC_DAYS = ["day%d-%s.ogg" % (d, part)
-              for d in (1, 2, 3) for part in ("battle", "hot", "hot-alt", "final")]
+              for d in (1, 2, 3) for part in ("battle", "hot", "final")]
 
 FONT_CACHE = ROOT / "tools" / "fonts-cache"
 
