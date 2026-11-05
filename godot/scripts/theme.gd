@@ -375,10 +375,13 @@ static func sprite(name: String) -> Texture2D:
 	var portrait_actor = "phase-veil" if name == "phaseguard" else name
 	var atlas_path = "res://assets/sprites/animation/%s.png" % portrait_actor
 	var animated_portraits = ["bride", "gust", "firework", "squash", "dragon", "returner",
-		"matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell"]
+		"matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell",
+		"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada",
+		"flinch", "wave-herald", "formless", "reed-shot"]
 	if name in animated_portraits and ResourceLoader.exists(atlas_path):
 		var sheet: Texture2D = load(atlas_path)
-		var rows = {"dragon": 6, "returner": 5, "phaseguard": 4, "shieldguard": 4, "reedboat": 4}
+		var rows = {"dragon": 6, "returner": 5, "phaseguard": 4, "shieldguard": 4, "reedboat": 4,
+			"ember-cicada": 5, "flinch": 4, "wave-herald": 4, "formless": 4, "reed-shot": 4, "tamer": 4}
 		var portrait := AtlasTexture.new()
 		portrait.atlas = sheet
 		portrait.region = Rect2(Vector2.ZERO, sheet.get_size() / Vector2(4.0, float(rows.get(name, 2))))

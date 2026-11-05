@@ -151,7 +151,7 @@
       "ok": true
     },
     {
-      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"kelp\", \"bell\", \"cat\", \"lobber\", \"censer\", \"torch\"]",
+      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"kelp\", \"cat\", \"sky-kite\", \"wish-till\", \"lobber\", \"bell\"]",
       "group": "备战",
       "name": "推荐配卡随地图：暗河先带夜莲",
       "ok": true
@@ -471,5 +471,5 @@
   ],
   "failures": 0,
   "total": 78,
-  "version": "0.5.0"
+  "version": "0.5.1"
 }

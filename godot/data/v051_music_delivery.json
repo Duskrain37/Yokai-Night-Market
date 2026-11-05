@@ -1,0 +1,36 @@
+{
+  "source": "music/说明.md",
+  "selection": "正式曲目 day4 与 day5，备选未接入",
+  "tracks": {
+    "day4-battle": {
+      "file": "day4-battle.ogg",
+      "sha256": "ea43e3ce386c699a869580475acb339fd8cb41633258d5746b0cb35d369b2450",
+      "bytes": 1902689
+    },
+    "day4-hot": {
+      "file": "day4-hot.ogg",
+      "sha256": "1737ad7268c91f072107cdf6b55238804297acdd20c779240173ce298a224111",
+      "bytes": 2323420
+    },
+    "day4-final": {
+      "file": "day4-final.ogg",
+      "sha256": "a7ecedd1f14d5eeba97a2d2b63bfc2ca51f2c1e3a0d0a342bd97ee98cfed934a",
+      "bytes": 2234576
+    },
+    "day5-battle": {
+      "file": "day5-battle.ogg",
+      "sha256": "51af777d7be82c3a2959b5262d1c978951c5f35e9114c625479d9f2c7ea56490",
+      "bytes": 1936144
+    },
+    "day5-hot": {
+      "file": "day5-hot.ogg",
+      "sha256": "6778e01d29b39576568d9efb6b810d011312433927bf3cf1e6dacc0dffc96faa",
+      "bytes": 2210581
+    },
+    "day5-final": {
+      "file": "day5-final.ogg",
+      "sha256": "4be995de645ee1b00e96a58947c64191f0a78fc168d38ed16ee01edc09077067",
+      "bytes": 2182282
+    }
+  }
+}

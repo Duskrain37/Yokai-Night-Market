@@ -170,8 +170,8 @@ func _run() -> void:
 		check("升阶：点扇叶真的升了一级",
 			game.sim.main_plant_at(1, 2).tier(1) == tier_before + 1,
 			"%d -> %d" % [tier_before, game.sim.main_plant_at(1, 2).tier(1)])
-		var other = game.sim.place_free("shooter", 1, 1)
-		await click(Geo.screen_cell_center(1, 1, game.sim.rows))
+		var other = game.sim.place_free("shooter", 2, 2)
+		await click(Geo.screen_cell_center(2, 2, game.sim.rows))
 		check("升阶：直接点相邻草木切换扇面", hud.focus_plant == other)
 		# 点空地应关掉扇形
 		await click(Vector2(200, 760))
@@ -194,6 +194,42 @@ func _run() -> void:
 		if resume_button != null:
 			await click(_button_center(resume_button))
 			check("暂停：点继续后恢复", not game.paused)
+	game.start_battle(Content.level_id_for(4), ["lantern", "shooter", "wall", "bomb",
+		"bell", "censer", "umbrella", "lion", "mushroom", "cat"])
+	await process_frame
+	hud = game.hud
+	var top = game.sim.place_free("shooter", 3, 0)
+	game.sim.tiles[1][3] = {"kind": "land", "obj": "", "water": ""}
+	var below = game.sim.place_free("shooter", 3, 1)
+	game.sim.sun = 1000
+	await click(Geo.screen_cell_center(3, 0, game.sim.rows))
+	var top_fan: UpgradeFan = hud._fan
+	check("升阶：顶排也向上展开且图层高于卡槽", top_fan != null and top_fan.z_index > 0)
+	if top_fan != null:
+		var left := top_fan._point(100.0, top_fan._petal_angle(0))
+		var middle := top_fan._point(100.0, top_fan._petal_angle(1))
+		var right := top_fan._point(100.0, top_fan._petal_angle(2))
+		check("升阶：顶排路线顺序从左到右且均在本株上方",
+			left.x < middle.x and middle.x < right.x and maxf(left.y, right.y) < top_fan.center().y)
+		check("升阶：验收点确实覆盖卡槽", hud._card_nodes.any(
+			func(card): return card.get_global_rect().has_point(middle)))
+		await click(middle)
+		check("升阶：扇叶接收点击，卡槽和第二行保持原样",
+			top.tier(2) == 1 and below.tier(2) == 0 and hud.card_selected == -1)
+	for week in [4, 5]:
+		var level_id := Content.level_id_for(week, 1)
+		game.show_prep(level_id)
+		game.screen_node.skip_cinema()
+		for frame in 3:
+			await process_frame
+		var recommendation := _find_button(game.screen_node, "按今夜推荐配卡")
+		if recommendation != null:
+			await click(_button_center(recommendation))
+		var picks: Array = game.screen_node._picked
+		check("备战：点第%d周推荐按钮会装入本夜卡组" % week,
+			recommendation != null and picks == Content.night_loadout_tips(Content.get_level(level_id)).slice(0, 10))
+		check("备战：第%d周的实用新草木能进入十张推荐" % week,
+			picks.has("sky-kite") and picks.has("ember-cicada") and (week != 5 or picks.has("lily")))
 	game.show_prep(Content.level_id_for(5, 4))
 	game.screen_node.skip_cinema()
 	for i in 3:

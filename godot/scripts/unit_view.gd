@@ -319,6 +319,9 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 			frame = sim.time * 9.0
 		if plant.type == "dragon":
 			drawn = _draw_dragon(plant, foot, height, tint)
+		elif plant.type == "ember-cicada":
+			var pose := ember_pose(plant)
+			drawn = _actor_frames.draw_pose(self, actor, pose.clip, pose.frame, foot, height, false, tint)
 		else:
 			drawn = _actor_frames.draw_pose(self, actor, "action" if action else "idle",
 				frame, foot, height, false, tint)
@@ -344,6 +347,27 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 		_draw_sleep(foot, height)
 	if health_bars != "off":
 		_draw_plant_health_bar(plant, foot, height)
+
+
+func ember_pose(plant: Sim.Plant) -> Dictionary:
+	var action_age := float(sim.time - plant.action_at)
+	var transition := Sim.EMBER_TRANSITION
+	if plant.ember_ready_at >= 0.0:
+		var elapsed := float(sim.time - plant.ember_reload_at)
+		var left := float(plant.ember_ready_at - sim.time)
+		if elapsed < 0.10:
+			return {"clip": "action", "frame": clampf(elapsed * 32.0, 0.0, 3.99)}
+		if elapsed < 0.10 + transition:
+			return {"clip": "reload_enter", "frame": clampf((elapsed - 0.10) * 4.0 / transition, 0.0, 3.99)}
+		if left <= transition:
+			return {"clip": "reload_exit", "frame": clampf((transition - left) * 4.0 / transition, 0.0, 3.99)}
+		return {"clip": "reload", "frame": elapsed * 2.8}
+	var early_exit := float(sim.time - plant.ember_reloaded_at)
+	if early_exit < transition:
+		return {"clip": "reload_exit", "frame": clampf(early_exit * 4.0 / transition, 0.0, 3.99)}
+	if action_age < 0.42:
+		return {"clip": "action", "frame": clampf(action_age * 9.5, 0.0, 3.99)}
+	return {"clip": "idle", "frame": sim.time * 5.0 + plant.phase}
 
 
 func _draw_dragon(plant: Sim.Plant, foot: Vector2, height: float, tint: Color) -> bool:
@@ -591,8 +615,8 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	if not swimming:
 		clip = "attack" if z.eating else "walk"
 	var frame = z.chomp * 10.0 if z.eating else z.anim * (7.0 if swimming else 6.5)
-	if z.def.has("special_period") and sim.time - z.guest_action_at < 0.42:
-		clip = "attack"
+	if (z.def.has("special_period") or z.def.has("reed_shot")) and sim.time - z.guest_action_at < 0.42:
+		clip = "swim_bite" if swimming else "attack"
 		frame = clampf((sim.time - z.guest_action_at) * 9.0, 0.0, 3.99)
 	var actor = String(z.type)
 	if z.type == "phaseguard":
@@ -1089,6 +1113,19 @@ func _draw_shots() -> void:
 				draw_line(at - Vector2(10, -5), at + Vector2(5, -3), Color("#a33828"), 7.0, true)
 				draw_line(at - Vector2(4, -2), at, Color("#efbf6a"), 6.0, true)
 				draw_circle(at - Vector2(11, -6), 2.7, Color("#ffe7a9"))
+			"ember":
+				_draw_flame(at, 12.0, Color("#d87e42"))
+				draw_circle(at, 4.0, Color("#ffe4a3"))
+			"kite":
+				_draw_dragon_round(at, 2 if not shot.big else 3)
+			"coin":
+				draw_circle(at, 6.0, Color("#daa955"))
+				draw_rect(Rect2(at - Vector2(1.5, 1.5), Vector2(3, 3)), Color("#4f3929"))
+			"reed":
+				draw_line(at - Vector2(7, 0), at + Vector2(9, 2), Color("#b1c292"), 3.0, true)
+			"frost-sign":
+				draw_line(at - Vector2(12, 0), at + Vector2(8, 0), Color("#a6dfde"), 3.0, true)
+				draw_circle(at + Vector2(7, 0), 2.0, Color("#e5ffff"))
 			"homing":
 				_draw_flame(at, 9.0 if not shot.fire else 11.0, Color("#ffb45e"))
 			"lob":

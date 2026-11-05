@@ -274,7 +274,7 @@ func _slots() -> void:
 
 func _auto_pick() -> void:
 	# 推荐顺序随地图：水路自带夜莲，河埠口多带抛物线与跨行
-	var tips: Array = Content.loadout_tips(String(_level()["map"]))
+	var tips: Array = Content.night_loadout_tips(_level())
 	_picked.clear()
 	for type in tips:
 		if Content.PLANTS.has(type) and _picked.size() < 10:
@@ -362,7 +362,7 @@ func _needs_lily() -> bool:
 
 func _has_producer() -> bool:
 	for type in _picked:
-		if Content.PLANTS[type].has("produce"):
+		if Content.PLANTS[type].has("produce") or Content.PLANTS[type].has("till"):
 			return true
 	return false
 

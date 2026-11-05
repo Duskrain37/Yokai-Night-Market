@@ -352,6 +352,31 @@
     },
     {
       "detail": "",
+      "name": "图鉴plant22用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴plant23用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴plant24用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴plant25用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴plant26用语",
+      "ok": true
+    },
+    {
+      "detail": "",
       "name": "图鉴zombie0用语",
       "ok": true
     },
@@ -448,6 +473,161 @@
     {
       "detail": "",
       "name": "图鉴zombie19用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴zombie20用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴zombie21用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴zombie22用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴zombie23用语",
+      "ok": true
+    },
+    {
+      "detail": "同时瞄准本行距离最远的两名恶客。",
+      "name": "进化sky-kite·双影",
+      "ok": true
+    },
+    {
+      "detail": "同时瞄准本行距离最远的三名恶客。",
+      "name": "进化sky-kite·三影",
+      "ok": true
+    },
+    {
+      "detail": "每轮抛出四弹，先瞄准距离最远的四名恶客。目标不足时，剩下的弹全投向最远的一名。",
+      "name": "进化sky-kite·满翎",
+      "ok": true
+    },
+    {
+      "detail": "抛弹伤害提高至68。",
+      "name": "进化sky-kite·坠瓦",
+      "ok": true
+    },
+    {
+      "detail": "抛弹伤害提高至94。",
+      "name": "进化sky-kite·坠铅",
+      "ok": true
+    },
+    {
+      "detail": "抛弹伤害提高至130。每轮有30%概率发射双倍伤害的大弹。",
+      "name": "进化sky-kite·坠星",
+      "ok": true
+    },
+    {
+      "detail": "命中使恶客移动速度降低15%，持续2秒。",
+      "name": "进化sky-kite·止风",
+      "ok": true
+    },
+    {
+      "detail": "命中使恶客移动速度降低30%，持续2秒。",
+      "name": "进化sky-kite·截风",
+      "ok": true
+    },
+    {
+      "detail": "命中使恶客沉默2秒。期间无法施放召唤、催眠或芦管远射等特殊能力。",
+      "name": "进化sky-kite·禁声",
+      "ok": true
+    },
+    {
+      "detail": "本行每击退一名恶客，获得9香火。",
+      "name": "进化wish-till·记名",
+      "ok": true
+    },
+    {
+      "detail": "本行每击退一名恶客，获得13香火。",
+      "name": "进化wish-till·清单",
+      "ok": true
+    },
+    {
+      "detail": "本行每击退一名恶客，获得20香火。每6秒还会产出50香火。",
+      "name": "进化wish-till·满簿",
+      "ok": true
+    },
+    {
+      "detail": "本行草木的攻击速度提高5%。",
+      "name": "进化wish-till·递筹",
+      "ok": true
+    },
+    {
+      "detail": "本行草木的攻击速度提高10%。",
+      "name": "进化wish-till·拨珠",
+      "ok": true
+    },
+    {
+      "detail": "本行草木的攻击速度提高15%。每次由清账匣获得香火时，它还会发射一枚造成80伤害的筹弹，间隔至少0.4秒。",
+      "name": "进化wish-till·飞筹",
+      "ok": true
+    },
+    {
+      "detail": "自身最大耐久提高200%。",
+      "name": "进化wish-till·厚匣",
+      "ok": true
+    },
+    {
+      "detail": "每8秒可将相邻行一名非大型恶客引入本行。",
+      "name": "进化wish-till·引路",
+      "ok": true
+    },
+    {
+      "detail": "每5秒可引来一名恶客，也能引来大型恶客。",
+      "name": "进化wish-till·请入",
+      "ok": true
+    },
+    {
+      "detail": "火弹伤害提高至104，溅射伤害提高到直击的65%。",
+      "name": "进化ember-cicada·添烬",
+      "ok": true
+    },
+    {
+      "detail": "火弹伤害提高至126，溅射伤害提高到直击的80%。",
+      "name": "进化ember-cicada·厚烬",
+      "ok": true
+    },
+    {
+      "detail": "火弹伤害提高至156。溅射伤害等于直击，半径扩大到0.5格。",
+      "name": "进化ember-cicada·赤翅",
+      "ok": true
+    },
+    {
+      "detail": "攻击间隔缩短至1.1秒，补充弹药用时缩短至4.4秒。",
+      "name": "进化ember-cicada·开翅",
+      "ok": true
+    },
+    {
+      "detail": "攻击间隔缩短至1秒，补充弹药用时缩短至4秒。",
+      "name": "进化ember-cicada·疾翅",
+      "ok": true
+    },
+    {
+      "detail": "攻击间隔缩短至0.5秒，弹药上限增加到6发。",
+      "name": "进化ember-cicada·连翅",
+      "ok": true
+    },
+    {
+      "detail": "溅射会点燃恶客，使其每秒受到20伤害，持续2秒。",
+      "name": "进化ember-cicada·沾火",
+      "ok": true
+    },
+    {
+      "detail": "点燃每秒造成40伤害，持续2.5秒。",
+      "name": "进化ember-cicada·延火",
+      "ok": true
+    },
+    {
+      "detail": "由本株火焰烧死的恶客会返还1发弹药，并让下一次攻击提前0.6秒。",
+      "name": "进化ember-cicada·拾火",
       "ok": true
     },
     {
@@ -871,17 +1051,17 @@
       "ok": true
     },
     {
-      "detail": "烟花直击伤害提高至130。",
+      "detail": "烟花直击伤害提高至130，溅射伤害提高到直击的65%。",
       "name": "进化firework·添硝",
       "ok": true
     },
     {
-      "detail": "烟花直击伤害提高至160。",
+      "detail": "烟花直击伤害提高至160，溅射伤害提高到直击的80%。",
       "name": "进化firework·重彩",
       "ok": true
     },
     {
-      "detail": "烟花直击伤害提高至220，溅射半径扩大至1.3格。",
+      "detail": "烟花直击伤害提高至220，溅射伤害等于直击，半径扩大至1.3格。",
       "name": "进化firework·满堂红",
       "ok": true
     },
@@ -911,7 +1091,7 @@
       "ok": true
     },
     {
-      "detail": "一次攻击射出六支竹签，10% 概率改为射出十二支",
+      "detail": "每轮发射六支竹签，有10%概率改为十二支。场上每个练成六发的签筒，使所有签筒每轮多射一支，最多额外三支。",
       "name": "进化shooter·六发",
       "ok": true
     },
@@ -931,32 +1111,32 @@
       "ok": true
     },
     {
-      "detail": "10% 概率射出一发双倍伤害的大竹签",
+      "detail": "每支竹签有10%概率造成双倍伤害，另有10%概率使命中目标的移动速度降低20%，持续2秒。",
       "name": "进化shooter·重弹",
       "ok": true
     },
     {
-      "detail": "大竹签概率提升到 20%",
+      "detail": "双倍伤害竹签和减速竹签的概率各提高至20%。",
       "name": "进化shooter·重型",
       "ok": true
     },
     {
-      "detail": "大竹签概率提升到 25%，命中后减速敌人 50%，持续 2 秒",
+      "detail": "双倍伤害竹签和减速竹签的概率各提高至33%。",
       "name": "进化shooter·霜重",
       "ok": true
     },
     {
-      "detail": "所有灯焰伤害提高25%。",
+      "detail": "所有灯焰的伤害提高15%。",
       "name": "进化star·添焰",
       "ok": true
     },
     {
-      "detail": "所有灯焰伤害总共提高50%。",
+      "detail": "所有灯焰的伤害提高20%。",
       "name": "进化star·燃灯",
       "ok": true
     },
     {
-      "detail": "所有灯焰伤害总共提高75%；亲手消灭恶客再得10%伤害，持续5秒，最多3层，层数变化时重计时间。",
+      "detail": "所有灯焰的伤害提高20%。亲手击退恶客时，伤害再提高10%，持续5秒，最多叠加三层。每次增加层数时重新计时。",
       "name": "进化star·长明",
       "ok": true
     },
@@ -1137,5 +1317,5 @@
     }
   ],
   "failures": 0,
-  "total": 227
+  "total": 263
 }

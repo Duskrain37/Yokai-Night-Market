@@ -34,9 +34,9 @@ static func run_all(harness) -> void:
 
 
 static func _check_content(h) -> void:
-	h.check("内容", "22 种草木齐备", Content.PLANTS.size() == 22,
+	h.check("内容", "27 种草木齐备", Content.PLANTS.size() == 27,
 		"实际 %d" % Content.PLANTS.size())
-	h.check("内容", "20 种恶客齐备", Content.ZOMBIES.size() == 20,
+	h.check("内容", "24 种恶客齐备", Content.ZOMBIES.size() == 24,
 		"实际 %d" % Content.ZOMBIES.size())
 	h.check("内容", "二十五夜与特殊关齐备", Content.LEVELS.size() == 26 and Content.get_level(16).get("special",false),
 		"实际 %d" % Content.LEVELS.size())
@@ -59,7 +59,7 @@ static func _check_content(h) -> void:
 			detail += "关%d 行数=%d " % [level["id"], level["rows"]]
 	h.check("内容", "行数按天地图分配（5/6/5）", rows_ok, detail)
 	# 每天各自的威胁区间：0.8—2.0 / 1.0—2.5 / 1.2—3.0，五夜等距
-	var ranges = [[0.6, 1.4], [0.8, 1.8], [1.0, 2.3], [1.2, 3.2], [1.6, 3.8]]
+	var ranges = [[0.4, 1.2], [0.6, 1.6], [0.8, 2.1], [1.0, 3.0], [1.4, 3.6]]
 	var range_ok = true
 	var range_detail = ""
 	for day in ranges.size():
@@ -142,7 +142,7 @@ static func _check_content(h) -> void:
 			if seen.has(type):
 				tips_bad += "%s 重复 %s " % [map, type]
 			seen[type] = true
-	h.check("内容", "三张推荐表都排满 18 株", tips_bad == "", tips_bad)
+	h.check("内容", "三张推荐表都包含全部草木", tips_bad == "", tips_bad)
 	h.check("内容", "暗河的推荐先带夜莲",
 		String(Content.loadout_tips("water")[0]) == "lily"
 		and Content.tip_rank("water", "nope") == 999,
@@ -168,7 +168,7 @@ static func _check_upgrade_rules(h) -> void:
 					detail += "%s-%d-%d=%d " % [type, path["id"], tier + 1, cost]
 				last = cost
 	h.check("升阶", "所有升阶费用都是 25 的倍数且逐阶递增", cost_ok, detail)
-	h.check("升阶", "15 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 15, detail)
+	h.check("升阶", "18 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 18, detail)
 	h.check("升阶", "签筒连发一级 100 香火",
 		Upgrades.tier_cost("shooter", 1, 1) == 100,
 		str(Upgrades.tier_cost("shooter", 1, 1)))
@@ -410,8 +410,8 @@ static func _check_waves(h) -> void:
 	h.check("波次", "威胁倍率同时影响出怪数",
 		absf(easy.count_mul - sqrt(eff)) < 0.001)
 	h.check("波次", "新难度区间为实际系数，暗河不另加码",
-		is_equal_approx(eff, 2.3) and is_equal_approx(
-			Sim.effective_threat(Content.get_level(1)), 0.6),
+		is_equal_approx(eff, 2.1) and is_equal_approx(
+			Sim.effective_threat(Content.get_level(1)), 0.4),
 		"water=%.2f street=%.2f" % [eff, Sim.effective_threat(Content.get_level(1))])
 	# 题签点了哪种恶客，这一夜就得真的会出那种恶客
 	var theme_bad = ""
@@ -852,6 +852,7 @@ static func _check_torch(h) -> void:
 			break
 	if cinder != null:
 		clad.pos.x = float(cinder["pos"].x)
+		sim.grounds = [cinder]
 	var armor_before = clad.armor
 	sim.update_grounds(1.0 / 60.0)
 	h.check("炭火盆", "火星只烧 10/秒，走护具不穿本体",
@@ -1060,8 +1061,8 @@ static func _check_new_cards(h) -> void:
 	sim._update_firework(fire, 3.5)
 	var lob = sim.shots.pop_back()
 	sim._update_lob_shot(lob, 2.0)
-	h.check("烟花童", "抛射落点100伤，0.8格内30%溅射", blocked.hp == direct_hp - 100.0
-		and impact.hp == splash_hp - 30.0 and distant.hp == distant.max_hp)
+	h.check("烟花童", "抛射落点造成100伤害，0.8格内溅射50%", blocked.hp == direct_hp - 100.0
+		and impact.hp == splash_hp - 50.0 and distant.hp == distant.max_hp)
 	fire.upgrades[1] = 3
 	fire.firework_extra_at = sim.time + 0.6
 	sim._update_firework(fire, 0.5)
@@ -1112,11 +1113,11 @@ static func _check_lobber(h) -> void:
 	var expiry = pot.lob_heat_until
 	sim._soup_impact(sim.shots.back(), foe)
 	sim._throw_soup(pot, foe, foe.pos)
-	h.check("汤圆仔", "五层加伤50%，满层命中不刷新", pot.lob_heat_stacks == 5
-		and pot.lob_heat_until == expiry and sim.shots.back().base_damage == 195.0)
+	h.check("汤圆仔", "五层使伤害提高50%，满层命中不刷新", pot.lob_heat_stacks == 5
+		and pot.lob_heat_until == expiry and sim.shots.back().damage == 195.0)
 	sim.time = expiry
 	sim._throw_soup(pot, foe, foe.pos)
-	h.check("汤圆仔", "叠层五秒后到期", sim.shots.back().base_damage == 130.0)
+	h.check("汤圆仔", "叠层五秒后到期", sim.shots.back().damage == 130.0)
 	pot.upgrades[2] = 3
 	sim.shots.clear()
 	pot.timer = 0.0
@@ -1170,7 +1171,7 @@ static func _check_star(h) -> void:
 	lamp.timer = 2.0
 	sim._update_star(lamp, 0.02)
 	var first = sim.shots[0]
-	h.check("五路寻灯", "伤害路线三级全弹增加75%", is_equal_approx(first.damage, 35.0),
+	h.check("五路寻灯", "伤害路线三级未获得激励时伤害增加20%", is_equal_approx(first.damage, 24.0),
 		"%.1f" % first.damage)
 	sim._star_impact(first, victim)
 	h.check("五路寻灯", "击杀得一层激励5秒", lamp.star_morale_stacks == 1
@@ -1181,7 +1182,7 @@ static func _check_star(h) -> void:
 	next.hp = 90000.0
 	sim._update_star(lamp, 0.02)
 	h.check("五路寻灯", "一层激励追加10%伤害",
-		is_equal_approx(sim.shots[0].damage, 37.0))
+		is_equal_approx(sim.shots[0].damage, 26.0))
 	lamp.star_morale_stacks = 3
 	lamp.star_morale_until = sim.time - 0.01
 	sim._update_star(lamp, 0.02)
@@ -1590,7 +1591,7 @@ static func _check_new_mechanics(h) -> void:
 		while int(shooter.burst.get("left", 0)) > 0:
 			sim.fire_volley_shot(shooter)
 		top = maxi(top, sim.shots.size())
-	h.check("新机制", "六发满阶会偶发十二支", top == 12, "最多 %d 支" % top)
+	h.check("新机制", "六发满阶偶发十二支并给自己再补一支", top == 13, "最多 %d 支" % top)
 
 	# 石磨：被啃毁时炸开 900 灰烬，只覆盖 1 格
 	var sim2 = h.sim_for(6, ["wall"], "easy")

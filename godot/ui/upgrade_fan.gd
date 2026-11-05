@@ -23,6 +23,7 @@ var _time := 0.0
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	z_index = 1
 
 
 func _process(delta: float) -> void:
@@ -38,8 +39,7 @@ func center() -> Vector2:
 
 func _petal_angle(index: int) -> float:
 	var count := maxi(1, entries.size())
-	var direction := 90.0 if center().y < 265.0 else -90.0
-	return direction + (float(index) - (count - 1) * 0.5) * (SPREAD * 2.0 + GAP)
+	return -90.0 + (float(index) - (count - 1) * 0.5) * (SPREAD * 2.0 + GAP)
 
 
 func _point(radius: float, degrees: float) -> Vector2:
@@ -68,21 +68,15 @@ func _has_point(pos: Vector2) -> bool:
 
 
 func hit_test(pos: Vector2) -> int:
-	if sim != null:
-		var cell := Geo.screen_cell_at(pos, sim.rows)
-		if cell.x >= 0:
-			var other = sim.main_plant_at(cell.x, cell.y)
-			if other != null and other != plant and pos.distance_to(Geo.to_screen(other.pos, sim.rows)) < 33.0:
-				return -1
 	var offset := pos - center()
 	var dist := offset.length()
-	if dist < INNER * 0.8 or dist > OUTER + 18.0:
+	if dist < INNER or dist > OUTER + 8.0:
 		return -1
 	var angle := rad_to_deg(atan2(offset.y, offset.x))
 	for i in entries.size():
 		var mid := _petal_angle(i)
 		var delta := wrapf(angle - mid, -180.0, 180.0)
-		if absf(delta) <= SPREAD + 2.0:
+		if absf(delta) <= SPREAD and dist <= OUTER + (8.0 if i == _hover else 0.0):
 			return i
 	return -1
 
@@ -198,8 +192,13 @@ func _draw_tooltip() -> void:
 	var h := 26.0 + float(lines.size()) * 20.0 + 10.0
 	var w := max_w + 20.0
 	var anchor := _point(OUTER + 26.0, _petal_angle(_hover))
-	var rect := Rect2(Vector2(clampf(anchor.x - w * 0.5, 12.0, size.x - w - 12.0),
-		clampf(anchor.y - h if center().y >= 265.0 else anchor.y, 105.0, size.y - h - 16.0)), Vector2(w, h))
+	var position_on_screen := Vector2(anchor.x - w * 0.5, anchor.y - h)
+	if position_on_screen.y < 12.0:
+		var side := 1.0 if center().x < size.x * 0.5 else -1.0
+		position_on_screen.x = center().x + side * (OUTER + 16.0 + w * 0.5) - w * 0.5
+		position_on_screen.y = anchor.y - h * 0.5
+	var rect := Rect2(Vector2(clampf(position_on_screen.x, 12.0, size.x - w - 12.0),
+		clampf(position_on_screen.y, 12.0, size.y - h - 16.0)), Vector2(w, h))
 	Ui.draw_plate(self, rect, Color(0.96, 0.92, 0.82, 0.97),
 		Color(Ui.VERMILION.r, Ui.VERMILION.g, Ui.VERMILION.b, 0.8), 14, 2)
 	var tw := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
@@ -232,7 +231,7 @@ func _draw_legend() -> void:
 	var text := "最多两路 · 一路可到三阶"
 	var font := Ui.body_font()
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
-	var at := origin + Vector2(-width * 0.5, 46.0 if center().y >= 265.0 else -47.0)
+	var at := origin + Vector2(-width * 0.5, 46.0)
 	Ui.draw_plate(self, Rect2(at + Vector2(-8, -14), Vector2(width + 16, 19)),
 		Color(0.09, 0.09, 0.075, 0.87), Ui.GOLD_DIM, 9, 1)
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.GOLD_BRIGHT)

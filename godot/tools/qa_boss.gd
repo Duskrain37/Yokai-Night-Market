@@ -41,7 +41,7 @@ func same_wave_slots(actual: Array, expected: Array) -> bool:
 		var previous: Dictionary = expected[i]
 		if bool(current.flag) != bool(previous.flag) or not is_equal_approx(float(current.t), float(previous.t)):
 			return false
-		if _tier_counts(current.groups) != _tier_counts(previous.groups):
+		if _tier_counts(current.get("budget_groups", current.groups)) != _tier_counts(previous.groups):
 			return false
 	return true
 
@@ -66,8 +66,8 @@ func run() -> void:
 	for level in Content.LEVELS.slice(0,15):
 		var expected=[4,4,6,6,8][(int(level.id)-1)%5]
 		check("关%d 大波数" % int(level.id),Content.wave_groups(level)==expected)
-		check("关%d 威胁按用户新值" % int(level.id),is_equal_approx(float(level.threat),float([.6,.8,1.,1.2,1.4,.8,1.05,1.3,1.55,1.8,1.,1.33,1.65,1.98,2.3][int(level.id)-1])))
-		check("关%d 前四大波刷怪拨次与阶级数量保持" % int(level.id), same_wave_slots(
+		check("关%d 威胁按用户新值" % int(level.id),is_equal_approx(float(level.threat),float([.4,.6,.8,1.,1.2,.6,.85,1.1,1.35,1.6,.8,1.13,1.45,1.78,2.1][int(level.id)-1])))
+		check("关%d 前四大波刷怪拨次与耐久基线阶级数量保持" % int(level.id), same_wave_slots(
 			Array(level.waves).slice(0, 12), fixtures.levels[int(level.id)-1].waves))
 	check("狐尾灯新疾焰与十焰数值",same(Upgrades.EFFECTS.cat.interval_reduction,
 		[0.0,0.2,0.4,0.6]) and is_equal_approx(float(Upgrades.EFFECTS.cat.ten_flames_chance[3]),0.1)
@@ -75,8 +75,12 @@ func run() -> void:
 	check("狐尾灯回魂四团、狐火路保持",int(Upgrades.EFFECTS.cat.count[3])==4
 		and int(Upgrades.EFFECTS.cat.hits[3])==2
 		and is_equal_approx(float(Upgrades.EFFECTS.cat.mark_vuln[2]), 0.10))
-	for id in ["lantern","shooter","wall"]:
+	for id in ["lantern","wall"]:
 		check(id+" 原型数值保持",same(Upgrades.EFFECTS[id],fixtures.prototype_effects[id]))
+	var shooter_expected: Dictionary = fixtures.prototype_effects.shooter.duplicate(true)
+	shooter_expected.erase("crit_slow")
+	shooter_expected.crit_chance = [0.0, 0.1, 0.2, 0.33]
+	check("签筒旧连射数值保留，双倍伤害与减速概率按新版", same(Upgrades.EFFECTS.shooter, shooter_expected))
 	for level in Content.LEVELS.slice(0,15):
 		if int(level.id)%5==0:continue
 		var s=create(int(level.id))
@@ -101,7 +105,7 @@ func run() -> void:
 		tick_clean(s,36)
 		check("首领%d 阈值各只释放一次" % id,b.major_count==b.config.major_thresholds.size())
 		check("首领%d 在大招期间仍有常驻增援" % id, b.reinforcement_index >= 2 and b.add_count > 0)
-		check("首领%d 最大耐久增至150%%" % id, is_equal_approx(b.max_hp, float(b.config.max_hp) * 1.5))
+		check("首领%d 普通耐久比简单高10%%" % id, is_equal_approx(b.max_hp, float(b.config.max_hp) * 1.5 * 0.85 * 1.1))
 		var snapshot: Dictionary=JSON.parse_string(JSON.stringify(s.serialize()))
 		var r=Sim.new();r.restore(snapshot)
 		check("首领%d 快照共享生命与阈值" % id,is_equal_approx(r.boss.hp,b.hp) and r.boss.fired==b.fired)

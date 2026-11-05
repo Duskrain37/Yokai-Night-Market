@@ -666,6 +666,7 @@ func try_open_menu(plant, at: Vector2) -> void:
 func close_fan() -> void:
 	focus_plant = null
 	if _fan != null and is_instance_valid(_fan):
+		_fan.hide()
 		_fan.queue_free()
 	_fan = null
 	_fan_rows.clear()
@@ -775,6 +776,7 @@ func set_cheats_enabled(enabled: bool) -> void:
 func _toggle_cheat() -> void:
 	cheat_open = not cheat_open
 	if cheat_open:
+		close_fan()
 		if not _opened_cheat_once and not game.sim.training and not game.tutorial_active:
 			_set_slow_battle(true)
 		_opened_cheat_once = true

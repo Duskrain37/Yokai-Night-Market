@@ -17,7 +17,7 @@ var _loading_screen: Control
 var _loading_hold: Dictionary = {}
 var _loading_busy := false
 
-const VERSION = "0.5.0"
+const VERSION = "0.5.1"
 const SAVE_PATH = "user://run.json"
 const SETTINGS_PATH = "user://settings.json"
 const PROGRESS_PATH = "user://progress.json"

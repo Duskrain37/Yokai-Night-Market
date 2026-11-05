@@ -8,7 +8,9 @@ from pathlib import Path
 
 
 PORTRAITS = {"bride", "gust", "firework", "squash", "dragon", "returner", "matchmaker",
-             "phase-veil", "tamer", "shieldguard", "reedboat", "dreambell"}
+             "phase-veil", "tamer", "shieldguard", "reedboat", "dreambell",
+             "ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada",
+             "flinch", "wave-herald", "formless", "reed-shot"}
 DESTRUCTION = {"sedan-loaded", "sedan-empty"}
 BOSS_PORTRAITS = {"boss-island", "boss-magistrate-bound", "boss-magistrate-full"}
 

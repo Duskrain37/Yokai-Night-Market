@@ -122,8 +122,10 @@ func check_water() -> void:
 func check_lose() -> void:
 	var sim = Sim.new()
 	sim.setup(Content.get_level(1), ["shooter"], "easy")
-	var lost = [false]
-	sim.on_lose = func(_z): lost[0] = true
+	var lost = [false, -1]
+	sim.on_lose = func(z):
+		lost[0] = true
+		lost[1] = z.row
 	var dt = 1.0 / 60.0
 	var steps = 0
 	while steps < int(300.0 / dt) and not lost[0]:
@@ -132,7 +134,7 @@ func check_lose() -> void:
 		steps += 1
 	check("对局", "不设防一整夜会失守", lost[0], "t=%.1f" % sim.time)
 	check("对局", "失守前门神已经用掉",
-		not bool(sim.mowers[0]["ready"]) or sim.mowers.size() == 0)
+		int(lost[1]) >= 0 and not bool(sim.mowers[int(lost[1])]["ready"]))
 
 
 func check_midrun_save() -> void:

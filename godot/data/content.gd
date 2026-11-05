@@ -13,12 +13,14 @@ const PLANT_ORDER: Array[String] = [
 	"lantern", "shooter", "wall", "bomb", "bell", "censer", "umbrella", "lion",
 	"mushroom", "cat", "shell", "lobber", "torch", "star", "needle", "judge",
 	"lily", "kelp", "gust", "firework", "squash", "dragon",
+	"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada",
 ]
 
 const ZOMBIE_ORDER: Array[String] = [
 	"ghost", "tongue", "straw", "paper", "stonehat", "bucket",
 	"vault", "mourner", "sedan", "artisan", "ironjudge", "mountain", "bride",
 	"returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell",
+	"flinch", "wave-herald", "formless", "reed-shot",
 ]
 
 const TIERS = {
@@ -41,7 +43,7 @@ const PLANTS = {
 		"tint": "#d8b06a",
 	},
 	"wall": {
-		"name": "石磨", "role": "防御", "cost": 50, "cooldown": 20, "hp": 3000,
+		"name": "石磨", "role": "防御", "cost": 50, "cooldown": 18, "hp": 3000,
 		"sprite_h": 108, "tint": "#a8a294",
 	},
 	"bomb": {
@@ -50,23 +52,23 @@ const PLANTS = {
 		"tint": "#e04832",
 	},
 	"bell": {
-		"name": "铜铃", "role": "辅助", "cost": 125, "cooldown": 20, "hp": 300,
+		"name": "铜铃", "role": "辅助", "cost": 125, "cooldown": 12, "hp": 300,
 		"sprite_h": 96, "pulse": {"interval": 2.5, "slow": 0.25,
 			"slow_duration": 1.5}, "tint": "#d8ab4c",
 	},
 	"censer": {
-		"name": "香炉", "role": "范围", "cost": 150, "cooldown": 18, "hp": 340,
+		"name": "香炉", "role": "范围", "cost": 150, "cooldown": 8, "hp": 340,
 		"sprite_h": 90, "censer": {"interval": 3.0, "radius": 140.0,
 			"damage": 45.0}, "tint": "#a4845c",
 	},
 	"umbrella": {
-		"name": "纸伞", "role": "收妖", "cost": 150, "cooldown": 16, "hp": 900,
+		"name": "纸伞", "role": "收妖", "cost": 150, "cooldown": 12, "hp": 900,
 		"sprite_h": 112, "chomp": {"reach": 74.0, "chew": 6.0,
 			"chew_speed": 0.0, "large_damage": 40.0,
 			"large_interval": 2.0}, "tint": "#cc5a4c",
 	},
 	"lion": {
-		"name": "醒狮", "role": "近战", "cost": 200, "cooldown": 20, "hp": 1200,
+		"name": "醒狮", "role": "近战", "cost": 200, "cooldown": 10, "hp": 1200,
 		"sprite_h": 104, "melee": {"reach": 110.0, "interval": 1.5,
 			"damage": 50.0, "knock_cells": 0.2}, "tint": "#e0553a",
 	},
@@ -75,34 +77,34 @@ const PLANTS = {
 		"sprite_h": 86, "mine": {"arm": 14.0, "damage": 1800.0}, "tint": "#93a468",
 	},
 	"cat": {
-		"name": "狐尾灯", "role": "追魂", "cost": 175, "cooldown": 20, "hp": 300,
+		"name": "狐尾灯", "role": "追魂", "cost": 175, "cooldown": 8, "hp": 300,
 		"sprite_h": 100, "homing": {"interval": 1.6, "damage": 24.0, "speed": 300.0,
 			"count": 1}, "tint": "#e8a24e",
 	},
 	"shell": {
-		"name": "龟甲罩", "role": "护罩", "cost": 100, "cooldown": 25, "hp": 1400,
+		"name": "龟甲罩", "role": "护罩", "cost": 100, "cooldown": 18, "hp": 1400,
 		"sprite_h": 104, "attach": true, "tint": "#86966f",
 	},
 	"lobber": {
-		"name": "汤圆仔", "role": "抛射", "cost": 100, "cooldown": 12, "hp": 300,
+		"name": "汤圆仔", "role": "抛射", "cost": 100, "cooldown": 7, "hp": 300,
 		"sprite_h": 94, "lob": {"interval": 2.6, "damage": 40.0, "flight": 0.9},
 		"tint": "#e8d6ac",
 	},
 	"torch": {
-		"name": "炭火盆", "role": "增幅", "cost": 150, "cooldown": 20, "hp": 300,
+		"name": "炭火盆", "role": "增幅", "cost": 150, "cooldown": 12, "hp": 300,
 		"sprite_h": 86, "torch": {"buff": 0.5}, "tint": "#e87440",
 	},
 	"star": {
-		"name": "五路巡灯", "role": "五向", "cost": 175, "cooldown": 22, "hp": 300,
+		"name": "五路巡灯", "role": "五向", "cost": 175, "cooldown": 9, "hp": 300,
 		"sprite_h": 100, "star": {"interval": 1.6, "damage": 20.0, "dirs": 5}, "tint": "#e8c25c",
 	},
 	"needle": {
-		"name": "透骨针", "role": "破甲", "cost": 125, "cooldown": 18, "hp": 300,
+		"name": "透骨针", "role": "破甲", "cost": 125, "cooldown": 8, "hp": 300,
 		"sprite_h": 92, "needle": {"interval": 1.7, "damage": 18.0, "speed": 720.0},
 		"tint": "#e4dcc4",
 	},
 	"judge": {
-		"name": "钟馗像", "role": "庇护", "cost": 125, "cooldown": 20, "hp": 900,
+		"name": "钟馗像", "role": "庇护", "cost": 125, "cooldown": 10, "hp": 900,
 		"sprite_h": 106, "judge": {"interval": 1.6, "damage": 38.0, "speed": 530.0},
 		"tint": "#c4503a",
 	},
@@ -111,7 +113,7 @@ const PLANTS = {
 		"sprite_h": 94, "ash": true, "no_upgrade": true, "gust": {"fuse": 0.6}, "tint": "#649f99",
 	},
 	"firework": {
-		"name": "烟花童", "role": "抛射", "cost": 300, "cooldown": 24, "hp": 320,
+		"name": "烟花童", "role": "抛射", "cost": 275, "cooldown": 10, "hp": 320,
 		"sprite_h": 100, "firework": true, "tint": "#c77941",
 	},
 	"squash": {
@@ -119,7 +121,7 @@ const PLANTS = {
 		"sprite_h": 88, "ash": true, "no_upgrade": true, "squash": true, "tint": "#91a46b",
 	},
 	"dragon": {
-		"name": "龙首铳", "role": "近攻", "cost": 250, "cooldown": 24, "hp": 550,
+		"name": "龙首铳", "role": "近攻", "cost": 250, "cooldown": 10, "hp": 550,
 		"sprite_h": 102, "dragon": true, "tint": "#b08d54",
 	},
 	"lily": {
@@ -127,16 +129,25 @@ const PLANTS = {
 		"sprite_h": 56, "lily": true, "water_only": true, "no_upgrade": true,
 		"tint": "#5fa08c",
 	},
+	"ruin-cap": {"name": "劫火芝", "role": "灰烬", "cost": 275, "cooldown": 56, "hp": 300, "sprite_h": 108, "ash": true, "no_upgrade": true, "ruin": {"fuse": 1.1, "reach": 2, "damage": 1800}, "tint": "#8b638c"},
+	"sky-kite": {"name": "逐云鸢", "role": "抛射", "cost": 150, "cooldown": 8, "hp": 300, "sprite_h": 105, "kite": {"interval": 1.5}, "tint": "#60958c"},
+	"wish-till": {"name": "清账匣", "role": "产能", "cost": 75, "cooldown": 16, "hp": 300, "sprite_h": 92, "till": true, "tint": "#a18452"},
+	"cash-pod": {"name": "铜钱荚", "role": "灰烬", "cost": 0, "cooldown": 26, "hp": 400, "sprite_h": 78, "ash": true, "no_upgrade": true, "cash_pod": true, "tint": "#a35336"},
+	"ember-cicada": {"name": "烬翼蝉", "role": "追魂", "cost": 250, "cooldown": 10, "hp": 320, "sprite_h": 105, "ember": true, "tint": "#b9673e"},
 	"kelp": {
 		"name": "缠魂藻", "role": "灰烬", "cost": 50, "cooldown": 20, "hp": 300,
 		"sprite_h": 104, "water_only": true, "no_upgrade": true, "ash": true,
-		"tangle": {"range": 120.0, "drag": 0.5, "damage": 1800.0}, "tint": "#4d8570",
+		"tangle": {"range": 120.0}, "tint": "#4d8570",
 	},
 }
 
 # ── 恶客 ────────────────────────────────────────────────────────────────────
 # hp 本体 / armor 护具 / speed 像素每秒 / dps 啃食每秒 / reach 啃食距离（缺省 38）
 const ZOMBIES = {
+	"flinch": {"name": "惊巷鬼", "kind": "惊走", "tier": "l", "hp": 110, "armor": 0, "speed": 12, "dps": 38, "sprite_h": 107, "death": "ghost", "hurt_speed": 27},
+	"wave-herald": {"name": "执幡客", "kind": "报浪", "tier": "l", "hp": 90, "armor": 0, "speed": 20, "dps": 35, "sprite_h": 116, "death": "ghost", "flag_only": true},
+	"formless": {"name": "泥影", "kind": "无形", "tier": "m", "hp": 170, "armor": 0, "speed": 16, "dps": 47, "sprite_h": 97, "death": "ghost", "miss_chance": 0.5},
+	"reed-shot": {"name": "芦管客", "kind": "远射", "tier": "m", "hp": 270, "armor": 0, "speed": 18, "dps": 47, "sprite_h": 109, "death": "ghost", "reed_shot": {"steps": 1.5, "interval": 1.2, "damage": 40}},
 	"ghost": {
 		"name": "饿鬼", "kind": "小僵尸", "tier": "l",
 		"hp": 90.0, "armor": 0.0, "speed": 21.0, "dps": 35.0,
@@ -264,7 +275,7 @@ const CAVERN_WATER_ROWS = [4, 5]
 const CAVERN_WATER_CELLS = [[1], [1, 2], [1, 2, 3], [2, 3], [0, 2, 3, 4, 5, 6, 7, 8], [0, 2, 3, 4, 5, 6, 7, 8]]
 const CAVERN_PITS = [[4, 6, 7], [6, 7], [6], [], [], []]
 const ISLAND_EDGE = [[0, 1, 7, 8], [0, 8], [], [], [0, 8], [0, 1, 7, 8]]
-const SPECIAL_THREATS = [1.8, 2.3, 3.3, 3.8, 4.4]
+const SPECIAL_THREATS = [1.6, 2.1, 3.1, 3.6, 4.2]
 
 
 static func level_id_for(week: int, night: int = 0) -> int:
@@ -279,26 +290,50 @@ static func map_picture(level: Dictionary, overview := false) -> String:
 	var key := map_key(level)
 	return "res://assets/bg/map-%s.%s" % [key, "jpg" if overview else "png"]
 
-# 每周的推荐配卡顺序：备战「按今夜推荐配卡」取前十张，缺夜莲的一键替换也按这张表挑替身。
-# 三张表都排满全部草木，漏排的那张表会让「最不该带的」判不出来。
+# 五种地图均为全部草木提供明确的推荐顺序。
 const LOADOUT_TIPS = {
-	# 夜市街：五条平地一线排开，先站稳再讲输出
-	"street": ["lantern", "shooter", "wall", "bell", "censer", "torch", "cat",
-		"needle", "judge", "umbrella", "lion", "lobber", "star", "mushroom",
-		"firework", "dragon", "squash", "bomb", "gust", "shell", "lily", "kelp"],
-	# 河埠口：右四列有杂物挡道，种不进去就得靠抛物线、跨行与长手
-	"market": ["lantern", "shooter", "wall", "bell", "lobber", "cat", "judge",
-		"star", "censer", "torch", "needle", "umbrella", "lion", "mushroom",
-		"firework", "dragon", "squash", "bomb", "gust", "shell", "lily", "kelp"],
-	# 暗河：第二、四行是水，先铺夜莲才种得下别的东西，缠魂藻只在水里做事
-	"water": ["lily", "lantern", "shooter", "wall", "kelp", "bell", "cat",
-		"lobber", "censer", "torch", "needle", "judge", "star", "umbrella",
-		"lion", "mushroom", "firework", "dragon", "squash", "bomb", "gust", "shell"],
+	"street": ["lantern", "shooter", "wall", "wish-till", "cash-pod", "bell", "censer", 
+		"torch", "mushroom", "bomb", "cat", "needle", "judge", "umbrella", 
+		"lion", "lobber", "star", "firework", "dragon", "squash", "gust", 
+		"shell", "sky-kite", "ember-cicada", "ruin-cap", "lily", "kelp"],
+	"market": ["lantern", "shooter", "wall", "sky-kite", "lobber", "ember-cicada", "cat", 
+		"star", "bell", "bomb", "judge", "censer", "torch", "needle", 
+		"wish-till", "umbrella", "lion", "mushroom", "firework", "dragon", "squash", 
+		"gust", "shell", "cash-pod", "ruin-cap", "lily", "kelp"],
+	"water": ["lily", "lantern", "shooter", "wall", "kelp", "cat", "sky-kite", 
+		"wish-till", "lobber", "bell", "firework", "censer", "torch", "needle", 
+		"judge", "star", "umbrella", "lion", "mushroom", "dragon", "squash", 
+		"bomb", "gust", "shell", "ember-cicada", "cash-pod", "ruin-cap"],
+	"island": ["lantern", "shooter", "wall", "sky-kite", "ember-cicada", "star", "cash-pod", 
+		"firework", "ruin-cap", "gust", "lobber", "cat", "bomb", "judge", 
+		"censer", "wish-till", "bell", "torch", "shell", "needle", "mushroom", 
+		"squash", "dragon", "lion", "umbrella", "lily", "kelp"],
+	"cavern": ["lily", "lantern", "shooter", "wall", "kelp", "sky-kite", "ember-cicada", 
+		"wish-till", "firework", "ruin-cap", "cat", "dragon", "star", "shell", 
+		"cash-pod", "lobber", "gust", "judge", "bell", "bomb", "torch", 
+		"censer", "needle", "umbrella", "lion", "mushroom", "squash"],
 }
 
 
 static func loadout_tips(map: String) -> Array:
 	return LOADOUT_TIPS.get(map, LOADOUT_TIPS["street"])
+
+
+## 前四夜的推荐会把这一夜练习所需的草木带到卡组前面。
+static func night_loadout_tips(level: Dictionary) -> Array:
+	var picks := loadout_tips(String(level["map"])).duplicate()
+	var drills := {
+		"island": ["wall", "sky-kite", "ember-cicada", "sky-kite", "ruin-cap"],
+		"cavern": ["lily", "wall", "kelp", "sky-kite", "firework"],
+	}
+	var map := String(level["map"])
+	if not drills.has(map) or bool(level.get("special", false)):
+		return picks
+	var card: String = drills[map][clampi(int(level.get("night", 0)), 0, 4)]
+	if picks.find(card) >= 5:
+		picks.erase(card)
+		picks.insert(5, card)
+	return picks
 
 
 static func tip_rank(map: String, type: String) -> int:
@@ -388,6 +423,16 @@ static func wave_low_only(level: Dictionary, wave_index: int) -> bool:
 	return wave_index in [0, 1] and (level.has("night") or (int(level.get("day", 0)) == 3 and not bool(level.get("special", false))))
 
 
+static func allows_high_tier(wave_index: int) -> bool:
+	return wave_index < 0 or wave_index >= 3 * WAVES_PER_GROUP
+
+
+static func wave_guest_type(guest: String, wave_index: int) -> String:
+	if not allows_high_tier(wave_index) and ZOMBIES.get(guest, {}).get("tier", "") == "h":
+		return "paper"
+	return guest
+
+
 static func checkpoint_threat(level: Dictionary, checkpoint: int) -> float:
 	var waves: Array = level.get("waves", [])
 	var index := clampi(checkpoint * 4 * WAVES_PER_GROUP, 0, maxi(0, waves.size() - 1))
@@ -417,14 +462,13 @@ static func wave_text(level: Dictionary, wave_index: int) -> String:
 	return "第 %d 大波 · 第 %d 拨" % [group, wave_sub(wave_index)]
 
 
-## 每周的威胁区间（用户 2026-11-01 定）：第一周 0.8—1.6、第二周 1.0—2.0、第三周 1.2—2.5。
-## 每夜在当天的区间里等距取点，天数之间因此是「区间递进」而不是硬跳。
+## 每周五夜在本周威胁区间内等距取点。
 const DAY_THREAT_RANGE = [
-	[0.6, 1.4],
-	[0.8, 1.8],
-	[1.0, 2.3],
-	[1.2, 3.2],
-	[1.6, 3.8],
+	[0.4, 1.2],
+	[0.6, 1.6],
+	[0.8, 2.1],
+	[1.0, 3.0],
+	[1.4, 3.6],
 ]
 
 const DAY_LEVELS = [
@@ -493,22 +537,22 @@ const NIGHT_LESSONS = [
 		["梦铃婆会让草木打盹。关键一行留两处输出，别只指望一株。", "dreambell"],
 		["水陆各路恶客都会出没。暗河傩主现身后，留意它占住哪两行。", ""],
 	],
-	[["海岛摊面收窄，外缘不能落子。先守住中间两路。", ""],
-	 ["恶客会跃过祈石与碎木。让抛射草木守住障碍后的空当。", "stonehat"],
-	 ["回灯鬼会在落石旁复生。继续盯住那一行。", "returner"],
-	 ["巡相师会在别行唤来双相傀。给各路留好直射和抛射。", "tamer"],
-	 ["潮灯夜叉踏潮来袭。它的灯光所照之处将掀起潮涌。", ""]],
-	[["水道在每行弯折。浅青水面先放夜莲，黑色坑洞无法种植。", ""],
-	 ["恶客会跨过断桥的坑洞。把阻挡放在跳跃落点之后。", "vault"],
-	 ["蒲舟客只从最后两路来。击沉船之后，它仍会游向岸边。", "reedboat"],
-	 ["梦铃婆能让草木睡去。留几株备用输出接替。", "dreambell"],
-	 ["第四大波鬼官会以受限之身出现。逼退它，守到第八大波再迎真身。", ""]],
+	[["今夜先熟悉海岛的摊位。中间两行最宽，外侧两行的边角无法种植，先从中间排起防线。", ""],
+	 ["落石和碎木会占住摊位，恶客却能翻过去。布不下直射草木时，把逐云鸢种在障碍后方。", "stonehat"],
+	 ["今夜练补刀。回灯鬼倒下还会再起，在它那一行留一株持续出手的草木。", "returner"],
+	 ["今夜练打断召唤。巡相师会唤来双相傀，逐云鸢升到缄音第三阶，可以暂时封住它的特殊能力。", "tamer"],
+	 ["潮灯夜叉会换行并引潮冲击摊位。给多行留火力，手里留些香火应对潮涌。", ""]],
+	[["今夜先辨水面与石台。水道沿各行弯折，青色水面先放夜莲，黑色坑洞不能种植。", ""],
+	 ["今夜练守坑口。恶客会跨过断裂石台，在它落地的位置摆石磨，输出放在石磨后面。", "vault"],
+	 ["今夜练守水路。蒲舟客只从最下两路来，浮舟击沉后仍能游动。缠魂藻可以拖沉一名水中恶客。", "reedboat"],
+	 ["今夜练应对催眠。梦铃婆会让一株草木睡去，在同一路分开布置两处火力。", "dreambell"],
+	 ["第四大波先迎战受限的鬼官。打退它后还有四大波，把香火和补位留给第八大波的真身。", ""]],
 ]
 
 const NIGHT_INTRODUCTIONS = [
-	[["ghost", "tongue", "paper"], ["straw", "stonehat"], ["vault", "bucket"], ["returner", "mourner"]],
-	[["ghost", "tongue", "straw", "paper", "mountain"], ["mourner", "stonehat", "bucket"],
-		["shieldguard", "vault", "returner"], ["artisan", "sedan", "ironjudge"]],
+	[["ghost", "tongue", "paper"], ["straw", "stonehat", "flinch"], ["vault", "bucket", "formless"], ["returner", "mourner", "reed-shot"]],
+	[["ghost", "tongue", "straw", "paper", "mountain"], ["mourner", "stonehat", "bucket", "flinch"],
+		["shieldguard", "vault", "returner", "formless"], ["artisan", "sedan", "ironjudge", "reed-shot"]],
 	[["ghost", "tongue", "straw", "paper", "mountain"], ["reedboat", "stonehat", "bucket"],
 		["phaseguard", "returner", "vault", "shieldguard", "tamer"], ["dreambell", "mourner", "sedan", "matchmaker"]],
 	[["ghost", "tongue", "straw", "paper", "mountain"], ["stonehat", "bucket", "vault"],
@@ -558,13 +602,17 @@ static func _build_levels() -> Array:
 				"waves": _night_roster(_with_guest_variants(build_waves(info["band"], [4, 4, 6, 6, 8][night]),
 					day_index + 1, night), day_index, night),
 			})
-	# Special gauntlet: twelve regular major waves PLUS three checkpoint bosses.
+	# 鬼市深处：二十大波，每四大波迎战一位首领。
 	var special_waves: Array=[]
 	for section in SPECIAL_THREATS.size():
 		var chunk = _with_guest_variants(build_waves("late", 4), 3, 4)
 		for wave in chunk:
 			wave.t=float(wave.t)+section*216.0
 			wave.threat= SPECIAL_THREATS[section]
+			if not allows_high_tier(special_waves.size()):
+				wave["budget_groups"] = wave["groups"]
+				wave["groups"] = wave["budget_groups"].map(func(group):
+					return [wave_guest_type(group[0], special_waves.size()), group[1]])
 			special_waves.append(wave)
 	out.insert(SPECIAL_ID - 1, {"id":SPECIAL_ID,"special":true,"day":5,"night":0,"day_name":"特殊关","day_sub":"鬼市深处",
 		"map":"cavern","rows":6,"name":"鬼市深处","tag":"终极守夜","threat":SPECIAL_THREATS[0],"band":"late",
@@ -580,7 +628,7 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 	var allowed: Array = []
 	if night == 4:
 		for type in ZOMBIE_ORDER:
-			if not bool(ZOMBIES[type].get("sedan_only", false)) and (week in [2, 4] or not bool(ZOMBIES[type].get("water_only", false))):
+			if not bool(ZOMBIES[type].get("sedan_only", false)) and not bool(ZOMBIES[type].get("flag_only", false)) and (week in [2, 4] or not bool(ZOMBIES[type].get("water_only", false))):
 				allowed.append(type)
 	else:
 		for i in range(night + 1):
@@ -594,12 +642,13 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 		wave["guest_slots"] = []
 		for group in wave["budget_groups"]:
 			var original: String = group[0]
-			var type: String = original if original in allowed else substitutes[ZOMBIES[original]["tier"]]
+			var candidate: String = original if original in allowed else substitutes[ZOMBIES[original]["tier"]]
+			var type := wave_guest_type(candidate, index)
 			var replacements: Array = []
 			for i in int(group[1]):
-				replacements.append(type)
+				replacements.append(candidate)
 				if index >= 2 and index < waves.size() - (WAVES_PER_GROUP if night == 4 else 0):
-					slots.append({"picks": replacements, "slot": i})
+					slots.append({"picks": replacements, "slot": i, "wave_index": index})
 					previous[type] = int(previous.get(type, 0)) + 1
 			wave["guest_slots"].append(replacements)
 	# Ensure a first encounter with every newly eligible type before the boss takes over.
@@ -615,7 +664,9 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 		for donor in donor_tiers:
 			for i in range(slots.size() - 1, -1, -1):
 				var slot: Dictionary = slots[i]
-				var incumbent: String = slot.picks[slot.slot]
+				if tier == "h" and not allows_high_tier(slot.wave_index):
+					continue
+				var incumbent := wave_guest_type(slot.picks[slot.slot], slot.wave_index)
 				if ZOMBIES[incumbent]["tier"] != donor or int(previous[incumbent]) < 2:
 					continue
 				slot.picks[slot.slot] = wanted
@@ -624,10 +675,12 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 				break
 			if previous.has(wanted):
 				break
-	for wave in waves:
+	for index in waves.size():
+		var wave: Dictionary = waves[index]
 		var counts := {}
 		for picks in wave["guest_slots"]:
-			for type in picks:
+			for guest in picks:
+				var type := wave_guest_type(guest, index)
 				counts[type] = int(counts.get(type, 0)) + 1
 		wave["groups"] = []
 		for type in counts:
@@ -805,6 +858,8 @@ static func _add_tier_group(groups: Array, tier: String, count: int, wi: int) ->
 
 ## 关卡里第一次出现某种恶客的夜与波（图鉴「初遇」栏用）。
 static func first_appearance(zombie_type: String) -> String:
+	if zombie_type == "wave-herald":
+		return "第一周·第一夜 第1大波"
 	if zombie_type == "bride":
 		zombie_type = "sedan"
 	for level in LEVELS:
@@ -823,7 +878,7 @@ static func tier_label(tier: String) -> String:
 
 static func plants_in_level(level: Dictionary) -> Array:
 	"""该关可能出现的恶客种类（备战页展示用，按首次出现顺序）。"""
-	var seen: Array = []
+	var seen: Array = ["wave-herald"]
 	for wave in level["waves"]:
 		for group in wave["groups"]:
 			if not seen.has(group[0]):

@@ -1,38 +1,38 @@
 {
-  "version": "0.5.0",
-  "build_hash": "9c17f57",
-  "exe_bytes": 601266424,
-  "exe_sha256": "0b0af8b91c08f25ac61bbf84b40259236494092ed80f3794fd3b9b9f31f434ae",
+  "version": "0.5.1",
+  "build_hash": "d63939d",
+  "exe_bytes": 655594352,
+  "exe_sha256": "09ba8f4c8b5d9a2618607a93b6882d1bbab75d568839c90de51ae5176a854ff1",
   "assertions": {
     "logic-tests": 305,
     "battle-tests": 39,
     "boss-tests": 143,
     "special-tests": 124,
     "ui-tests": 78,
-    "click-tests": 57,
-    "player-ui-tests": 227,
-    "animation-tests": 702,
+    "click-tests": 65,
+    "player-ui-tests": 263,
+    "animation-tests": 781,
     "v050-tests": 459,
-    "patch-tests": 73
+    "patch-tests": 144
   },
-  "assertion_total": 2207,
+  "assertion_total": 2401,
   "failures": 0,
   "boss_simulations": 33,
   "boss_reference_seconds": [
-    72.0,
-    118.1
+    44.9,
+    68.6
   ],
   "boss_reference_wins": 15,
-  "boss_legacy_fixture_wins": 0,
-  "motion_frames": 7840,
+  "boss_legacy_fixture_wins": 1,
+  "motion_frames": 8832,
   "pack_trim": {
-    "original_bytes": 665417064,
-    "candidate_bytes": 601266424,
-    "untouched_files": 766,
-    "removed_files": 186,
+    "original_bytes": 719759200,
+    "candidate_bytes": 655594352,
+    "untouched_files": 803,
+    "removed_files": 187,
     "removed_by_group": {
       "fallback_key_atlases": 56557018,
-      "unused_and_art_prompts": 6958136
+      "unused_and_art_prompts": 6972268
     },
     "identical_payload_reuse": 615868,
     "removed_paths": {
@@ -224,15 +224,16 @@
         "assets/boss/boss_bar_frame.svg.import",
         "assets/boss/weakpoint.svg.import",
         "data/v042_art_prompts.json",
-        "data/v050_art_prompts.json"
+        "data/v050_art_prompts.json",
+        "data/v051_art_prompts.json"
       ]
     }
   },
   "pack_checks": {
-    "checks": 8284,
+    "checks": 9342,
     "failures": 0,
-    "frames": 7840,
-    "texture_load_ms": 3730.746
+    "frames": 8832,
+    "texture_load_ms": 3713.225
   },
   "platform": "Windows x64",
   "verification": "自动检查、Windows 导出包启动、实机画面与首领阵容模拟。未做人手二十五夜全通。"

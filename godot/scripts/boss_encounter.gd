@@ -55,6 +55,7 @@ var last_boss_destroy_at = -1.0
 var wave_end = 0
 var major_wait_since = -1.0
 var adds_were_paused = false
+const EASY_HP_SCALE := 0.85
 
 func begin(owner, boss_id: String, last_batch: int = -1) -> void:
 	_owner = weakref(owner)
@@ -64,8 +65,7 @@ func begin(owner, boss_id: String, last_batch: int = -1) -> void:
 		if row.id == id:
 			config = row.duplicate(true)
 	# Boss is excluded from threat: only an explicit difficulty choice changes its HP.
-	var difficulty_scale = {"easy":0.85,"normal":1.0,"hard":1.15}.get(sim.difficulty,1.0)
-	max_hp = float(config.max_hp) * float(difficulty_scale) * HEALTH_SCALE
+	max_hp = float(config.max_hp) * EASY_HP_SCALE * float(sim.difficulty_mult()["hp"]) * HEALTH_SCALE
 	hp = max_hp
 	began_at = sim.time
 	combat_at = sim.time + 3.0

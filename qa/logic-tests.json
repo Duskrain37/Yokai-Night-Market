@@ -1,15 +1,15 @@
 {
   "checks": [
     {
-      "detail": "实际 22",
+      "detail": "实际 27",
       "group": "内容",
-      "name": "22 种草木齐备",
+      "name": "27 种草木齐备",
       "ok": true
     },
     {
-      "detail": "实际 20",
+      "detail": "实际 24",
       "group": "内容",
-      "name": "20 种恶客齐备",
+      "name": "24 种恶客齐备",
       "ok": true
     },
     {
@@ -103,7 +103,7 @@
       "ok": true
     },
     {
-      "detail": "追魂 · 香火 175 · 冷却 20 秒，尾火伤害 24。",
+      "detail": "追魂 · 香火 175 · 冷却 8 秒，尾火伤害 24。",
       "group": "内容",
       "name": "定位一句抄的是白板数",
       "ok": true
@@ -111,7 +111,7 @@
     {
       "detail": "",
       "group": "内容",
-      "name": "三张推荐表都排满 18 株",
+      "name": "三张推荐表都包含全部草木",
       "ok": true
     },
     {
@@ -129,7 +129,7 @@
     {
       "detail": "",
       "group": "升阶",
-      "name": "15 株都是三路三阶",
+      "name": "18 株都是三路三阶",
       "ok": true
     },
     {
@@ -205,13 +205,13 @@
       "ok": true
     },
     {
-      "detail": "最多 12 支",
+      "detail": "最多 13 支",
       "group": "新机制",
-      "name": "六发满阶会偶发十二支",
+      "name": "六发满阶偶发十二支并给自己再补一支",
       "ok": true
     },
     {
-      "detail": "hp=710.0",
+      "detail": "hp=494.0",
       "group": "新机制",
       "name": "碾磨自爆对 1 格内造成 900",
       "ok": true
@@ -427,7 +427,7 @@
       "ok": true
     },
     {
-      "detail": "hp=202.0 armor=480.0",
+      "detail": "hp=160.0 armor=392.0",
       "group": "护具",
       "name": "透骨针直接扣本体",
       "ok": true
@@ -613,13 +613,13 @@
       "ok": true
     },
     {
-      "detail": "hard=205 easy=136",
+      "detail": "hard=163 easy=130",
       "group": "波次",
       "name": "困难难度恶客更硬",
       "ok": true
     },
     {
-      "detail": "136.0",
+      "detail": "130.0",
       "group": "波次",
       "name": "血量按 sqrt(等效威胁) 缩放",
       "ok": true
@@ -631,7 +631,7 @@
       "ok": true
     },
     {
-      "detail": "water=2.30 street=0.60",
+      "detail": "water=2.10 street=0.40",
       "group": "波次",
       "name": "新难度区间为实际系数，暗河不另加码",
       "ok": true
@@ -769,7 +769,7 @@
       "ok": true
     },
     {
-      "detail": "bleed=2.50 hp=1575.6",
+      "detail": "bleed=2.50 hp=1359.6",
       "group": "铜铃",
       "name": "魂断：大型啃铃会自己流血",
       "ok": true
@@ -1147,7 +1147,7 @@
       "ok": true
     },
     {
-      "detail": "扣甲=10.0 hp=9000 火星={ \"kind\": \"spark\", \"pos\": (680.8112, 414.0), \"radius\": 26.0, \"life\": 0.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"large_slow\": -1.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371976423242276\": 0.0 } }",
+      "detail": "扣甲=10.0 hp=9000 火星={ \"kind\": \"spark\", \"pos\": (680.8112, 414.0), \"radius\": 26.0, \"life\": 0.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"large_slow\": -1.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371973084576293\": 0.0 } }",
       "group": "炭火盆",
       "name": "火星只烧 10/秒，走护具不穿本体",
       "ok": true
@@ -1159,7 +1159,7 @@
       "ok": true
     },
     {
-      "detail": "扣血=0 甲=240",
+      "detail": "扣血=0 甲=202",
       "group": "炭火盆",
       "name": "不熄主弹全额结算护具，不穿甲",
       "ok": true
@@ -1401,7 +1401,7 @@
     {
       "detail": "",
       "group": "烟花童",
-      "name": "抛射落点100伤，0.8格内30%溅射",
+      "name": "抛射落点造成100伤害，0.8格内溅射50%",
       "ok": true
     },
     {
@@ -1455,7 +1455,7 @@
     {
       "detail": "",
       "group": "汤圆仔",
-      "name": "五层加伤50%，满层命中不刷新",
+      "name": "五层使伤害提高50%，满层命中不刷新",
       "ok": true
     },
     {
@@ -1519,9 +1519,9 @@
       "ok": true
     },
     {
-      "detail": "35.0",
+      "detail": "24.0",
       "group": "五路寻灯",
-      "name": "伤害路线三级全弹增加75%",
+      "name": "伤害路线三级未获得激励时伤害增加20%",
       "ok": true
     },
     {
@@ -1819,13 +1819,13 @@
       "ok": true
     },
     {
-      "detail": "0.5.0 vs 0.5.0",
+      "detail": "0.5.1 vs 0.5.1",
       "group": "构建",
       "name": "戳记版本与 game.gd 一致",
       "ok": true
     },
     {
-      "detail": "2026-11-04 18:19 9c17f57",
+      "detail": "2026-11-05 10:48 d63939d",
       "group": "构建",
       "name": "构建时间与短哈希已写入",
       "ok": true
@@ -1833,5 +1833,5 @@
   ],
   "failures": 0,
   "total": 305,
-  "version": "0.5.0"
+  "version": "0.5.1"
 }

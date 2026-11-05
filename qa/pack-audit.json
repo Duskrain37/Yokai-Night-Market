@@ -1,11 +1,11 @@
 {
-  "original_bytes": 665417064,
-  "candidate_bytes": 601266424,
-  "untouched_files": 766,
-  "removed_files": 186,
+  "original_bytes": 719759200,
+  "candidate_bytes": 655594352,
+  "untouched_files": 803,
+  "removed_files": 187,
   "removed_by_group": {
     "fallback_key_atlases": 56557018,
-    "unused_and_art_prompts": 6958136
+    "unused_and_art_prompts": 6972268
   },
   "identical_payload_reuse": 615868,
   "removed_paths": {
@@ -197,7 +197,8 @@
       "assets/boss/boss_bar_frame.svg.import",
       "assets/boss/weakpoint.svg.import",
       "data/v042_art_prompts.json",
-      "data/v050_art_prompts.json"
+      "data/v050_art_prompts.json",
+      "data/v051_art_prompts.json"
     ]
   }
 }

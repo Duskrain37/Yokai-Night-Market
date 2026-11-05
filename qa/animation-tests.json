@@ -749,6 +749,82 @@
 			"ok": true
 		},
 		{
+			"name": "ruin-cap 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ruin-cap idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ruin-cap action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-kite idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wish-till idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cash-pod 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cash-pod idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cash-pod action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada reload_enter 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada reload 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada reload_exit 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "ghost 图集可加载",
 			"ok": true
 		},
@@ -1106,6 +1182,86 @@
 		},
 		{
 			"name": "dreambell attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "flinch 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "flinch walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "flinch attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "flinch swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "flinch swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wave-herald 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wave-herald walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wave-herald attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wave-herald swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wave-herald swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "formless 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "formless walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "formless attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "formless swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "formless swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-shot 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-shot walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-shot attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-shot swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-shot swim_bite 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -1725,6 +1881,18 @@
 			"ok": true
 		},
 		{
+			"name": "cash-pod 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "cash-pod action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "cash-pod idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "cat 图集可加载",
 			"ok": true
 		},
@@ -1861,6 +2029,30 @@
 			"ok": true
 		},
 		{
+			"name": "ember-cicada 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada reload 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada reload_enter 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada reload_exit 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "firework 图集可加载",
 			"ok": true
 		},
@@ -1870,6 +2062,46 @@
 		},
 		{
 			"name": "firework idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "flinch 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "flinch attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "flinch swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "flinch swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "flinch walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "formless 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "formless attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "formless swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "formless swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "formless walk 有32帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -2297,6 +2529,26 @@
 			"ok": true
 		},
 		{
+			"name": "reed-shot 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-shot attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-shot swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-shot swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-shot walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "reedboat 图集可加载",
 			"ok": true
 		},
@@ -2338,6 +2590,18 @@
 		},
 		{
 			"name": "returner walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ruin-cap 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ruin-cap action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ruin-cap idle 有32帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -2457,6 +2721,18 @@
 			"ok": true
 		},
 		{
+			"name": "sky-kite 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-kite action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "squash 图集可加载",
 			"ok": true
 		},
@@ -2562,6 +2838,14 @@
 		},
 		{
 			"name": "tamer attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tamer swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "tamer swim_bite 有32帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -2753,6 +3037,38 @@
 			"ok": true
 		},
 		{
+			"name": "wave-herald 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wave-herald attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wave-herald swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wave-herald swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wave-herald walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wish-till action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "鬼新娘不能被普通刷怪入口直接创建",
 			"ok": true
 		},
@@ -2810,5 +3126,5 @@
 		}
 	],
 	"failures": 0,
-	"total": 702
+	"total": 781
 }

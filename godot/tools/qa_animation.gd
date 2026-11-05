@@ -110,7 +110,10 @@ func run() -> void:
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_frames.json"))
 	for type in Content.PLANT_ORDER:
 		check_actor(catalog, type, ["idle", "action", "switch", "far_idle", "far", "dual"] if type == "dragon" else ["idle", "action"])
-		if type in ["firework", "dragon"]: # No separate capstone actor swap.
+		if type == "ember-cicada":
+			check_actor(catalog, type, ["reload_enter", "reload", "reload_exit"])
+		if type in ["firework", "dragon", "sky-kite", "wish-till", "ember-cicada"]:
+			# These actors use their full base animation set at every tier.
 			continue
 		for path in Upgrades.paths_for(type):
 			check_actor(catalog, "%s-e%d" % [type, int(path.id)], ["idle", "action"])
