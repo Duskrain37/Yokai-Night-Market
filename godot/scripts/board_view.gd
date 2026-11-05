@@ -48,6 +48,8 @@ func set_map(key: String) -> void:
 
 
 func _process(delta: float) -> void:
+	if sim != null and sim.visual_hold:
+		return
 	_time += delta
 	queue_redraw()
 

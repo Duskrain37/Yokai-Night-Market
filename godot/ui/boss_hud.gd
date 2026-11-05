@@ -24,7 +24,6 @@ func _draw() -> void:
 		var color = Color("#806446") if boss.fired.has(threshold) else Color("#f3ce8b")
 		draw_circle(Vector2(trough.position.x + trough.size.x * float(threshold),
 			trough.get_center().y), 3.5, color)
-	var status = "退散" if not boss.alive() else ("破绽 · 伤害提高25%" if boss.state == "recovery"
-		else "守住首领所在的两行")
-	draw_string(font,Vector2(left+28,top+26),"%s · %s" % [String(boss.config.name),status],HORIZONTAL_ALIGNMENT_LEFT,-1,17,Color("#f1d9ad"))
+	var status = " · 退散" if not boss.alive() else (" · 破绽 · 伤害提高25%" if boss.state == "recovery" else "")
+	draw_string(font,Vector2(left+28,top+26),String(boss.config.name) + status,HORIZONTAL_ALIGNMENT_LEFT,-1,Ui.font_size(17),Color("#f1d9ad"))
 	draw_string(font,Vector2(left+width-158,top+25),"%d / %d" % [ceili(boss.hp),ceili(boss.max_hp)],HORIZONTAL_ALIGNMENT_LEFT,-1,15,Color("#fae7c8"))

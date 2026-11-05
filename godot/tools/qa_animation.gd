@@ -112,11 +112,16 @@ func run() -> void:
 		check_actor(catalog, type, ["idle", "action", "switch", "far_idle", "far", "dual"] if type == "dragon" else ["idle", "action"])
 		if type == "ember-cicada":
 			check_actor(catalog, type, ["reload_enter", "reload", "reload_exit"])
-		if type in ["firework", "dragon", "sky-kite", "wish-till", "ember-cicada"]:
+		if type in ["firework", "dragon"]:
 			# These actors use their full base animation set at every tier.
 			continue
 		for path in Upgrades.paths_for(type):
-			check_actor(catalog, "%s-e%d" % [type, int(path.id)], ["idle", "action"])
+			var form := "%s-e%d" % [type, int(path.id)]
+			var clips := ["idle", "action"]
+			if type == "ember-cicada":
+				clips += ["reload_enter", "reload", "reload_exit"]
+			check_actor(catalog, form, clips)
+			check("三阶独立立绘 " + form, ResourceLoader.exists("res://assets/sprites/%s.png" % form))
 	for type in Content.ZOMBIE_ORDER:
 		var clips := ["walk", "attack"]
 		var def: Dictionary = Content.ZOMBIES[type]

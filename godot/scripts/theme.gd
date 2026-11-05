@@ -163,6 +163,44 @@ static func paper_style(alpha: float = 0.94, border: Color = GOLD_DIM,
 	return box
 
 
+static var text_scale := 1.0
+
+static func font_size(base: int) -> int:
+	return roundi(base * text_scale)
+
+
+static func scale_font(node: Control, property: String, base: int) -> void:
+	node.set_meta("unscaled_" + property, base)
+	node.add_theme_font_size_override(property, font_size(base))
+
+
+static func refresh_text_sizes(root: Node) -> void:
+	if root is Control:
+		for property in ["font_size", "normal_font_size", "bold_font_size"]:
+			var tag: String = "unscaled_" + property
+			if root.has_meta(tag):
+				root.add_theme_font_size_override(property, font_size(int(root.get_meta(tag))))
+	for child in root.get_children():
+		refresh_text_sizes(child)
+
+
+static func tier_symbol(tier: String) -> String:
+	return {"l": "●", "m": "◆", "h": "▲"}.get(tier, "✦")
+
+
+static func draw_tier_shape(canvas: CanvasItem, tier: String, at: Vector2, color: Color,
+		radius := 5.0) -> void:
+	if tier == "l":
+		canvas.draw_circle(at, radius, color)
+		return
+	var points := [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)] if tier == "m" \
+		else [Vector2(0, -1), Vector2(1, 0.84), Vector2(-1, 0.84)]
+	var polygon := PackedVector2Array()
+	for point in points:
+		polygon.append(at + point * radius)
+	canvas.draw_colored_polygon(polygon, color)
+
+
 static func make_theme() -> Theme:
 	if _theme != null:
 		return _theme
@@ -230,7 +268,7 @@ static func label(text: String, size: int = 20, color: Color = TEXT) -> Label:
 	var node = Label.new()
 	node.text = text
 	node.add_theme_font_override("font", body_font())
-	node.add_theme_font_size_override("font_size", size)
+	scale_font(node, "font_size", size)
 	node.add_theme_color_override("font_color", color)
 	return node
 
@@ -245,7 +283,7 @@ static func title(text: String, size: int = 44, color: Color = GOLD_BRIGHT) -> L
 	var node = Label.new()
 	node.text = text
 	node.add_theme_font_override("font", display_font())
-	node.add_theme_font_size_override("font_size", size)
+	scale_font(node, "font_size", size)
 	node.add_theme_color_override("font_color", color)
 	node.add_theme_constant_override("outline_size", 0)
 	node.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
@@ -256,7 +294,7 @@ static func title(text: String, size: int = 44, color: Color = GOLD_BRIGHT) -> L
 
 ## 按钮样式直接挂在控件上，不依赖主题继承：即使某个界面没接到主题，
 ## 也不会退化成一排只有文字的透明块。
-static func apply_button_style(node: Button, font_size: int = 20,
+static func apply_button_style(node: Button, base_size: int = 20,
 		plaque: bool = false) -> void:
 	if plaque:
 		# 朱漆匾：主操作才用
@@ -272,7 +310,7 @@ static func apply_button_style(node: Button, font_size: int = 20,
 		node.add_theme_color_override("font_disabled_color",
 			Color(0.62, 0.57, 0.47, 0.85))
 		node.add_theme_font_override("font", display_font())
-		node.add_theme_font_size_override("font_size", font_size + 2)
+		scale_font(node, "font_size", base_size + 2)
 		node.add_theme_constant_override("outline_size", 2)
 		node.add_theme_color_override("font_outline_color", Color(0.16, 0.05, 0.03, 0.6))
 		return
@@ -291,7 +329,7 @@ static func apply_button_style(node: Button, font_size: int = 20,
 	node.add_theme_color_override("font_pressed_color", Color("#fff3dc"))
 	node.add_theme_color_override("font_disabled_color", Color(0.72, 0.68, 0.6, 0.75))
 	node.add_theme_font_override("font", display_font())
-	node.add_theme_font_size_override("font_size", font_size + 1)
+	scale_font(node, "font_size", base_size + 1)
 
 
 ## 把纸签条按钮标成"已选中/已开启"：朱砂底、纸色字。
@@ -459,8 +497,8 @@ static func rich(size: int = 20, color: Color = TEXT) -> RichTextLabel:
 	node.scroll_active = false
 	node.add_theme_font_override("normal_font", body_font())
 	node.add_theme_font_override("bold_font", medium_font())
-	node.add_theme_font_size_override("normal_font_size", size)
-	node.add_theme_font_size_override("bold_font_size", size)
+	scale_font(node, "normal_font_size", size)
+	scale_font(node, "bold_font_size", size)
 	node.add_theme_color_override("default_color", color)
 	node.add_theme_constant_override("line_separation", 7)
 	return node

@@ -86,7 +86,7 @@ func _run() -> void:
 	var finale := Sim.new()
 	var chapter := Content.get_level(Content.level_id_for(5, 4))
 	finale.setup(chapter, ["lantern"], "normal")
-	finale.queue_wave(chapter.waves[9], 9)
+	finale.queue_wave(chapter.waves[11], 11)
 	check("鬼官限制形态出现在第四大波", finale.boss != null and finale.boss.id == "magistrate-bound" and finale.wave_index == 12)
 	if finale.boss != null:
 		var bound_hp: float = finale.boss.max_hp
@@ -95,7 +95,7 @@ func _run() -> void:
 		finale.time += 2.1
 		finale.update_waves()
 		check("击退限制形态继续第五波", finale.boss == null and not finale.is_cleared() and finale.wave_index == 12)
-		finale.queue_wave(chapter.waves[21], 21)
+		finale.queue_wave(chapter.waves[23], 23)
 		check("第八大波完整形态入场", finale.boss != null and finale.boss.id == "magistrate-full" and finale.boss.max_hp > bound_hp and finale.wave_index == 24)
 	for id in Almanac.BOSS_ORDER:
 		check("%s 有首领图鉴头像和技能数据" % id, Almanac.boss_portrait(id) != null and Almanac.boss_skills(id).size() >= 5)

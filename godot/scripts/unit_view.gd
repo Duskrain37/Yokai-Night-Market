@@ -8,6 +8,7 @@ const ActorFrames = preload("res://scripts/actor_frames.gd")
 var _actor_frames = ActorFrames.new()
 var sim: Sim = null
 var health_bars = "bar"
+var tier_shapes := false
 var focus_plant: Sim.Plant = null
 var hover_target = null
 var shovel_mode = false
@@ -74,6 +75,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if sim != null and sim.visual_hold:
+		return
 	_time += delta
 	_update_armor_falls(delta)
 	queue_redraw()
@@ -688,6 +691,10 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 		_draw_status(z, foot, height, lift)
 	if health_bars != "off" and not z.dying:
 		_draw_health_bar(z, foot, height)
+	if tier_shapes and not z.dying:
+		var tier := String(z.def.get("tier", "l"))
+		var color := Color(String(Content.TIERS[tier].color))
+		Ui.draw_tier_shape(self, tier, foot + Vector2(-33, -height - 13), color)
 
 
 ## 脚底扬尘
@@ -1114,8 +1121,7 @@ func _draw_shots() -> void:
 				draw_line(at - Vector2(4, -2), at, Color("#efbf6a"), 6.0, true)
 				draw_circle(at - Vector2(11, -6), 2.7, Color("#ffe7a9"))
 			"ember":
-				_draw_flame(at, 12.0, Color("#d87e42"))
-				draw_circle(at, 4.0, Color("#ffe4a3"))
+				_draw_ember_round(at)
 			"kite":
 				_draw_dragon_round(at, 2 if not shot.big else 3)
 			"coin":
@@ -1336,3 +1342,22 @@ func _draw_floaters() -> void:
 		draw_string(font, pos - Vector2(width * 0.5, 1.5), text,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, size,
 			Color(color.r, color.g, color.b, color.a * k))
+
+## 瓦制火丸的棱角、铜箍和细碎火星在无彩色时也能与狐火分开。
+func _draw_ember_round(at: Vector2) -> void:
+	_draw_glow(at - Vector2(5, 0), 15.0, Color(0.96, 0.43, 0.13, 0.52))
+	var spin := sin(sim.time * 19.0) * 0.42
+	draw_set_transform(at, spin)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(-11, 0), Vector2(-6, -6), Vector2(5, -7),
+		Vector2(11, 0), Vector2(5, 7), Vector2(-6, 6)]), Color("#4c241d"))
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(-6, -5), Vector2(4, -6), Vector2(8, -2), Vector2(-3, -1)]), Color("#bd5e32"))
+	draw_polyline(PackedVector2Array([Vector2(-2, -6), Vector2(2, -1), Vector2(1, 6)]),
+		Color("#edbb69"), 2.2, true)
+	draw_circle(Vector2(7, 1), 2.3, Color("#ffe097"))
+	draw_set_transform(Vector2.ZERO)
+	for index in 3:
+		var t := fposmod(sim.time * 4.5 + index / 3.0, 1.0)
+		draw_circle(at + Vector2(-8.0 - 21.0 * t, sin(t * TAU + index) * 4.0),
+			2.0 - t, Color(1.0, 0.55, 0.23, 1.0 - t))

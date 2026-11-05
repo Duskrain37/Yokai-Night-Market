@@ -25,6 +25,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 lantern-e1",
+			"ok": true
+		},
+		{
 			"name": "lantern-e2 图集可加载",
 			"ok": true
 		},
@@ -37,6 +41,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 lantern-e2",
+			"ok": true
+		},
+		{
 			"name": "lantern-e3 图集可加载",
 			"ok": true
 		},
@@ -46,6 +54,10 @@
 		},
 		{
 			"name": "lantern-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 lantern-e3",
 			"ok": true
 		},
 		{
@@ -73,6 +85,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 shooter-e1",
+			"ok": true
+		},
+		{
 			"name": "shooter-e2 图集可加载",
 			"ok": true
 		},
@@ -85,6 +101,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 shooter-e2",
+			"ok": true
+		},
+		{
 			"name": "shooter-e3 图集可加载",
 			"ok": true
 		},
@@ -94,6 +114,10 @@
 		},
 		{
 			"name": "shooter-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 shooter-e3",
 			"ok": true
 		},
 		{
@@ -121,6 +145,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 wall-e1",
+			"ok": true
+		},
+		{
 			"name": "wall-e2 图集可加载",
 			"ok": true
 		},
@@ -133,6 +161,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 wall-e2",
+			"ok": true
+		},
+		{
 			"name": "wall-e3 图集可加载",
 			"ok": true
 		},
@@ -142,6 +174,10 @@
 		},
 		{
 			"name": "wall-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 wall-e3",
 			"ok": true
 		},
 		{
@@ -181,6 +217,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 bell-e1",
+			"ok": true
+		},
+		{
 			"name": "bell-e2 图集可加载",
 			"ok": true
 		},
@@ -193,6 +233,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 bell-e2",
+			"ok": true
+		},
+		{
 			"name": "bell-e3 图集可加载",
 			"ok": true
 		},
@@ -202,6 +246,10 @@
 		},
 		{
 			"name": "bell-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 bell-e3",
 			"ok": true
 		},
 		{
@@ -229,6 +277,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 censer-e1",
+			"ok": true
+		},
+		{
 			"name": "censer-e2 图集可加载",
 			"ok": true
 		},
@@ -241,6 +293,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 censer-e2",
+			"ok": true
+		},
+		{
 			"name": "censer-e3 图集可加载",
 			"ok": true
 		},
@@ -250,6 +306,10 @@
 		},
 		{
 			"name": "censer-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 censer-e3",
 			"ok": true
 		},
 		{
@@ -277,6 +337,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 umbrella-e1",
+			"ok": true
+		},
+		{
 			"name": "umbrella-e2 图集可加载",
 			"ok": true
 		},
@@ -289,6 +353,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 umbrella-e2",
+			"ok": true
+		},
+		{
 			"name": "umbrella-e3 图集可加载",
 			"ok": true
 		},
@@ -298,6 +366,10 @@
 		},
 		{
 			"name": "umbrella-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 umbrella-e3",
 			"ok": true
 		},
 		{
@@ -325,6 +397,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 lion-e1",
+			"ok": true
+		},
+		{
 			"name": "lion-e2 图集可加载",
 			"ok": true
 		},
@@ -337,6 +413,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 lion-e2",
+			"ok": true
+		},
+		{
 			"name": "lion-e3 图集可加载",
 			"ok": true
 		},
@@ -346,6 +426,10 @@
 		},
 		{
 			"name": "lion-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 lion-e3",
 			"ok": true
 		},
 		{
@@ -385,6 +469,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 cat-e1",
+			"ok": true
+		},
+		{
 			"name": "cat-e2 图集可加载",
 			"ok": true
 		},
@@ -397,6 +485,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 cat-e2",
+			"ok": true
+		},
+		{
 			"name": "cat-e3 图集可加载",
 			"ok": true
 		},
@@ -406,6 +498,10 @@
 		},
 		{
 			"name": "cat-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 cat-e3",
 			"ok": true
 		},
 		{
@@ -445,6 +541,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 lobber-e1",
+			"ok": true
+		},
+		{
 			"name": "lobber-e2 图集可加载",
 			"ok": true
 		},
@@ -457,6 +557,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 lobber-e2",
+			"ok": true
+		},
+		{
 			"name": "lobber-e3 图集可加载",
 			"ok": true
 		},
@@ -466,6 +570,10 @@
 		},
 		{
 			"name": "lobber-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 lobber-e3",
 			"ok": true
 		},
 		{
@@ -493,6 +601,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 torch-e1",
+			"ok": true
+		},
+		{
 			"name": "torch-e2 图集可加载",
 			"ok": true
 		},
@@ -505,6 +617,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 torch-e2",
+			"ok": true
+		},
+		{
 			"name": "torch-e3 图集可加载",
 			"ok": true
 		},
@@ -514,6 +630,10 @@
 		},
 		{
 			"name": "torch-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 torch-e3",
 			"ok": true
 		},
 		{
@@ -541,6 +661,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 star-e1",
+			"ok": true
+		},
+		{
 			"name": "star-e2 图集可加载",
 			"ok": true
 		},
@@ -553,6 +677,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 star-e2",
+			"ok": true
+		},
+		{
 			"name": "star-e3 图集可加载",
 			"ok": true
 		},
@@ -562,6 +690,10 @@
 		},
 		{
 			"name": "star-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 star-e3",
 			"ok": true
 		},
 		{
@@ -589,6 +721,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 needle-e1",
+			"ok": true
+		},
+		{
 			"name": "needle-e2 图集可加载",
 			"ok": true
 		},
@@ -601,6 +737,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 needle-e2",
+			"ok": true
+		},
+		{
 			"name": "needle-e3 图集可加载",
 			"ok": true
 		},
@@ -610,6 +750,10 @@
 		},
 		{
 			"name": "needle-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 needle-e3",
 			"ok": true
 		},
 		{
@@ -637,6 +781,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 judge-e1",
+			"ok": true
+		},
+		{
 			"name": "judge-e2 图集可加载",
 			"ok": true
 		},
@@ -649,6 +797,10 @@
 			"ok": true
 		},
 		{
+			"name": "三阶独立立绘 judge-e2",
+			"ok": true
+		},
+		{
 			"name": "judge-e3 图集可加载",
 			"ok": true
 		},
@@ -658,6 +810,10 @@
 		},
 		{
 			"name": "judge-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 judge-e3",
 			"ok": true
 		},
 		{
@@ -773,6 +929,54 @@
 			"ok": true
 		},
 		{
+			"name": "sky-kite-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e1 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e1 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 sky-kite-e1",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e2 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e2 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 sky-kite-e2",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e3 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 sky-kite-e3",
+			"ok": true
+		},
+		{
 			"name": "wish-till 图集可加载",
 			"ok": true
 		},
@@ -782,6 +986,54 @@
 		},
 		{
 			"name": "wish-till action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e1 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e1 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 wish-till-e1",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e2 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e2 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 wish-till-e2",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e3 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 wish-till-e3",
 			"ok": true
 		},
 		{
@@ -822,6 +1074,90 @@
 		},
 		{
 			"name": "ember-cicada reload_exit 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 reload_enter 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 reload 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 reload_exit 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 ember-cicada-e1",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 reload_enter 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 reload 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 reload_exit 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 ember-cicada-e2",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 reload_enter 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 reload 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 reload_exit 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 ember-cicada-e3",
 			"ok": true
 		},
 		{
@@ -2053,6 +2389,78 @@
 			"ok": true
 		},
 		{
+			"name": "ember-cicada-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 reload 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 reload_enter 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e1 reload_exit 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 reload 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 reload_enter 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e2 reload_exit 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 reload 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 reload_enter 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "ember-cicada-e3 reload_exit 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "firework 图集可加载",
 			"ok": true
 		},
@@ -2733,6 +3141,42 @@
 			"ok": true
 		},
 		{
+			"name": "sky-kite-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-kite-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "squash 图集可加载",
 			"ok": true
 		},
@@ -3069,6 +3513,42 @@
 			"ok": true
 		},
 		{
+			"name": "wish-till-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "wish-till-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "鬼新娘不能被普通刷怪入口直接创建",
 			"ok": true
 		},
@@ -3126,5 +3606,5 @@
 		}
 	],
 	"failures": 0,
-	"total": 781
+	"total": 901
 }

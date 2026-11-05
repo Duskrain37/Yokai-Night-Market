@@ -19,6 +19,14 @@ var _loading_busy := false
 
 const VERSION = "0.5.1"
 const SAVE_PATH = "user://run.json"
+const SLOTS_PATH = "user://run-slots.json"
+const SLOT_COUNT = 3
+const DEFAULT_KEYS := {
+	"card_1": KEY_1, "card_2": KEY_2, "card_3": KEY_3,
+	"card_4": KEY_4, "card_5": KEY_5, "card_6": KEY_6,
+	"card_7": KEY_7, "card_8": KEY_8, "card_9": KEY_9,
+	"speed_down": KEY_BRACKETLEFT, "speed_up": KEY_BRACKETRIGHT,
+}
 const SETTINGS_PATH = "user://settings.json"
 const PROGRESS_PATH = "user://progress.json"
 const RECORDS_PATH = "user://records.json"
@@ -37,6 +45,13 @@ const DEFAULT_SETTINGS = {
 	"music_volume": 70,
 	"sfx_volume": 80,
 	"show_grid": false,
+	"show_text_hints": true,
+	"tier_shapes": false,
+	"ui_text_size": "normal",
+	"key_bindings": {},
+	"active_slot": 0,
+	"window_width": 1280,
+	"window_height": 720,
 }
 
 const DIFFICULTY_LABEL = {"easy": "简单", "normal": "普通", "hard": "困难"}
@@ -51,6 +66,13 @@ var settings: Dictionary = DEFAULT_SETTINGS.duplicate(true)
 var records: Dictionary = {}
 var progress: Dictionary = {"cleared": [], "selected": 1, "loadout": []}
 var save_data: Dictionary = {}
+var run_slots: Array[Dictionary] = [{}, {}, {}]
+var run_snapshots: Array[Dictionary] = [{}, {}, {}]
+var active_slot := 0
+var _window_save_delay := -1.0
+var _window_changing := false
+var _visual_hold_left := 0.0
+var _visual_hold_gate := 0.0
 
 var screen = "menu"
 var screen_node: Control = null
@@ -113,6 +135,7 @@ func _ready() -> void:
 	ui_layer.add_child(ui_root)
 	_load_state()
 	_apply_resolution()
+	get_window().size_changed.connect(_on_window_size_changed)
 	if not _qa:
 		var paths: Array[String] = []
 		for track in MUSIC_BASE + MUSIC_DAY_TRACKS:
@@ -134,6 +157,15 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_music(delta)
+	if _window_save_delay >= 0.0:
+		_window_save_delay -= delta
+		if _window_save_delay <= 0.0:
+			_window_save_delay = -1.0
+			save_settings()
+	_visual_hold_left = maxf(0.0, _visual_hold_left - delta)
+	_visual_hold_gate = maxf(0.0, _visual_hold_gate - delta)
+	if sim != null:
+		sim.visual_hold = _visual_hold_left > 0.0
 	if screen == "battle" and sim != null and not paused:
 		var blocked = hud != null and hud.has_method("blocks_simulation") \
 			and hud.blocks_simulation()
@@ -280,7 +312,7 @@ func start_battle(level_id: int, cards: Array, mode = "normal", restore_data: Di
 		if not ResourceLoader.exists(background):
 			background = "res://assets/bg/map-%s.jpg" % map
 		await _load_transition(_battle_resources(level_id, cards, background, map), "守夜将启", "res://assets/bg/loading-night.png")
-	_start_battle_now(level_id, cards, mode)
+	_start_battle_now(level_id, cards, mode, restore_data.is_empty())
 	if not restore_data.is_empty():
 		sim.restore(restore_data)
 		board.set_map(Content.map_key(sim.level))
@@ -292,7 +324,7 @@ func start_battle(level_id: int, cards: Array, mode = "normal", restore_data: Di
 		paused = false
 
 
-func _start_battle_now(level_id: int, cards: Array, mode: String) -> void:
+func _start_battle_now(level_id: int, cards: Array, mode: String, save_initial := true) -> void:
 	_clear_screen()
 	_clear_battle()
 	_finished = false
@@ -326,6 +358,9 @@ func _start_battle_now(level_id: int, cards: Array, mode: String) -> void:
 	units = UnitView.new()
 	units.sim = sim
 	units.health_bars = String(settings["health_bars"])
+	units.tier_shapes = bool(settings["tier_shapes"])
+	_visual_hold_left = 0.0
+	_visual_hold_gate = 0.0
 	add_child(units)
 	boss_view=preload("res://scripts/boss_view.gd").new()
 	boss_view.sim=sim
@@ -342,7 +377,7 @@ func _start_battle_now(level_id: int, cards: Array, mode: String) -> void:
 	screen_node = null
 	# 0.1× 慢放是训练场的观察档；教程一律 1×，免得旁白跟不上画面
 	apply_speed(1.0 if mode == "tutorial" else float(settings["speed"]))
-	if mode != "tutorial" and mode != "training":
+	if save_initial and mode != "tutorial" and mode != "training":
 		save_run()
 	_music_for_wave()
 
@@ -472,13 +507,19 @@ func _tick_battle(delta: float) -> void:
 		guard += 1
 		if sim.tutorial != null and String(sim.tutorial["step"]) == "done":
 			break
-	if sim.shake > 0.0 and board != null:
-		var amount = sim.shake
+	if not sim.visual_hold and board != null:
+		var amount: float = sim.shake
 		board.position = Vector2(sin(sim.time * 61.0) * amount * 0.5,
 			cos(sim.time * 53.0) * amount * 0.4)
-	else:
-		if board != null:
-			board.position = Vector2.ZERO
+	if sim.hit_stop_requested > 0.0:
+		if _visual_hold_gate <= 0.0:
+			_visual_hold_left = sim.hit_stop_requested
+			_visual_hold_gate = _visual_hold_left + 0.12
+			sim.visual_hold = true
+			for view in [board, units, boss_view]:
+				if view != null:
+					view.queue_redraw()
+		sim.hit_stop_requested = 0.0
 	_drain_sounds()
 	if String(sim.tutorial_step()) == "done" and tutorial_active:
 		finish_run(true)
@@ -524,6 +565,7 @@ func finish_run(won: bool, z = null) -> void:
 		"training": sim.training,
 		"tutorial": sim.tutorial != null,
 		"summary": sim.battle_summary(),
+		"groups_completed": sim.completed_major_waves(),
 	}
 	_update_records(won)
 	if sim.tutorial != null:
@@ -532,6 +574,8 @@ func finish_run(won: bool, z = null) -> void:
 			progress["taught"] = true
 			save_progress()
 	if not sim.training and sim.tutorial == null:
+		run_snapshots[active_slot] = {"result": result.duplicate(true),
+			"sim": sim.serialize(), "saved_at": int(Time.get_unix_time_from_system())}
 		clear_run()
 		if won:
 			var cleared: Array = _night_ids(progress.get("cleared", []))
@@ -634,11 +678,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_F11:
-				var mode = DisplayServer.window_get_mode()
-				DisplayServer.window_set_mode(
-					DisplayServer.WINDOW_MODE_WINDOWED if mode ==
-					DisplayServer.WINDOW_MODE_FULLSCREEN
-					else DisplayServer.WINDOW_MODE_FULLSCREEN)
+				_toggle_fullscreen()
 			KEY_ESCAPE:
 				_on_escape()
 			KEY_SPACE:
@@ -647,6 +687,19 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_P:
 				if screen == "battle" and not tutorial_active:
 					toggle_pause()
+			_:
+				if screen == "battle" and not paused and hud != null and not hud.blocks_simulation():
+					var key: int = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+					for action in DEFAULT_KEYS:
+						if key != bound_key(action):
+							continue
+						if action.begins_with("card_"):
+							var index := int(action.trim_prefix("card_")) - 1
+							if index < sim.cards.size():
+								hud._on_card(index)
+						elif not tutorial_active:
+							hud.step_speed(1 if action == "speed_up" else -1)
+						break
 		return
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
@@ -748,6 +801,10 @@ func set_setting(key: String, value) -> void:
 		if hud != null and float(value) > 0.1:
 			hud.slow_battle = false
 		apply_speed(float(value))
+	elif key == "ui_text_size":
+		_apply_ui_text_size()
+	elif key == "tier_shapes" and units != null:
+		units.tier_shapes = bool(value)
 	elif key == "resolution":
 		_apply_resolution()
 	elif key == "music_style":
@@ -769,6 +826,57 @@ func apply_speed(value: float) -> void:
 	speed = maxf(speed_floor(), value)
 
 
+func bound_key(action: String) -> int:
+	var bindings: Dictionary = settings.get("key_bindings", {})
+	return int(bindings.get(action, DEFAULT_KEYS.get(action, 0)))
+
+
+func rebind_key(action: String, key: int) -> void:
+	if not DEFAULT_KEYS.has(action):
+		return
+	var bindings: Dictionary = settings["key_bindings"].duplicate()
+	for other in DEFAULT_KEYS:
+		if other != action and bound_key(other) == key:
+			bindings[other] = bound_key(action)
+			break
+	bindings[action] = key
+	set_setting("key_bindings", bindings)
+
+
+func _apply_ui_text_size() -> void:
+	Ui.text_scale = float({"normal": 1.0, "medium": 1.1, "large": 1.2}.get(settings["ui_text_size"], 1.0))
+	var theme := Ui.make_theme()
+	theme.default_font_size = Ui.font_size(20)
+	if ui_root != null:
+		Ui.refresh_text_sizes(ui_root)
+
+
+func _remember_window_size() -> void:
+	var actual := DisplayServer.window_get_size()
+	if actual.x >= 480 and actual.y >= 270:
+		settings["window_width"] = actual.x
+		settings["window_height"] = actual.y
+
+
+func _on_window_size_changed() -> void:
+	if _qa or _window_changing or DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_WINDOWED:
+		return
+	_remember_window_size()
+	settings["resolution"] = "window"
+	_window_save_delay = 0.4
+
+
+func _toggle_fullscreen() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	var mode := DisplayServer.window_get_mode()
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		set_setting("resolution", "window")
+	else:
+		_remember_window_size()
+		set_setting("resolution", "auto")
+
+
 ## 分辨率：自适应全屏按显示器走；固定档开窗并按所选像素、居中摆放。
 ## 画面本身是 16:9 设计（stretch aspect=keep），非 16:9 窗口会有细窄留边。
 func _apply_resolution() -> void:
@@ -780,16 +888,30 @@ func _apply_resolution() -> void:
 			return
 	var value = String(settings.get("resolution", "auto"))
 	if value == "auto":
+		_window_changing = true
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		_release_window_change.call_deferred()
 		return
-	var parts = value.split("x")
-	if parts.size() != 2:
-		return
-	var target = Vector2i(int(parts[0]), int(parts[1]))
+	var target := Vector2i(int(settings["window_width"]), int(settings["window_height"]))
+	if value != "window":
+		var parts = value.split("x")
+		if parts.size() != 2:
+			return
+		target = Vector2i(int(parts[0]), int(parts[1]))
+	var usable := DisplayServer.screen_get_usable_rect()
+	target = target.clamp(Vector2i(480, 270), usable.size)
+	settings["window_width"] = target.x
+	settings["window_height"] = target.y
+	_window_changing = true
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_size(target)
-	var screen = DisplayServer.screen_get_size()
-	DisplayServer.window_set_position((screen - target) / 2)
+	DisplayServer.window_set_position(usable.position + (usable.size - target) / 2)
+	_release_window_change.call_deferred()
+
+
+func _release_window_change() -> void:
+	await get_tree().process_frame
+	_window_changing = false
 
 
 func save_settings() -> void:
@@ -874,14 +996,52 @@ func save_run() -> void:
 		"saved_at": int(Time.get_unix_time_from_system()),
 	}
 	save_data = payload
-	_write_json(SAVE_PATH, payload)
+	run_slots[active_slot] = payload
+	_write_slots()
 
 
 func clear_run() -> void:
 	save_data = {}
-	var path=_data_path(SAVE_PATH)
-	if FileAccess.file_exists(path):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	run_slots[active_slot] = {}
+	_write_slots()
+
+
+func set_run_slot(index: int) -> void:
+	if index < 0 or index >= SLOT_COUNT:
+		return
+	active_slot = index
+	save_data = run_slots[index]
+	set_setting("active_slot", index)
+
+
+func _write_slots() -> void:
+	var path := _data_path(SLOTS_PATH)
+	var temporary := path + ".pending"
+	var file := FileAccess.open(temporary, FileAccess.WRITE)
+	if file == null:
+		push_warning("无法写入守夜存档")
+		return
+	file.store_string(JSON.stringify({"runs": run_slots, "snapshots": run_snapshots}))
+	file.close()
+	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary),
+			ProjectSettings.globalize_path(path)) != OK:
+		push_warning("无法替换守夜存档")
+
+
+func _load_slots() -> void:
+	var saved := _read_json(SLOTS_PATH)
+	var runs: Array = saved.get("runs", [])
+	var snapshots: Array = saved.get("snapshots", [])
+	for index in SLOT_COUNT:
+		run_slots[index] = runs[index] if index < runs.size() and runs[index] is Dictionary and runs[index].has("sim") else {}
+		run_snapshots[index] = snapshots[index] if index < snapshots.size() and snapshots[index] is Dictionary else {}
+	if not saved.has("runs"):
+		var legacy := _read_json(SAVE_PATH)
+		if legacy.has("sim"):
+			run_slots[0] = legacy
+			_write_slots()
+	active_slot = clampi(int(settings["active_slot"]), 0, SLOT_COUNT - 1)
+	save_data = run_slots[active_slot]
 
 
 func has_save() -> bool:
@@ -908,7 +1068,7 @@ func _load_state() -> void:
 			var value = loaded[key]
 			if default is bool:
 				settings[key] = bool(value)
-			elif default is int and not (value is float):
+			elif default is int:
 				settings[key] = int(value)
 			elif default is float:
 				settings[key] = float(value)
@@ -921,9 +1081,10 @@ func _load_state() -> void:
 	progress["selected"] = clampi(int(progress.get("selected", 1)), 1, Content.LEVELS.size())
 	records = _read_json(RECORDS_PATH, {})
 	_records_v2()
-	save_data = _read_json(SAVE_PATH, {})
-	if not save_data.is_empty() and not save_data.has("sim"):
-		save_data = {}
+	if not settings["key_bindings"] is Dictionary:
+		settings["key_bindings"] = {}
+	_apply_ui_text_size()
+	_load_slots()
 
 
 func _data_path(path: String) -> String:

@@ -8,7 +8,7 @@ const Build = preload("res://data/build_info.gd")
 
 var game = null
 
-const PAGES := ["战斗与操作", "显示", "声音"]
+const PAGES := ["战斗与操作", "显示", "声音", "键位"]
 
 const ROWS := {
 	0: [
@@ -36,14 +36,23 @@ const ROWS := {
 	],
 	1: [
 		{"key": "resolution", "label": "窗口分辨率",
-			"note": "自适应全屏按显示器走；固定档按所选像素开窗，画面保持 16:9",
-			"options": [["auto", "自适应全屏"], ["2560x1600", "2560×1600"],
+			"note": "F11 切换全屏。开窗后拖动边缘，游戏会记住尺寸",
+			"options": [["auto", "全屏"], ["window", "记忆窗口"], ["2560x1600", "2560×1600"],
 				["1920x1080", "1920×1080"], ["1280x720", "1280×720"]]},
+		{"key": "ui_text_size", "label": "界面字号",
+			"note": "放大界面文字，可在战斗中切换",
+			"options": [["normal", "标准"], ["medium", "较大"], ["large", "最大"]]},
+		{"key": "tier_shapes", "label": "阶别附加形状",
+			"note": "低阶圆形、中阶菱形、高阶三角形",
+			"options": [[true, "开"], [false, "关"]]},
+		{"key": "show_text_hints", "label": "战斗文字提醒",
+			"note": "在旗帜下方显示当前局势和首领提示",
+			"options": [[true, "开"], [false, "关"]]},
 		{"key": "show_grid", "label": "场内描格子",
 			"note": "关掉后棋盘不再画每一格的线，只留台面外框",
 			"options": [[true, "描格"], [false, "不描"]]},
-		{"key": "health_bars", "label": "恶客血条",
-			"note": "血条为护具+本体双段，可选是否附带数字",
+		{"key": "health_bars", "label": "战场血条",
+			"note": "显示草木和恶客的血量；恶客另有护具，可附带数值",
 			"options": [["off", "不显示"], ["bar", "血条"], ["barText", "血条+数值"]]},
 	],
 	2: [
@@ -60,6 +69,7 @@ const ROWS := {
 }
 
 var page := 0
+var _capturing := ""
 var _panel: PanelContainer = null
 
 
@@ -150,6 +160,9 @@ func _build() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(list)
 
+	if page == 3:
+		_build_key_rows(list)
+		return
 	var rows: Array = ROWS.get(page, [])
 	var first := true
 	for row in rows:
@@ -164,6 +177,7 @@ func _build() -> void:
 
 
 func _select_page(index: int) -> void:
+	_capturing = ""
 	page = index
 	_build()
 
@@ -172,13 +186,13 @@ func _row(row: Dictionary) -> Control:
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 18)
 	var label_col := Ui.vbox(3)
-	label_col.custom_minimum_size = Vector2(360, 0)
+	label_col.custom_minimum_size = Vector2(260, 0)
 	label_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(label_col)
 	label_col.add_child(Ui.strong(String(row["label"]), 19, Ui.TEXT))
 	var note := Ui.label(String(row["note"]), 14, Ui.TEXT_FAINT)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	note.custom_minimum_size = Vector2(330, 0)
+	note.custom_minimum_size = Vector2(240, 0)
 	label_col.add_child(note)
 
 	var controls := HBoxContainer.new()
@@ -194,7 +208,7 @@ func _row(row: Dictionary) -> Control:
 		for option in row["options"]:
 			var selected: bool = _matches(game.settings.get(String(row["key"])),
 				option[0])
-			var button := Ui.button(String(option[1]), 16, 92, 40)
+			var button := Ui.button(String(option[1]), 16, 80, 40)
 			if selected:
 				button.add_theme_color_override("font_color", Ui.INK)
 				button.add_theme_stylebox_override("normal",
@@ -248,3 +262,46 @@ func _slider(key: String) -> Control:
 	box.add_child(slider)
 	box.add_child(value_label)
 	return box
+
+func _build_key_rows(list: VBoxContainer) -> void:
+	list.add_child(Ui.label("点击键位后按下新键。与已有键冲突时，两项会互换。", 16, Ui.TEXT_DIM))
+	list.add_child(Ui.spacer(12))
+	for action in game.DEFAULT_KEYS:
+		var row := Ui.hbox(10)
+		list.add_child(row)
+		var action_name: String = "草木卡槽 " + action.trim_prefix("card_") if action.begins_with("card_") \
+			else ("提高倍速" if action == "speed_up" else "降低倍速")
+		var label := Ui.label(action_name, 18)
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(label)
+		var caption := "按下新键（Esc 取消）" if _capturing == action \
+			else _key_name(game.bound_key(action))
+		var button := Ui.button(caption, 17, 235, 38)
+		row.add_child(button)
+		button.pressed.connect(func():
+			_capturing = action
+			button.text = "按下新键（Esc 取消）")
+		list.add_child(Ui.spacer(6))
+	var reset := Ui.button("恢复默认键位", 18, 200, 42)
+	reset.pressed.connect(func():
+		game.set_setting("key_bindings", {})
+		_capturing = ""
+		_build())
+	list.add_child(reset)
+
+
+func _key_name(physical: int) -> String:
+	var code := DisplayServer.keyboard_get_keycode_from_physical(physical)
+	return String({KEY_BRACKETLEFT: "[", KEY_BRACKETRIGHT: "]"}.get(code, OS.get_keycode_string(code)))
+
+
+func _input(event: InputEvent) -> void:
+	if _capturing.is_empty() or not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	get_viewport().set_input_as_handled()
+	if event.keycode in [KEY_F11, KEY_P, KEY_SPACE, KEY_CTRL, KEY_ALT, KEY_META, KEY_SHIFT]:
+		return
+	if event.keycode != KEY_ESCAPE:
+		game.rebind_key(_capturing, event.physical_keycode if event.physical_keycode != 0 else event.keycode)
+	_capturing = ""
+	_build()

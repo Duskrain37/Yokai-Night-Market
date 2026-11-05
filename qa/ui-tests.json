@@ -7,7 +7,7 @@
       "ok": true
     },
     {
-      "detail": "buttons=6",
+      "detail": "buttons=7",
       "group": "封面",
       "name": "封面按钮不少于六组",
       "ok": true
@@ -19,7 +19,7 @@
       "ok": true
     },
     {
-      "detail": "[\"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
+      "detail": "[\"守夜存档 · 1\", \"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
       "group": "封面",
       "name": "新玩家主按钮导向教程",
       "ok": true
@@ -355,7 +355,7 @@
       "ok": true
     },
     {
-      "detail": "[\"won\", \"time\", \"kills\", \"sun\", \"level_id\", \"training\", \"tutorial\", \"summary\"]",
+      "detail": "[\"won\", \"time\", \"kills\", \"sun\", \"level_id\", \"training\", \"tutorial\", \"summary\", \"groups_completed\"]",
       "group": "结算",
       "name": "结算带复盘数据",
       "ok": true

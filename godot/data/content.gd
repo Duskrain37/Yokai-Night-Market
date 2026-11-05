@@ -457,6 +457,10 @@ static func wave_sub(wave_index: int) -> int:
 	return int(wave_index % WAVES_PER_GROUP) + 1
 
 
+static func is_flag_batch(wave_index: int) -> bool:
+	return wave_index >= 0 and wave_sub(wave_index) == WAVES_PER_GROUP
+
+
 static func wave_text(level: Dictionary, wave_index: int) -> String:
 	var group = mini(wave_group_of(level, wave_index) + 1, wave_groups(level))
 	return "第 %d 大波 · 第 %d 拨" % [group, wave_sub(wave_index)]
@@ -757,7 +761,7 @@ static func get_level(id: int) -> Dictionary:
 
 
 static func build_waves(band: String, group_count: int = 4) -> Array:
-	# 前四大波逐字保留。其后按第四组相对第三组的非负增量延续各阶数量，
+	# 其后按第四组相对第三组的非负增量延续各阶数量，
 	# 具体敌人仍交给同一套 _add_tier_group；不改变关卡 threat 或 sqrt 缩放。
 	var base: Array = WAVE_PLANS.get(band, WAVE_PLANS["early"])
 	var plan: Array = base.duplicate(true)
@@ -769,6 +773,15 @@ static func build_waves(band: String, group_count: int = 4) -> Array:
 				var prior = int(base[6 + sub].get(tier, 0))
 				next[tier] = last + (group_index - 3) * maxi(0, last - prior)
 			plan.append(next)
+	# 每个大波的最后一拨承接该组最多的各阶来客，组内各阶总数和时间表照旧。
+	for first in range(0, plan.size(), WAVES_PER_GROUP):
+		for tier in ["l", "m", "h"]:
+			var counts: Array[int] = []
+			for offset in WAVES_PER_GROUP:
+				counts.append(int(plan[first + offset].get(tier, 0)))
+			counts.sort()
+			for offset in WAVES_PER_GROUP:
+				plan[first + offset][tier] = counts[offset]
 	var waves: Array = []
 	for wi in plan.size():
 		var wave: Dictionary = plan[wi]

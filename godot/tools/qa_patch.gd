@@ -224,7 +224,7 @@ func v051_content_regressions() -> void:
   sim.spawn_queue.clear()
   sim.summon_next_wave()
   var count: int = sim.spawn_queue.filter(func(entry): return entry.type == "wave-herald").size()
-  if count == 1 and batch % Content.WAVES_PER_GROUP == 0:
+  if count == 1 and Content.is_flag_batch(batch) and sim.banner.get("text", "") == "一大波恶客正在靠近":
    flags += 1
   elif count != 0:
    flags -= 100
@@ -306,7 +306,7 @@ func run() -> void:
    base.spawn_queue.clear()
    base.queue_roster(wave, index)
    mass_kept = mass_kept and is_equal_approx(initial_mass, roster_mass(base, base.spawn_queue)) and initial_count == base.spawn_queue.size()
-   if index < level.waves.size() - 3:
+   if index < level.waves.size() - 1:
     for entry in base.spawn_queue: before_boss[entry.type] = true
   check("第%d夜来客换班保留数量和耐久预算" % int(level.id), mass_kept)
   if String(level.boss_id) != "":

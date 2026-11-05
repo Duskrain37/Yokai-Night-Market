@@ -1,8 +1,10 @@
 """Seal the validated standalone v0.5.1 Windows executable."""
+import argparse
 import hashlib
 import json
 import re
 import shutil
+from pathlib import Path
 
 from package_v040 import PROJECT, ROOT
 from stamp_build import source_hash
@@ -13,11 +15,13 @@ RELEASE = RELEASES / f"v{VERSION}"
 QA = PROJECT / "qa"
 SUITES = (
     "logic-tests", "battle-tests", "boss-tests", "special-tests", "ui-tests",
-    "click-tests", "player-ui-tests", "animation-tests", "v050-tests",
+    "click-tests", "player-ui-tests", "animation-tests", "v050-tests", "v051-refresh-tests",
 )
 EVIDENCE = (
     "v051-actors.png", "v051-ember-enter.png", "v051-ember-reload.png",
     "v051-ember-exit.png", "v051-prep-island.png", "v051-prep-cavern.png",
+    "v051-refresh-settings.png", "v051-refresh-keys.png", "v051-refresh-slots.png",
+    "v051-refresh-snapshot.png", "v051-refresh-status.png", "v051-refresh-boss.png",
 )
 
 
@@ -54,6 +58,10 @@ def write_json(path, data):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--build-dir", type=Path, default=PROJECT / "build/v0.5.1")
+    parser.add_argument("--build-log", type=Path, default=QA / "build-v051-release.log")
+    args = parser.parse_args()
     stamp, _ = source_hash()
     info = (PROJECT / "data/build_info.gd").read_text(encoding="utf-8")
     assert f'BUILD_HASH = "{stamp}"' in info and f'VERSION = "{VERSION}"' in info
@@ -62,7 +70,7 @@ def main():
         data = load_qa(suite)
         assert data["failures"] == 0 and data["total"] > 0, suite
         totals[suite] = data["total"]
-    build_log = (QA / "build-v051-release.log").read_text(encoding="utf-8-sig")
+    build_log = args.build_log.read_text(encoding="utf-8-sig")
     assert "SCRIPT ERROR" not in build_log and "Parse Error" not in build_log
     patch_log = (QA / "patch-tests.log").read_text(encoding="utf-8")
     patch = re.search(r"TOTAL (\d+)\s+FAILURES 0", patch_log)
@@ -80,7 +88,7 @@ def main():
     times = [r["combat_s"] for r in balance["runs"] if r["profile"] == "reference"]
     RELEASE.mkdir(parents=True, exist_ok=True)
     exe = RELEASE / "YokaiNightMarket.exe"
-    shutil.copy2(PROJECT / "build/v0.5.1/YokaiNightMarket.exe", exe)
+    shutil.copy2(args.build_dir / "YokaiNightMarket.exe", exe)
     for name in ["README.md", "ANIMATION_RIG.md"]:
         shutil.copy2(PROJECT / name, RELEASE / name)
     shutil.copy2(PROJECT / "V051_CHANGES.md", RELEASE / "更新说明.md")
@@ -88,10 +96,10 @@ def main():
         shutil.copy2(RELEASES / "v0.4.0" / name, RELEASE / name)
     (RELEASE / "游玩说明.txt").write_text(
         "妖怪夜市 v0.5.1\n\n下载 Windows 64 位独立 EXE 后双击启动。第一次守夜建议先完成教程。\n"
-        "左键选卡、落子、查看与进化；右键取消。数字键1–9切牌，空格或P暂停，Esc取消或返回，F11全屏。\n"
+        "左键选卡、落子、查看与进化；右键取消。数字键1–9切牌，空格或P暂停，Esc取消或返回，F11切换全屏。方括号键调整倍速，选卡和倍速可在设置中改键。\n"
         "先请红灯笼产香火，再布置输出与阻挡。水面先放夜莲，才可种其他草木。\n"
         "每章第五夜会遇到首领。瞄准它占据的两行，留意出招预警和换行。鬼市深处二十大波，每四波迎战一位首领。\n"
-        "进度和设置保存在 %APPDATA%\\YokaiNightMarket\\。新版可直接读取原有进度。\n",
+        "进度和设置保存在 %APPDATA%\\YokaiNightMarket\\。旧对局会自动进入第一卷守夜存档。\n",
         encoding="utf-8")
     screenshots = RELEASE / "验收画面"
     screenshots.mkdir(exist_ok=True)

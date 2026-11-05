@@ -50,6 +50,8 @@ var _wave_pips: Control = null
 var _danger: Control = null
 var _tooltip: Label = null
 var _speed_pills: Array = []
+var _placement_signature := Vector4i(-1, -1, -1, -1)
+var _placement_warnings: Dictionary = {}
 
 const SPEEDS = [1.0, 1.5, 2.0, 3.0]
 # 0.1× 是训练场的观察档，正式对局不给，免得误点后以为游戏卡住
@@ -72,6 +74,12 @@ func _set_speed(value: float) -> void:
 	game.set_setting("speed", value)
 	game.play_sfx("click")
 	refresh()
+
+
+func step_speed(direction: int) -> void:
+	var choices: Array = SPEEDS_TRAINING if game.speed_floor() < 1.0 else SPEEDS
+	var current := choices.find(game.speed)
+	_set_speed(float(choices[clampi(current + direction, 0, choices.size() - 1)]))
 
 
 func _refresh_speed_pills() -> void:
@@ -352,7 +360,7 @@ func _draw_wave_pips() -> void:
 	var progress = clampf(float(sim.wave_index - start), 0.0, float(steps))
 	if sim.boss != null and sim.boss.alive():
 		var boss_share = 1.0 - sim.boss.hp / maxf(1.0, sim.boss.max_hp)
-		var boss_span = float(Content.WAVES_PER_GROUP) if not bool(sim.level.get("special", false)) else 1.0
+		var boss_span = 1.0
 		progress = steps - boss_span * (1.0 - boss_share)
 	elif progress > 0.0 and progress < steps and sim.wave_index < sim.level.waves.size():
 		var released_at = float(sim.level.waves[sim.wave_index - 1]["t"]) + sim.wave_time_offset
@@ -405,7 +413,7 @@ func refresh() -> void:
 		if sim.boss!=null:
 			_wave_label.text="第 %d 大波 · 首领战" % Content.current_major_wave(sim.level,sim.displayed_wave_count())
 		elif bool(sim.level.get("special",false)):
-			_wave_label.text = "第 %d / 12 大波" % Content.current_major_wave(sim.level, sim.displayed_wave_count())
+			_wave_label.text = "第 %d / %d 大波" % [Content.current_major_wave(sim.level, sim.displayed_wave_count()), Content.wave_groups(sim.level)]
 			if sim.special_opening():
 				_wave_label.text += " · 布阵"
 		elif sim.training:
@@ -425,18 +433,29 @@ func refresh() -> void:
 	if _speed_label != null:
 		_speed_label.text = "×%s" % _format_speed(game.speed)
 	_refresh_speed_pills()
+	var placement := Vector4i(sim.wave_index, sim.plants.size(), sim.tiles.hash(), int(_has_shell_target(sim)))
+	if placement != _placement_signature:
+		_placement_signature = placement
+		_refresh_card_placement(sim)
 	for card in _card_nodes:
+		card.tooltip_text = String(_placement_warnings.get(card.card_id, ""))
 		card.state = _card_state(card.index)
 		card.queue_redraw()
 	if _tool_shovel != null:
 		Ui.set_button_active(_tool_shovel, shovel_mode)
 	if _hint_label != null:
-		_hint_label.text = "" if game.tutorial_active else _hint_text()
+		_hint_label.text = "" if game.tutorial_active or not bool(game.settings.get("show_text_hints", true)) else _hint_text()
+		_hint_label.get_parent().visible = not _hint_label.text.is_empty()
 	if _banner_label != null:
+		var banner_shift := 70.0 if sim.boss != null else 0.0
+		_banner_band.offset_top = 128.0 + banner_shift
+		_banner_band.offset_bottom = 268.0 + banner_shift
+		_banner_sub.offset_top = 226.0 + banner_shift
+		_banner_label.offset_top = 145.0 + banner_shift
 		if not sim.banner.is_empty():
 			var big = String(sim.banner["text"]) == "一大波恶客正在靠近"
 			_banner_label.text = String(sim.banner["text"])
-			_banner_label.add_theme_font_size_override("font_size", 64 if big else 46)
+			_banner_label.add_theme_font_size_override("font_size", Ui.font_size(64 if big else 46))
 			var span = 0.9 if big else 0.8
 			var a = clampf(float(sim.banner["t"]) / span, 0.0, 1.0)
 			_banner_label.modulate.a = a
@@ -449,7 +468,7 @@ func refresh() -> void:
 			_banner_label.modulate.a = 0.0
 			_banner_sub.modulate.a = 0.0
 			_banner_band.visible = false
-	if sim.boss!=null:
+	if sim.boss!=null and String(sim.banner.get("text", "")) != "一大波恶客正在靠近":
 		_banner_label.modulate.a=0.0;_banner_sub.modulate.a=0.0;_banner_band.visible=false
 	if game.tutorial_active:
 		_refresh_tutorial()
@@ -489,9 +508,11 @@ func _format_speed(value: float) -> String:
 func _hint_text() -> String:
 	var sim: Sim = game.sim
 	if sim.boss!=null:
-		return "留意落点预警。首领换行后，把火力转向它所在的两行。"
+		if sim.boss.id == "magistrate-bound":
+			return "守住首领所在的两行。鬼官受限时只会点名，无法发动重判或号令。"
+		return "守住首领所在的两行。施法槽快满时，留意地上的落点预警。"
 	if sim.training:
-		return "训练场：不刷波次、不判负、不写存档。"
+		return "训练场里可以随时召来恶客，试试不同的布阵。"
 	if not sim.banner.is_empty() or _banner_t > 0.0:
 		return ""
 	if sim.wave_index <= 1:
@@ -501,6 +522,32 @@ func _hint_text() -> String:
 	if sim.wave_index <= 7:
 		return "哭声会催快恶客——青色波纹一起就补缺路。"
 	return "最后几波：门神只有一次，别让它白费。"
+
+
+func _has_shell_target(sim: Sim) -> bool:
+	return sim.plants.any(func(plant): return not plant.dead and not plant.is_lily and plant.shell <= 0.0)
+
+
+func _refresh_card_placement(sim: Sim) -> void:
+	_placement_warnings.clear()
+	for card in sim.cards:
+		var type := String(card.id)
+		var def: Dictionary = card.def
+		if bool(def.get("attach", false)):
+			if not _has_shell_target(sim):
+				_placement_warnings[type] = "需要一株还没罩龟甲的草木"
+			continue
+		var available := false
+		for row in sim.rows:
+			for col in Geo.COLS:
+				if bool(sim.can_place_at(type, col, row).ok):
+					available = true
+					break
+			if available:
+				break
+		if not available:
+			var aquatic := bool(def.get("lily", false)) or bool(def.get("water_only", false))
+			_placement_warnings[type] = "暂时没有空水格可放" if aquatic else "暂时没有可种植的空位"
 
 
 func _card_state(index: int) -> Dictionary:
@@ -516,6 +563,7 @@ func _card_state(index: int) -> Dictionary:
 		"selected": card_selected == index,
 		"ready": cooldown <= 0.001 or sim.no_cooldown,
 		"taught": _card_is_taught(String(card["id"])),
+		"no_placement": _placement_warnings.has(card.id),
 	}
 
 
@@ -1196,9 +1244,10 @@ class CardButton extends Control:
 		# 名称与费用
 		var font = Ui.body_font()
 		var name_text = String(def["name"])
-		var width = font.get_string_size(name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+		var name_size := Ui.font_size(15)
+		var width = font.get_string_size(name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x
 		draw_string(font, Vector2((rect.size.x - width) * 0.5, rect.size.y - 22),
-			name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Ui.TEXT)
+			name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size, Ui.TEXT)
 		var cost_text = str(int(def["cost"]))
 		var cost_width = font.get_string_size(cost_text, HORIZONTAL_ALIGNMENT_LEFT,
 			-1, 16).x
@@ -1214,3 +1263,9 @@ class CardButton extends Control:
 				Color(0.02, 0.03, 0.05, 0.68), Color.TRANSPARENT, 14, 0)
 		if not bool(state.get("affordable", true)):
 			Ui.draw_plate(self, rect, Color(0.02, 0.03, 0.05, 0.22), Color.TRANSPARENT, 14, 0)
+
+		if bool(state.get("no_placement", false)):
+			Ui.draw_plate(self, Rect2(5, 6, rect.size.x - 10, 21),
+				Color(0.21, 0.10, 0.075, 0.94), Ui.GOLD_DIM, 7, 1)
+			draw_string(font, Vector2(5, 21), "暂无落点", HORIZONTAL_ALIGNMENT_CENTER,
+				rect.size.x - 10, Ui.font_size(12), Ui.WARN)

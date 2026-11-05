@@ -1,8 +1,8 @@
 {
   "version": "0.5.1",
-  "build_hash": "d63939d",
-  "exe_bytes": 655594352,
-  "exe_sha256": "09ba8f4c8b5d9a2618607a93b6882d1bbab75d568839c90de51ae5176a854ff1",
+  "build_hash": "8aad5ec",
+  "exe_bytes": 703970536,
+  "exe_sha256": "655e5452fded5eac54c2ccd48ce223e693842b79652af62cfc7ddf8b194b2278",
   "assertions": {
     "logic-tests": 305,
     "battle-tests": 39,
@@ -11,27 +11,28 @@
     "ui-tests": 78,
     "click-tests": 65,
     "player-ui-tests": 263,
-    "animation-tests": 781,
+    "animation-tests": 901,
     "v050-tests": 459,
+    "v051-refresh-tests": 22,
     "patch-tests": 144
   },
-  "assertion_total": 2401,
+  "assertion_total": 2543,
   "failures": 0,
   "boss_simulations": 33,
   "boss_reference_seconds": [
-    44.9,
-    68.6
+    45.1,
+    73.8
   ],
   "boss_reference_wins": 15,
   "boss_legacy_fixture_wins": 1,
-  "motion_frames": 8832,
+  "motion_frames": 9696,
   "pack_trim": {
-    "original_bytes": 719759200,
-    "candidate_bytes": 655594352,
-    "untouched_files": 803,
-    "removed_files": 187,
+    "original_bytes": 785645288,
+    "candidate_bytes": 703970536,
+    "untouched_files": 839,
+    "removed_files": 205,
     "removed_by_group": {
-      "fallback_key_atlases": 56557018,
+      "fallback_key_atlases": 74064976,
       "unused_and_art_prompts": 6972268
     },
     "identical_payload_reuse": 615868,
@@ -70,6 +71,9 @@
         ".godot/imported/censer-e2.png-b4060cf578d2a4b8a5c949e639c64e2d.ctex",
         ".godot/imported/censer-e3.png-9ddd6d1514bbe7b71a5f668962f64477.ctex",
         ".godot/imported/censer.png-8d67ff1cb3d88ec9c6471b5624d49b6d.ctex",
+        ".godot/imported/ember-cicada-e1.png-864d1830b86968d9d62a9dec87f35d60.ctex",
+        ".godot/imported/ember-cicada-e2.png-e1299a97e8201755113ec9f416c7ccc4.ctex",
+        ".godot/imported/ember-cicada-e3.png-fb5c97abb274049223e9013ad1298041.ctex",
         ".godot/imported/ghost.png-810150c331a378b059cb403d76118598.ctex",
         ".godot/imported/ironjudge.png-33f249ed31739f56795129a3d1edea73.ctex",
         ".godot/imported/judge-e1.png-4e552f680aa68b9315a031c3f5ae6ab8.ctex",
@@ -105,6 +109,9 @@
         ".godot/imported/shooter-e2.png-b4cf2fcb9c42712e0a131fb6df61d053.ctex",
         ".godot/imported/shooter-e3.png-a7c3ee178dbd10bf3b5bf07b5e9185b9.ctex",
         ".godot/imported/shooter.png-dd4dc32c11d2fa2e39f72d8c7db69319.ctex",
+        ".godot/imported/sky-kite-e1.png-3537909d1947531e841c260ef4a63543.ctex",
+        ".godot/imported/sky-kite-e2.png-7ef0784e7c2a44a299c538c5acd54cd8.ctex",
+        ".godot/imported/sky-kite-e3.png-927971ce1746577f959b646047b764f2.ctex",
         ".godot/imported/star-e1.png-583513c5ea972f3bffaf730c538416ea.ctex",
         ".godot/imported/star-e2.png-d6c961ac0d9447260113115cd6313841.ctex",
         ".godot/imported/star-e3.png-a37b9c30c853adf3661fa2264030a365.ctex",
@@ -125,6 +132,9 @@
         ".godot/imported/wall-e2.png-8b2b6c3c836b6eb97dc81c9754985872.ctex",
         ".godot/imported/wall-e3.png-6ad42dd6e979f27a8e57bddbac664d42.ctex",
         ".godot/imported/wall.png-10b68ea91ef436ad637e0d5856ea2c34.ctex",
+        ".godot/imported/wish-till-e1.png-422bd6cd9fa27d26478b1bd5177f239d.ctex",
+        ".godot/imported/wish-till-e2.png-c0b645fdc702fb253636811110f77e1a.ctex",
+        ".godot/imported/wish-till-e3.png-19668b7d82059c8339c0714b70e01bd8.ctex",
         "assets/sprites/animation/artisan.png.import",
         "assets/sprites/animation/bell-e1.png.import",
         "assets/sprites/animation/bell-e2.png.import",
@@ -158,6 +168,9 @@
         "assets/sprites/animation/censer-e2.png.import",
         "assets/sprites/animation/censer-e3.png.import",
         "assets/sprites/animation/censer.png.import",
+        "assets/sprites/animation/ember-cicada-e1.png.import",
+        "assets/sprites/animation/ember-cicada-e2.png.import",
+        "assets/sprites/animation/ember-cicada-e3.png.import",
         "assets/sprites/animation/ghost.png.import",
         "assets/sprites/animation/ironjudge.png.import",
         "assets/sprites/animation/judge-e1.png.import",
@@ -193,6 +206,9 @@
         "assets/sprites/animation/shooter-e2.png.import",
         "assets/sprites/animation/shooter-e3.png.import",
         "assets/sprites/animation/shooter.png.import",
+        "assets/sprites/animation/sky-kite-e1.png.import",
+        "assets/sprites/animation/sky-kite-e2.png.import",
+        "assets/sprites/animation/sky-kite-e3.png.import",
         "assets/sprites/animation/star-e1.png.import",
         "assets/sprites/animation/star-e2.png.import",
         "assets/sprites/animation/star-e3.png.import",
@@ -212,7 +228,10 @@
         "assets/sprites/animation/wall-e1.png.import",
         "assets/sprites/animation/wall-e2.png.import",
         "assets/sprites/animation/wall-e3.png.import",
-        "assets/sprites/animation/wall.png.import"
+        "assets/sprites/animation/wall.png.import",
+        "assets/sprites/animation/wish-till-e1.png.import",
+        "assets/sprites/animation/wish-till-e2.png.import",
+        "assets/sprites/animation/wish-till-e3.png.import"
       ],
       "unused_and_art_prompts": [
         ".godot/imported/board.jpg-2d4a7ef8c0d84ae917db7df411f9fe99.ctex",
@@ -230,10 +249,10 @@
     }
   },
   "pack_checks": {
-    "checks": 9342,
+    "checks": 10287,
     "failures": 0,
-    "frames": 8832,
-    "texture_load_ms": 3713.225
+    "frames": 9696,
+    "texture_load_ms": 3876.72
   },
   "platform": "Windows x64",
   "verification": "自动检查、Windows 导出包启动、实机画面与首领阵容模拟。未做人手二十五夜全通。"

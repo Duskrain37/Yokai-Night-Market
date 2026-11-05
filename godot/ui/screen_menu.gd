@@ -131,7 +131,111 @@ func _menu_buttons() -> void:
 		box.add_child(button)
 	var quit = Ui.button("收摊退出", 17, 160, 40)
 	quit.pressed.connect(func(): get_tree().quit())
-	box.add_child(quit)
+	var footer := Ui.hbox(10)
+	box.add_child(footer)
+	footer.add_child(quit)
+	var slots := Ui.button("守夜存档 · %d" % (game.active_slot + 1), 17, 178, 40)
+	footer.add_child(slots)
+	slots.pressed.connect(_show_slots)
+
+
+func _show_slots() -> void:
+	var list := _open_save_panel("守夜存档", false)
+	list.add_child(Ui.label("每卷单独保留一局。已结束的守夜会留下最近一份结局。", 18, Ui.TEXT_DIM))
+	for index in game.SLOT_COUNT:
+		var row := Ui.hbox(12)
+		list.add_child(row)
+		var details := Ui.vbox(4)
+		details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		details.custom_minimum_size.x = 430
+		row.add_child(details)
+		var saved: Dictionary = game.run_slots[index]
+		var last: Dictionary = game.run_snapshots[index]
+		var caption := "第 %d 卷%s" % [index + 1, " · 当前" if index == game.active_slot else ""]
+		details.add_child(Ui.strong(caption, 20, Ui.GOLD))
+		details.add_child(Ui.label("尚无进行中的守夜" if saved.is_empty() else _save_line(saved), 16))
+		var choose := Ui.button("切到此卷" if saved.is_empty() else "续守此卷", 16, 110, 44)
+		row.add_child(choose)
+		choose.pressed.connect(func():
+			game.set_run_slot(index)
+			if saved.is_empty():
+				game.show_menu()
+			else:
+				_close_save_panel()
+				game.continue_run())
+		var snapshot := Ui.button("上次结局", 16, 105, 44)
+		snapshot.disabled = last.is_empty()
+		snapshot.pressed.connect(func(): _show_snapshot(last))
+		row.add_child(snapshot)
+
+func _show_snapshot(snapshot: Dictionary) -> void:
+	var record: Dictionary = snapshot.get("result", {})
+	var details: Dictionary = record.get("summary", {})
+	var level := Content.get_level(int(record.get("level_id", 1)))
+	var list := _open_save_panel("守夜结局", true)
+	list.add_child(Ui.strong("%s · %s · %s" % [level.day_name, level.day_sub, level.name], 22, Ui.GOLD))
+	list.add_child(Ui.title("守至天亮" if bool(record.get("won", false)) else "此夜失守", 36))
+	var elapsed := int(record.get("time", 0))
+	list.add_child(Ui.label("守夜 %d 分 %02d 秒　｜　击退 %d 名恶客" % [
+		elapsed / 60, elapsed % 60, int(record.get("kills", 0))], 18))
+	list.add_child(Ui.label("守住 %d 大波　｜　剩余香火 %d　｜　门神出手 %d 次" % [
+		int(record.get("groups_completed", 0)), int(record.get("sun", 0)),
+		int(details.get("mowers_used", 0))], 18))
+
+
+var _save_overlay: ColorRect
+var _snapshot_open := false
+
+
+func _open_save_panel(heading: String, snapshot: bool) -> VBoxContainer:
+	_close_save_panel()
+	_snapshot_open = snapshot
+	_save_overlay = ColorRect.new()
+	_save_overlay.color = Color(0.025, 0.038, 0.048, 0.8)
+	_save_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_save_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_save_overlay.z_index = 10
+	add_child(_save_overlay)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_save_overlay.add_child(center)
+	var frame := Ui.panel(0.98, Ui.GOLD_DIM, 18)
+	center.add_child(frame)
+	var list := Ui.vbox(18)
+	list.custom_minimum_size.x = 730
+	frame.add_child(list)
+	var head := Ui.hbox(12)
+	list.add_child(head)
+	head.add_child(Ui.seal("录", 42))
+	var title := Ui.title(heading, 34)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title)
+	var back := Ui.button("返回", 17, 110, 42)
+	back.pressed.connect(_back_from_save_panel)
+	head.add_child(back)
+	list.add_child(Ui.hline(Ui.GOLD_DIM))
+	return list
+
+
+func _back_from_save_panel() -> void:
+	if _snapshot_open:
+		_show_slots()
+	else:
+		_close_save_panel()
+
+
+func _close_save_panel() -> void:
+	if is_instance_valid(_save_overlay):
+		_save_overlay.hide()
+		_save_overlay.queue_free()
+	_save_overlay = null
+	_snapshot_open = false
+
+
+func _input(event: InputEvent) -> void:
+	if _save_overlay != null and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		_back_from_save_panel()
 
 
 func _save_line(save_data: Dictionary) -> String:

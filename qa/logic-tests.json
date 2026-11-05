@@ -1147,7 +1147,7 @@
       "ok": true
     },
     {
-      "detail": "扣甲=10.0 hp=9000 火星={ \"kind\": \"spark\", \"pos\": (680.8112, 414.0), \"radius\": 26.0, \"life\": 0.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"large_slow\": -1.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371973084576293\": 0.0 } }",
+      "detail": "扣甲=10.0 hp=9000 火星={ \"kind\": \"spark\", \"pos\": (680.8112, 414.0), \"radius\": 26.0, \"life\": 0.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"large_slow\": -1.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371972950358565\": 0.0 } }",
       "group": "炭火盆",
       "name": "火星只烧 10/秒，走护具不穿本体",
       "ok": true
@@ -1825,7 +1825,7 @@
       "ok": true
     },
     {
-      "detail": "2026-11-05 10:48 d63939d",
+      "detail": "2026-11-05 12:47 8aad5ec",
       "group": "构建",
       "name": "构建时间与短哈希已写入",
       "ok": true

@@ -262,7 +262,7 @@ func _update_header() -> void:
 	else:
 		var tier := String(def["tier"])
 		var tone := "atk" if tier == "h" else ("gold" if tier == "m" else "time")
-		_tag_row.add_child(_chip(Content.tier_label(tier), Ui.tone_color(tone)))
+		_tag_row.add_child(_chip((Ui.tier_symbol(tier) + " " if bool(game.settings.get("tier_shapes", false)) else "") + Content.tier_label(tier), Ui.tone_color(tone)))
 		_tag_row.add_child(_chip(String(def["kind"]), Ui.JADE_LIGHT))
 		if float(def.get("armor", 0.0)) > 0.0:
 			_tag_row.add_child(_chip(String(def["armor_name"]),

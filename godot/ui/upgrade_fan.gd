@@ -102,6 +102,7 @@ func _draw() -> void:
 	for i in entries.size():
 		_draw_petal(i)
 	_draw_legend()
+	_draw_effects()
 	_draw_tooltip()
 
 
@@ -235,3 +236,30 @@ func _draw_legend() -> void:
 	Ui.draw_plate(self, Rect2(at + Vector2(-8, -14), Vector2(width + 16, 19)),
 		Color(0.09, 0.09, 0.075, 0.87), Ui.GOLD_DIM, 9, 1)
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.GOLD_BRIGHT)
+
+
+func _draw_effects() -> void:
+	if sim == null:
+		return
+	var lines := sim.plant_effect_lines(plant)
+	if lines.is_empty():
+		lines.append("当前没有额外增益或减益")
+	var columns := 2 if lines.size() > 5 else 1
+	var row_count := ceili(float(lines.size()) / columns)
+	var column_width := 330.0
+	var row_height := float(Ui.font_size(15) + 5)
+	var w := 20.0 + column_width * columns
+	var h := 38.0 + row_height * row_count
+	var origin := center()
+	var at := Vector2(clampf(origin.x - w * 0.5, 12.0, size.x - w - 12.0),
+		minf(origin.y + 56.0, size.y - h - 10.0))
+	Ui.draw_plate(self, Rect2(at, Vector2(w, h)), Color("#1b211f"), Ui.GOLD_DIM, 12, 2)
+	draw_string(Ui.display_font(), at + Vector2(13, 23), "草木状态",
+		HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(17), Ui.GOLD_BRIGHT)
+	draw_line(at + Vector2(13, 29), at + Vector2(w - 13, 29), Ui.GOLD_DIM, 1.0, true)
+	for i in lines.size():
+		var text := lines[i]
+		var harmful := "降低" in text or "沉睡" in text or "封印" in text
+		draw_string(Ui.body_font(), at + Vector2(13 + int(i / row_count) * column_width,
+			31 + float(i % row_count + 1) * row_height), text, HORIZONTAL_ALIGNMENT_LEFT,
+			column_width - 8, Ui.font_size(15), Ui.WARN if harmful else Ui.TEXT)

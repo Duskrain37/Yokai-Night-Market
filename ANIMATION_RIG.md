@@ -29,7 +29,7 @@ python tools/bake_motion_frames.py
 & "C:/path/to/Godot_console.exe" --path . --script res://tools/bake_capstone_frames.gd -- --actor=new-plant --sprite=res://assets/sprites/new-plant.png --profile=upright
 ```
 
-命令写出图集及区域表。批量烘焙不传末尾参数，会更新现有的 39 套三阶形态及 Boss 姿态。现有草木的三阶异形以 `<id>-e1`、`<id>-e2`、`<id>-e3` 命名，同时在 `data/evolution_art_v040.json` 或独立三阶立绘中登记形态图。没有形态变化的三阶（例如烟花童）沿用同一图集。新草木另在 `Content.PLANTS`、`PLANT_ORDER`、推荐顺序和图鉴登记；出手事件写入 `action_at`，无需在渲染器为常规攻击单独写分支。
+命令写出图集及区域表。批量烘焙不传末尾参数，会更新现有的 39 套三阶形态及 Boss 姿态。现有草木的三阶异形以 `<id>-e1`、`<id>-e2`、`<id>-e3` 命名，同时在 `data/evolution_art_v040.json` 或独立三阶立绘中登记形态图。没有形态变化的三阶（例如烟花童）沿用同一图集。从本次 v0.5.1 同版更新起，每株新增草木在提交时必须同时交付本体立绘，以及每条可升至三阶路线的独立三阶立绘与动作。三阶立绘用 `<id>-e1.png` 等名称，放入 `assets/sprites/`。原画帧表与动作表沿用同一角色 ID。一次性、无升阶路线的草木只需要本体。烬翼蝉等有多阶段动作的形态还需继承本体所有状态，每个动作交付 32 帧。新草木另在 `Content.PLANTS`、`PLANT_ORDER`、推荐顺序和图鉴登记；出手事件写入 `action_at`，无需在渲染器为常规攻击单独写分支。
 
 ## 手绘帧与动作验收
 

@@ -7,6 +7,7 @@ var textures: Dictionary={}
 var sheets: Dictionary={}
 var frames: Dictionary={}
 var font: Font
+var _boss_ref: WeakRef
 var _pose="idle"
 var _previous="idle"
 var _pose_at=0.0
@@ -25,6 +26,8 @@ func _ready() -> void:
 	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR
 
 func _process(_delta: float) -> void:
+	if sim != null and sim.visual_hold:
+		return
 	queue_redraw()
 
 func _point(flat: Vector2) -> Vector2:
@@ -52,15 +55,22 @@ func _draw() -> void:
 	var body_foot = _body_foot(boss.body_row)
 	var sheet="boss_%s_atlas.png" % String(boss.id)
 	var pose=String(boss.pose())
-	if pose!=_pose:
-		_previous=_pose;_pose=pose;_pose_at=sim.time
+	if _boss_ref == null or _boss_ref.get_ref() != boss:
+		_boss_ref = weakref(boss)
+		_previous = pose
+		_pose = pose
+		_pose_at = sim.time - 0.1
+	elif pose != _pose:
+		_previous = _pose
+		_pose = pose
+		_pose_at = sim.time
 	var mix=clampf((sim.time-_pose_at)/0.1,0,1)
 	var alpha=1.0
 	if not boss.alive():alpha=1.0-smoothstep(0.7,2.0,sim.time-float(boss.died_at))
 	elif sim.time<float(boss.combat_at):alpha=clampf((sim.time-float(boss.began_at))/0.8,0,1)
 	var bob=sin(sim.time*2.4)*1.4 if pose=="idle" else 0.0
-	var body_height = (Geo.cell_h(sim.rows) * 1.76) * Geo.scale_at_flat(
-		Vector2(boss.body_x(), sim.row_y(boss.body_row + 1)), sim.rows)
+	var upper_edge := _point(Vector2(boss.body_x(), sim.row_y(boss.body_row) - Geo.cell_h(sim.rows) * 0.5))
+	var body_height := maxf(120.0, body_foot.y - upper_edge.y)
 	draw_texture_rect(textures.ground_shadow,Rect2(body_foot-Vector2(105,40),Vector2(210,80)),false,Color(1,1,1,alpha))
 	if _previous != _pose and mix < 1.0 and pose != "blink":
 		_frame(sheet,_previous,body_foot,body_height,alpha*(1-mix),true)
@@ -95,6 +105,8 @@ func _draw() -> void:
 		draw_rect(Rect2(at+Vector2(-25,5),Vector2(50*ratio,4)),Color("#c7a269"))
 	if not boss.action.is_empty() and String(boss.state) in ["small_warning","major_warning","major_hits"]:
 		_warning(boss)
+		if String(boss.state) != "major_hits":
+			_draw_cast_bar(boss, body_foot)
 	for mark in boss.repair_marks:
 		var at=_point(sim.cell_pos(int(mark.c),int(mark.r)))
 		var a=clampf(float(mark.until)-sim.time,0,1)
@@ -108,7 +120,15 @@ func _draw() -> void:
 
 
 func _body_foot(row: int) -> Vector2:
-	return _point(Vector2(sim.boss.body_x(), sim.row_y(row + 1)))
+	return _point(Vector2(sim.boss.body_x(), sim.row_y(row + 1) + Geo.cell_h(sim.rows) * 0.37))
+
+
+func _draw_cast_bar(boss, foot: Vector2) -> void:
+	var started := float(boss.action.get("warning_start", sim.time))
+	var ends := float(boss.action.get("warning_end", sim.time))
+	var ratio := clampf((sim.time - started) / maxf(0.01, ends - started), 0.0, 1.0)
+	var rect := Rect2(foot + Vector2(-61.0, 7.0), Vector2(122.0, 12.0))
+	Ui.draw_gauge(self, rect, ratio, Color("#d6a85b") if boss.state == "small_warning" else Color("#c85c48"))
 
 
 func _draw_blink(boss, destination: Vector2, height: float) -> void:

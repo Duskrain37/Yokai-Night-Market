@@ -13,7 +13,7 @@ func create(id: int) -> Sim:
 	var s=Sim.new()
 	s.setup(Content.get_level(id),["lantern","shooter","wall","lily","cat","lobber","star","umbrella"],"normal")
 	s.time=500
-	s.wave_index=Array(s.level.waves).size()-Content.WAVES_PER_GROUP
+	s.wave_index=Array(s.level.waves).size()-1
 	s.queue_wave(s.level.waves[s.wave_index],s.wave_index)
 	return s
 
@@ -36,13 +36,23 @@ func tick_clean(s: Sim,seconds: float) -> void:
 func same_wave_slots(actual: Array, expected: Array) -> bool:
 	if actual.size() != expected.size():
 		return false
+	var group_actual := {}
+	var group_expected := {}
 	for i in actual.size():
 		var current: Dictionary = actual[i]
 		var previous: Dictionary = expected[i]
 		if bool(current.flag) != bool(previous.flag) or not is_equal_approx(float(current.t), float(previous.t)):
 			return false
-		if _tier_counts(current.get("budget_groups", current.groups)) != _tier_counts(previous.groups):
-			return false
+		var current_tiers := _tier_counts(current.get("budget_groups", current.groups))
+		var previous_tiers := _tier_counts(previous.groups)
+		for tier in ["l", "m", "h"]:
+			group_actual[tier] = int(group_actual.get(tier, 0)) + int(current_tiers.get(tier, 0))
+			group_expected[tier] = int(group_expected.get(tier, 0)) + int(previous_tiers.get(tier, 0))
+		if Content.is_flag_batch(i):
+			if group_actual != group_expected:
+				return false
+			group_actual.clear()
+			group_expected.clear()
 	return true
 
 
@@ -67,7 +77,7 @@ func run() -> void:
 		var expected=[4,4,6,6,8][(int(level.id)-1)%5]
 		check("关%d 大波数" % int(level.id),Content.wave_groups(level)==expected)
 		check("关%d 威胁按用户新值" % int(level.id),is_equal_approx(float(level.threat),float([.4,.6,.8,1.,1.2,.6,.85,1.1,1.35,1.6,.8,1.13,1.45,1.78,2.1][int(level.id)-1])))
-		check("关%d 前四大波刷怪拨次与耐久基线阶级数量保持" % int(level.id), same_wave_slots(
+		check("关%d 前四大波保留拨次时间与整组各阶数量" % int(level.id), same_wave_slots(
 			Array(level.waves).slice(0, 12), fixtures.levels[int(level.id)-1].waves))
 	check("狐尾灯新疾焰与十焰数值",same(Upgrades.EFFECTS.cat.interval_reduction,
 		[0.0,0.2,0.4,0.6]) and is_equal_approx(float(Upgrades.EFFECTS.cat.ten_flames_chance[3]),0.1)
@@ -88,7 +98,8 @@ func run() -> void:
 	for id in [5,10,15]:
 		var s=create(id)
 		var b=s.boss
-		check("首领%d 替换整组队列" % id,b!=null and s.wave_index==s.level.waves.size() and s.spawn_queue.is_empty())
+		check("首领%d 在末拨与执幡客登场" % id, b != null and s.wave_index == s.level.waves.size()
+			and s.spawn_queue.size() == 1 and s.spawn_queue[0].type == "wave-herald")
 		check("首领%d 只占相邻两行" % id,b.body_targets.size()==2 and b.body_targets[1].row==b.body_targets[0].row+1)
 		check("首领%d 不计入普通兵上限" % id,s.active_zombies()==0)
 		var health=b.hp
@@ -124,6 +135,7 @@ func run() -> void:
 	for id in [5, 10, 15]:
 		var summon = create(id)
 		var boss = summon.boss
+		summon.spawn_queue.clear()
 		var basis = Sim.new()
 		basis.setup(Content.get_level(id), ["shooter"], "normal")
 		basis.rng.seed = 732

@@ -352,6 +352,18 @@ func _refresh() -> void:
 			_warning.text = "卡组超出十张。"
 		else:
 			_warning.text = ""
+		if _level().get("water_rows", []).is_empty():
+			var dry := PackedStringArray()
+			for type in _picked:
+				var def: Dictionary = Content.PLANTS[type]
+				if bool(def.get("lily", false)) or bool(def.get("water_only", false)):
+					dry.append(String(def.name))
+			if not dry.is_empty():
+				_warning.text = (_warning.text + "\n" if not _warning.text.is_empty() else "") \
+					+ "今夜没有水格，%s无处可种。" % "、".join(dry)
+		if _level().get("map", "") == "cavern":
+			_warning.text = (_warning.text + "\n" if not _warning.text.is_empty() else "") \
+				+ "断台上的坑洞留不住草木。开战后可在卡槽查看哪些牌暂无落点。"
 	if _fix_row != null:
 		_fix_row.visible = _needs_lily()
 
@@ -545,8 +557,11 @@ class EnemyChip:
 		draw_string(font, Vector2((size.x - width) * 0.5, size.y - 6.0), label,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.TEXT if _hovered else Ui.TEXT_DIM)
 		var tier: Dictionary = Content.TIERS.get(String(def.get("tier", "l")), {})
-		draw_circle(Vector2(size.x - 9.0, 9.0), 4.0,
-			Ui.VERMILION if boss else Color(String(tier.get("color", "#7f9d7a"))))
+		var color := Ui.VERMILION if boss else Color(String(tier.get("color", "#7f9d7a")))
+		if not boss and screen != null and bool(screen.game.settings.get("tier_shapes", false)):
+			Ui.draw_tier_shape(self, String(def.get("tier", "l")), Vector2(size.x - 9.0, 9.0), color)
+		else:
+			draw_circle(Vector2(size.x - 9.0, 9.0), 4.0, color)
 		if fresh:
 			Ui.draw_plate(self, Rect2(2, 2, 17, 14), Color(0.72, 0.24, 0.18, 0.95), Color.TRANSPARENT, 7, 0)
 			draw_string(font, Vector2(4.5, 13.5), "新", HORIZONTAL_ALIGNMENT_LEFT, -1,

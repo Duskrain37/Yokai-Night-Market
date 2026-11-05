@@ -57,7 +57,7 @@ var major_wait_since = -1.0
 var adds_were_paused = false
 const EASY_HP_SCALE := 0.85
 
-func begin(owner, boss_id: String, last_batch: int = -1) -> void:
+func begin(owner, boss_id: String, last_batch: int = -1, preserve_queue := false) -> void:
 	_owner = weakref(owner)
 	id = boss_id
 	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_balance.json"))
@@ -77,8 +77,9 @@ func begin(owner, boss_id: String, last_batch: int = -1) -> void:
 	if last_batch >= 0: wave_end = last_batch
 	sim.wave_index = wave_end
 	sim.last_group = int(wave_end/Content.WAVES_PER_GROUP)-1
-	sim.spawn_queue.clear()
-	sim.pending_spawns.clear()
+	if not preserve_queue:
+		sim.spawn_queue.clear()
+		sim.pending_spawns.clear()
 	body_row = clampi(int(sim.rows / 2) - 1, 0, sim.rows - 2)
 	smalls_to_blink = sim.rng.randi_range(1, 2)
 	_make_body_targets()
@@ -553,6 +554,7 @@ func _resolve_major() -> void:
 		if sim.time<float(action.warning_end)+index*float(config.major.hit_spacing_s):break
 		var cell: Dictionary=targets[index]
 		_hurt_cell(cell,float(config.major.damage_per_hit))
+		sim.request_hit_stop(0.09)
 		if id in ["paper", "magistrate-full"]:
 			var host=sim.main_plant_at(int(cell.c),int(cell.r))
 			if host!=null and not host.dead:host.sealed_until=maxf(host.sealed_until,sim.time + 2.0 * SKILL_FORCE)
