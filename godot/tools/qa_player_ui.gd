@@ -3,7 +3,7 @@ extends SceneTree
 var checks: Array=[]
 var failures=0
 var game
-const BLOCKED=["白板","原稿","批复","公共控制","预算","写盘","短哈希","构建","主射弹","次级弹","每帧","开发者","DPS","地效","共享首领生命"]
+const BLOCKED=["白板","原稿","批复","公共控制","预算","写盘","短哈希","构建","主射弹","次级弹","每帧","开发者","DPS","地效","共享恶首生命"]
 func check(name: String,ok: bool,detail: String="") -> void:
 	checks.append({"name":name,"ok":ok,"detail":detail})
 	if not ok:failures+=1;printerr("FAIL ",name," ",detail)

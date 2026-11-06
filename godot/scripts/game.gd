@@ -17,7 +17,7 @@ var _loading_screen: Control
 var _loading_hold: Dictionary = {}
 var _loading_busy := false
 
-const VERSION = "0.5.1"
+const VERSION = "0.5.2"
 const SAVE_PATH = "user://run.json"
 const SLOTS_PATH = "user://run-slots.json"
 const SLOT_COUNT = 3
@@ -50,6 +50,8 @@ const DEFAULT_SETTINGS = {
 	"ui_text_size": "normal",
 	"key_bindings": {},
 	"active_slot": 0,
+	"almanac_plant_order": "release",
+	"almanac_guest_order": "release",
 	"window_width": 1280,
 	"window_height": 720,
 }
@@ -254,6 +256,16 @@ func open_almanac(tab: String = "plant", index: int = 0) -> void:
 	screen = "almanac"
 
 
+func open_news() -> void:
+	overlay_from = screen
+	_clear_screen()
+	var node = load("res://ui/screen_news.gd").new()
+	node.game = self
+	ui_root.add_child(node)
+	screen_node = node
+	screen = "news"
+
+
 func open_settings() -> void:
 	overlay_from = screen
 	_clear_screen()
@@ -376,7 +388,7 @@ func _start_battle_now(level_id: int, cards: Array, mode: String, save_initial :
 	screen = "battle"
 	screen_node = null
 	# 0.1× 慢放是训练场的观察档；教程一律 1×，免得旁白跟不上画面
-	apply_speed(1.0 if mode == "tutorial" else float(settings["speed"]))
+	apply_speed(1.0)
 	if save_initial and mode != "tutorial" and mode != "training":
 		save_run()
 	_music_for_wave()
@@ -398,6 +410,7 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 			paths.append("res://assets/sprites/obstacle-%s-%d.png" % [kind, index])
 	paths.append("res://assets/sprites/mower-%s.png" % {"day4": "day2", "day5": "day3"}.get(map, map))
 	paths.append("res://assets/sprites/guest-gear-v042.png")
+	paths.append("res://assets/sprites/armor-profile-v052.png")
 	for role in ["sedan-unarmored", "paper-unarmored-v2"]:
 		paths.append("res://assets/sprites/%s.png" % role)
 	var allies = cards.duplicate()
@@ -409,7 +422,7 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 		foes.append_array(["phase-veil", "phase-kite"])
 	var motion = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json"))
 	if motion is Dictionary:
-		for actor in allies + foes:
+		for actor in allies + foes + ["v052-boss-fx", "v052-plant-fx", "v052-projectiles", "v052-craters"]:
 			if motion.has(actor):
 				paths.append("res://" + String(motion[actor]["file"]))
 		var level := Content.get_level(level_id)
@@ -715,7 +728,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_escape() -> void:
 	match screen:
-		"settings", "almanac", "training":
+		"settings", "almanac", "training", "news":
 			if screen == "training":
 				show_menu()
 			else:
@@ -798,8 +811,6 @@ func set_setting(key: String, value) -> void:
 	elif key == "cheats" and hud != null and is_instance_valid(hud):
 		hud.set_cheats_enabled(bool(value))
 	elif key == "speed" and screen == "battle" and not tutorial_active:
-		if hud != null and float(value) > 0.1:
-			hud.slow_battle = false
 		apply_speed(float(value))
 	elif key == "ui_text_size":
 		_apply_ui_text_size()
@@ -819,7 +830,7 @@ func set_setting(key: String, value) -> void:
 ## 0.1× 是训练场的观察档：正式对局一律抬到 1× 以上，
 ## 局内切速度也走这里，免得从设置面板绕过下限。
 func speed_floor() -> float:
-	return 0.1 if run_mode == "training" or (hud != null and hud.slow_battle) else 1.0
+	return 0.1
 
 
 func apply_speed(value: float) -> void:
@@ -1185,9 +1196,9 @@ func music_style() -> String:
 func wave_phase() -> String:
 	var total = int(sim.level.get("waves", []).size())
 	var index = sim.wave_index
-	if total > 0 and index >= total - 2:
+	if sim.boss != null and sim.boss.alive():
 		return "final"
-	if index >= 7:
+	if total > 0 and index >= ceili(total * 0.5):
 		return "hot"
 	return "battle"
 
@@ -1246,7 +1257,13 @@ func _music_for_wave() -> void:
 		day = int(training.get("day", 1))
 	elif sim.level.has("day"):
 		day = int(sim.level["day"])
-	play_music_scene(resolve_battle_track(day, wave_phase()))
+	var phase := wave_phase()
+	if phase == "hot" and not sim.battle_hot and not sim.training and sim.tutorial == null:
+		sim.battle_hot = true
+		if sim.banner.is_empty():
+			sim.banner = {"text": "夜半已至 · 来客渐急", "t": 3.4, "max": 3.4, "ceremony": true}
+		sim.banner["subtitle"] = "夜市进入白热化"
+	play_music_scene(resolve_battle_track(day, phase))
 
 
 func _apply_volume() -> void:

@@ -82,7 +82,7 @@ func run() -> void:
 	check("狐尾灯新疾焰与十焰数值",same(Upgrades.EFFECTS.cat.interval_reduction,
 		[0.0,0.2,0.4,0.6]) and is_equal_approx(float(Upgrades.EFFECTS.cat.ten_flames_chance[3]),0.1)
 		and is_equal_approx(float(Upgrades.EFFECTS.cat.ten_flames_cooldown),6.0))
-	check("狐尾灯回魂四团、狐火路保持",int(Upgrades.EFFECTS.cat.count[3])==4
+	check("狐尾灯回魂四团、狐火路保持",int(Upgrades.EFFECTS.cat.count[3])==5
 		and int(Upgrades.EFFECTS.cat.hits[3])==2
 		and is_equal_approx(float(Upgrades.EFFECTS.cat.mark_vuln[2]), 0.10))
 	for id in ["lantern","wall"]:
@@ -94,34 +94,34 @@ func run() -> void:
 	for level in Content.LEVELS.slice(0,15):
 		if int(level.id)%5==0:continue
 		var s=create(int(level.id))
-		check("关%d 没有首领" % int(level.id),s.boss==null)
+		check("关%d 没有恶首" % int(level.id),s.boss==null)
 	for id in [5,10,15]:
 		var s=create(id)
 		var b=s.boss
-		check("首领%d 在末拨与执幡客登场" % id, b != null and s.wave_index == s.level.waves.size()
+		check("恶首%d 在末拨与执幡客登场" % id, b != null and s.wave_index == s.level.waves.size()
 			and s.spawn_queue.size() == 1 and s.spawn_queue[0].type == "wave-herald")
-		check("首领%d 只占相邻两行" % id,b.body_targets.size()==2 and b.body_targets[1].row==b.body_targets[0].row+1)
-		check("首领%d 不计入普通兵上限" % id,s.active_zombies()==0)
+		check("恶首%d 只占相邻两行" % id,b.body_targets.size()==2 and b.body_targets[1].row==b.body_targets[0].row+1)
+		check("恶首%d 不计入普通兵上限" % id,s.active_zombies()==0)
 		var health=b.hp
 		s.kill_zombie(b.body_targets[0])
-		check("首领%d 不被收妖或门神直接处决" % id,b.hp==health and b.alive())
+		check("恶首%d 不被收妖或门神直接处决" % id,b.hp==health and b.alive())
 		b.damage_token="shot:unit-test"
 		s.damage_zombie(b.body_targets[0],100,false,false,"shooter")
 		s.damage_zombie(b.body_targets[1],100,false,false,"shooter")
-		check("首领%d 同弹多本体只结算一次" % id,is_equal_approx(b.hp,health-100))
+		check("恶首%d 同弹多本体只结算一次" % id,is_equal_approx(b.hp,health-100))
 		b.damage_token=""
 		var normal_hp=b.max_hp
 		b.damage(null,normal_hp*.81,"shooter")
-		check("首领%d 跨全部阈值按序入队" % id,b.fired.size()==b.config.major_thresholds.size() and b.major_queue.size()==b.fired.size())
+		check("恶首%d 跨全部阈值按序入队" % id,b.fired.size()==b.config.major_thresholds.size() and b.major_queue.size()==b.fired.size())
 		tick_clean(s,36)
-		check("首领%d 阈值各只释放一次" % id,b.major_count==b.config.major_thresholds.size())
-		check("首领%d 在大招期间仍有常驻增援" % id, b.reinforcement_index >= 2 and b.add_count > 0)
-		check("首领%d 普通耐久比简单高10%%" % id, is_equal_approx(b.max_hp, float(b.config.max_hp) * 1.5 * 0.85 * 1.1))
+		check("恶首%d 阈值各只释放一次" % id,b.major_count==b.config.major_thresholds.size())
+		check("恶首%d 在大招期间仍有常驻增援" % id, b.reinforcement_index >= 2 and b.add_count > 0)
+		check("恶首%d 普通耐久比简单高10%%" % id, is_equal_approx(b.max_hp, float(b.config.max_hp) * 2.1 * 0.85 * 1.1))
 		var snapshot: Dictionary=JSON.parse_string(JSON.stringify(s.serialize()))
 		var r=Sim.new();r.restore(snapshot)
-		check("首领%d 快照共享生命与阈值" % id,is_equal_approx(r.boss.hp,b.hp) and r.boss.fired==b.fired)
-		check("首领%d 快照保留随机状态" % id,str(r.rng.state)==str(s.rng.state))
-		check("首领%d 快照重建本体" % id,r.boss.body_targets.size()==2 and r.active_zombies()==s.active_zombies())
+		check("恶首%d 快照共享生命与阈值" % id,is_equal_approx(r.boss.hp,b.hp) and r.boss.fired==b.fired)
+		check("恶首%d 快照保留随机状态" % id,str(r.rng.state)==str(s.rng.state))
+		check("恶首%d 快照重建本体" % id,r.boss.body_targets.size()==2 and r.active_zombies()==s.active_zombies())
 		# Interrupt an already telegraphed lethal strike by killing the boss first.
 		var p=s.place_free("shooter",7,0)
 		if p!=null:p.hp=1
@@ -129,9 +129,9 @@ func run() -> void:
 		b.damage_token="";b.damage(null,b.max_hp*2,"shooter")
 		var old_lost=s.plants_lost
 		tick_clean(s,4)
-		check("首领%d 死后无延迟拆卡" % id,s.plants_lost==old_lost)
-		check("首领%d 死亡清空预警与出兵" % id,b.action.is_empty() and b.major_queue.is_empty() and s.active_zombies()==0)
-		check("首领%d 退散后结算" % id,s.is_cleared())
+		check("恶首%d 死后无延迟拆卡" % id,s.plants_lost==old_lost)
+		check("恶首%d 死亡清空预警与出兵" % id,b.action.is_empty() and b.major_queue.is_empty() and s.active_zombies()==0)
+		check("恶首%d 退散后结算" % id,s.is_cleared())
 	for id in [5, 10, 15]:
 		var summon = create(id)
 		var boss = summon.boss
@@ -142,8 +142,8 @@ func run() -> void:
 		summon.rng.seed = 732
 		basis.queue_roster(basis.level.waves[0], -1)
 		boss._send_reinforcements()
-		check("首领%d 常驻出怪耐久为标准的四分之三" % id,
-			is_equal_approx(_queued_mass(summon) / _queued_mass(basis), 0.75 * Content.wave_mass_ratio(basis.level, 0)))
+		check("恶首%d 常驻出怪耐久与标准一致" % id,
+			is_equal_approx(_queued_mass(summon) / _queued_mass(basis), 1.0 * Content.wave_mass_ratio(basis.level, 0)))
 		summon.spawn_queue.clear()
 		basis.spawn_queue.clear()
 		summon.rng.seed = 883
@@ -153,11 +153,11 @@ func run() -> void:
 		boss.small_casts = boss.FINAL_WAVE_FIRST_CAST - 1
 		boss._start_small()
 		boss._resolve_small()
-		check("首领%d 号令额外召唤一整组标准最终大波" % id, boss.action.kind == "summon_wave"
+		check("恶首%d 号令额外召唤一整组标准最终大波" % id, boss.action.kind == "summon_wave"
 			and is_equal_approx(_queued_mass(summon), _queued_mass(basis)) and not summon.spawn_queue.is_empty())
 		var restored = Sim.new()
 		restored.restore(summon.serialize())
-		check("首领%d 读档保留召怪队列" % id, restored.spawn_queue == summon.spawn_queue)
+		check("恶首%d 读档保留召怪队列" % id, restored.spawn_queue == summon.spawn_queue)
 	var moving = create(5)
 	var moving_boss = moving.boss
 	var old_row = moving_boss.body_row
@@ -183,7 +183,7 @@ func run() -> void:
 		shot.damage = 20.0
 		var before = moving_boss.hp
 		moving._update_straight(shot, 0.1)
-		check("首领本体命中按行%d" % lane, before - moving_boss.hp == (0.0 if lane == outside else 20.0))
+		check("恶首本体命中按行%d" % lane, before - moving_boss.hp == (0.0 if lane == outside else 20.0))
 	var s=create(15);var b=s.boss
 	var lily=s.place_free("lily",3,1)
 	var host=s.place_free("shooter",3,1)
@@ -192,7 +192,7 @@ func run() -> void:
 	var sun=s.sun
 	b._hurt_cell({"c":3,"r":1},360)
 	check("水路只拆宿主不拆底座",host.dead and not lily.dead and s.lily_at(3,1)==lily)
-	check("首领毁卡不返香火",s.sun==sun)
+	check("恶首毁卡不返香火",s.sun==sun)
 	var economy=s.place_free("lantern",0,0);economy.hp=1
 	b._hurt_cell({"c":0,"r":0},100000)
 	check("后两列经济受保护",not economy.dead and economy.hp==1)
@@ -234,10 +234,10 @@ func run() -> void:
 	check("存档续局同弹不重复结算",restored.boss.hp==old_hp and is_equal_approx(restored.natural_timer,1.234))
 	var legacy=resume.serialize();legacy.erase("boss");legacy.erase("level_snapshot");legacy.erase("format")
 	var old=Sim.new();old.restore(legacy)
-	check("旧版续局保留四大波不插入首领",old.boss==null and old.level.waves.size()==12 and String(old.level.boss_id)=="")
+	check("旧版续局保留四大波不插入恶首",old.boss==null and old.level.waves.size()==12 and String(old.level.boss_id)=="")
 	var capped=create(5)
 	for i in 15:capped.spawn_zombie("ghost",i%capped.rows)
-	check("拆甲增援也遵守首领场上上限",capped.active_zombies()==int(capped.boss.config.adds.live_cap))
+	check("拆甲增援也遵守恶首场上上限",capped.active_zombies()==int(capped.boss.config.adds.live_cap))
 	var portal=create(5)
 	portal.boss._add_prop("tunnel",{"c":6,"r":0},160,9)
 	var tunnel=portal.boss.props[0]
@@ -249,7 +249,7 @@ func run() -> void:
 	var marks=create(5);var target=marks.boss.body_targets[0]
 	marks.add_mark(target,"fox",1,.1)
 	marks.boss.tick(.2)
-	check("首领身上记号正常到期",marks.mark_stacks(target,"fox")==0)
+	check("恶首身上记号正常到期",marks.mark_stacks(target,"fox")==0)
 	var burst_before=marks.boss.hp
 	marks.boss.damage_token="shot:compound"
 	marks.damage_zombie(target,24,false,false,"cat")

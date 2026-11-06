@@ -19,6 +19,7 @@ var _portrait: Control = null
 var _name_label: Label = null
 var _epithet_label: Label = null
 var _tag_row: HBoxContainer = null
+var _sort_picker: OptionButton
 
 
 func _ready() -> void:
@@ -63,7 +64,7 @@ func _build_book() -> void:
 	head.add_child(Ui.title("妖怪夜市图鉴", 34, Ui.GOLD_BRIGHT))
 	var tabs := Ui.hbox(6)
 	head.add_child(tabs)
-	for pair in [["plant", "草木志"], ["zombie", "恶客录"], ["boss", "首领录"]]:
+	for pair in [["plant", "草木志"], ["zombie", "恶客录"], ["boss", "恶首录"]]:
 		var button := Ui.button(String(pair[1]), 17, 104, 38)
 		button.pressed.connect(_select_tab.bind(String(pair[0])))
 		tabs.add_child(button)
@@ -108,6 +109,11 @@ func _build_book() -> void:
 
 	left.add_child(Ui.hline(Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g, Ui.GOLD_DIM.b, 0.4),
 		1.0))
+	_sort_picker = OptionButton.new()
+	Ui.apply_button_style(_sort_picker, 16)
+	_sort_picker.custom_minimum_size.y = 36
+	_sort_picker.item_selected.connect(_change_sort)
+	left.add_child(_sort_picker)
 	var list_scroll := ScrollContainer.new()
 	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -154,14 +160,17 @@ func _refresh() -> void:
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 4)
 	_list_box.add_child(columns)
+	_sync_sort_picker()
+	var sorted_indices := _sorted_indices()
 	var half := int(ceil(entries.size() / 2.0))
 	for col in 2:
 		var column := Ui.vbox(2)
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		columns.add_child(column)
 		for i in range(col * half, mini((col + 1) * half, entries.size())):
-			var type := String(entries[i])
-			column.add_child(_entry_row(type, i, i == index))
+			var original: int = sorted_indices[i]
+			var type := String(entries[original])
+			column.add_child(_entry_row(type, original, original == index))
 	_update_header()
 	_render_page()
 
@@ -224,7 +233,7 @@ func _entry_short(type: String) -> String:
 
 func _entry_role(type: String) -> String:
 	if tab == "boss":
-		return "关底首领"
+		return "关底恶首"
 	if tab == "plant":
 		return String(Content.PLANTS[type]["role"])
 	return Content.tier_label(String(Content.ZOMBIES[type]["tier"]))
@@ -245,7 +254,7 @@ func _update_header() -> void:
 	if tab == "boss":
 		_name_label.text = Almanac.boss_name(type)
 		_epithet_label.text = "「%s」" % Almanac.BOSS_PAGES[type][0]
-		_tag_row.add_child(_chip("关底首领", Ui.VERMILION))
+		_tag_row.add_child(_chip("关底恶首", Ui.VERMILION))
 		_portrait.queue_redraw()
 		return
 	var def: Dictionary = Content.PLANTS[type] if tab == "plant" \
@@ -319,7 +328,7 @@ func _render_page() -> void:
 		_page.add_child(Ui.title(Almanac.boss_name(type), 32, Ui.GOLD_BRIGHT))
 		_page.add_child(_paragraph("初遇 · %s" % page[1]))
 		_page.add_child(_paragraph(String(page[2])))
-		_page.add_child(_paragraph("首领占据相邻两行，两行的射弹都能打中它。留意出招前的红纹和号令，后者会唤来一整大波援军。"))
+		_page.add_child(_paragraph("恶首占据相邻两行，两行的射弹都能打中它。留意出招前的红纹和号令，后者会唤来一整大波援军。"))
 		for skill in Almanac.boss_skills(type):
 			_page.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
 			_page.add_child(Ui.strong(String(skill[0]), 22, Ui.GOLD_BRIGHT))
@@ -443,3 +452,40 @@ func _path_block(type: String, path: Dictionary) -> Control:
 			13, Ui.TEXT_FAINT)
 		box.add_child(more)
 	return box
+
+func _sort_key() -> String:
+	return "almanac_plant_order" if tab == "plant" else "almanac_guest_order"
+
+
+func _sync_sort_picker() -> void:
+	_sort_picker.clear()
+	_sort_picker.add_item("按发布顺序")
+	_sort_picker.add_item("按草木类型" if tab == "plant" else "按阶级 · 低—中—高")
+	_sort_picker.visible = tab != "boss"
+	_sort_picker.select(1 if String(game.settings.get(_sort_key(), "release")) == "category" else 0)
+
+
+func _change_sort(choice: int) -> void:
+	game.set_setting(_sort_key(), "category" if choice == 1 else "release")
+	_refresh()
+
+
+func _sorted_indices() -> Array:
+	var entries := _entries()
+	var result: Array = range(entries.size())
+	if tab == "boss" or String(game.settings.get(_sort_key(), "release")) == "release":
+		return result
+	var roles := ["产能", "射线", "抛射", "追魂", "范围", "五向", "破甲", "近战", "近攻", "收妖", "防御", "护罩", "辅助", "增幅", "庇护", "扶伤", "浮台", "灰烬"]
+	result.sort_custom(func(a, b):
+		var left := 0
+		var right := 0
+		if tab == "zombie":
+			left = ["l", "m", "h"].find(Content.ZOMBIES[entries[a]].tier)
+			right = ["l", "m", "h"].find(Content.ZOMBIES[entries[b]].tier)
+		else:
+			left = roles.find(String(Content.PLANTS[entries[a]].role))
+			right = roles.find(String(Content.PLANTS[entries[b]].role))
+			if left < 0: left = roles.size()
+			if right < 0: right = roles.size()
+		return int(a) < int(b) if left == right else left < right)
+	return result

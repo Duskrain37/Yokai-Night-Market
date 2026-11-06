@@ -16,8 +16,6 @@ var card_selected = -1
 var shovel_mode = false
 var focus_plant = null
 var cheat_open = false
-var slow_battle = false
-var _opened_cheat_once = false
 var cheat_tab = "misc"
 var spawn_type = "ghost"
 var spawn_count = 1
@@ -36,7 +34,6 @@ var _tool_wave: Button = null
 var _tool_shovel: Button = null
 var _shovel_cursor: Image = null
 var _tool_cheat: Button = null
-var _speed_label: Label = null
 var _fan: UpgradeFan = null
 var _fan_sig = ""
 var _fan_rows: Array = []
@@ -53,9 +50,9 @@ var _speed_pills: Array = []
 var _placement_signature := Vector4i(-1, -1, -1, -1)
 var _placement_warnings: Dictionary = {}
 
-const SPEEDS = [1.0, 1.5, 2.0, 3.0]
-# 0.1× 是训练场的观察档，正式对局不给，免得误点后以为游戏卡住
-const SPEEDS_TRAINING = [0.1, 1.0, 1.5, 2.0, 3.0]
+const SPEEDS = [0.1, 1.0, 1.5, 2.0, 3.0]
+# 所有模式常驻慢放档，正式局不记作作弊。
+const SPEEDS_TRAINING = SPEEDS
 
 
 static func _speed_text(value: float) -> String:
@@ -67,8 +64,6 @@ static func _speed_text(value: float) -> String:
 ## 局内直接切速度：写回设置，下次开局沿用
 func _set_speed(value: float) -> void:
 	if game == null:
-		return
-	if game.tutorial_active:
 		return
 	game.apply_speed(value)
 	game.set_setting("speed", value)
@@ -99,7 +94,7 @@ func _refresh_speed_pills() -> void:
 					8, 1))
 			pill.add_theme_stylebox_override("hover",
 				Ui.flat(Color(0.14, 0.19, 0.23, 0.95), Ui.GOLD_DIM, 8, 1))
-		pill.disabled = game.tutorial_active
+		pill.disabled = false
 
 
 func _ready() -> void:
@@ -207,7 +202,7 @@ func _build_hud() -> void:
 	var speed_row := HBoxContainer.new()
 	speed_row.add_theme_constant_override("separation", 4)
 	speed_box.add_child(speed_row)
-	for value in (SPEEDS_TRAINING if sim.training else SPEEDS):
+	for value in SPEEDS:
 		var pill := Ui.button(_speed_text(value), 14, 36, 34)
 		pill.set_meta("speed_value", value)
 		pill.pressed.connect(func(): _set_speed(value))
@@ -239,9 +234,6 @@ func _build_hud() -> void:
 	tools.add_child(_tool_cheat)
 	var pause_button = _tool_button("暂停", "Esc 暂停", func(): game.toggle_pause())
 	tools.add_child(pause_button)
-	_speed_label = Ui.label("×1", 17, Ui.TEXT_DIM)
-	_speed_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tools.add_child(_speed_label)
 
 	# 横幅
 	_banner_band = ColorRect.new()
@@ -411,7 +403,7 @@ func refresh() -> void:
 	var total = int(sim.level.get("waves", []).size())
 	if _wave_label != null:
 		if sim.boss!=null:
-			_wave_label.text="第 %d 大波 · 首领战" % Content.current_major_wave(sim.level,sim.displayed_wave_count())
+			_wave_label.text="第 %d 大波 · 恶首战" % Content.current_major_wave(sim.level,sim.displayed_wave_count())
 		elif bool(sim.level.get("special",false)):
 			_wave_label.text = "第 %d / %d 大波" % [Content.current_major_wave(sim.level, sim.displayed_wave_count()), Content.wave_groups(sim.level)]
 			if sim.special_opening():
@@ -430,8 +422,6 @@ func refresh() -> void:
 		_danger.queue_redraw()
 	if _wave_pips != null:
 		_wave_pips.queue_redraw()
-	if _speed_label != null:
-		_speed_label.text = "×%s" % _format_speed(game.speed)
 	_refresh_speed_pills()
 	var placement := Vector4i(sim.wave_index, sim.plants.size(), sim.tiles.hash(), int(_has_shell_target(sim)))
 	if placement != _placement_signature:
@@ -454,6 +444,7 @@ func refresh() -> void:
 		_banner_label.offset_top = 145.0 + banner_shift
 		if not sim.banner.is_empty():
 			var big = String(sim.banner["text"]) == "一大波恶客正在靠近"
+			var ceremony := bool(sim.banner.get("ceremony", false))
 			_banner_label.text = String(sim.banner["text"])
 			_banner_label.add_theme_font_size_override("font_size", Ui.font_size(64 if big else 46))
 			var span = 0.9 if big else 0.8
@@ -461,15 +452,15 @@ func refresh() -> void:
 			_banner_label.modulate.a = a
 			_banner_sub.text = "第 %d 大波 / 共 %d 大波" % [int(sim.banner.get("group", 1)),
 				int(sim.banner.get("groups", 4))] if big else ""
+			if not String(sim.banner.get("subtitle", "")).is_empty():
+				_banner_sub.text = String(sim.banner.subtitle)
 			_banner_sub.modulate.a = a
-			_banner_band.visible = big
+			_banner_band.visible = big or ceremony
 			_banner_band.modulate.a = a * 0.85
 		else:
 			_banner_label.modulate.a = 0.0
 			_banner_sub.modulate.a = 0.0
 			_banner_band.visible = false
-	if sim.boss!=null and String(sim.banner.get("text", "")) != "一大波恶客正在靠近":
-		_banner_label.modulate.a=0.0;_banner_sub.modulate.a=0.0;_banner_band.visible=false
 	if game.tutorial_active:
 		_refresh_tutorial()
 	if focus_plant != null and (focus_plant.dead or not sim.plants.has(focus_plant)):
@@ -509,8 +500,8 @@ func _hint_text() -> String:
 	var sim: Sim = game.sim
 	if sim.boss!=null:
 		if sim.boss.id == "magistrate-bound":
-			return "守住首领所在的两行。鬼官受限时只会点名，无法发动重判或号令。"
-		return "守住首领所在的两行。施法槽快满时，留意地上的落点预警。"
+			return "守住恶首所在的两行。鬼官受限时只会点名，无法发动重判或号令。"
+		return "守住恶首所在的两行。施法槽快满时，留意地上的落点预警。"
 	if sim.training:
 		return "训练场里可以随时召来恶客，试试不同的布阵。"
 	if not sim.banner.is_empty() or _banner_t > 0.0:
@@ -599,7 +590,7 @@ func _refresh_tutorial() -> void:
 			"恶客从右边过来。石磨挡住它，签筒自动瞄准开火。"],
 		"finishing": ["守住了", "接下来看看草木还有哪些本事。"],
 		"almanac": ["第六步 · 出摊前再看一眼",
-			"每周第一夜熟悉地形，第二到第四夜每天学一种应对法。第五夜恶客齐来，还要迎战首领。备战页能查今夜来客。\n实在守不住时，从暂停进设置开启「作弊菜单」，回战场点「作弊」，可慢放到 0.1× 或补香火。右侧可以先试，再翻图鉴看签筒的进化。"],
+			"每周初夜较为平和，适合熟悉新的摊面。第二至第四夜，各有不同的来客和难题；到了第五夜，老面孔会一起上门，恶首也将现身。开张前，先看看今夜会遇到谁。\n实在守不住时，从暂停进设置开启「作弊菜单」，回战场点「作弊」，可以补些香火，慢慢试出适合自己的布阵。右侧可以先试，再翻图鉴看签筒的进化。"],
 		"done": ["这一课成了", "收香火、出输出、挡怪、升阶——四样都在手上了。"],
 	}
 	var entry: Array = copy.get(step, ["", ""])
@@ -749,7 +740,10 @@ func _sync_fan() -> void:
 		var tier_now = int(status["tier"])
 		var next_desc = ""
 		var next_name = ""
-		if bool(status["ok"]) and tier_now < tiers.size():
+		if tier_now >= tiers.size():
+			next_name = String(tiers.back()["name"])
+			next_desc = String(tiers.back()["desc"])
+		elif tier_now < tiers.size():
 			next_name = String(tiers[tier_now]["name"])
 			next_desc = String(tiers[tier_now]["desc"])
 		entries.append({
@@ -817,29 +811,17 @@ func set_cheats_enabled(enabled: bool) -> void:
 		_tool_cheat.visible = enabled or (game.sim != null and game.sim.training)
 	if not enabled and cheat_open and (game.sim == null or not game.sim.training):
 		_toggle_cheat()
-	if not enabled and slow_battle:
-		_set_slow_battle(false)
 
 
 func _toggle_cheat() -> void:
 	cheat_open = not cheat_open
 	if cheat_open:
 		close_fan()
-		if not _opened_cheat_once and not game.sim.training and not game.tutorial_active:
-			_set_slow_battle(true)
-		_opened_cheat_once = true
 		_build_cheat()
 	elif _cheat_panel != null:
 		_cheat_panel.queue_free()
 		_cheat_panel = null
 	refresh()
-
-
-func _set_slow_battle(enabled: bool) -> void:
-	slow_battle = enabled
-	if enabled:
-		game.sim.cheated = true
-	game.apply_speed(0.1 if enabled else float(game.settings["speed"]))
 
 
 func _build_cheat() -> void:
@@ -930,9 +912,6 @@ func _build_misc_tab(box: VBoxContainer) -> void:
 			game.show_prep(Content.level_id_for(int(game.training.get("day", 1))), true,
 				int(game.training.get("day", 1)))])
 	elif not game.tutorial_active:
-		rows.push_front(["常规战斗 0.1× · %s" % ("已开" if slow_battle else "已关"), func():
-			_set_slow_battle(not slow_battle)
-			_build_cheat()])
 		rows.append(["直接结算为胜", func():
 			game.finish_run(true)])
 	for row in rows:

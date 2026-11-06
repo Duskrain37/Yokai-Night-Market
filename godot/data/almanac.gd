@@ -21,7 +21,7 @@ static var _boss_portraits: Dictionary = {}
 
 
 static func boss_name(id: String) -> String:
-	return String(boss_record(id).get("name", "首领"))
+	return String(boss_record(id).get("name", "恶首"))
 
 
 static func boss_record(id: String) -> Dictionary:
@@ -35,33 +35,42 @@ static func boss_record(id: String) -> Dictionary:
 static func boss_skills(id: String) -> Array:
 	var data := boss_record(id)
 	var hp := float(data.max_hp) * BossRules.HEALTH_SCALE * BossRules.EASY_HP_SCALE
-	var rows := [["首领底细", "生命　简单 %d · 普通 %d · 困难 %d\n现身预警 3 秒，入场援香 %d。身躯占相邻两行，每出 1–2 次小技能随机换行，闪影约 %.2f 秒。" % [roundi(hp), roundi(hp * Sim.DIFFICULTY["normal"]["hp"]), roundi(hp * Sim.DIFFICULTY["hard"]["hp"]), int(data.entry_incense), BossRules.BLINK_TIME]],
-		["小技能节奏", "首次出招 %.2f 秒，之后间隔 %.2f 秒。" % [float(data.small_first_s) / BossRules.SKILL_RATE, float(data.small_period_s) / BossRules.SKILL_RATE]]]
+	var force := BossRules.SKILL_FORCE
+	var rows := [
+		["恶首底细", "生命　简单 %d · 普通 %d · 困难 %d。身躯占相邻两行，每施放一至两次小招便随机换行。" % [
+			roundi(hp), roundi(hp * Sim.DIFFICULTY.normal.hp), roundi(hp * Sim.DIFFICULTY.hard.hp)]],
+		["出招节奏", "现身后准备3秒。首次小招在%.2f秒后到来，之后每%.2f秒再次施放。闪影换行用时%.2f秒。" % [
+			float(data.small_first_s) / BossRules.SKILL_RATE, float(data.small_period_s) / BossRules.SKILL_RATE, BossRules.BLINK_TIME]]]
 	match id:
 		"earth":
-			rows.append(["开凿地穴", "预警 2.2 秒，一格受 %.1f 点伤害。地穴耐久 %.1f，存续 9 秒，每 4 秒可唤来饿鬼。" % [140.0 * BossRules.SKILL_FORCE, 160.0 * BossRules.SKILL_FORCE]])
+			rows.append(["双穴裂街", "预警2.2秒，同时震开两处地穴，各造成%d。地穴耐久%d，存续11.25秒，可从街下唤来饿鬼。" % [roundi(140 * force), roundi(160 * force)]])
 		"paper":
-			rows.append(["缚愿纸符", "预警 1.8 秒，最多封住两行各一株。纸符耐久 %.1f，产香草木受封 %.2f 秒，其他草木 %.2f 秒。打碎纸符即可解封。" % [120.0 * BossRules.SKILL_FORCE, 2.0 * BossRules.SKILL_FORCE, 5.0 * BossRules.SKILL_FORCE]])
-			rows.append(["纸渡接客", "与纸符交替出招。预警 1.8 秒，空格出现耐久 %.1f 的纸渡，存续 12 秒。3 秒后首次唤来斗笠鬼，之后每 4 秒可再召唤。" % (240.0 * BossRules.SKILL_FORCE)])
+			rows.append(["三符缚愿", "预警1.8秒，最多封住三行各一株草木。纸符耐久%d。产香草木受封%.2f秒，其他草木%.2f秒；打碎符纸即可解开。" % [roundi(120 * force), 2 * force, 5 * force]])
+			rows.append(["双渡迎客", "与缚愿交替出招，预警1.8秒，在空位展开两处纸渡。纸渡耐久%d，存续15秒；3秒后开始召来斗笠鬼。" % roundi(240 * force)])
 		"river":
-			rows.append(["遣潮蟹", "预警 2 秒，耐久 %.1f 的潮蟹冲过一行，速度 1.54 格/秒，最多存续 10 秒。撞到第一株草木时造成 %.1f 点伤害后退散。" % [180.0 * BossRules.SKILL_FORCE, 300.0 * BossRules.SKILL_FORCE]])
+			rows.append(["并潮双蟹", "预警2秒，派出两只潮蟹各冲一行。潮蟹耐久%d，最多存续10秒，撞上草木时造成%d。先拆开一路，再守住另一路。" % [roundi(180 * force), roundi(300 * force)]])
 		_:
 			var skill: Dictionary = data.small_skill
-			rows.append([String(skill.label), "预警 %.2f 秒，最多点中 %d 路各一株，每株受 %.1f 点伤害，幸存草木被封 %.2f 秒。" % [float(skill.warning), int(skill.targets), float(skill.damage) * BossRules.SKILL_FORCE, float(skill.seal_s) * BossRules.SKILL_FORCE]])
+			var extra := "幸存草木的攻速降低20%，持续5秒。" if id == "island" else (
+				"幸存草木的伤害降低25%，持续5秒。" if id == "magistrate-full" else "")
+			rows.append([String(skill.label), "预警%.2f秒，最多波及%d行各一株草木，每株受到%d，并受封%.2f秒。%s" % [
+				float(skill.warning), int(skill.targets), roundi(float(skill.damage) * force), float(skill.seal_s) * force, extra]])
 	if bool(data.get("summon_final", true)):
-		rows.append(["首领号令", "第 %d 次小技能起每隔 %d 次施放，预警 2.4 秒，召来一整轮最终大波。" % [int(data.get("summon_first_cast", BossRules.FINAL_WAVE_FIRST_CAST)), int(data.get("summon_cast_interval", BossRules.FINAL_WAVE_CAST_INTERVAL))]])
-	var thresholds: Array = data.major_thresholds
-	if thresholds.is_empty():
-		rows.append(["受限官印", "限制形态只能点名，无法施展强力技能与首领号令。"])
+		rows.append(["恶首号令", "第%d次小招起，每隔%d次小招施放一次。预警2.4秒，召来与今夜最后一大波相当的恶客。" % [
+			int(data.get("summon_first_cast", BossRules.FINAL_WAVE_FIRST_CAST)), int(data.get("summon_cast_interval", BossRules.FINAL_WAVE_CAST_INTERVAL))]])
+	var marks := PackedStringArray()
+	for threshold in data.major_thresholds:
+		marks.append("%d%%" % roundi(float(threshold) * 100))
+	if marks.is_empty():
+		rows.append(["受限官印", "锁链尚在，只能点卯。重判与号令须待完整形态才会施展。"])
 	else:
-		var marks: PackedStringArray = []
-		for threshold in thresholds:
-			marks.append("%d%%" % roundi(float(threshold) * 100))
 		var major: Dictionary = data.major
-		var name := String({"earth":"裂街震地", "paper":"缚愿大阵", "river":"暗河决堤", "island":"潮灯压岸", "magistrate-full":"冥府重判"}.get(id))
-		var extra := "。幸存草木另受 %.2f 秒封印" % (2.0 * BossRules.SKILL_FORCE) if id in ["paper", "magistrate-full"] else ""
-		rows.append([name, "生命降至 %s 各发动一次。预警 %.2f 秒，最多 %d 次落击，每击 %.1f 点伤害，相邻落击间隔 %.2f 秒%s。" % ["、".join(marks), float(major.warning_s), int(major.hit_count), float(major.damage_per_hit) * BossRules.SKILL_FORCE, float(major.hit_spacing_s), extra]])
-	rows.append(["常驻援军与抗性", "开战 5 秒后开始召援，按常规波次总耐久的 75% 调派。控制时长仅保留四分之一，单次至多 0.75 秒，10 秒内累计至多 1.5 秒。比例伤害每次及同源每秒上限为最大生命的 1%。"])
+		var skill_name := String({"earth":"裂街震地", "paper":"缚愿大阵", "river":"暗河决堤",
+			"island":"潮灯压岸", "magistrate-full":"冥府重判"}.get(id))
+		var extra := "幸存草木另受%.2f秒封印。" % (2.0 * force) if id in ["paper", "magistrate-full"] else ""
+		rows.append([skill_name, "生命降至%s时各发动一次。预警%.2f秒，最多落击%d处，每击%d，相邻落击间隔%.2f秒。%s" % [
+			"、".join(marks), float(major.warning_s), int(major.hit_count), roundi(float(major.damage_per_hit) * force), float(major.hit_spacing_s), extra]])
+	rows.append(["援军与抗性", "恶首出战5秒后，援军按今夜普通来客的强度接续到来。控制时长保留四分之一，单次最多0.75秒，10秒内累计最多1.5秒；比例伤害每次与同源每秒最多造成其最大生命的1%。"])
 	return rows
 
 
@@ -94,6 +103,8 @@ static func boss_portrait(id: String) -> Texture2D:
 	return _boss_portraits.get(id)
 
 const PLANTS = {
+	"herb-gourd": {"epithet":"一葫清露，救得半巷灯","story":"旧药铺门前的一只青瓷葫芦，听了一辈子问诊。入夜后，它自己摇起药叶扇，只盼这条街上的灯都能亮到天明。","quote":"先把这一口气养回来。"},
+
 	"ruin-cap": {"epithet": "一地劫火", "story": "山坳里的古芝把最后一缕雷火收在伞下。揭开封条，火就沿摊面一格一格漫开。", "quote": "先退两步。"},
 	"sky-kite": {"epithet": "乘风越过屋脊", "story": "扎鸢人把一根旧竹篾留在纸鸢里。夜里只要远处有客，那根竹篾就会抖一下，纸鸢跟着抛出瓦弹。", "quote": "远的那个，交给我。"},
 	"wish-till": {"epithet": "把退场的名字结清", "story": "这只账匣曾管过一整条街的夜账。哪一行少了一位恶客，算盘就响一声，把账结进摊主手里。", "quote": "这一笔，清了。"},
@@ -215,7 +226,7 @@ const ZOMBIES = {
 	"flinch": {"epithet": "受惊就跑", "story": "它平时贴着墙根挪，直到一支竹签把它吓离了墙。从那以后，挨一下就埋头往前冲。", "counter": "第一次受到伤害后会加快脚步。先在同一行放好后续火力。", "quote": "我本来没这么快。"},
 	"wave-herald": {"epithet": "一面破幡先到", "story": "起风时，一面旧幡会在摊头响起来。拿幡的客只管开路，每逢一大波只来一位。", "counter": "每一大波开始时出现一名。除此之外，它像普通恶客一样行走和啃食。", "quote": "诸位，进街。"},
 	"formless": {"epithet": "一团泥没有骨头", "story": "水窖漏过一场雨，留下的泥影学会了过街。竹签常穿过它，只有低头啃东西时，它才像有个固定形状。", "counter": "未啃食时，每次受击有50%概率免去这次伤害。啃食时无法闪避。", "quote": "你打中的是哪一块？"},
-	"reed-shot": {"epithet": "芦管吹过一条街", "story": "有个河边猎户用芦管吹出细针。它夜里走进一格半就停住，慢慢吹，看谁先撑不住。", "counter": "进场走过1.5格后停住，每1.2秒射击一次。同一行最先碰到的草木受到40点伤害。沉默可阻止远射。", "quote": "挡着的人，自然先挨。"},
+	"reed-shot": {"epithet": "芦管吹过一条街", "story": "有个河边猎户用芦管吹出细针。它夜里走进一格半就停住，慢慢吹，看谁先撑不住。", "counter": "进场走过1.5格后停住，每1.2秒射击一次。同一行最先碰到的草木受到40。沉默可阻止远射。", "quote": "挡着的人，自然先挨。"},
 	"ghost": {
 		"epithet": "闻着香火来的",
 		"story": "子时过后，街口总会多出几道影子。它们不记得生前叫什么，只记得夜市的味道。饿鬼走得慢，啃东西也不快，但它们从不在乎——反正天还长，摊子总会打烊。",
@@ -297,7 +308,7 @@ const ZOMBIES = {
 	"bride": {
 		"epithet": "帘开了，喜路还没走完",
 		"story": "她只坐红轿来。轿子碎了，她拾起盖头，从两个轿夫身后踏上夜市。",
-		"counter": "鬼新娘免疫爆竹、坟头菇和其他灰烬伤害。用签筒、狐火或别的持续火力守住这一路。",
+		"counter": "鬼新娘能闪避爆竹、坟头菇和其他灰烬伤害。烬翼蝉的看破能让她无法闪避；也可用签筒、狐火等持续火力守住这一路。",
 		"quote": "劳烦，让我把这段路走完。",
 	},
 	"straw": {
@@ -362,13 +373,17 @@ static func plant_rows(type: String) -> Array:
 		_row("冷却", "%s 秒" % String.num(float(d.get("cooldown", 0)), 1), "time"),
 	]
 	match type:
+		"herb-gourd":
+			rows.append(_row("治疗", "50", "hp"))
+			rows.append(_row("治疗间隔", "1.6 秒", "time"))
+			rows.append(_row("范围", "自身及本行前方3格", "desc"))
 		"ruin-cap":
-			rows.append(_row("灰烬伤害", "%d 点" % int(d.ruin.damage), "atk"))
+			rows.append(_row("灰烬伤害", "%d" % int(d.ruin.damage), "atk"))
 			rows.append(_row("爆炸范围", "以自身为中心的五行五列", "desc"))
 			rows.append(_row("引爆时间", "%s 秒" % String.num(d.ruin.fuse, 1), "time"))
 		"sky-kite":
-			rows.append(_row("抛弹伤害", "42 点", "atk"))
-			rows.append(_row("攻击间隔", "1.5 秒", "time"))
+			rows.append(_row("抛弹伤害", str(int(Upgrades.EFFECTS["sky-kite"].damage[0])), "atk"))
+			rows.append(_row("攻击间隔", "%s 秒" % String.num(float(Content.PLANTS["sky-kite"].kite.interval), 1), "time"))
 			rows.append(_row("目标", "本行距离最远的恶客", "desc"))
 		"wish-till":
 			rows.append(_row("产出", "本行每退场一名恶客，获得5香火", "gold"))
@@ -376,7 +391,7 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("产出", "每损失100耐久，获得25香火", "gold"))
 			rows.append(_row("被击毁", "额外获得25香火", "gold"))
 		"ember-cicada":
-			rows.append(_row("追踪火弹", "直击82点伤害", "atk"))
+			rows.append(_row("追踪火弹", "直击82", "atk"))
 			rows.append(_row("溅射", "0.3格内受到直击伤害的50%", "desc"))
 			rows.append(_row("攻击间隔", "1.2 秒", "time"))
 			rows.append(_row("弹药与补充", "4发，耗尽后需4.8秒补满", "time"))
@@ -474,10 +489,11 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("溅射", "0.8格内受到直击伤害的50%", "desc"))
 		"squash":
 			rows.append(_row("砸击伤害", "1800", "atk"))
-			rows.append(_row("索敌与范围", "%s 格" % String.num(Sim.SQUASH_RANGE_CELLS, 1), "desc"))
+			rows.append(_row("索敌范围", "1.2 格", "desc"))
+			rows.append(_row("砸击范围", "0.5 格", "desc"))
 			rows.append(_row("类别", "灰烬 · 一次性", "cost"))
 		"dragon":
-			rows.append(_row("近攻伤害", "14", "atk"))
+			rows.append(_row("近攻伤害", str(int(Upgrades.EFFECTS.dragon.near_damage[0])), "atk"))
 			rows.append(_row("近攻间隔", "0.25 秒", "time"))
 			rows.append(_row("范围", "本行前方3格", "desc"))
 		"lily":
@@ -511,7 +527,8 @@ static func plant_pitch(type: String) -> String:
 ## 「本事」：由数据推导的一句话说明，含基础数值与升阶方向。
 static func plant_ability(type: String) -> String:
 	const GUIDE = {
-	"ruin-cap": "落地后稍等片刻，便对周围五行五列的恶客造成灰烬伤害。用完即退场。",
+	"herb-gourd": "照料自身和前方三格内生命最低的受伤草木。进化可扩大范围、提高治疗，并在同伴满血时鼓舞。",
+	"ruin-cap": "落地后稍等片刻，便对周围五行五列的恶客造成灰烬伤害。用完即退场，原地留下60秒无法种植的坑洞。",
 	"sky-kite": "越过近处恶客，向本行距离最远的一名恶客抛弹。缄音进化可以压住恶客的特殊能力。",
 	"wish-till": "本行每有一名恶客退场，立即获得香火。催工可以提高同行草木的攻击速度。",
 	"cash-pod": "每实际损失100点耐久，立即产出25香火。被击毁时额外产出25香火。",
@@ -537,7 +554,7 @@ static func plant_ability(type: String) -> String:
 	"squash": "同行恶客走进索敌范围时，镇煞瓜便会跃起砸下。能压住落点周围聚在一起的恶客，用完即退场。",
 	"dragon": "龙首铳喷出短程气焰，打中本行近处的恶客。进化可让它仰射铜弹，或用双口同时攻近处和远处。",
 	"lily": "先在水面放一片夜莲，其他草木才有地方落脚。它只负责承载，不会攻击；水路要提前留出放夜莲的香火。",
-	"kelp": "只能种在水面。水中恶客靠近时，缠魂藻立即将其拖沉，护具再厚也拦不住。首领和免疫灰烬的恶客不会触发。"
+	"kelp": "只能种在水面。水中恶客靠近时，缠魂藻立即将其拖沉，护具再厚也拦不住。恶首不会触发；能闪避灰烬的恶客须先被看破。"
 }
 	return plant_pitch(type)+"\n"+String(GUIDE.get(type,""))
 

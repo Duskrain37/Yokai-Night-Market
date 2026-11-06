@@ -18,6 +18,7 @@ var map_key = "street"
 var dim = 0.16
 var _textures: Dictionary = {}
 var _time = 0.0
+var _effect_frames = preload("res://scripts/actor_frames.gd").new()
 var _guardian: Texture2D = null
 var mower_art: Dictionary = {}
 var obstacle_art: Dictionary = {}
@@ -25,6 +26,7 @@ var obstacle_art: Dictionary = {}
 
 func _ready() -> void:
 	z_index = 0
+	_effect_frames.load_sheets("v052-")
 	_guardian = Ui.sprite("guardian")
 	for kind in ["market", "water", "island"]:
 		for variant in [1, 2, 3]:
@@ -60,6 +62,7 @@ func _draw() -> void:
 	_draw_background()
 	_draw_stage()
 	_draw_tiles()
+	_draw_craters()
 	if show_grid:
 		_draw_grid()
 	else:
@@ -368,3 +371,13 @@ func _draw_stone_lantern(foot: Vector2, height: float, alpha: float, moving: boo
 	]), stone_hi)
 
 
+
+func _draw_craters() -> void:
+	for crater in sim.ruin_craters:
+		var at := Geo.to_screen(sim.cell_pos(int(crater.c), int(crater.r)), sim.rows)
+		var clip := "water" if not String(crater.base.get("water", "")).is_empty() else "land"
+		var remaining: float = float(crater.until) - sim.time
+		var height := Geo.cell_h(sim.rows) * 1.08
+		_effect_frames.draw_pose(self, "v052-craters", clip, sim.time * 2.0,
+			at + Vector2(0, height * 0.37), height, true,
+			Color(1, 1, 1, clampf(remaining / 0.8, 0.0, 1.0)))

@@ -102,7 +102,7 @@ func _header() -> void:
 	var detail = "%s·%s · %s · %d 大波 · 三星：一夜不动用门神" % [
 		level["day_name"],level["day_sub"],level["tag"],Content.wave_groups(level)]
 	if bool(level.get("special",false)):
-		detail="二十大波 · 每四波后迎战一位首领 · 阵容与香火保留，越往里越凶险"
+		detail="二十大波 · 每四波后迎战一位恶首 · 阵容与香火保留，越往里越凶险"
 	var danger_label=Ui.label("今夜凶险",16,Ui.TEXT_DIM)
 	danger_label.position=Vector2(1070,103);add_child(danger_label)
 	var danger=preload("res://ui/threat_meter.gd").new()

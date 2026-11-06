@@ -34,7 +34,7 @@ static func run_all(harness) -> void:
 
 
 static func _check_content(h) -> void:
-	h.check("内容", "27 种草木齐备", Content.PLANTS.size() == 27,
+	h.check("内容", "28 种草木齐备", Content.PLANTS.size() == 28,
 		"实际 %d" % Content.PLANTS.size())
 	h.check("内容", "24 种恶客齐备", Content.ZOMBIES.size() == 24,
 		"实际 %d" % Content.ZOMBIES.size())
@@ -168,7 +168,7 @@ static func _check_upgrade_rules(h) -> void:
 					detail += "%s-%d-%d=%d " % [type, path["id"], tier + 1, cost]
 				last = cost
 	h.check("升阶", "所有升阶费用都是 25 的倍数且逐阶递增", cost_ok, detail)
-	h.check("升阶", "18 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 18, detail)
+	h.check("升阶", "19 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 19, detail)
 	h.check("升阶", "签筒连发一级 100 香火",
 		Upgrades.tier_cost("shooter", 1, 1) == 100,
 		str(Upgrades.tier_cost("shooter", 1, 1)))
@@ -661,7 +661,7 @@ static func _check_cat(h) -> void:
 	burst_sim.shots.clear()
 	burst_sim.fire_cat(burst_cat, burst_target)
 	h.check("狐尾灯", "十焰：同六秒窗口不可再次触发",
-		burst_sim.shots.size() == 1 and burst_cat.ten_flames_ready_at > burst_sim.time)
+		burst_sim.shots.size() == 2 and burst_cat.ten_flames_ready_at > burst_sim.time)
 
 	# 尾数（2-1／2-2）：一轮放几团、每团多重，各追一个目标
 	var sim4 = h.sim_for(6, ["cat"], "easy")
@@ -672,26 +672,26 @@ static func _check_cat(h) -> void:
 		z.hp = 9000.0
 	hunter.timer = 1.59
 	sim4._update_cat(hunter, 0.02)
-	h.check("狐尾灯", "白板：一次只放一团 24 伤",
-		sim4.shots.size() == 1 and is_equal_approx(float(sim4.shots[0].damage), 24.0),
+	h.check("狐尾灯", "白板：一次放出两团24",
+		sim4.shots.size() == 2 and is_equal_approx(float(sim4.shots[0].damage), 24.0),
 		"%d 团 dmg=%.1f" % [sim4.shots.size(), sim4.shots[0].damage])
 	sim4.shots.clear()
 	hunter.upgrades = {1: 0, 2: 1, 3: 0}
 	hunter.timer = 1.59
 	sim4._update_cat(hunter, 0.02)
-	h.check("狐尾灯", "双尾：一次两团、各追一个、每团仍是白板 24",
-		sim4.shots.size() == 2 and sim4.shots[0].target != sim4.shots[1].target
+	h.check("狐尾灯", "双尾：一次三团、各追一个、每团仍是24",
+		sim4.shots.size() == 3 and sim4.shots[0].target != sim4.shots[1].target
 		and is_equal_approx(float(sim4.shots[0].damage), 24.0),
 		"%d 团" % sim4.shots.size())
 	sim4.shots.clear()
 	hunter.upgrades = {1: 0, 2: 2, 3: 0}
 	hunter.timer = 1.59
 	sim4._update_cat(hunter, 0.02)
-	var three = sim4.shots.size() == 3
+	var three = sim4.shots.size() == 4
 	for s2 in sim4.shots:
 		if not is_equal_approx(float(s2.damage), 30.0):
 			three = false
-	h.check("狐尾灯", "三尾：三团各吃 30", three, "%d 团" % sim4.shots.size())
+	h.check("狐尾灯", "三尾：四团各造成30", three, "%d 团" % sim4.shots.size())
 
 	# 回魂命中仍活着的目标后继续追另一名，且升级后初发四团。
 	var sim5 = h.sim_for(6, ["cat"], "easy")
@@ -705,8 +705,8 @@ static func _check_cat(h) -> void:
 	second.hp = 5000.0
 	reaver.timer = 1.59
 	sim5._update_cat(reaver, 0.02)
-	h.check("狐尾灯", "回魂：升到2-3时一轮放出四团",
-		sim5.shots.size() == 4 and int(sim5.shots[0].hits_left) == 2)
+	h.check("狐尾灯", "回魂：升到2-3时一轮放出五团",
+		sim5.shots.size() == 5 and int(sim5.shots[0].hits_left) == 2)
 	for i in 420:
 		sim5.update_shots(1.0 / 60.0)
 	h.check("狐尾灯", "回魂：无需击杀首名即可追击另一名",
@@ -729,7 +729,7 @@ static func _check_cat(h) -> void:
 	near.max_hp = 9000.0
 	near.hp = 9000.0
 	_cat_land(sim8, marker, 1, marked)
-	h.check("狐尾灯", "深印改为10%易伤", is_equal_approx(marked.vuln, 0.10) and near.hp == 9000.0)
+	h.check("狐尾灯", "深印改为10%易伤且另一团可直接打到旁客", is_equal_approx(marked.vuln, 0.10) and near.hp < 9000.0)
 
 	# 锁魂（3-3）：三层消耗记号，定身 0.6 秒、2 秒内全队易伤 20%；大型只吃 0.2 秒
 	var sim9 = h.sim_for(6, ["cat"], "easy")
@@ -1364,7 +1364,7 @@ static func _check_ledger(h) -> void:
 	var shifter = Game.new()
 	shifter.run_mode = "normal"
 	shifter.apply_speed(0.1)
-	h.check("设置", "正式局把 0.1× 抬到 1×", is_equal_approx(shifter.speed, 1.0),
+	h.check("设置", "正式局直接支持0.1倍速", is_equal_approx(shifter.speed, 0.1),
 		str(shifter.speed))
 	shifter.run_mode = "training"
 	shifter.apply_speed(0.1)
@@ -1636,14 +1636,14 @@ static func _check_v042_cards_and_guests(h) -> void:
 	var beyond = sim.spawn_zombie("ghost", 1, {"x": dragon.pos.x + 3.1 * Geo.CELL_W})
 	var armor = enemy.armor
 	sim._update_dragon(dragon, 0.25)
-	h.check("龙首铳", "基础只打前方3格，每0.25秒14伤",
-		is_equal_approx(armor - enemy.armor, 14.0) and beyond.hp == beyond.max_hp)
+	h.check("龙首铳", "基础只打前方3格，每0.25秒12",
+		is_equal_approx(armor - enemy.armor, 12.0) and beyond.hp == beyond.max_hp)
 	dragon.upgrades[2] = 3
 	var body = enemy.hp
 	armor = enemy.armor
 	sim._update_dragon(dragon, 0.25)
-	h.check("龙首铳", "三级近攻同时打本体和护具各32",
-		is_equal_approx(armor - enemy.armor, 32.0) and is_equal_approx(body - enemy.hp, 32.0))
+	h.check("龙首铳", "三级近攻同时打本体和护具各30",
+		is_equal_approx(armor - enemy.armor, 30.0) and is_equal_approx(body - enemy.hp, 30.0))
 	enemy.dead = true
 	dragon.upgrades = {1: 0, 2: 0, 3: 1}
 	sim._update_dragon(dragon, 2.0)

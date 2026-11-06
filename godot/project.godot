@@ -7,7 +7,7 @@ config_version=5
 
 config/name="妖怪夜市"
 config/description="中式夜市题材车道塔防 · 三天十五夜"
-config/version="0.5.1"
+config/version="0.5.2"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://assets/icon.png"

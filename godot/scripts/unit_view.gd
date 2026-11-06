@@ -6,6 +6,7 @@ extends Node2D
 
 const ActorFrames = preload("res://scripts/actor_frames.gd")
 var _actor_frames = ActorFrames.new()
+var _effect_frames = ActorFrames.new()
 var sim: Sim = null
 var health_bars = "bar"
 var tier_shapes := false
@@ -19,14 +20,28 @@ var _armor_atlas: Dictionary = {}
 var _evolve_textures: Dictionary = {}
 var _growth_textures: Dictionary = {}
 var _guest_gear: Dictionary = {}
+var _face_pins: Dictionary = {}
+var _profile_armor: Dictionary = {}
 
 
 func _ready() -> void:
 	z_index = 10
 	_actor_frames.load_sheets()
+	_effect_frames.load_sheets("v052-")
+	if FileAccess.file_exists("res://data/actor_attachment_pins.json"):
+		_face_pins = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_attachment_pins.json"))
 	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	for stage in [1, 2, 3]:
 		_growth_textures[stage] = load("res://assets/sprites/mushroom-growth-%d.png" % stage)
+	var profile_data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/armor_profiles_v052.json"))
+	var gear_sheet: Texture2D = load("res://" + String(profile_data.file))
+	for key in profile_data.frames:
+		var region: Array = profile_data.frames[key]
+		var frame := AtlasTexture.new()
+		frame.atlas = gear_sheet
+		frame.region = Rect2(region[0], region[1], region[2], region[3])
+		frame.filter_clip = true
+		_profile_armor[key] = frame
 	# Import once before drawing. Loading textures inside _draw can produce white rectangles.
 	for art in ["straw", "stonehat", "paper", "sedan", "urn", "mask"]:
 		var path = "res://assets/sprites/armor-%s-atlas.png" % art
@@ -343,6 +358,10 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 		_sprite(texture, foot + Vector2(recoil, bob), height, false, tint, sway, squash)
 	if hp_ratio < 0.4:
 		_draw_wounds(foot + Vector2(recoil, bob), height, 1.0 - hp_ratio / 0.4)
+	if plant.buff_damage > 0.0 or plant.haste > 0.0:
+		var fade := 0.42 + 0.10 * sin(sim.time * 2.5 + plant.phase)
+		_effect_frames.draw_pose(self, "v052-plant-fx", "blessing", sim.time * 2.2 + plant.phase,
+			foot + Vector2(0, 14), height * 0.85, false, Color(1, 1, 1, fade))
 	_draw_shell(plant, foot, height)
 	_draw_upgrade_pips(plant, foot, height)
 	_draw_upgrade_dot(plant, foot, height)
@@ -403,6 +422,10 @@ func _draw_dragon(plant: Sim.Plant, foot: Vector2, height: float, tint: Color) -
 		var travel = clampf(near_age / 0.21, 0.0, 1.0)
 		var end = Vector2(tip.x, mouth.y + 8.0)
 		var front = mouth.lerp(end, minf(1.0, 0.32 + travel * 1.1))
+		for index in 5:
+			var pos := mouth.lerp(front, (index + 0.5) / 5.0)
+			_effect_frames.draw_pose(self, "v052-projectiles", "beam", travel * 3.99 + index * 0.1,
+				pos + Vector2(0, 16), 33.0, false, Color(1, 1, 1, 0.7 * (1.0 - travel)))
 		for i in 3:
 			var offset = Vector2(0, (i - 1) * 6.0)
 			draw_line(mouth + offset, front + offset * 2.0,
@@ -411,6 +434,8 @@ func _draw_dragon(plant: Sim.Plant, foot: Vector2, height: float, tint: Color) -
 
 
 func _draw_sleep(foot: Vector2, height: float) -> void:
+	_effect_frames.draw_pose(self, "v052-plant-fx", "sleep", sim.time * 2.8,
+		foot + Vector2(0, -height * 0.3), height * 0.86, false, Color(1, 1, 1, 0.82))
 	var center = foot - Vector2(0, height * 0.58)
 	_draw_glow(center, height * 0.62, Color(0.62, 0.49, 0.82, 0.20))
 	for i in 3:
@@ -636,13 +661,13 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	var cabin_drawn = false
 	if z.type == "sedan" and z.armor > 0.0 and not z.dying:
 		var cabin_actor = "sedan-loaded" if z.sedan_has_bride else "sedan-empty"
-		var cabin_foot = frame_foot + Vector2(0, -height * 0.68)
+		var cabin_foot = frame_foot
 		cabin_drawn = _actor_frames.draw_pose(self, cabin_actor, clip, frame, cabin_foot,
-			height * 0.92, z.reverse_t <= 0.0, tint)
+			height * 1.65, z.reverse_t <= 0.0, tint)
 		if cabin_drawn and z.armor < z.max_armor * 0.66:
 			_draw_wounds(cabin_foot, height * 0.65, 0.65 if z.armor < z.max_armor * 0.33 else 0.32)
-	var drawn = false
-	if not z.dying or (z.type == "sedan" and z.split_done):
+	var drawn = cabin_drawn
+	if not cabin_drawn and (not z.dying or (z.type == "sedan" and z.split_done)):
 		if swimming and (z.water_entry_t > 0.0 or z.raft_sink_t > 0.0):
 			var entry = smoothstep(0.0, 0.44, 0.68 - z.water_entry_t) if z.raft_sink_t <= 0.0 else 1.0 - z.raft_sink_t / 0.52
 			_actor_frames.draw_pose(self, actor, "walk", frame,
@@ -779,6 +804,9 @@ func _sprite_content(key: String, texture: Texture2D) -> Rect2:
 
 
 func _armor_texture(art: String, tier: int) -> Texture2D:
+	var profile_key := "%s-%d" % [art, tier]
+	if _profile_armor.has(profile_key):
+		return _profile_armor[profile_key]
 	if _guest_gear.has(art):
 		return _guest_gear[art]
 	var key = "%s-%d" % [art, tier]
@@ -853,10 +881,13 @@ func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
 		tint = Color(tint.r + 0.4 * z.armor_pulse, tint.g + 0.35 * z.armor_pulse,
 			tint.b + 0.25 * z.armor_pulse, tint.a)
 	if face != Vector2.INF:
-		var face_width = actor_height * (0.24 if art == "mask" else 0.36)
-		var size = content.size * (face_width / maxf(1.0, content.size.x))
-		draw_texture_rect_region(texture, Rect2(face - size * Vector2(0.5, 0.49), size),
-			content, tint)
+		var ratios := {"mask": 0.24, "urn": 0.36, "straw": 0.58, "stonehat": 0.48, "paper": 0.42}
+		var face_width := actor_height * float(ratios.get(art, 0.36))
+		var size: Vector2 = content.size * (face_width / maxf(1.0, content.size.x))
+		var vertical := 0.88 if art in ["straw", "stonehat"] else 0.52
+		draw_set_transform(face, 0.0, Vector2(-1.0 if z.reverse_t > 0.0 else 1.0, 1.0))
+		draw_texture_rect_region(texture, Rect2(-size * Vector2(0.5, vertical), size), content, tint)
+		draw_set_transform(Vector2.ZERO)
 		return
 	var body_scale = height / maxf(1.0, body_size.y)
 	draw_set_transform(animated_foot, rotation, Vector2(-body_scale, body_scale) * squash)
@@ -882,7 +913,7 @@ const ARMOR_FACE_KEYS = {
 
 func _armor_face(z: Sim.Zombie, clip: String, key_position: float, foot: Vector2,
 		height: float) -> Vector2:
-	var pins: Array = ARMOR_FACE_KEYS.get(z.type, {}).get(clip, [])
+	var pins: Array = _face_pins.get(z.type, ARMOR_FACE_KEYS.get(z.type, {})).get(clip, [])
 	if pins.is_empty() or height <= 0.0:
 		return Vector2.INF
 	var info: Dictionary = _actor_frames.catalog[z.type]
@@ -1112,18 +1143,18 @@ func _draw_shots() -> void:
 			continue
 		var at = Geo.to_screen(shot.pos)
 		var look = String(shot.look)
+		if look in ["kite", "firework"] or (shot.kind == "lob" and shot.src == "lobber"):
+			var clip: String = "dumpling" if shot.src == "lobber" else look
+			var sprite_height := 26.0 if clip != "firework" else 23.0
+			var left := bool(shot.payload.get("bounced", false))
+			_effect_frames.draw_pose(self, "v052-projectiles", clip, sim.time * 7.0,
+				at + Vector2(0, sprite_height * 0.45), sprite_height, left, Color.WHITE)
+			continue
 		match look if look != "" else String(shot.kind):
 			"dragon_1", "dragon_2", "dragon_3":
 				_draw_dragon_round(at, int(look.right(1)))
-			"firework":
-				_draw_glow(at - Vector2(5, -3), 12.0, Color(1, 0.5, 0.18, 0.55))
-				draw_line(at - Vector2(10, -5), at + Vector2(5, -3), Color("#a33828"), 7.0, true)
-				draw_line(at - Vector2(4, -2), at, Color("#efbf6a"), 6.0, true)
-				draw_circle(at - Vector2(11, -6), 2.7, Color("#ffe7a9"))
 			"ember":
 				_draw_ember_round(at)
-			"kite":
-				_draw_dragon_round(at, 2 if not shot.big else 3)
 			"coin":
 				draw_circle(at, 6.0, Color("#daa955"))
 				draw_rect(Rect2(at - Vector2(1.5, 1.5), Vector2(3, 3)), Color("#4f3929"))
@@ -1252,6 +1283,8 @@ func _draw_shovel_lift(event: Dictionary, remaining: float) -> void:
 func _draw_capstone_seal(event: Dictionary, age: float) -> void:
 	var flat := Vector2(event["x"], event["y"]) + Vector2(0, Geo.cell_h(sim.rows) * 0.30)
 	var foot := Geo.to_screen(flat, sim.rows)
+	_effect_frames.draw_pose(self, "v052-plant-fx", "ascend", age * 3.99,
+		foot + Vector2(0, 12), 168.0, false, Color(1, 1, 1, sin(PI * age)))
 	var path: Color = event["color"]
 	var gold := Ui.GOLD_BRIGHT.lerp(path, 0.36)
 	var fade := smoothstep(0.0, 0.15, age) * (1.0 - smoothstep(0.38, 1.0, age))
@@ -1278,6 +1311,10 @@ func _draw_particles() -> void:
 		var color: Color = p["color"]
 		var pos = Geo.to_screen(Vector2(float(p["x"]), float(p["y"])))
 		match String(p["kind"]):
+			"magic":
+				var effect := String(p.effect)
+				_effect_frames.draw_pose(self, "v052-plant-fx", effect, (1.0 - k) * 3.99,
+					pos, float(p.size), false, Color(1, 1, 1, minf(1.0, k * 3.0)))
 			"shovel_lift":
 				_draw_shovel_lift(p, k)
 			"capstone_seal":

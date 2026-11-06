@@ -45,3 +45,9 @@ python tools/register_actor_atlas.py new-guest "C:/art/new-guest.png" walk,attac
 先看脚底与轮廓有无跳动、动作是否在技能触发时读得清，再看近远两行、遮挡和破损。烟花与推风的落点须与模拟一致；水路帧脚部收在水线下；Boss 闪影末帧和碰撞占行必须同时切换。动画自检会验证透明图集可加载、帧区域有效，以及每组 32 帧至少四分之三的画面不同。实机还应逐段查看手脚和护具是否重影。
 
 参考：[Godot 的 2D 骨骼文档](https://docs.godotengine.org/en/stable/tutorials/animation/2d_skeletons.html)。
+
+## v0.5.2 新资源
+
+回春葫本体及 e1/e2/e3 独立形态使用同一套 upright 范式，每种包含 idle/action 各32帧。十二套常规恶客与轿厢改为朝左侧身，游泳与攻击分别绘制。特殊异形维持原轮廓。护具的逐姿势头部锚点存于 `data/actor_attachment_pins.json`，侧身面具与陶瓮战损图存于 `data/armor_profiles_v052.json`；不得使用固定胸前位置替代。
+
+`v052-boss-fx` 六组施法、`v052-plant-fx` 五组治疗与状态、`v052-projectiles` 四组射弹、`v052-craters` 两类坑洞均注册到动作清单，运行32帧图集。特效帧采用稳定格心锚点，禁止随亮区包围盒漂移。轿厢图已含两名轿夫，完整轿厢显示时不再叠画额外轿夫。原始提示词与来源记录见 `data/v052_art_prompts.json`、`data/v052_guest_art_prompts.json`。

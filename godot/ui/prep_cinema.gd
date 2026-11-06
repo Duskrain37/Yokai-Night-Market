@@ -36,6 +36,7 @@ func _ready() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--cinema-t="):
 			t = float(arg.trim_prefix("--cinema-t="))
+	zombie_types = preview_roster(level, zombie_types)
 	_fonts_ready = true
 
 
@@ -206,7 +207,7 @@ func _draw_lineup() -> void:
 		draw_set_transform(Vector2(x, y + 6), 0.0, Vector2(1.0, 0.3))
 		draw_circle(Vector2.ZERO, 40.0, Color(0, 0, 0, 0.45 * a))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		var texture := Ui.sprite(type)
+		var texture := Almanac.boss_portrait(type.trim_prefix("boss-")) if type.begins_with("boss-") else Ui.sprite(type)
 		if texture != null:
 			var size := texture.get_size()
 			var height := 132.0
@@ -218,9 +219,9 @@ func _draw_lineup() -> void:
 		if p > 0.55:
 			var ta := (p - 0.55) / 0.45
 			var def: Dictionary = Content.ZOMBIES.get(type, {})
-			_draw_center(Ui.medium_font(), String(def.get("name", type)), 17,
+			_draw_center(Ui.medium_font(), Almanac.boss_name(type.trim_prefix("boss-")) if type.begins_with("boss-") else String(def.get("name", type)), 17,
 				Vector2(x, y + 30.0), Color(0.94, 0.86, 0.69, ta * (1.0 - fade)))
-			_draw_center(Ui.body_font(), Content.tier_label(String(def.get("tier", "l"))),
+			_draw_center(Ui.body_font(), "恶首" if type.begins_with("boss-") else Content.tier_label(String(def.get("tier", "l"))),
 				11, Vector2(x, y + 48.0), Color(0.91, 0.83, 0.64, 0.55 * ta * (1.0 - fade)))
 
 
@@ -250,3 +251,20 @@ func _draw_center(font: Font, text: String, size: int, center: Vector2,
 	draw_string(font, pos + Vector2(1.5, 2.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1,
 		size, Color(0, 0, 0, color.a * 0.6))
 	draw_string(font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
+
+static func preview_roster(stage: Dictionary, guests: Array) -> Array:
+	var result: Array = []
+	var bosses: Array = stage.get("boss_checkpoints", []).duplicate()
+	for key in ["mid_boss", "boss_id"]:
+		var id := String(stage.get(key, ""))
+		if not id.is_empty() and not bosses.has(id):
+			bosses.append(id)
+	for id in bosses:
+		result.append("boss-" + String(id))
+	for tier in ["l", "m", "h"]:
+		var count := 0
+		for type in guests:
+			if Content.ZOMBIES.get(type, {}).get("tier", "") == tier and count < 3:
+				result.append(type)
+				count += 1
+	return result

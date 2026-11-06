@@ -12,6 +12,7 @@ func _ready() -> void:
 	_backdrop()
 	_title_block()
 	_menu_buttons()
+	_information_button()
 	_records_card()
 	_decor()
 	_petals_setup()
@@ -359,3 +360,15 @@ func _draw_petals() -> void:
 		_petal_layer.draw_circle(Vector2.ZERO, s,
 			Color(1.0, 0.72, 0.78, 0.34))
 		_petal_layer.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func _information_button() -> void:
+	var button := Ui.button("i", 26, 48, 48)
+	button.position = Vector2(1496, 40)
+	button.tooltip_text = "查看本版更新公告"
+	button.add_theme_font_override("font", Ui.medium_font())
+	button.add_theme_stylebox_override("normal", Ui.flat(Color("#18252a"), Ui.GOLD_DIM, 24, 2))
+	button.add_theme_stylebox_override("hover", Ui.flat(Color("#34413b"), Ui.GOLD_BRIGHT, 24, 2))
+	button.add_theme_color_override("font_color", Ui.GOLD_BRIGHT)
+	button.pressed.connect(game.open_news)
+	add_child(button)

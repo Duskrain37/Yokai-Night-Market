@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
-  "status": "integrated_v0.4.1",
+  "schema_version": 2,
+  "status": "integrated_v0.5.2",
   "difficulty": "normal",
   "time_unit": "game_seconds",
   "index_base": 1,
@@ -66,12 +66,12 @@
           "heavy": 0
         }
       },
-      "destruction_budget": 2,
-      "entry_incense": 150,
+      "destruction_budget": 4,
+      "entry_incense": 0,
       "major": {
         "warning_s": 2.4,
-        "hit_spacing_s": 0.75,
-        "hit_count": 3,
+        "hit_spacing_s": 0.6,
+        "hit_count": 5,
         "damage_per_hit": 240,
         "max_kills_per_cast": 1,
         "settle_s": 0.6,
@@ -98,7 +98,9 @@
         ],
         "summon_role": "light",
         "exit_fx_min_column": 6
-      }
+      },
+      "module": "双穴裂街",
+      "module_duration_scale": 1.25
     },
     {
       "id": "paper",
@@ -126,12 +128,12 @@
           "heavy": 10
         }
       },
-      "destruction_budget": 3,
-      "entry_incense": 200,
+      "destruction_budget": 6,
+      "entry_incense": 0,
       "major": {
         "warning_s": 2.6,
-        "hit_spacing_s": 0.5,
-        "hit_count": 2,
+        "hit_spacing_s": 0.4,
+        "hit_count": 3,
         "damage_per_hit": 320,
         "max_kills_per_cast": 1,
         "settle_s": 0.6,
@@ -157,7 +159,9 @@
           11
         ],
         "summon_role": "armor"
-      }
+      },
+      "module": "三符双渡",
+      "module_duration_scale": 1.25
     },
     {
       "id": "river",
@@ -185,12 +189,12 @@
           "heavy": 15
         }
       },
-      "destruction_budget": 4,
-      "entry_incense": 250,
+      "destruction_budget": 7,
+      "entry_incense": 0,
       "major": {
         "warning_s": 2.8,
-        "hit_spacing_s": 0.65,
-        "hit_count": 3,
+        "hit_spacing_s": 0.52,
+        "hit_count": 5,
         "damage_per_hit": 360,
         "max_kills_per_cast": 1,
         "settle_s": 0.6,
@@ -207,7 +211,9 @@
         "damage": 300,
         "stop_at_column": 3,
         "max_major_wait_s": 3
-      }
+      },
+      "module": "并潮双蟹",
+      "module_duration_scale": 1.25
     },
     {
       "id": "island",
@@ -233,26 +239,28 @@
           "heavy": 5
         }
       },
-      "destruction_budget": 4,
-      "entry_incense": 225,
+      "destruction_budget": 7,
+      "entry_incense": 0,
       "small_skill": {
         "kind": "tide_surge",
         "label": "提灯引潮",
         "warning": 2.0,
-        "targets": 2,
+        "targets": 3,
         "damage": 260,
         "seal_s": 1.0,
         "first_column": 4
       },
       "major": {
         "warning_s": 3.1,
-        "hit_count": 4,
+        "hit_count": 6,
         "damage_per_hit": 840,
-        "hit_spacing_s": 0.55
+        "hit_spacing_s": 0.44000000000000006
       },
       "summon_final": true,
       "summon_first_cast": 5,
-      "summon_cast_interval": 8
+      "summon_cast_interval": 8,
+      "module": "回潮惊灯",
+      "module_duration_scale": 1.25
     },
     {
       "id": "magistrate-bound",
@@ -275,13 +283,13 @@
           "heavy": 5
         }
       },
-      "destruction_budget": 1,
-      "entry_incense": 100,
+      "destruction_budget": 2,
+      "entry_incense": 0,
       "small_skill": {
         "kind": "verdict",
         "label": "点名",
         "warning": 2.5,
-        "targets": 1,
+        "targets": 2,
         "damage": 170,
         "seal_s": 1.5
       },
@@ -289,9 +297,11 @@
         "warning_s": 0,
         "hit_count": 0,
         "damage_per_hit": 0,
-        "hit_spacing_s": 0.55
+        "hit_spacing_s": 0.44000000000000006
       },
-      "summon_final": false
+      "summon_final": false,
+      "module": "双印点卯",
+      "module_duration_scale": 1.25
     },
     {
       "id": "magistrate-full",
@@ -318,26 +328,28 @@
           "heavy": 5
         }
       },
-      "destruction_budget": 5,
-      "entry_incense": 300,
+      "destruction_budget": 9,
+      "entry_incense": 0,
       "small_skill": {
         "kind": "verdict",
         "label": "鬼印点卯",
         "warning": 2.0,
-        "targets": 3,
+        "targets": 5,
         "damage": 310,
         "seal_s": 2.4,
         "first_column": 4
       },
       "major": {
         "warning_s": 3.0,
-        "hit_count": 5,
+        "hit_count": 8,
         "damage_per_hit": 1050,
-        "hit_spacing_s": 0.55
+        "hit_spacing_s": 0.44000000000000006
       },
       "summon_final": true,
       "summon_first_cast": 5,
-      "summon_cast_interval": 8
+      "summon_cast_interval": 8,
+      "module": "墨罚重判",
+      "module_duration_scale": 1.25
     }
   ],
   "calibration": "qa/boss-balance.json: normal, three supplied legal upgrade profiles, three seeds each (27 runs); reference target 105–135 seconds, not human playtest"

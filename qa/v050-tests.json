@@ -41,19 +41,19 @@
       "ok": true
     },
     {
+      "name": "岛上禁种格 1,3",
+      "ok": true
+    },
+    {
+      "name": "岛上禁种格 1,5",
+      "ok": true
+    },
+    {
       "name": "岛上禁种格 1,8",
       "ok": true
     },
     {
-      "name": "岛上禁种格 2,5",
-      "ok": true
-    },
-    {
-      "name": "岛上禁种格 2,7",
-      "ok": true
-    },
-    {
-      "name": "岛上禁种格 3,4",
+      "name": "岛上禁种格 2,3",
       "ok": true
     },
     {
@@ -65,7 +65,7 @@
       "ok": true
     },
     {
-      "name": "岛上禁种格 4,2",
+      "name": "岛上禁种格 4,3",
       "ok": true
     },
     {
@@ -1813,27 +1813,27 @@
       "ok": true
     },
     {
-      "name": "earth 有首领图鉴头像和技能数据",
+      "name": "earth 有恶首图鉴头像和技能数据",
       "ok": true
     },
     {
-      "name": "paper 有首领图鉴头像和技能数据",
+      "name": "paper 有恶首图鉴头像和技能数据",
       "ok": true
     },
     {
-      "name": "river 有首领图鉴头像和技能数据",
+      "name": "river 有恶首图鉴头像和技能数据",
       "ok": true
     },
     {
-      "name": "island 有首领图鉴头像和技能数据",
+      "name": "island 有恶首图鉴头像和技能数据",
       "ok": true
     },
     {
-      "name": "magistrate-bound 有首领图鉴头像和技能数据",
+      "name": "magistrate-bound 有恶首图鉴头像和技能数据",
       "ok": true
     },
     {
-      "name": "magistrate-full 有首领图鉴头像和技能数据",
+      "name": "magistrate-full 有恶首图鉴头像和技能数据",
       "ok": true
     }
   ],

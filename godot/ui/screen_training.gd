@@ -31,7 +31,7 @@ func _build() -> void:
 	var title = Ui.title("训练与教程", 48, Ui.GOLD_BRIGHT)
 	title.position = Vector2(96, 100)
 	add_child(title)
-	var sub = Ui.label("教程只教一盏灯、一筒签、一座磨；训练场没有波次，也不写存档。",
+	var sub = Ui.label("先跟着教程学会守夜，再到训练场试一试自己的搭配。",
 		18, Ui.TEXT_DIM)
 	sub.position = Vector2(100, 164)
 	add_child(sub)
@@ -67,7 +67,7 @@ func _build() -> void:
 		text.custom_minimum_size = Vector2(560, 0)
 		line.add_child(text)
 	box.add_child(Ui.spacer(6))
-	box.add_child(Ui.label("约三分钟；教程里的一倍速不会变，慢慢看。", 15, Ui.TEXT_FAINT))
+	box.add_child(Ui.label("约三分钟。看不清时，可在战场右上角放慢节奏。", 15, Ui.TEXT_FAINT))
 	var start_tutorial = Ui.button("开始教程", 22, 600, 56)
 	start_tutorial.pressed.connect(func():
 		game.loadout = ["shooter"]
@@ -98,10 +98,13 @@ func _build() -> void:
 		box2.add_child(text)
 	box2.add_child(Ui.spacer(6))
 	box2.add_child(Ui.label("选一张地图开始：", 16, Ui.TEXT_DIM))
-	var days = Ui.hbox(10)
+	var days = GridContainer.new()
+	days.columns = 3
+	days.add_theme_constant_override("h_separation", 10)
+	days.add_theme_constant_override("v_separation", 10)
 	box2.add_child(days)
 	for day_index in Content.DAYS.size():
 		var day: Dictionary = Content.DAYS[day_index]
-		var button = Ui.button("%s·%s" % [day["name"], day["sub"]], 17, 190, 48)
+		var button = Ui.button("%s·%s" % [day["name"], day["sub"]], 16, 193, 48)
 		button.pressed.connect(_start_training_day.bind(day_index + 1))
 		days.add_child(button)

@@ -54,12 +54,12 @@ func player_feedback_regressions() -> void:
 
  var melon = sim.place_free("squash", 3, 3)
  var lead = sim.spawn_zombie("ghost", 3, {"x": melon.pos.x + 1.1 * Geo.CELL_W})
- var extra = sim.spawn_zombie("ghost", 3, {"x": lead.pos.x + 1.1 * Geo.CELL_W})
- var far = sim.spawn_zombie("ghost", 3, {"x": lead.pos.x + 1.3 * Geo.CELL_W})
+ var extra = sim.spawn_zombie("ghost", 3, {"x": lead.pos.x + 0.45 * Geo.CELL_W})
+ var far = sim.spawn_zombie("ghost", 3, {"x": lead.pos.x + 0.55 * Geo.CELL_W})
  sim._update_squash(melon)
  sim.time += 0.60
  sim._update_squash(melon)
- check("镇煞瓜在1.2格内触发并砸中落点边缘，范围外不受伤",
+ check("镇煞瓜在1.2格内触发，落点只伤及半格内",
   melon.dead and not lead.alive() and not extra.alive() and far.alive())
 
  sim.setup(Content.get_level(11), ["kelp"], "easy")
@@ -92,7 +92,7 @@ func player_feedback_regressions() -> void:
  sim.setup(Content.get_level(15), ["shooter"], "easy")
  for wave_index in range(2, 3 * Content.WAVES_PER_GROUP):
   sim.queue_roster(sim.level.waves[wave_index], -1, 1.0, false, true)
- check("首领已入场后，援军可使用原本的高阶来客",
+ check("恶首已入场后，援军可使用原本的高阶来客",
   sim.spawn_queue.any(func(entry): return Content.ZOMBIES[entry.type].tier == "h"))
  for mode in ["easy", "normal", "hard"]:
   sim.setup(Content.get_level(1), ["shooter"], mode)
@@ -162,7 +162,7 @@ func v051_content_regressions() -> void:
  far.guest_special_at = sim.time
  sim._tick_guest_special(far)
  check("逐云鸢实际命中后减速并沉默巡相师，期间无法召唤",
-  is_equal_approx(far.slow_amount, 0.30) and far.silence_until == sim.time + 2.0 and sim.pending_spawns.is_empty())
+  is_equal_approx(far.slow_amount, 0.30) and far.silence_until == sim.time + 2.5 and sim.pending_spawns.is_empty())
  var till = sim.place_free("wish-till", 4, 2)
  till.upgrades[2] = 3
  till.upgrades[3] = 2
@@ -189,12 +189,11 @@ func v051_content_regressions() -> void:
  sim.time = ember.ember_ready_at
  sim._update_ember(ember, 0.01)
  check("烬翼蝉蓄火结束补满四发并可立即出手", sim.shots.size() == 5 and ember.ember_ammo == 3)
- ember.upgrades[3] = 3
+ ember.upgrades = {1: 0, 2: 3, 3: 2}
  var dying = sim.spawn_zombie("ghost", 2, {"x": ember.pos.x + 40.0})
- dying.hp = 0.2
- sim.apply_burn(dying, 2.5, 40.0, "ember-cicada", ember.uid)
- sim.update_zombies(0.02)
- check("烬翼蝉点燃击杀只返还给原本发射的草木", ember.ember_ammo == 4 and ember.timer >= 0.6)
+ dying.hp = 20
+ sim.damage_zombie(dying, 40, false, false, "ember-cicada", "", false, "homing", ember.uid)
+ check("烬翼蝉击杀只返还给原本发射的草木", ember.ember_ammo == 4 and ember.timer >= 0.4)
  sim.setup(Content.get_level(1), ["shooter", "wall"], "easy")
  var flinch = sim.spawn_zombie("flinch", 0, {"x": 900.0})
  var slow: float = flinch.speed
@@ -243,7 +242,7 @@ func v051_content_regressions() -> void:
   for type in picks:
    ranks[type] = Content.tip_rank(map, type)
   check("%s 的全部草木各有明确推荐顺位" % map,
-   picks.size() == 27 and ranks.size() == 27 and not ranks.values().has(999))
+   picks.size() == 28 and ranks.size() == 28 and not ranks.values().has(999))
   for type in picks.slice(0, 10):
    featured[type] = true
  check("五株新草木各有适合入选推荐前十的地图",
@@ -311,7 +310,7 @@ func run() -> void:
   check("第%d夜来客换班保留数量和耐久预算" % int(level.id), mass_kept)
   if String(level.boss_id) != "":
    var eligible: Array = Content.ZOMBIE_ORDER.filter(func(type): return type not in ["bride", "wave-herald"] and (type != "reedboat" or level.day == 3))
-   check("第%d夜首领前各路合法恶客齐全" % int(level.id), eligible.all(func(type): return before_boss.has(type)))
+   check("第%d夜恶首前各路合法恶客齐全" % int(level.id), eligible.all(func(type): return before_boss.has(type)))
  var loss = {"called": false}
  sim.on_lose = func(_z): loss.called = true
  var first = sim.spawn_zombie("ghost", 0, {"x": Geo.BREACH_X - 1.0})
@@ -344,11 +343,10 @@ func run() -> void:
  game.hud._tool_cheat.emit_signal("pressed")
  await process_frame
  check("点击作弊后面板即刻出现", game.hud.cheat_open and is_instance_valid(game.hud._cheat_panel) and game.hud._cheat_panel.visible)
- check("正式局第一次打开作弊默认慢放且计为调整", game.hud.slow_battle and game.speed == 0.1 and game.sim.cheated)
- var slow = button_named(game.hud._cheat_panel, "常规战斗 0.1× · 已开")
- if slow != null: slow.pressed.emit()
- await process_frame
- check("关闭慢放立即恢复常规速度", not game.hud.slow_battle and game.speed >= 1.0)
+ check("正式局打开作弊保持一倍速", game.speed == 1.0 and not game.sim.cheated)
+ check("作弊菜单没有慢速开关", button_named(game.hud._cheat_panel, "常规战斗 0.1× · 已开") == null)
+ game.hud._set_speed(0.1)
+ check("右上角可即时切到0.1倍速", game.speed == 0.1 and not game.sim.cheated)
  var old_sun = game.sim.sun
  var add = button_named(game.hud._cheat_panel, "香火 +500")
  check("作弊面板有香火按钮", add != null)
@@ -365,10 +363,10 @@ func run() -> void:
   game.show_prep((boss_index + 1) * 5)
   game.screen_node.skip_cinema()
   await process_frame
-  check("%s可从备战出没名单打开首领录" % Almanac.boss_name(id), Almanac.boss_portrait(id) != null)
+  check("%s可从备战出没名单打开恶首录" % Almanac.boss_name(id), Almanac.boss_portrait(id) != null)
   game.screen_node.open_zombie_almanac("boss-" + id)
   await process_frame
-  check("%s首领录有对应页" % Almanac.boss_name(id), game.screen_node.tab == "boss" and game.screen_node.index == boss_index)
+  check("%s恶首录有对应页" % Almanac.boss_name(id), game.screen_node.tab == "boss" and game.screen_node.index == boss_index)
  game.show_prep(1)
  game.screen_node.skip_cinema()
  await process_frame
@@ -385,7 +383,7 @@ func run() -> void:
  check("教程第六步呈现图鉴入口", book != null and book.visible)
  var help = button_named(game.hud, "试用救急菜单")
  if help != null: help.pressed.emit()
- check("新手课可安全试用救急菜单", game.hud.cheat_open and not game.hud.slow_battle and game.speed == 1.0)
+ check("新手课可安全试用救急菜单", game.hud.cheat_open and game.speed == 1.0)
  game.hud._toggle_cheat()
  book.pressed.emit()
  await process_frame

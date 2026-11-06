@@ -2,6 +2,7 @@
 extends Node2D
 const ActorFrames = preload("res://scripts/actor_frames.gd")
 var actor_frames = ActorFrames.new()
+var skill_frames = ActorFrames.new()
 var sim: Sim
 var textures: Dictionary={}
 var sheets: Dictionary={}
@@ -9,12 +10,15 @@ var frames: Dictionary={}
 var font: Font
 var _boss_ref: WeakRef
 var _pose="idle"
+var _last_boss = null
+var _defeated_boss = null
 var _previous="idle"
 var _pose_at=0.0
 
 func _ready() -> void:
 	z_index=20
 	actor_frames.load_sheets("boss-")
+	skill_frames.load_sheets("v052-")
 	font=Ui.body_font()
 	var manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_art_manifest.json"))
 	for sheet in manifest.atlases:
@@ -26,6 +30,12 @@ func _ready() -> void:
 	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR
 
 func _process(_delta: float) -> void:
+	if sim != null:
+		if _last_boss != null and not _last_boss.alive():
+			_defeated_boss = _last_boss
+		_last_boss = sim.boss
+		if _defeated_boss != null and sim.time - float(_defeated_boss.died_at) >= 1.8:
+			_defeated_boss = null
 	if sim != null and sim.visual_hold:
 		return
 	queue_redraw()
@@ -50,9 +60,10 @@ func _text(value: String,point: Vector2,size: int=20,color: Color=Color("#f0d9a9
 	draw_string(font,point,value,HORIZONTAL_ALIGNMENT_LEFT,-1,size,color)
 
 func _draw() -> void:
-	if sim==null or sim.boss==null or sheets.is_empty():return
-	var boss=sim.boss
-	var body_foot = _body_foot(boss.body_row)
+	if sim == null or sheets.is_empty(): return
+	var boss = sim.boss if sim.boss != null else _defeated_boss
+	if boss == null: return
+	var body_foot = _body_foot(boss.body_row, boss)
 	var sheet="boss_%s_atlas.png" % String(boss.id)
 	var pose=String(boss.pose())
 	if _boss_ref == null or _boss_ref.get_ref() != boss:
@@ -114,13 +125,19 @@ func _draw() -> void:
 	for fx in boss.effects:
 		var at=_point(Vector2(float(fx.x),float(fx.y)))
 		var age=sim.time-float(fx.at)
+		if age >= 0.0 and age < 1.15 and String(fx.kind) in ["earth", "paper", "water"]:
+			var fx_clip := String({"magistrate-bound":"bound", "magistrate-full":"full"}.get(boss.id, boss.id))
+			var opacity := minf(1.0, (1.15 - age) * 3.0)
+			skill_frames.draw_pose(self, "v052-boss-fx", fx_clip, minf(3.99, age / 1.15 * 4.0),
+				at + Vector2(0, 28), 220.0, false, Color(1, 1, 1, opacity))
 		if String(fx.kind)=="break":_break(String(fx.prop),at,age)
 		else:_effect(String(fx.kind),at,age)
 	if not boss.alive():_effect("release",body_foot-Vector2(0,70),sim.time-float(boss.died_at),240)
 
 
-func _body_foot(row: int) -> Vector2:
-	return _point(Vector2(sim.boss.body_x(), sim.row_y(row + 1) + Geo.cell_h(sim.rows) * 0.37))
+func _body_foot(row: int, owner = null) -> Vector2:
+	var boss = owner if owner != null else sim.boss
+	return _point(Vector2(boss.body_x(), sim.row_y(row + 1) + Geo.cell_h(sim.rows) * 0.37))
 
 
 func _draw_cast_bar(boss, foot: Vector2) -> void:
@@ -154,6 +171,14 @@ func _draw_blink(boss, destination: Vector2, height: float) -> void:
 func _warning(boss) -> void:
 	var action: Dictionary=boss.action
 	var major=String(action.kind)=="major"
+	var fx_clip := String({"magistrate-bound":"bound", "magistrate-full":"full"}.get(boss.id, boss.id))
+	var age: float = sim.time - float(action.get("warning_start", sim.time))
+	var end := float(action.get("warning_end", sim.time))
+	var span := maxf(0.01, end - float(action.get("warning_start", sim.time)))
+	var power := clampf(age / span, 0.0, 1.0)
+	skill_frames.draw_pose(self, "v052-boss-fx", fx_clip, power * 1.4,
+		_body_foot(boss.body_row) + Vector2(-38, -18), 185.0 + 65.0 * power,
+		false, Color(1, 1, 1, 0.45 + power * 0.35))
 	for i in Array(action.targets).size():
 		var cell: Dictionary=action.targets[i]
 		var impact=float(action.warning_end)+(i*float(boss.config.major.hit_spacing_s) if major else 0.0)

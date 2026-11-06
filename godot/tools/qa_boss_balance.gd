@@ -44,7 +44,7 @@ static func army(id: int,seed_value: int,profile: String="reference") -> Sim:
 				for i in p.tier(int(path.id)):p.paid_incense+=int(path.tiers[i].cost)
 	s.sun=500
 	s.refresh_plant_buffs()
-	s.wave_index=s.level.waves.size()-3
+	s.wave_index=s.level.waves.size()-1
 	s.queue_wave(s.level.waves[s.wave_index],s.wave_index)
 	return s
 ## Uses the ordinary card entry point, including costs, terrain and cooldowns.

@@ -28,10 +28,10 @@ var blink_from := -1
 var blink_at := -10.0
 var smalls_to_blink := 1
 const BLINK_TIME := 0.48
-const HEALTH_SCALE := 1.5
-const SKILL_RATE := 4.0 / 3.0
-const SKILL_FORCE := 4.0 / 3.0
-const REINFORCEMENT_MASS := 0.75
+const HEALTH_SCALE := 2.1
+const SKILL_RATE := 5.0 / 3.0
+const SKILL_FORCE := 2.0
+const REINFORCEMENT_MASS := 1.0
 const FINAL_WAVE_FIRST_CAST := 3
 const FINAL_WAVE_CAST_INTERVAL := 6
 var small_casts := 0
@@ -47,6 +47,7 @@ var cc_log: Array = []
 var stun_until = 0.0
 var damage_token = ""
 var hit_tokens: Dictionary = {}
+var damage_carry: Dictionary = {}
 var total_damage = 0.0
 var add_count = 0
 var peak_adds = 0
@@ -83,8 +84,8 @@ func begin(owner, boss_id: String, last_batch: int = -1, preserve_queue := false
 	body_row = clampi(int(sim.rows / 2) - 1, 0, sim.rows - 2)
 	smalls_to_blink = sim.rng.randi_range(1, 2)
 	_make_body_targets()
-	sim.banner={"text":String(config.name)+"现身", "group":int(wave_end/Content.WAVES_PER_GROUP),
-		"groups":Content.wave_groups(sim.level),"t":3.0,"max":3.0}
+	sim.banner={"text":"恶首现身 · "+String(config.name), "group":int(wave_end/Content.WAVES_PER_GROUP),
+		"groups":Content.wave_groups(sim.level),"t":3.0,"max":3.0,"ceremony":true}
 	sim.sfx("boss_intro")
 
 func _make_body_targets() -> void:
@@ -120,7 +121,7 @@ func alive() -> bool:
 	return died_at < 0.0
 
 func finished() -> bool:
-	return died_at >= 0.0 and sim.time >= died_at+2.0
+	return died_at >= 0.0
 
 func pose() -> String:
 	if not alive(): return "defeat"
@@ -142,7 +143,7 @@ func _sync_hp() -> void:
 		z.hp=hp
 		z.max_hp=max_hp
 
-func damage(proxy, amount: float, source: String = "") -> float:
+func damage(proxy, amount: float, source: String = "", continuous := false) -> float:
 	if not alive() or amount<=0: return 0.0
 	if damage_token!="" and hit_tokens.has(damage_token): return 0.0
 	if damage_token!="": hit_tokens[damage_token]=sim.time
@@ -150,6 +151,7 @@ func damage(proxy, amount: float, source: String = "") -> float:
 	if proxy!=null and proxy.vuln_t>0: damage_value*=1.0+proxy.vuln
 	if state=="recovery": damage_value*=1.25
 	if damage_token.begins_with("percent:"):damage_value=minf(damage_value,max_hp*0.01)
+	damage_value = Sim.quantized_damage(damage_carry, source, damage_value, continuous)
 	var before=hp
 	var dealt=minf(hp,damage_value)
 	hp=maxf(0,hp-dealt)
@@ -203,8 +205,8 @@ func tick(dt: float) -> void:
 				damage(z,minf(z.bomb_damage,max_hp*0.01),"lobber")
 				z.bomb_damage=0.0
 	damage_token=""
-	if burn>0: damage(null,burn*dt,burn_source)
-	if bleed>0: damage(null,bleed*dt,"bell")
+	if burn>0: damage(null,burn*dt,burn_source,true)
+	if bleed>0: damage(null,bleed*dt,"bell",true)
 	if not alive(): return
 	for z in sim.zombies:
 		if z.alive() and z.boss_meta.has("portal_at") and sim.time>=float(z.boss_meta.portal_at):
@@ -223,9 +225,7 @@ func tick(dt: float) -> void:
 	if state=="intro":
 		if sim.time>=combat_at:
 			state="idle"
-			if not supply_given:
-				supply_given=true;sim.sun+=int(config.entry_incense)
-				sim.float_text(Vector2(Geo.BOARD_X+150,sim.row_y(0)),"援香 +%d" % int(config.entry_incense))
+			supply_given = true
 		return
 	if sim.time<stun_until: return
 	match state:
@@ -356,7 +356,7 @@ func _start_small() -> void:
 			"warning_end": sim.time + 2.4, "hit": 0, "kills": 0}
 		state = "small_warning"
 		state_end = sim.time + 2.4
-		sim.banner = {"text": "首领号令 · 大批恶客来袭", "t": 2.4, "max": 2.4}
+		sim.banner = {"text": "恶首号令 · 大批恶客来袭", "t": 2.4, "max": 2.4}
 		sim.sfx("boss_warning")
 		return
 	var kind="tunnel" if id=="earth" else ("seal" if alternate%2==0 else "paper_ferry")
@@ -367,13 +367,12 @@ func _start_small() -> void:
 	alternate+=1
 	var targets: Array=[]
 	var warning=2.2
-	if kind=="tunnel":
-		var cell=_random_cell(4,7)
-		if not cell.is_empty():targets.append(cell)
-	elif kind=="paper_ferry":
-		var cell=_random_cell(6,8,true)
-		if not cell.is_empty():targets.append(cell)
-		warning=1.8
+	if kind in ["tunnel", "paper_ferry"]:
+		for index in 2:
+			var cell := _random_cell(4 if kind == "tunnel" else 6, 7 if kind == "tunnel" else 8, kind == "paper_ferry")
+			if not cell.is_empty():
+				targets.append(cell)
+		warning = 2.2 if kind == "tunnel" else 1.8
 	else:
 		warning=float(skill.get("warning", 1.8 if kind=="seal" else 2.0))
 		var candidates: Array=[]
@@ -381,7 +380,7 @@ func _start_small() -> void:
 			if not p.dead and not p.is_lily and not p.ash and p.col >= int(skill.get("first_column", 2)) and _cell_ok(p.col,p.row):candidates.append(p)
 		var picked_rows: Array=[]
 		var economy_chosen=false
-		for i in int(skill.get("targets", 2 if kind=="seal" else 1)):
+		for i in int(skill.get("targets", 3 if kind=="seal" else 2)):
 			var valid: Array=candidates.filter(func(p):return not picked_rows.has(p.row) and not (kind=="seal" and economy_chosen and p.def.has("produce")))
 			if valid.is_empty():break
 			var p=valid[sim.rng.randi_range(0,valid.size()-1)]
@@ -393,24 +392,29 @@ func _start_small() -> void:
 
 func _start_major() -> void:
 	var targets: Array=[]
-	if id=="earth":
-		var row=sim.rng.randi_range(0,sim.rows-1)
-		if row==last_major_row:row=(row+1)%sim.rows
-		last_major_row=row
-		for col in [7,5,3]:
-			if _cell_ok(col,row):targets.append(_target(col,row))
+	if id == "earth":
+		var row: int = sim.rng.randi_range(0, sim.rows - 1)
+		if row == last_major_row:
+			row = (row + 1) % sim.rows
+		last_major_row = row
+		var columns := [8, 6, 4, 7, 3]
+		for index in int(config.major.hit_count):
+			var c: int = columns[index % columns.size()]
+			var r: int = row if index < 3 else (row + 1) % sim.rows
+			if _cell_ok(c, r):
+				targets.append(_target(c, r))
 	else:
-		var front: Array=[]
+		var candidates: Array = []
 		for r in sim.rows:
-			for c in range(8,1,-1):
-				var p=sim.main_plant_at(c,r)
-				if p!=null and not p.dead and not p.ash and _cell_ok(c,r):
-					front.append([c,r]);break
-		while targets.size()<int(config.major.hit_count) and not front.is_empty():
-			var index=sim.rng.randi_range(0,front.size()-1)
-			var cell: Array=front.pop_at(index)
-			targets.append(_target(cell[0],cell[1]))
-		targets.sort_custom(func(a,b):return int(a.r)<int(b.r))
+			for c in range(8, 1, -1):
+				var plant = sim.main_plant_at(c, r)
+				if plant != null and not plant.dead and not plant.ash and _cell_ok(c, r):
+					candidates.append([c, r])
+		while targets.size() < int(config.major.hit_count) and not candidates.is_empty():
+			var index: int = sim.rng.randi_range(0, candidates.size() - 1)
+			var cell: Array = candidates.pop_at(index)
+			targets.append(_target(cell[0], cell[1]))
+		targets.sort_custom(func(a, b): return int(a.r) < int(b.r))
 	var warning=float(config.major.warning_s)
 	action={"kind":"major","targets":targets,"warning_start":sim.time,"warning_end":sim.time+warning,"hit":0,"kills":0}
 	state="major_warning";state_end=sim.time+warning
@@ -436,14 +440,18 @@ func _resolve_small() -> void:
 				var host = sim.main_plant_at(int(cell.c), int(cell.r))
 				if host != null and not host.dead:
 					host.sealed_until = maxf(host.sealed_until, sim.time + float(skill.seal_s) * SKILL_FORCE)
+					if id == "island":
+						sim.apply_plant_penalty(host, "haste", 0.2, 5.0, "潮灯惊魂")
+					elif id == "magistrate-full":
+						sim.apply_plant_penalty(host, "damage", 0.25, 5.0, "墨罚")
 				emit("water" if String(action.kind) == "tide_surge" else "paper", pos)
 			"tunnel":
 				_hurt_cell(cell,140)
-				_add_prop("tunnel",cell,160,9)
+				_add_prop("tunnel",cell,160,9.0 * float(config.module_duration_scale))
 				emit("earth",pos)
 			"paper_ferry":
-				if _prop_count()<2 and sim.main_plant_at(int(cell.c),int(cell.r))==null and sim.lily_at(int(cell.c),int(cell.r))==null:
-					_add_prop("paper_ferry",cell,240,12)
+				if _prop_count() < _prop_limit() and sim.main_plant_at(int(cell.c),int(cell.r))==null and sim.lily_at(int(cell.c),int(cell.r))==null:
+					_add_prop("paper_ferry",cell,240,12.0 * float(config.module_duration_scale))
 			"seal":
 				var host=sim.main_plant_at(int(cell.c),int(cell.r))
 				if host!=null and not host.dead and _prop_count()<2:
@@ -451,11 +459,15 @@ func _resolve_small() -> void:
 					host.sealed_until=sim.time+duration
 					_add_prop("paper_seal",cell,120,duration)
 			"crab":
-				if sim.time>=spawn_gate and sim.active_zombies()<int(config.adds.live_cap):
+				if sim.active_zombies()<int(config.adds.live_cap) + 2:
 					var z=sim.make_boss_proxy("crab",int(cell.r),Geo.SPAWN_X,180 * SKILL_FORCE,
 						{"kind":"crab","until":sim.time+10.0,"next":0.0,"c":int(cell.c),"r":int(cell.r)})
-					props.append(z);spawn_gate=sim.time+1.5
+					props.append(z)
 	sim.sfx("boss_impact")
+
+func _prop_limit() -> int:
+	return 3 if id == "paper" else 2
+
 
 func _prop_count() -> int:
 	var n=0
@@ -464,7 +476,7 @@ func _prop_count() -> int:
 	return n
 
 func _add_prop(kind: String,cell: Dictionary,health: float,life: float) -> void:
-	if _prop_count()>=2:return
+	if _prop_count() >= _prop_limit(): return
 	var pos: Vector2=sim.cell_pos(int(cell.c),int(cell.r))
 	var z=sim.make_boss_proxy("prop",int(cell.r),pos.x,health * SKILL_FORCE,
 		{"kind":kind,"until":sim.time+life,"next":sim.time+(4.0 if kind=="tunnel" else 3.0),
@@ -527,11 +539,11 @@ func break_prop(z) -> void:
 	sim.sfx("boss_paper" if kind in ["paper_ferry","paper_seal"] else "boss_impact")
 
 func _hurt_cell(cell: Dictionary,amount: float) -> void:
-	amount *= SKILL_FORCE
+	amount = roundf(amount * SKILL_FORCE)
 	if int(cell.c)<2:return
 	var p=sim.main_plant_at(int(cell.c),int(cell.r))
 	if p==null or p.dead or p.is_lily or p.ash:return
-	var lethal_allowed=destruction_used<int(config.destruction_budget) and int(action.get("kills",0))<1
+	var lethal_allowed=destruction_used<int(config.destruction_budget) and int(action.get("kills",0))<2
 	# Charged crabs are separate casts, but never split one frame into several losses.
 	if String(action.get("kind",""))!="major":lethal_allowed=destruction_used<int(config.destruction_budget) and absf(last_boss_destroy_at-sim.time)>0.0001
 	var applied=amount
@@ -563,7 +575,7 @@ func _resolve_major() -> void:
 		action.hit=index+1
 	var last_hit=float(action.warning_end)+maxi(0,targets.size()-1)*float(config.major.hit_spacing_s)
 	if int(action.hit)>=targets.size() and sim.time>=last_hit+0.6:
-		state="recovery";state_end=sim.time+3.0
+		state="recovery";state_end=sim.time+2.4
 
 func _die() -> void:
 	died_at=sim.time;hp=0;state="dead";major_queue.clear();action={}
@@ -583,7 +595,7 @@ func serialize() -> Dictionary:
 	for name in ["id","hp","max_hp","began_at","combat_at","died_at","state","state_end","small_at","adds_at","spawn_gate",
 		"major_queue","fired","action","cell_cooldowns","repair_marks","destruction_used","supply_given","alternate","last_lane",
 		"lane_streak","last_major_row","cc_log","stun_until","total_damage","add_count","peak_adds","major_count","last_boss_destroy_at",
-		"major_wait_since","adds_were_paused","hit_tokens","effects", "body_row", "blink_from",
+		"major_wait_since","adds_were_paused","hit_tokens","damage_carry","effects", "body_row", "blink_from",
 		"blink_at", "smalls_to_blink", "small_casts", "reinforcement_index", "wave_end"]:
 		saved[name]=get(name)
 	var proxy_rows: Array=[]

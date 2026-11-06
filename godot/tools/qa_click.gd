@@ -104,12 +104,16 @@ func _run() -> void:
 
 	var screen: Node = game.screen_node
 	for week in range(1, Content.DAYS.size() + 1):
+		screen._week_scroll.ensure_control_visible(screen._week_buttons[week - 1])
+		for frame in 2: await process_frame
 		await click(screen._tab_rect(week - 1).get_center())
 		check("选关：第 %d 周题签可点击" % week, int(screen.day) == week)
 		for index in 5:
 			await click(screen._node_pos(index))
 			check("选关：第 %d 周第 %d 夜地标可点击" % [week, index + 1],
 				int(screen.selected) == Content.level_id_for(week, index), str(screen.selected))
+	screen._week_scroll.ensure_control_visible(screen._week_buttons[2])
+	for frame in 2: await process_frame
 	await click(screen._tab_rect(2).get_center())
 	check("选关：点题签切到第三天", int(screen.day) == 3, str(screen.day))
 	await click(screen._node_pos(0))

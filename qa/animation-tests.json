@@ -1161,6 +1161,66 @@
 			"ok": true
 		},
 		{
+			"name": "herb-gourd 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e1 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e1 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 herb-gourd-e1",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e2 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e2 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 herb-gourd-e2",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e3 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 herb-gourd-e3",
+			"ok": true
+		},
+		{
 			"name": "ghost 图集可加载",
 			"ok": true
 		},
@@ -2545,6 +2605,54 @@
 			"ok": true
 		},
 		{
+			"name": "herb-gourd 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "herb-gourd-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "ironjudge 图集可加载",
 			"ok": true
 		},
@@ -3413,6 +3521,90 @@
 			"ok": true
 		},
 		{
+			"name": "v052-boss-fx 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "v052-boss-fx bound 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-boss-fx earth 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-boss-fx full 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-boss-fx island 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-boss-fx paper 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-boss-fx river 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-craters 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "v052-craters land 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-craters water 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-plant-fx 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "v052-plant-fx ascend 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-plant-fx blessing 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-plant-fx evolve 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-plant-fx heal 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-plant-fx sleep 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-projectiles 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "v052-projectiles beam 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-projectiles dumpling 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-projectiles firework 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v052-projectiles kite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "vault 图集可加载",
 			"ok": true
 		},
@@ -3606,5 +3798,5 @@
 		}
 	],
 	"failures": 0,
-	"total": 901
+	"total": 949
 }

@@ -53,6 +53,8 @@ var _enter: Button = null
 var _almanac: Button = null
 var _special: Button = null
 var _danger: Control = null
+var _week_scroll: ScrollContainer
+var _week_buttons: Array[Button] = []
 
 
 func _ready() -> void:
@@ -64,6 +66,7 @@ func _ready() -> void:
 		if ResourceLoader.exists(path):
 			_textures[DAY_KEYS[i]] = load(path)
 	_build_actions()
+	_build_week_tabs()
 	_refresh_actions()
 	game.play_music_scene("menu")
 
@@ -98,7 +101,6 @@ func _level_of(index: int) -> Dictionary:
 # ── 绘制 ────────────────────────────────────────────────────────────────────
 func _draw() -> void:
 	_draw_picture()
-	_draw_tabs()
 	_draw_route()
 	_draw_nodes()
 	_draw_footer()
@@ -132,31 +134,36 @@ func _draw_header() -> void:
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 30, Color(0.96, 0.88, 0.7, 0.92))
 
 
-func _draw_tabs() -> void:
+func _build_week_tabs() -> void:
+	_week_scroll = ScrollContainer.new()
+	_week_scroll.position = Vector2(56, 150)
+	_week_scroll.size = Vector2(236, 86 * 3.8 - 8)
+	_week_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_week_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
+	add_child(_week_scroll)
+	var list := Ui.vbox(8)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_week_scroll.add_child(list)
 	for i in Content.DAYS.size():
-		var rect = _tab_rect(i)
-		var active = (i + 1) == day and selected!=16
-		var cleared = _cleared_count(i + 1)
-		var base = Color(0.06, 0.09, 0.11, 0.88) if not active \
-			else Color(0.22, 0.17, 0.08, 0.95)
-		Ui.draw_plate(self, rect, base, Ui.GOLD if active else Color(0.34, 0.31, 0.25, 0.85),
-			16, 2 if active else 1)
-		var info: Dictionary = Content.DAYS[i]
-		draw_string(Ui.medium_font(), rect.position + Vector2(16, 27),
-			String(info["name"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 21,
-			Ui.GOLD_BRIGHT if active else Ui.TEXT)
-		draw_string(Ui.body_font(), rect.position + Vector2(16, 49),
-			String(info["sub"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Ui.TEXT_DIM)
-		draw_string(Ui.body_font(), rect.position + Vector2(16, 69),
-			"守住 %d / 5 夜" % cleared, HORIZONTAL_ALIGNMENT_LEFT, -1, 13,
-			Ui.GOOD if cleared >= 5 else Ui.TEXT_FAINT)
-		if active:
-			draw_circle(rect.position + Vector2(rect.size.x - 22, 22), 5.0,
-				Ui.GOLD_BRIGHT)
+		var button := Ui.button("", 18, 214, 78)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.pressed.connect(select_day.bind(i + 1))
+		list.add_child(button)
+		_week_buttons.append(button)
+	_week_scroll.ensure_control_visible.call_deferred(_week_buttons[day - 1])
 
 
 func _tab_rect(index: int) -> Rect2:
-	return Rect2(Vector2(56, 150 + index * 86), TAB_SIZE)
+	if index < 0 or index >= _week_buttons.size():
+		return Rect2()
+	return _week_buttons[index].get_global_rect()
+
+
+func _refresh_week_tabs() -> void:
+	for i in _week_buttons.size():
+		var info: Dictionary = Content.DAYS[i]
+		_week_buttons[i].text = "%s · %s\n守住 %d / 5 夜" % [info.name, info.sub, _cleared_count(i + 1)]
+		Ui.set_button_active(_week_buttons[i], i + 1 == day and selected != Content.SPECIAL_ID)
 
 
 func _draw_route() -> void:
@@ -321,12 +328,6 @@ func _gui_input(event: InputEvent) -> void:
 			select_night(i)
 			accept_event()
 			return
-	# 三天的题签
-	for i in Content.DAYS.size():
-		if _tab_rect(i).has_point(pos):
-			select_day(i + 1)
-			accept_event()
-			return
 
 
 func _input(event: InputEvent) -> void:
@@ -385,6 +386,7 @@ func _build_actions() -> void:
 
 
 func _refresh_actions() -> void:
+	_refresh_week_tabs()
 	if _danger!=null:
 		_danger.values=Content.SPECIAL_THREATS if selected==Content.SPECIAL_ID else [float(Content.get_level(selected).threat)]
 		_danger.queue_redraw()

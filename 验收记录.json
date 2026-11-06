@@ -1,39 +1,40 @@
 {
-  "version": "0.5.1",
-  "build_hash": "8aad5ec",
-  "exe_bytes": 703970536,
-  "exe_sha256": "655e5452fded5eac54c2ccd48ce223e693842b79652af62cfc7ddf8b194b2278",
+  "version": "0.5.2",
+  "build_hash": "bac1225",
+  "exe_bytes": 759524904,
+  "exe_sha256": "e071f0c54deab25c47b73974506f118c625c4a9e0643f2fe120e1c948469f193",
   "assertions": {
     "logic-tests": 305,
     "battle-tests": 39,
     "boss-tests": 143,
-    "special-tests": 124,
+    "special-tests": 120,
     "ui-tests": 78,
     "click-tests": 65,
-    "player-ui-tests": 263,
-    "animation-tests": 901,
+    "player-ui-tests": 273,
+    "animation-tests": 949,
     "v050-tests": 459,
     "v051-refresh-tests": 22,
-    "patch-tests": 144
+    "v052-tests": 45,
+    "patch-tests": 145
   },
-  "assertion_total": 2543,
+  "assertion_total": 2643,
   "failures": 0,
   "boss_simulations": 33,
   "boss_reference_seconds": [
-    45.1,
-    73.8
+    86.9,
+    151.4
   ],
   "boss_reference_wins": 15,
-  "boss_legacy_fixture_wins": 1,
-  "motion_frames": 9696,
+  "boss_legacy_fixture_wins": 0,
+  "motion_frames": 10496,
   "pack_trim": {
-    "original_bytes": 785645288,
-    "candidate_bytes": 703970536,
-    "untouched_files": 839,
-    "removed_files": 205,
+    "original_bytes": 851210840,
+    "candidate_bytes": 759524904,
+    "untouched_files": 877,
+    "removed_files": 223,
     "removed_by_group": {
-      "fallback_key_atlases": 74064976,
-      "unused_and_art_prompts": 6972268
+      "fallback_key_atlases": 84043376,
+      "unused_and_art_prompts": 7003211
     },
     "identical_payload_reuse": 615868,
     "removed_paths": {
@@ -75,6 +76,10 @@
         ".godot/imported/ember-cicada-e2.png-e1299a97e8201755113ec9f416c7ccc4.ctex",
         ".godot/imported/ember-cicada-e3.png-fb5c97abb274049223e9013ad1298041.ctex",
         ".godot/imported/ghost.png-810150c331a378b059cb403d76118598.ctex",
+        ".godot/imported/herb-gourd-e1.png-8ff88d06ce946c882464bbd99ffabed9.ctex",
+        ".godot/imported/herb-gourd-e2.png-55ab395838fe8ad5c7e204cbcf46d625.ctex",
+        ".godot/imported/herb-gourd-e3.png-317ddc69264476dbd37585f9291a0110.ctex",
+        ".godot/imported/herb-gourd.png-917ca8e8650fd3306df553b23696cbfc.ctex",
         ".godot/imported/ironjudge.png-33f249ed31739f56795129a3d1edea73.ctex",
         ".godot/imported/judge-e1.png-4e552f680aa68b9315a031c3f5ae6ab8.ctex",
         ".godot/imported/judge-e2.png-8ee8af6b18e06f4785f162ccb430a46f.ctex",
@@ -127,6 +132,10 @@
         ".godot/imported/umbrella-e2.png-92d5eaa6d774969eaa389513704dd34e.ctex",
         ".godot/imported/umbrella-e3.png-b665c5edfec3cc14d646bb855980880d.ctex",
         ".godot/imported/umbrella.png-0865d484f6ed8439a20bb6df2eba4c44.ctex",
+        ".godot/imported/v052-boss-fx.png-d2d9f864b2451383b4045ecb2d0c9d71.ctex",
+        ".godot/imported/v052-craters.png-64d476880c6de804dfc1dca5deb78470.ctex",
+        ".godot/imported/v052-plant-fx.png-91750991e296ea85e89101777d7353be.ctex",
+        ".godot/imported/v052-projectiles.png-9485cecdc6c96921f2a7109398d6ba67.ctex",
         ".godot/imported/vault.png-d93b9a69cba7d5b4076a563835a1584a.ctex",
         ".godot/imported/wall-e1.png-d1822862c653cdca425dc73b3733f231.ctex",
         ".godot/imported/wall-e2.png-8b2b6c3c836b6eb97dc81c9754985872.ctex",
@@ -172,6 +181,10 @@
         "assets/sprites/animation/ember-cicada-e2.png.import",
         "assets/sprites/animation/ember-cicada-e3.png.import",
         "assets/sprites/animation/ghost.png.import",
+        "assets/sprites/animation/herb-gourd-e1.png.import",
+        "assets/sprites/animation/herb-gourd-e2.png.import",
+        "assets/sprites/animation/herb-gourd-e3.png.import",
+        "assets/sprites/animation/herb-gourd.png.import",
         "assets/sprites/animation/ironjudge.png.import",
         "assets/sprites/animation/judge-e1.png.import",
         "assets/sprites/animation/judge-e2.png.import",
@@ -224,6 +237,10 @@
         "assets/sprites/animation/umbrella-e2.png.import",
         "assets/sprites/animation/umbrella-e3.png.import",
         "assets/sprites/animation/umbrella.png.import",
+        "assets/sprites/animation/v052-boss-fx.png.import",
+        "assets/sprites/animation/v052-craters.png.import",
+        "assets/sprites/animation/v052-plant-fx.png.import",
+        "assets/sprites/animation/v052-projectiles.png.import",
         "assets/sprites/animation/vault.png.import",
         "assets/sprites/animation/wall-e1.png.import",
         "assets/sprites/animation/wall-e2.png.import",
@@ -244,16 +261,18 @@
         "assets/boss/weakpoint.svg.import",
         "data/v042_art_prompts.json",
         "data/v050_art_prompts.json",
-        "data/v051_art_prompts.json"
+        "data/v051_art_prompts.json",
+        "data/v052_art_prompts.json",
+        "data/v052_guest_art_prompts.json"
       ]
     }
   },
   "pack_checks": {
-    "checks": 10287,
+    "checks": 11140,
     "failures": 0,
-    "frames": 9696,
-    "texture_load_ms": 3876.72
+    "frames": 10496,
+    "texture_load_ms": 5289.762
   },
   "platform": "Windows x64",
-  "verification": "自动检查、Windows 导出包启动、实机画面与首领阵容模拟。未做人手二十五夜全通。"
+  "verification": "自动检查、Windows 导出包启动、实机画面与恶首阵容模拟。未做人手二十五夜全通。"
 }

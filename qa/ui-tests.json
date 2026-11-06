@@ -7,7 +7,7 @@
       "ok": true
     },
     {
-      "detail": "buttons=7",
+      "detail": "buttons=8",
       "group": "封面",
       "name": "封面按钮不少于六组",
       "ok": true
@@ -19,7 +19,7 @@
       "ok": true
     },
     {
-      "detail": "[\"守夜存档 · 1\", \"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
+      "detail": "[\"i\", \"守夜存档 · 1\", \"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
       "group": "封面",
       "name": "新玩家主按钮导向教程",
       "ok": true
@@ -49,7 +49,7 @@
       "ok": true
     },
     {
-      "detail": "buttons=4",
+      "detail": "buttons=9",
       "group": "选关",
       "name": "选关页有返回与进入按钮",
       "ok": true
@@ -151,7 +151,7 @@
       "ok": true
     },
     {
-      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"kelp\", \"cat\", \"sky-kite\", \"wish-till\", \"lobber\", \"bell\"]",
+      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"kelp\", \"cat\", \"sky-kite\", \"wish-till\", \"lobber\", \"herb-gourd\"]",
       "group": "备战",
       "name": "推荐配卡随地图：暗河先带夜莲",
       "ok": true
@@ -471,5 +471,5 @@
   ],
   "failures": 0,
   "total": 78,
-  "version": "0.5.1"
+  "version": "0.5.2"
 }

@@ -13,7 +13,7 @@ const PLANT_ORDER: Array[String] = [
 	"lantern", "shooter", "wall", "bomb", "bell", "censer", "umbrella", "lion",
 	"mushroom", "cat", "shell", "lobber", "torch", "star", "needle", "judge",
 	"lily", "kelp", "gust", "firework", "squash", "dragon",
-	"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada",
+	"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada", "herb-gourd",
 ]
 
 const ZOMBIE_ORDER: Array[String] = [
@@ -76,11 +76,7 @@ const PLANTS = {
 		"name": "坟头菇", "role": "灰烬", "cost": 25, "cooldown": 20, "hp": 300,
 		"sprite_h": 86, "mine": {"arm": 14.0, "damage": 1800.0}, "tint": "#93a468",
 	},
-	"cat": {
-		"name": "狐尾灯", "role": "追魂", "cost": 175, "cooldown": 8, "hp": 300,
-		"sprite_h": 100, "homing": {"interval": 1.6, "damage": 24.0, "speed": 300.0,
-			"count": 1}, "tint": "#e8a24e",
-	},
+	"cat": {"name": "狐尾灯", "role": "追魂", "cost": 250, "cooldown": 8, "hp": 300, "sprite_h": 100, "homing": {"interval": 1.6, "damage": 24.0, "speed": 300.0, "count": 1}, "tint": "#e8a24e"},
 	"shell": {
 		"name": "龟甲罩", "role": "护罩", "cost": 100, "cooldown": 18, "hp": 1400,
 		"sprite_h": 104, "attach": true, "tint": "#86966f",
@@ -120,17 +116,15 @@ const PLANTS = {
 		"name": "镇煞瓜", "role": "灰烬", "cost": 75, "cooldown": 30, "hp": 300,
 		"sprite_h": 88, "ash": true, "no_upgrade": true, "squash": true, "tint": "#91a46b",
 	},
-	"dragon": {
-		"name": "龙首铳", "role": "近攻", "cost": 250, "cooldown": 10, "hp": 550,
-		"sprite_h": 102, "dragon": true, "tint": "#b08d54",
-	},
+	"dragon": {"name": "龙首铳", "role": "近攻", "cost": 325, "cooldown": 10, "hp": 300, "sprite_h": 102, "dragon": true, "tint": "#b08d54"},
 	"lily": {
 		"name": "夜莲", "role": "浮台", "cost": 25, "cooldown": 5, "hp": 260,
 		"sprite_h": 56, "lily": true, "water_only": true, "no_upgrade": true,
 		"tint": "#5fa08c",
 	},
+	"herb-gourd": {"name":"回春葫","role":"扶伤","cost":175,"cooldown":22,"hp":300,"sprite_h":100,"healer":true,"tint":"#719e85"},
 	"ruin-cap": {"name": "劫火芝", "role": "灰烬", "cost": 275, "cooldown": 56, "hp": 300, "sprite_h": 108, "ash": true, "no_upgrade": true, "ruin": {"fuse": 1.1, "reach": 2, "damage": 1800}, "tint": "#8b638c"},
-	"sky-kite": {"name": "逐云鸢", "role": "抛射", "cost": 150, "cooldown": 8, "hp": 300, "sprite_h": 105, "kite": {"interval": 1.5}, "tint": "#60958c"},
+	"sky-kite": {"name": "逐云鸢", "role": "抛射", "cost": 150, "cooldown": 8, "hp": 300, "sprite_h": 105, "kite": {"interval": 1.3}, "tint": "#60958c"},
 	"wish-till": {"name": "清账匣", "role": "产能", "cost": 75, "cooldown": 16, "hp": 300, "sprite_h": 92, "till": true, "tint": "#a18452"},
 	"cash-pod": {"name": "铜钱荚", "role": "灰烬", "cost": 0, "cooldown": 26, "hp": 400, "sprite_h": 78, "ash": true, "no_upgrade": true, "cash_pod": true, "tint": "#a35336"},
 	"ember-cicada": {"name": "烬翼蝉", "role": "追魂", "cost": 250, "cooldown": 10, "hp": 320, "sprite_h": 105, "ember": true, "tint": "#b9673e"},
@@ -292,26 +286,11 @@ static func map_picture(level: Dictionary, overview := false) -> String:
 
 # 五种地图均为全部草木提供明确的推荐顺序。
 const LOADOUT_TIPS = {
-	"street": ["lantern", "shooter", "wall", "wish-till", "cash-pod", "bell", "censer", 
-		"torch", "mushroom", "bomb", "cat", "needle", "judge", "umbrella", 
-		"lion", "lobber", "star", "firework", "dragon", "squash", "gust", 
-		"shell", "sky-kite", "ember-cicada", "ruin-cap", "lily", "kelp"],
-	"market": ["lantern", "shooter", "wall", "sky-kite", "lobber", "ember-cicada", "cat", 
-		"star", "bell", "bomb", "judge", "censer", "torch", "needle", 
-		"wish-till", "umbrella", "lion", "mushroom", "firework", "dragon", "squash", 
-		"gust", "shell", "cash-pod", "ruin-cap", "lily", "kelp"],
-	"water": ["lily", "lantern", "shooter", "wall", "kelp", "cat", "sky-kite", 
-		"wish-till", "lobber", "bell", "firework", "censer", "torch", "needle", 
-		"judge", "star", "umbrella", "lion", "mushroom", "dragon", "squash", 
-		"bomb", "gust", "shell", "ember-cicada", "cash-pod", "ruin-cap"],
-	"island": ["lantern", "shooter", "wall", "sky-kite", "ember-cicada", "star", "cash-pod", 
-		"firework", "ruin-cap", "gust", "lobber", "cat", "bomb", "judge", 
-		"censer", "wish-till", "bell", "torch", "shell", "needle", "mushroom", 
-		"squash", "dragon", "lion", "umbrella", "lily", "kelp"],
-	"cavern": ["lily", "lantern", "shooter", "wall", "kelp", "sky-kite", "ember-cicada", 
-		"wish-till", "firework", "ruin-cap", "cat", "dragon", "star", "shell", 
-		"cash-pod", "lobber", "gust", "judge", "bell", "bomb", "torch", 
-		"censer", "needle", "umbrella", "lion", "mushroom", "squash"],
+	"street": ["lantern", "shooter", "wall", "wish-till", "cash-pod", "bell", "censer", "torch", "mushroom", "bomb", "cat", "needle", "herb-gourd", "judge", "umbrella", "lion", "lobber", "star", "firework", "dragon", "squash", "gust", "shell", "sky-kite", "ember-cicada", "ruin-cap", "lily", "kelp"],
+	"market": ["lantern", "shooter", "wall", "sky-kite", "lobber", "ember-cicada", "cat", "star", "bell", "herb-gourd", "bomb", "judge", "censer", "torch", "needle", "wish-till", "umbrella", "lion", "mushroom", "firework", "dragon", "squash", "gust", "shell", "cash-pod", "ruin-cap", "lily", "kelp"],
+	"water": ["lily", "lantern", "shooter", "wall", "kelp", "cat", "sky-kite", "wish-till", "lobber", "herb-gourd", "bell", "firework", "censer", "torch", "needle", "judge", "star", "umbrella", "lion", "mushroom", "dragon", "squash", "bomb", "gust", "shell", "ember-cicada", "cash-pod", "ruin-cap"],
+	"island": ["lantern", "shooter", "wall", "sky-kite", "ember-cicada", "star", "cash-pod", "firework", "ruin-cap", "herb-gourd", "gust", "lobber", "cat", "bomb", "judge", "censer", "wish-till", "bell", "torch", "shell", "needle", "mushroom", "squash", "dragon", "lion", "umbrella", "lily", "kelp"],
+	"cavern": ["lily", "lantern", "shooter", "wall", "kelp", "sky-kite", "ember-cicada", "wish-till", "firework", "herb-gourd", "ruin-cap", "cat", "dragon", "star", "shell", "cash-pod", "lobber", "gust", "judge", "bell", "bomb", "torch", "censer", "needle", "umbrella", "lion", "mushroom", "squash"],
 }
 
 
@@ -416,7 +395,7 @@ static func wave_mass_ratio(level: Dictionary, wave_index: int) -> float:
 	var group := int(wave_index / WAVES_PER_GROUP)
 	var count := wave_groups(level)
 	var phase := mini(2, int(float(group) * 3.0 / count))
-	return [0.7, 0.9, 1.05][phase] * (0.60 if group < 2 else 1.0)
+	return [0.56, 0.9, 1.26][phase] * (0.60 if group < 2 else 1.0)
 
 
 static func wave_low_only(level: Dictionary, wave_index: int) -> bool:
@@ -525,7 +504,7 @@ const NIGHT_LESSONS = [
 		["斗笠和石帽能挡住头几下。让同一行两株草木合力拆甲。", "stonehat"],
 		["跳幡鬼会跃过第一株草木。前面用石磨接它，输出往后放。", "vault"],
 		["回灯鬼倒下还能站起来。等这一行安静了，再把香火花去别处。", "returner"],
-		["熟客与生客都会上门。留些香火应付首领换行和援军。", ""],
+		["熟客与生客都会上门。留些香火应付恶首换行和援军。", ""],
 	],
 	[
 		["木栈和岸道隔得更开。先看清每一行从哪里来客，再落子。", ""],
@@ -606,7 +585,7 @@ static func _build_levels() -> Array:
 				"waves": _night_roster(_with_guest_variants(build_waves(info["band"], [4, 4, 6, 6, 8][night]),
 					day_index + 1, night), day_index, night),
 			})
-	# 鬼市深处：二十大波，每四大波迎战一位首领。
+	# 鬼市深处：二十大波，每四大波迎战一位恶首。
 	var special_waves: Array=[]
 	for section in SPECIAL_THREATS.size():
 		var chunk = _with_guest_variants(build_waves("late", 4), 3, 4)
@@ -622,7 +601,7 @@ static func _build_levels() -> Array:
 		"map":"cavern","rows":6,"name":"鬼市深处","tag":"终极守夜","threat":SPECIAL_THREATS[0],"band":"late",
 		"water_rows":CAVERN_WATER_ROWS,"lane_weights":[10,20,20,20,15,15],"object_cells":[],"start_sun":100,"wave_groups":20,"boss_id":"",
 		"boss_checkpoints":["earth","paper","river","island","magistrate-full"],"waves":special_waves,
-		"theme":"二十大波，五场首领。每四波击退一位首领，带着阵容和香火继续深入。",
+		"theme":"二十大波，五场恶首。每四波击退一位恶首，带着阵容和香火继续深入。",
 		"theme_zombie":""})
 	return out
 

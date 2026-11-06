@@ -81,8 +81,8 @@ func _run() -> void:
 	check("地形难度折入总目标", is_equal_approx(cave.hp_mul * cave.count_mul * Content.terrain_factor(cave.level), float(cave.level.threat))
 		and is_equal_approx(island.hp_mul * island.count_mul * Content.terrain_factor(island.level), float(island.level.threat)))
 	for level in Content.LEVELS:
-		check("全地图前两波按阶段倍率和六成叠算", is_equal_approx(Content.wave_mass_ratio(level, 0), .42) and Content.wave_low_only(level, 1) and not Content.wave_low_only(level, 2))
-		check("全地图末段倍率", is_equal_approx(Content.wave_mass_ratio(level, level.waves.size() - 1), 1.05))
+		check("全地图前两波按阶段倍率和六成叠算", is_equal_approx(Content.wave_mass_ratio(level, 0), .336) and Content.wave_low_only(level, 1) and not Content.wave_low_only(level, 2))
+		check("全地图末段倍率", is_equal_approx(Content.wave_mass_ratio(level, level.waves.size() - 1), 1.26))
 	var finale := Sim.new()
 	var chapter := Content.get_level(Content.level_id_for(5, 4))
 	finale.setup(chapter, ["lantern"], "normal")
@@ -98,7 +98,7 @@ func _run() -> void:
 		finale.queue_wave(chapter.waves[23], 23)
 		check("第八大波完整形态入场", finale.boss != null and finale.boss.id == "magistrate-full" and finale.boss.max_hp > bound_hp and finale.wave_index == 24)
 	for id in Almanac.BOSS_ORDER:
-		check("%s 有首领图鉴头像和技能数据" % id, Almanac.boss_portrait(id) != null and Almanac.boss_skills(id).size() >= 5)
+		check("%s 有恶首图鉴头像和技能数据" % id, Almanac.boss_portrait(id) != null and Almanac.boss_skills(id).size() >= 5)
 	var f := FileAccess.open("res://qa/v050-tests.json", FileAccess.WRITE)
 	f.store_string(JSON.stringify({"total": checks.size(), "failures": failures, "checks": checks}, "  "))
 	print("V050 ", checks.size(), " FAILURES ", failures)
