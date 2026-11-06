@@ -106,7 +106,7 @@ const PLANTS = {
 	"herb-gourd": {"epithet":"一葫清露，救得半巷灯","story":"旧药铺门前的一只青瓷葫芦，听了一辈子问诊。入夜后，它自己摇起药叶扇，只盼这条街上的灯都能亮到天明。","quote":"先把这一口气养回来。"},
 
 	"ruin-cap": {"epithet": "一地劫火", "story": "山坳里的古芝把最后一缕雷火收在伞下。揭开封条，火就沿摊面一格一格漫开。", "quote": "先退两步。"},
-	"sky-kite": {"epithet": "乘风越过屋脊", "story": "扎鸢人把一根旧竹篾留在纸鸢里。夜里只要远处有客，那根竹篾就会抖一下，纸鸢跟着抛出瓦弹。", "quote": "远的那个，交给我。"},
+	"sky-kite": {"epithet": "乘风越过屋脊", "story": "扎鸢人把一根旧竹篾留在纸鸢里。夜里只要远处有客，那根竹篾就会抖一下，纸鸢便迎风飞向远处的来客。", "quote": "远的那个，交给我。"},
 	"wish-till": {"epithet": "把退场的名字结清", "story": "这只账匣曾管过一整条街的夜账。哪一行少了一位恶客，算盘就响一声，把账结进摊主手里。", "quote": "这一笔，清了。"},
 	"cash-pod": {"epithet": "挨一口掉几文", "story": "旧钱庄屋檐下长出一只铜红色的豆荚。拿走它不花钱，倒是啃它的恶客常听见一声铜钱响。", "quote": "这一口算你二十五。"},
 	"ember-cicada": {"epithet": "铜翅里藏着火", "story": "夏末飞进炉房的蝉把烧红的炉灰夹在翅下。火弹射光后，它合拢铜翅蓄火，充满了才重新展开。", "quote": "听见收翅，就知道我还会回来。"},
@@ -224,7 +224,7 @@ const PLANTS = {
 
 const ZOMBIES = {
 	"flinch": {"epithet": "受惊就跑", "story": "它平时贴着墙根挪，直到一支竹签把它吓离了墙。从那以后，挨一下就埋头往前冲。", "counter": "第一次受到伤害后会加快脚步。先在同一行放好后续火力。", "quote": "我本来没这么快。"},
-	"wave-herald": {"epithet": "一面破幡先到", "story": "起风时，一面旧幡会在摊头响起来。拿幡的客只管开路，每逢一大波只来一位。", "counter": "每一大波开始时出现一名。除此之外，它像普通恶客一样行走和啃食。", "quote": "诸位，进街。"},
+	"wave-herald": {"epithet": "一面破幡先到", "story": "起风时，一面旧幡会在摊头响起来。拿幡的客只管开路，每逢一大波只来一位。", "counter": "每一大波的最后一拨到场，带来这一轮最紧密的攻势。像普通恶客一样行走和啃食。", "quote": "诸位，进街。"},
 	"formless": {"epithet": "一团泥没有骨头", "story": "水窖漏过一场雨，留下的泥影学会了过街。竹签常穿过它，只有低头啃东西时，它才像有个固定形状。", "counter": "未啃食时，每次受击有50%概率免去这次伤害。啃食时无法闪避。", "quote": "你打中的是哪一块？"},
 	"reed-shot": {"epithet": "芦管吹过一条街", "story": "有个河边猎户用芦管吹出细针。它夜里走进一格半就停住，慢慢吹，看谁先撑不住。", "counter": "进场走过1.5格后停住，每1.2秒射击一次。同一行最先碰到的草木受到40。沉默可阻止远射。", "quote": "挡着的人，自然先挨。"},
 	"ghost": {
@@ -433,7 +433,7 @@ static func plant_rows(type: String) -> Array:
 		"umbrella":
 			var chomp: Dictionary = d["chomp"]
 			rows.append(_row("收妖时间", "%s 秒" % String.num(chomp["chew"], 1), "time"))
-			rows.append(_row("对大型", "%d 伤害" % int(chomp["large_damage"]), "atk"))
+			rows.append(_row("对大型伤害", str(int(chomp["large_damage"])), "atk"))
 			rows.append(_row("收妖范围", in_cells(chomp["reach"]), "desc"))
 			rows.append(_row("特性", "非大型即收", "desc"))
 		"lion":
@@ -461,7 +461,7 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("轨迹", "抛物线越过前排", "desc"))
 		"torch":
 			var t_orch: Dictionary = Upgrades.EFFECTS["torch"]
-			rows.append(_row("射弹增幅", "+%d%% 伤害" % int(round(t_orch["buff"][0] * 100)), "atk"))
+			rows.append(_row("射弹伤害增幅", "+%d%%" % int(round(t_orch["buff"][0] * 100)), "atk"))
 			rows.append(_row("作用", "穿过火盆的友方射弹", "desc"))
 			rows.append(_row("类别", "增幅 · 不主动攻击", "cost"))
 			rows.append(_row("特性", "多个炭火盆只生效最高增幅", "desc"))
