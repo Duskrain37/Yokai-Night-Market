@@ -80,6 +80,11 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw '存档、按键与状态检查失败' }
     & $enginePath --headless --path $projectPath --script res://tools/qa_v052.gd --log-file (Join-Path $qa 'v052-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'v0.5.2 更新检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_v053.gd --log-file (Join-Path $qa 'v053-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw 'v0.5.3 更新检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_mobile.gd --log-file (Join-Path $qa 'mobile-tests.log') -- --mobile
+    if ($LASTEXITCODE -ne 0) { throw '移动操作检查失败' }
+
 }
 
 Write-Host '[7/7] 导出 Windows 单文件…'

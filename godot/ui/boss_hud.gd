@@ -12,6 +12,10 @@ func _process(_delta: float) -> void:
 func _draw() -> void:
 	if game.sim==null or game.sim.boss==null:return
 	var boss=game.sim.boss
+	if game.mobile:
+		if game.hud!=null and game.hud._banner_band!=null and game.hud._banner_band.visible:return
+		_draw_mobile(boss)
+		return
 	var left = 400.0
 	var top = 132.0
 	var width = 820.0
@@ -27,3 +31,15 @@ func _draw() -> void:
 	var status = " · 退散" if not boss.alive() else (" · 破绽 · 伤害提高25%" if boss.state == "recovery" else "")
 	draw_string(font,Vector2(left+28,top+26),String(boss.config.name) + status,HORIZONTAL_ALIGNMENT_LEFT,-1,Ui.font_size(17),Color("#f1d9ad"))
 	draw_string(font,Vector2(left+width-158,top+25),"%d / %d" % [ceili(boss.hp),ceili(boss.max_hp)],HORIZONTAL_ALIGNMENT_LEFT,-1,15,Color("#fae7c8"))
+
+func _draw_mobile(boss) -> void:
+	var rect:=Rect2(300,138,1116,84)
+	Ui.draw_plate(self,rect,Color("#151c23"),Color("#a78353"),22,2)
+	var ratio:=clampf(float(boss.hp)/maxf(1.0,float(boss.max_hp)),0,1)
+	var trough:=Rect2(rect.position+Vector2(24,55),Vector2(rect.size.x-48,18))
+	Ui.draw_gauge(self,trough,ratio,Color("#a94c36"))
+	for threshold in boss.config.major_thresholds:
+		draw_circle(Vector2(trough.position.x+trough.size.x*float(threshold),trough.get_center().y),4,Color("#806446") if boss.fired.has(threshold) else Color("#f3ce8b"))
+	var suffix:=" · 退散" if not boss.alive() else (" · 破绽" if boss.state=="recovery" else "")
+	draw_string(font,rect.position+Vector2(24,37),String(boss.config.name)+suffix,HORIZONTAL_ALIGNMENT_LEFT,750,Ui.font_size(28),Ui.GOLD_BRIGHT)
+	draw_string(font,rect.position+Vector2(820,36),"%d / %d" % [ceili(boss.hp),ceili(boss.max_hp)],HORIZONTAL_ALIGNMENT_LEFT,-1,Ui.font_size(23),Ui.TEXT)

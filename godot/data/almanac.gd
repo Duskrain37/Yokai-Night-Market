@@ -423,12 +423,12 @@ static func plant_rows(type: String) -> Array:
 			var pulse: Dictionary = d["pulse"]
 			rows.append(_row("减速", percent(Content.PLANTS["bell"]["pulse"]["slow"]), "time"))
 			rows.append(_row("持续", "%s 秒" % String.num(pulse["slow_duration"], 1), "time"))
-			rows.append(_row("摇铃间隔", "%s 秒" % String.num(pulse["interval"], 1), "time"))
+			rows.append(_row("攻击间隔", "%s 秒" % String.num(pulse["interval"], 1), "time"))
 			rows.append(_row("范围", "本行前方", "desc"))
 		"censer":
 			var cd: Dictionary = d["censer"]
 			rows.append(_row("香雾伤害", str(int(float(cd["damage"]))), "atk"))
-			rows.append(_row("喷烟间隔", "%s 秒" % String.num(float(cd["interval"]), 1), "time"))
+			rows.append(_row("攻击间隔", "%s 秒" % String.num(float(cd["interval"]), 1), "time"))
 			rows.append(_row("半径", in_cells(float(cd["radius"])), "desc"))
 		"umbrella":
 			var chomp: Dictionary = d["chomp"]
@@ -456,8 +456,8 @@ static func plant_rows(type: String) -> Array:
 		"lobber":
 			var lob: Dictionary = d["lob"]
 			rows.append(_row("汤圆伤害", str(int(lob["damage"])), "atk"))
-			rows.append(_row("投掷间隔", "%s 秒" % String.num(lob["interval"], 1), "time"))
-			rows.append(_row("目标", "本行最右", "desc"))
+			rows.append(_row("攻击间隔", "%s 秒" % String.num(lob["interval"], 1), "time"))
+			rows.append(_row("目标", "本行前方最近", "desc"))
 			rows.append(_row("轨迹", "抛物线越过前排", "desc"))
 		"torch":
 			var t_orch: Dictionary = Upgrades.EFFECTS["torch"]
@@ -468,12 +468,12 @@ static func plant_rows(type: String) -> Array:
 		"star":
 			var star: Dictionary = d["star"]
 			rows.append(_row("每道伤害", str(int(star["damage"])), "atk"))
-			rows.append(_row("发灯间隔", "%s 秒" % String.num(star["interval"], 1), "time"))
+			rows.append(_row("攻击间隔", "%s 秒" % String.num(star["interval"], 1), "time"))
 			rows.append(_row("范围", "五向各一道", "desc"))
 		"needle":
 			var needle: Dictionary = d["needle"]
 			rows.append(_row("本体伤害", str(int(needle["damage"])), "atk"))
-			rows.append(_row("出针间隔", "%s 秒" % String.num(needle["interval"], 1), "time"))
+			rows.append(_row("攻击间隔", "%s 秒" % String.num(needle["interval"], 1), "time"))
 			rows.append(_row("目标", "本行前方", "desc"))
 			rows.append(_row("特性", "无视护具", "desc"))
 		"judge":
@@ -485,7 +485,7 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("类别", "灰烬 · 仅用一次", "cost"))
 		"firework":
 			rows.append(_row("直击伤害", "100", "atk"))
-			rows.append(_row("抛射间隔", "3.5 秒", "time"))
+			rows.append(_row("攻击间隔", "3.5 秒", "time"))
 			rows.append(_row("溅射", "0.8格内受到直击伤害的50%", "desc"))
 		"squash":
 			rows.append(_row("砸击伤害", "1800", "atk"))
@@ -494,7 +494,7 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("类别", "灰烬 · 一次性", "cost"))
 		"dragon":
 			rows.append(_row("近攻伤害", str(int(Upgrades.EFFECTS.dragon.near_damage[0])), "atk"))
-			rows.append(_row("近攻间隔", "0.25 秒", "time"))
+			rows.append(_row("攻击间隔", "0.25 秒", "time"))
 			rows.append(_row("范围", "本行前方3格", "desc"))
 		"lily":
 			rows.append(_row("水面", "必须", "desc"))
@@ -538,15 +538,15 @@ static func plant_ability(type: String) -> String:
 	"wall": "替后方草木挡住啃咬。进化可以让它自行修复、反弹伤害恶客，或磨出碎石还手。能挡多久，往往就决定后排能打多久。",
 	"bomb": "点燃后稍等片刻便会爆开，重创周围的恶客。只能使用一次，适合挽救突然吃紧的一段防线。",
 	"mushroom": "埋下后需要时间长成。长成时若正被啃食，立即喷出鬼火；也会被近处的恶客触发。",
-	"bell": "让本行前方的恶客放慢脚步，为整条防线争取时间。进化可以加快摇铃、让敌人停步回头，或反噬啃咬者。",
+	"bell": "摇铃放慢本行前方的恶客。进化可以加快摇铃、概率定身，或让铃声照顾整行，唤醒沉睡的草木并恢复生命。",
 	"censer": "香雾能同时熏伤身边多名恶客。进化可以扩大烟圈、加深香印或加快喷烟。",
 	"umbrella": "能把靠近的非大型恶客收进伞中；遇到大型敌人则用伞骨击打。进化可以加快收妖、给自己撑起护盾，还能打开两个独立的副收妖位。",
 	"lion": "撞击并推开本行恶客。进化后可以远跃、贯穿整行，最后一击横扫这一行；也能重摔恶客或给身边同伴恢复耐久。",
 	"cat": "尾火会追向全场最近的恶客，也能跨行救急。进化可以缩短出手间隔、接连放出十团狐火，或让每团狐火命中后再追另一名。",
 	"shell": "给已有草木披上一层龟甲。恶客先啃壳，壳碎了才伤到里面的草木；用铲子可以单独拆下龟甲，不伤及被保护的草木。",
-	"lobber": "把汤圆越过前排，抛向本行队尾。进化可以提高伤害、加快抛射，或留下能减速和烫伤恶客的热汤。",
-	"torch": "友军射出的竹签、尾火等穿过火焰时会变得更有威力。适合种在射手前方；进化还能留下火星、灼烧与火油。穿过多个火盆也只得到最强的一次加成。",
-	"star": "向有敌人的方向送出灯焰，适合照应多行。进化可以提高伤害或攻速，门神出手时还能短暂急巡；错过敌人的灯焰也可折回追击。",
+	"lobber": "向本行前方最近的恶客抛出汤圆，越过障碍击中目标。进化可以提高伤害、缩短攻击间隔，或照顾整行，在没有恶客时给同伴送去增伤的温暖。",
+	"torch": "穿过火光的友军射弹会变得更有威力。进化可以增强射弹、帮助周围九格的生产型草木增加香火，或在受啃食时展开火墙、脱离啃食时恢复生命。同类增幅取最高值。",
+	"star": "场上有恶客时，五个方向同时发出灯焰。没有命中的灯焰会沿原路折返一次。进化可以提高伤害、缩短攻击间隔，或让灯焰追魂；巡天满阶还能额外发出五颗追踪灯焰。",
 	"needle": "骨针穿过护具直伤本体。进化可以贯穿一整行、加快出针并钉住恶客，或让被扎中的恶客更易受伤。",
 	"judge": "把它放在容易受围攻的草木旁。它也庇护自己；进化可以挡住一次致命伤、扩大范围或鼓舞附近草木。",
 	"gust": "扇风不伤恶客，却能让各路恶客后退。大型恶客退得较少，路上有障碍时会被挡住。",

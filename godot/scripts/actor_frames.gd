@@ -7,6 +7,9 @@ var catalog: Dictionary = {}
 var motion: Dictionary = {}
 var motion_sheets: Dictionary = {}
 var _prefix := ""
+var _pending: Dictionary = {}
+var _last_use: Dictionary = {}
+var _mobile := OS.has_feature("android") or "--mobile" in OS.get_cmdline_user_args()
 var sheets: Dictionary = {}
 
 
@@ -18,8 +21,9 @@ func load_sheets(prefix: String = "") -> void:
 	if not data is Dictionary:
 		return
 	catalog = data
-	if FileAccess.file_exists(MOTION_MANIFEST):
-		var motion_data = JSON.parse_string(FileAccess.get_file_as_string(MOTION_MANIFEST))
+	var motion_path = "res://data/actor_motion_mobile.json" if _mobile and FileAccess.file_exists("res://data/actor_motion_mobile.json") else MOTION_MANIFEST
+	if FileAccess.file_exists(motion_path):
+		var motion_data = JSON.parse_string(FileAccess.get_file_as_string(motion_path))
 		if motion_data is Dictionary:
 			motion = motion_data
 
@@ -46,13 +50,26 @@ func draw_pose(canvas: CanvasItem, actor: String, clip: String, key_position: fl
 	var texture: Texture2D = null
 	var frame_index = int(floor(key_position))
 	if motion.has(actor):
-		if not motion_sheets.has(actor):
-			var path = "res://" + String(motion[actor]["file"])
+		var resolved_clip := clip
+		if not motion[actor].clips.has(resolved_clip):resolved_clip="walk" if clip=="swim" else "attack"
+		var sheet_key: String=actor+"#"+resolved_clip if _mobile and motion[actor].has("clip_files") else actor
+		var path: String="res://"+String(motion[actor].get("clip_files",{}).get(resolved_clip,motion[actor].file))
+		_last_use[sheet_key]=Time.get_ticks_msec()
+		if not motion_sheets.has(sheet_key):
 			if ResourceLoader.exists(path):
-				motion_sheets[actor] = load(path)
-		if motion_sheets.has(actor):
+				if not _mobile or ResourceLoader.has_cached(path):
+					motion_sheets[sheet_key]=load(path)
+				elif not _pending.has(sheet_key):
+					ResourceLoader.load_threaded_request(path)
+					_pending[sheet_key]=true
+					return false
+				elif ResourceLoader.load_threaded_get_status(path)==ResourceLoader.THREAD_LOAD_LOADED:
+					motion_sheets[sheet_key]=ResourceLoader.load_threaded_get(path)
+					_pending.erase(sheet_key)
+				else:return false
+		if motion_sheets.has(sheet_key):
 			info = motion[actor]
-			texture = motion_sheets[actor]
+			texture = motion_sheets[sheet_key]
 			frame_index = int(floor(key_position * MOTION_STEPS_PER_KEY))
 	if texture == null:
 		texture = key_sheet(actor)
@@ -80,3 +97,12 @@ func draw_pose(canvas: CanvasItem, actor: String, clip: String, key_position: fl
 		Rect2(r[0], r[1], size.x, size.y), tint, false, true)
 	canvas.draw_set_transform(Vector2.ZERO)
 	return true
+
+
+func release_unused(age_ms: int = 8000) -> void:
+	if not _mobile:return
+	var now:=Time.get_ticks_msec()
+	for actor in motion_sheets.keys():
+		if now-int(_last_use.get(actor,now))>age_ms:
+			motion_sheets.erase(actor)
+			_last_use.erase(actor)

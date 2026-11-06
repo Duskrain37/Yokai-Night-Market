@@ -1,40 +1,42 @@
 {
-  "version": "0.5.2",
-  "build_hash": "196954e",
-  "exe_bytes": 751825836,
-  "exe_sha256": "d6fe972dcd8b3142be00dccacca7da8e940785c398d9af26c38e33309ea93745",
+  "version": "0.5.3",
+  "build_hash": "057e9d2",
+  "exe_bytes": 760596488,
+  "exe_sha256": "b6247b9b8b77460e9deb4ff0451bc9f379e5e34ea700890659a337b6f5e16276",
   "assertions": {
-    "logic-tests": 305,
+    "logic-tests": 383,
     "battle-tests": 39,
     "boss-tests": 143,
     "special-tests": 120,
     "ui-tests": 78,
     "click-tests": 65,
     "player-ui-tests": 273,
-    "animation-tests": 949,
+    "animation-tests": 958,
     "v050-tests": 459,
     "v051-refresh-tests": 22,
     "v052-tests": 45,
+    "v053-tests": 41,
+    "mobile-tests": 20,
     "patch-tests": 145
   },
-  "assertion_total": 2643,
+  "assertion_total": 2791,
   "failures": 0,
   "boss_simulations": 33,
   "boss_reference_seconds": [
-    86.9,
-    151.4
+    70.7,
+    124.7
   ],
   "boss_reference_wins": 15,
   "boss_legacy_fixture_wins": 0,
-  "motion_frames": 10496,
+  "motion_frames": 10752,
   "pack_trim": {
-    "original_bytes": 843511776,
-    "candidate_bytes": 751825836,
-    "untouched_files": 878,
-    "removed_files": 223,
+    "original_bytes": 853233176,
+    "candidate_bytes": 760596488,
+    "untouched_files": 895,
+    "removed_files": 226,
     "removed_by_group": {
-      "fallback_key_atlases": 84043376,
-      "unused_and_art_prompts": 7003211
+      "fallback_key_atlases": 84992181,
+      "unused_and_art_prompts": 7004868
     },
     "identical_payload_reuse": 615868,
     "removed_paths": {
@@ -136,6 +138,7 @@
         ".godot/imported/v052-craters.png-64d476880c6de804dfc1dca5deb78470.ctex",
         ".godot/imported/v052-plant-fx.png-91750991e296ea85e89101777d7353be.ctex",
         ".godot/imported/v052-projectiles.png-9485cecdc6c96921f2a7109398d6ba67.ctex",
+        ".godot/imported/v053-buff-fx.png-ac9b40b02dccca9e5ed6c198071477ad.ctex",
         ".godot/imported/vault.png-d93b9a69cba7d5b4076a563835a1584a.ctex",
         ".godot/imported/wall-e1.png-d1822862c653cdca425dc73b3733f231.ctex",
         ".godot/imported/wall-e2.png-8b2b6c3c836b6eb97dc81c9754985872.ctex",
@@ -241,6 +244,7 @@
         "assets/sprites/animation/v052-craters.png.import",
         "assets/sprites/animation/v052-plant-fx.png.import",
         "assets/sprites/animation/v052-projectiles.png.import",
+        "assets/sprites/animation/v053-buff-fx.png.import",
         "assets/sprites/animation/vault.png.import",
         "assets/sprites/animation/wall-e1.png.import",
         "assets/sprites/animation/wall-e2.png.import",
@@ -263,16 +267,17 @@
         "data/v050_art_prompts.json",
         "data/v051_art_prompts.json",
         "data/v052_art_prompts.json",
-        "data/v052_guest_art_prompts.json"
+        "data/v052_guest_art_prompts.json",
+        "data/v053_art_prompts.json"
       ]
     }
   },
   "pack_checks": {
-    "checks": 11140,
+    "checks": 11406,
     "failures": 0,
-    "frames": 10496,
-    "texture_load_ms": 4418.696
+    "frames": 10752,
+    "texture_load_ms": 5837.093
   },
   "platform": "Windows x64",
-  "verification": "自动检查、Windows 导出包启动、实机画面与恶首阵容模拟。未做人手二十五夜全通。"
+  "verification": "自动检查、Windows 导出包启动、实机画面与恶首阵容模拟。安卓验证单列。未做人手二十五夜全通。"
 }

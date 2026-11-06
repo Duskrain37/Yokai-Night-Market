@@ -1,0 +1,32 @@
+[
+  {
+    "actor": "dragon",
+    "source_size": [
+      1872,
+      5624
+    ],
+    "actions": 6,
+    "frames": 192,
+    "visible_rgba_unchanged": true
+  },
+  {
+    "actor": "v052-boss-fx",
+    "source_size": [
+      1456,
+      4368
+    ],
+    "actions": 6,
+    "frames": 192,
+    "visible_rgba_unchanged": true
+  },
+  {
+    "actor": "v053-buff-fx",
+    "source_size": [
+      1456,
+      5824
+    ],
+    "actions": 8,
+    "frames": 256,
+    "visible_rgba_unchanged": true
+  }
+]

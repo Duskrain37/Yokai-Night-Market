@@ -1,10 +1,11 @@
-# 妖怪夜市 v0.5.2
+# 妖怪夜市 v0.5.3
 
 ## 下载后直接启动
 
 1. [下载 Windows 64 位可执行文件](https://github.com/Duskrain37/Yokai-Night-Market/releases/latest/download/YokaiNightMarket-win64.exe)。
 2. 下载完成后，双击 `YokaiNightMarket-win64.exe` 启动游戏。单文件无需安装或解压。
-3. 更新公告见[最新发布页](https://github.com/Duskrain37/Yokai-Night-Market/releases/latest)。
+3. 安卓手机请[下载 APK](https://github.com/Duskrain37/Yokai-Night-Market/releases/download/v0.5.3-mobile/YokaiNightMarket-android.apk)，允许浏览器安装此 APK 后，点开游戏图标即可游玩。横屏运行，支持 ARM64 / ARMv7，Android 7.0 及以上、OpenGL ES 3.0；建议至少预留 2 GB 存储空间。
+4. 更新公告见[最新发布页](https://github.com/Duskrain37/Yokai-Night-Market/releases/latest)。
 
 中式怪谈题材的车道塔防。用香火请草木出摊，在灯火与水道之间守住夜市。
 
@@ -23,7 +24,9 @@ Windows 成品为单文件，下载后双击运行。玩家数据位于 `%APPDAT
 
 ## 本次更新
 
-新增回春葫及三路独立三阶形态，调整逐云鸢、烬翼蝉、祈愿耕等草木。恶首的技能、援军和演出全面增强。图鉴支持发布顺序及分类排序；封面右上角可查看完整更新公告。常规恶客重新绘制朝左行走、攻击和游泳动作，护具随头部定位。
+电脑版与安卓手机版同步更新。修正蒲舟客沉舟泳姿、失锁追魂弹和镇煞瓜落地索敌；公告首次自动打开，并加入下载及反馈页。增益特效按草木来源分别绘制，八组特效各有32帧。根据最新草木方案调整九株草木及相关进化费用，详情见 [本版公告](V053_CHANGES.md)。
+
+手机轻点选卡、种植、拾取和查看；长按约0.45秒执行取消。备战、图鉴、设置可上下滑动；点选场上草木后，先点路线读说明，再确认花费进化。需要完整说明时点右侧图鉴，返回后保留选择。后台自动暂停，回来后自行继续。手机布局与电脑版分别适配，设置中可选30/60帧和更大字号。移动版独立说明见 [MOBILE.md](MOBILE.md)。
 
 ## 从源码运行
 
@@ -46,7 +49,7 @@ Windows导出需要同版本模板。当前 `export_presets.cfg` 指向工作区
 - `trim_export.py`：打包后校验全部动画清单和包内逐文件内容，剔除停用资源并去重。每次追加内容先完成运行验收，再更新裁剪依据。
 - `ui_selftest.gd`、`qa_click.gd`、`qa_player_ui.gd`：界面、视口事件点击、全部备战按钮边界、图鉴和进化文案。
 
-结果在 `qa/`，最终包哈希见发布验收记录。固定阵容模拟不是人类实时试玩，不代表所有卡组都在两分钟内击败恶首。当前实测交付平台为Windows x64。
+结果在 `qa/`，最终包哈希见发布验收记录。固定阵容模拟不是人类实时试玩，不代表所有卡组都在两分钟内击败恶首。验证分别覆盖 Windows x64 成品与 Android x86_64 模拟器；安卓公开 APK 包含 ARM64 / ARMv7。模拟器验证不等于实体手机实测，具体测试记录随发布提供。
 
 历史规则入口见 `V040_IMPLEMENTATION.md`，本版骨骼范式与动画接入见 `ANIMATION_RIG.md`。后续波次进度仍四波一页；玩家界面只用条形表示凶险度，不显示系数与开发说明。
 

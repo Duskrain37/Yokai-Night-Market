@@ -53,3 +53,12 @@ python tools/register_actor_atlas.py new-guest "C:/art/new-guest.png" walk,attac
 `v052-boss-fx` 六组施法、`v052-plant-fx` 五组治疗与状态、`v052-projectiles` 四组射弹、`v052-craters` 两类坑洞均注册到动作清单，运行32帧图集。特效帧采用稳定格心锚点，禁止随亮区包围盒漂移。轿厢图已含两名轿夫，完整轿厢显示时不再叠画额外轿夫。原始提示词与来源记录见 `data/v052_art_prompts.json`、`data/v052_guest_art_prompts.json`。
 
 新图集的行距可能不均匀，禁止只按整图四等分截取。`tools/fix_atlas_regions_v052.py` 对六套新侧身图以连通主体检测实际行界，保留完整脚部并排除上一行残片；重算脚底和护具脸部锚点后再烘焙。区域审计在 `data/v052_region_audit.json`，美术原图像素保持原样。
+
+
+## v0.5.3 来源增益与移动图集
+
+`v053-buff-fx` 分八组：lantern纸火灯影、lobber暖汤蒸汽、judge朱砂镇印、bell青铜声纹、torch炭火星芒、herb葫芦药叶、till香火账符、cheer暖金鼓舞。四幅原画关键姿势分别扩成32帧，锚点固定格心，接入`UnitView.BUFF_CLIPS`与`buff-*`事件。多来源同时生效时可分别淡显，禁止复用一套光圈只换颜色。原稿与提示词见 `data/v053_art_prompts.json`。
+
+蒲舟客用 `tools/fix_atlas_regions_v053.py` 计算实际泳姿主体行界，沉舟后立即显示 swim / swim_bite，船体另行下沉，禁止把上一行脚部混入泳姿。
+
+安卓清单`data/actor_motion_mobile.json`由`tools/prepare_mobile_motion.py`生成。超4096图集按动作拆分到`assets/sprites/mobile-motion/`，`clip_files`指定每组纹理；rect移到该动作局部坐标，anchor与body_px保持不变。每个片段仍为32帧。审核记录含可见RGBA与透明度完全一致的校验，不能借拆图缩分辨率。常规角色继续用原动作图集。电脑版不导出手机专用副本；手机版不导出被拆分的重复大图集。

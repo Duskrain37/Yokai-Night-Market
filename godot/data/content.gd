@@ -56,11 +56,7 @@ const PLANTS = {
 		"sprite_h": 96, "pulse": {"interval": 2.5, "slow": 0.25,
 			"slow_duration": 1.5}, "tint": "#d8ab4c",
 	},
-	"censer": {
-		"name": "香炉", "role": "范围", "cost": 150, "cooldown": 8, "hp": 340,
-		"sprite_h": 90, "censer": {"interval": 3.0, "radius": 140.0,
-			"damage": 45.0}, "tint": "#a4845c",
-	},
+	"censer": {"name": "香炉", "role": "范围", "cost": 150, "cooldown": 8, "hp": 340, "sprite_h": 90, "censer": {"interval": 2.5, "radius": 140.0, "damage": 45.0}, "tint": "#a4845c"},
 	"umbrella": {
 		"name": "纸伞", "role": "收妖", "cost": 150, "cooldown": 12, "hp": 900,
 		"sprite_h": 112, "chomp": {"reach": 74.0, "chew": 6.0,
@@ -81,11 +77,7 @@ const PLANTS = {
 		"name": "龟甲罩", "role": "护罩", "cost": 100, "cooldown": 18, "hp": 1400,
 		"sprite_h": 104, "attach": true, "tint": "#86966f",
 	},
-	"lobber": {
-		"name": "汤圆仔", "role": "抛射", "cost": 100, "cooldown": 7, "hp": 300,
-		"sprite_h": 94, "lob": {"interval": 2.6, "damage": 40.0, "flight": 0.9},
-		"tint": "#e8d6ac",
-	},
+	"lobber": {"name": "汤圆仔", "role": "抛射", "cost": 100, "cooldown": 7, "hp": 300, "sprite_h": 94, "lob": {"interval": 2.3, "damage": 40.0, "flight": 0.9}, "tint": "#e8d6ac"},
 	"torch": {
 		"name": "炭火盆", "role": "增幅", "cost": 150, "cooldown": 12, "hp": 300,
 		"sprite_h": 86, "torch": {"buff": 0.5}, "tint": "#e87440",
@@ -94,11 +86,7 @@ const PLANTS = {
 		"name": "五路巡灯", "role": "五向", "cost": 175, "cooldown": 9, "hp": 300,
 		"sprite_h": 100, "star": {"interval": 1.6, "damage": 20.0, "dirs": 5}, "tint": "#e8c25c",
 	},
-	"needle": {
-		"name": "透骨针", "role": "破甲", "cost": 125, "cooldown": 8, "hp": 300,
-		"sprite_h": 92, "needle": {"interval": 1.7, "damage": 18.0, "speed": 720.0},
-		"tint": "#e4dcc4",
-	},
+	"needle": {"name": "透骨针", "role": "破甲", "cost": 125, "cooldown": 8, "hp": 300, "sprite_h": 92, "needle": {"interval": 1.6, "damage": 24, "speed": 720.0}, "tint": "#e4dcc4"},
 	"judge": {
 		"name": "钟馗像", "role": "庇护", "cost": 125, "cooldown": 10, "hp": 900,
 		"sprite_h": 106, "judge": {"interval": 1.6, "damage": 38.0, "speed": 530.0},
@@ -124,10 +112,10 @@ const PLANTS = {
 	},
 	"herb-gourd": {"name":"回春葫","role":"扶伤","cost":175,"cooldown":22,"hp":300,"sprite_h":100,"healer":true,"tint":"#719e85"},
 	"ruin-cap": {"name": "劫火芝", "role": "灰烬", "cost": 275, "cooldown": 56, "hp": 300, "sprite_h": 108, "ash": true, "no_upgrade": true, "ruin": {"fuse": 1.1, "reach": 2, "damage": 1800}, "tint": "#8b638c"},
-	"sky-kite": {"name": "逐云鸢", "role": "抛射", "cost": 150, "cooldown": 8, "hp": 300, "sprite_h": 105, "kite": {"interval": 1.3}, "tint": "#60958c"},
+	"sky-kite": {"name": "逐云鸢", "role": "抛射", "cost": 200, "cooldown": 8, "hp": 300, "sprite_h": 105, "kite": {"interval": 1.3}, "tint": "#60958c"},
 	"wish-till": {"name": "清账匣", "role": "产能", "cost": 75, "cooldown": 16, "hp": 300, "sprite_h": 92, "till": true, "tint": "#a18452"},
 	"cash-pod": {"name": "铜钱荚", "role": "灰烬", "cost": 0, "cooldown": 26, "hp": 400, "sprite_h": 78, "ash": true, "no_upgrade": true, "cash_pod": true, "tint": "#a35336"},
-	"ember-cicada": {"name": "烬翼蝉", "role": "追魂", "cost": 250, "cooldown": 10, "hp": 320, "sprite_h": 105, "ember": true, "tint": "#b9673e"},
+	"ember-cicada": {"name": "烬翼蝉", "role": "追魂", "cost": 275, "cooldown": 10, "hp": 320, "sprite_h": 105, "ember": true, "tint": "#b9673e"},
 	"kelp": {
 		"name": "缠魂藻", "role": "灰烬", "cost": 50, "cooldown": 20, "hp": 300,
 		"sprite_h": 104, "water_only": true, "no_upgrade": true, "ash": true,
@@ -880,3 +868,11 @@ static func plants_in_level(level: Dictionary) -> Array:
 		if seen.has(type) or (type == "bride" and (seen.has("sedan") or seen.has("matchmaker"))):
 			ordered.append(type)
 	return ordered
+
+
+static func next_story_level(id: int) -> int:
+	var ids: Array[int]=[]
+	for week in range(1,DAYS.size()+1):
+		for night in 5:ids.append(level_id_for(week,night))
+	var at:=ids.find(id)
+	return ids[at+1] if at>=0 and at+1<ids.size() else 0

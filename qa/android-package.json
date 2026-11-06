@@ -1,0 +1,19 @@
+{
+  "file": "YokaiNightMarket-android.apk",
+  "bytes": 697006705,
+  "sha256": "2f7931c10703c90a5eb72a8e73b3536c41e946e00e7e8f25cc24a9e606dbebb7",
+  "abis": [
+    "arm64-v8a",
+    "armeabi-v7a"
+  ],
+  "animation_frames": 10752,
+  "signature": "Verifies\r\nVerified using v1 scheme (JAR signing): false\r\nVerified using v2 scheme (APK Signature Scheme v2): true\r\nVerified using v3 scheme (APK Signature Scheme v3): true\r\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\r\nVerified using v4 scheme (APK Signature Scheme v4): false\r\nVerified for SourceStamp: false\r\nNumber of signers: 1\r\nSigner #1 certificate DN: CN=Yokai Night Market, O=Duskrain37, C=CN\r\nSigner #1 certificate SHA-256 digest: 8851101094b200c9dcc66455c328ba197ad3cb6b37853923c3ba21a82460a165\r\nSigner #1 certificate SHA-1 digest: a3faf698186a0605487c1dabf17617eed09501a0\r\nSigner #1 certificate MD5 digest: a53628e93f33ffd55c6532ba246a9494\r\nSigner #1 key algorithm: RSA\r\nSigner #1 key size (bits): 3072\r\nSigner #1 public key SHA-256 digest: 13104d8e7332b0f4d6871470b40541387d3e6daa04d03a771ffb62934030a20e\r\nSigner #1 public key SHA-1 digest: d67348612eaa179d35d9a3ddc5baa3497645013b\r\nSigner #1 public key MD5 digest: abfb6b690f8e4ee02b69902f0ddd6890\r\n",
+  "manifest": [
+    "package: name='com.duskrain.nightmarket' versionCode='503' versionName='0.5.3' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'",
+    "sdkVersion:'24'",
+    "targetSdkVersion:'36'",
+    "uses-permission: name='android.permission.VIBRATE'",
+    "supports-screens: 'small' 'normal' 'large' 'xlarge'",
+    "native-code: 'arm64-v8a' 'armeabi-v7a'"
+  ]
+}

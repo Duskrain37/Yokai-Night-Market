@@ -3605,6 +3605,42 @@
 			"ok": true
 		},
 		{
+			"name": "v053-buff-fx 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "v053-buff-fx bell 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v053-buff-fx cheer 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v053-buff-fx herb 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v053-buff-fx judge 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v053-buff-fx lantern 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v053-buff-fx lobber 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v053-buff-fx till 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v053-buff-fx torch 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "vault 图集可加载",
 			"ok": true
 		},
@@ -3798,5 +3834,5 @@
 		}
 	],
 	"failures": 0,
-	"total": 949
+	"total": 958
 }

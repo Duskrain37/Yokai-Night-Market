@@ -17,7 +17,9 @@ var _loading_screen: Control
 var _loading_hold: Dictionary = {}
 var _loading_busy := false
 
-const VERSION = "0.5.2"
+const VERSION = "0.5.3"
+const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
+var touch_router: Node
 const SAVE_PATH = "user://run.json"
 const SLOTS_PATH = "user://run-slots.json"
 const SLOT_COUNT = 3
@@ -32,6 +34,8 @@ const PROGRESS_PATH = "user://progress.json"
 const RECORDS_PATH = "user://records.json"
 
 const DEFAULT_SETTINGS = {
+	"mobile_target_fps": 60,
+	"news_seen_version": "",
 	"speed": 1.0,
 	"auto_collect": true,
 	"collect_delay": 0.0,
@@ -81,6 +85,7 @@ var screen_node: Control = null
 var overlay_from = ""
 
 var sim: Sim = null
+var _battle_stage: Node2D
 var board: BoardView = null
 var units: UnitView = null
 var boss_view: Node2D = null
@@ -106,6 +111,7 @@ var _sfx_players: Array = []
 var _sfx_cache: Dictionary = {}
 var _sfx_cursor = 0
 var _sfx_gates: Dictionary = {}
+var mobile := OS.has_feature("android") or "--mobile" in OS.get_cmdline_user_args()
 var _qa = false
 var _pending_capture = ""
 var _qa_sim_seconds = 0.0
@@ -115,6 +121,11 @@ const MUSIC_SCENES = ["menu", "battle", "hot", "final"]
 
 
 func _ready() -> void:
+	if mobile:
+		get_tree().quit_on_go_back=false
+		Ui.mobile_font_factor=1.1
+		Engine.max_fps=60
+		get_window().min_size=Vector2i.ZERO
 	get_tree().root.theme = Ui.make_theme()
 	_qa = "--qa" in OS.get_cmdline_user_args() or DisplayServer.get_name()=="headless"
 	for arg in OS.get_cmdline_user_args():
@@ -123,7 +134,7 @@ func _ready() -> void:
 			if parts.size() == 2 and DisplayServer.get_name() != "headless":
 				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 				DisplayServer.window_set_size(Vector2i(int(parts[0]), int(parts[1])))
-	if DisplayServer.get_name() != "headless":
+	if DisplayServer.get_name() != "headless" and not mobile:
 		DisplayServer.set_icon(Ui.sprite("lantern").get_image())
 		get_window().title = "妖怪夜市 v%s" % VERSION
 	# 所有界面控件挂在 CanvasLayer 下的全屏 Control 上：这样锚点以视口为基准，
@@ -136,11 +147,17 @@ func _ready() -> void:
 	ui_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_layer.add_child(ui_root)
 	_load_state()
+	if mobile:Engine.max_fps=int(settings.get("mobile_target_fps",60))
 	_apply_resolution()
+	if mobile:
+		touch_router=load("res://scripts/mobile_input.gd").new()
+		touch_router.game=self
+		add_child(touch_router)
+		_apply_mobile_safe_area()
 	get_window().size_changed.connect(_on_window_size_changed)
 	if not _qa:
 		var paths: Array[String] = []
-		for track in MUSIC_BASE + MUSIC_DAY_TRACKS:
+		for track in (["menu"] if mobile else MUSIC_BASE + MUSIC_DAY_TRACKS):
 			paths.append(_music_path(track))
 		for actor in Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"]:
 			paths.append("res://assets/sprites/%s.png" % actor)
@@ -155,6 +172,19 @@ func _ready() -> void:
 	if _loading_screen != null:
 		await _reveal_loaded()
 	_handle_cli()
+	if mobile and _qa and "--mobile-smoke" in OS.get_cmdline_user_args():
+		var runner=load("res://scripts/qa_mobile_device.gd").new()
+		add_child(runner)
+		runner.run(self)
+	if not _qa and String(settings.get("news_seen_version", "")) != VERSION:
+		open_news()
+		settings.news_seen_version = VERSION
+		save_settings()
+
+
+func _exit_tree() -> void:
+	if sim!=null:
+		sim.on_win=Callable();sim.on_lose=Callable();sim.on_banner=Callable()
 
 
 func _process(delta: float) -> void:
@@ -184,6 +214,11 @@ func _clear_screen() -> void:
 
 
 func _set_screen(node: Control, name: String) -> void:
+	if mobile and node!=null and name in ["menu","levels","prep","training"]:
+		node.free()
+		node=load("res://ui/mobile_levels.gd").new() if name=="levels" else load("res://ui/mobile_screen.gd").new()
+		node.game=self
+		if name!="levels":node.kind=name
 	_clear_screen()
 	screen = name
 	screen_node = node
@@ -193,6 +228,10 @@ func _set_screen(node: Control, name: String) -> void:
 
 
 func _clear_battle() -> void:
+	if sim!=null:
+		sim.on_win=Callable();sim.on_lose=Callable();sim.on_banner=Callable()
+	if _battle_stage!=null and is_instance_valid(_battle_stage):_battle_stage.queue_free()
+	_battle_stage=null
 	if boss_view!=null and is_instance_valid(boss_view):boss_view.queue_free()
 	boss_view=null
 	if hud != null and is_instance_valid(hud):
@@ -246,7 +285,8 @@ func show_prep(level_id: int, training_mode: bool = false, training_day: int = 1
 func open_almanac(tab: String = "plant", index: int = 0) -> void:
 	overlay_from = screen
 	_clear_screen()
-	var node = AlmanacScreen.new()
+	var node = load("res://ui/mobile_screen.gd").new() if mobile else AlmanacScreen.new()
+	if mobile:node.kind="almanac"
 	node.game = self
 	node.tab = tab
 	node.index = index
@@ -269,7 +309,8 @@ func open_news() -> void:
 func open_settings() -> void:
 	overlay_from = screen
 	_clear_screen()
-	var node = SettingsScreen.new()
+	var node = load("res://ui/mobile_screen.gd").new() if mobile else SettingsScreen.new()
+	if mobile:node.kind="settings"
 	node.game = self
 	ui_root.add_child(node)
 	node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -362,22 +403,26 @@ func _start_battle_now(level_id: int, cards: Array, mode: String, save_initial :
 			sim.sun = 1000
 			sim.count_mul = 1.0
 			sim.hp_mul = 1.0
+	if mobile:
+		_battle_stage=Node2D.new()
+		_battle_stage.transform=ui_root.get_transform()*MOBILE_WORLD
+		add_child(_battle_stage)
 	board = BoardView.new()
 	board.sim = sim
 	board.show_grid = bool(settings["show_grid"])
 	board.set_map(_battle_map(level_id, mode))
-	add_child(board)
+	_battle_parent().add_child(board)
 	units = UnitView.new()
 	units.sim = sim
 	units.health_bars = String(settings["health_bars"])
 	units.tier_shapes = bool(settings["tier_shapes"])
 	_visual_hold_left = 0.0
 	_visual_hold_gate = 0.0
-	add_child(units)
+	_battle_parent().add_child(units)
 	boss_view=preload("res://scripts/boss_view.gd").new()
 	boss_view.sim=sim
-	add_child(boss_view)
-	hud = HudScreen.new()
+	_battle_parent().add_child(boss_view)
+	hud = load("res://ui/mobile_hud.gd").new() if mobile else HudScreen.new()
 	hud.game = self
 	ui_root.add_child(hud)
 	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -402,6 +447,9 @@ func _battle_map(level_id: int, mode: String) -> String:
 
 func _battle_resources(level_id: int, cards: Array, background: String, map: String) -> Array[String]:
 	var paths: Array[String] = [background]
+	if mobile:
+		var day: int=int(Content.get_level(level_id).get("day",1))
+		for phase in ["battle","hot","final"]:paths.append(_music_path("day%d-%s" % [day,phase]))
 	for material in ["straw", "stonehat", "paper", "sedan", "urn", "mask"]:
 		paths.append("res://assets/sprites/armor-%s-atlas.png" % material)
 	for index in [1, 2, 3]:
@@ -420,20 +468,20 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 		foes.append_array(["sedan", "sedan-empty", "sedan-loaded", "bride", "ghost"])
 	if "phaseguard" in foes or "tamer" in foes:
 		foes.append_array(["phase-veil", "phase-kite"])
-	var motion = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json"))
+	var motion = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion_mobile.json" if mobile and FileAccess.file_exists("res://data/actor_motion_mobile.json") else "res://data/actor_motion.json"))
 	if motion is Dictionary:
-		for actor in allies + foes + ["v052-boss-fx", "v052-plant-fx", "v052-projectiles", "v052-craters"]:
+		for actor in allies + foes + ["v052-boss-fx", "v052-plant-fx", "v052-projectiles", "v052-craters", "v053-buff-fx"]:
 			if motion.has(actor):
-				paths.append("res://" + String(motion[actor]["file"]))
+				for file in motion[actor].get("clip_files",{"default":motion[actor].file}).values():paths.append("res://"+String(file))
 		var level := Content.get_level(level_id)
 		var bosses: Array = level.get("boss_checkpoints", []).duplicate()
 		bosses.append_array([level.get("mid_boss", ""), level.get("boss_id", "")])
 		for id in bosses:
 			var actor := "boss-%s" % id
 			if motion.has(actor):
-				paths.append("res://" + String(motion[actor]["file"]))
+				for file in motion[actor].get("clip_files",{"default":motion[actor].file}).values():paths.append("res://"+String(file))
 	var forms = JSON.parse_string(FileAccess.get_file_as_string("res://data/evolution_art_v040.json"))
-	if forms is Dictionary:
+	if forms is Dictionary and not mobile:
 		for actor in forms:
 			paths.append("res://" + String(forms[actor]["file"]))
 	for atlas in ["boss_earth_atlas", "boss_paper_atlas", "boss_river_atlas", "props_atlas", "fx_atlas"]:
@@ -594,7 +642,7 @@ func finish_run(won: bool, z = null) -> void:
 			var cleared: Array = _night_ids(progress.get("cleared", []))
 			cleared.append(int(sim.level_id))
 			progress["cleared"] = cleared
-			progress["selected"] = mini(sim.level_id + 1, Content.LEVELS.size())
+			progress["selected"] = Content.next_story_level(sim.level_id) if Content.next_story_level(sim.level_id)>0 else sim.level_id
 			# 星级只记最好的一次，重打是为了刷星不是为了掉星
 			var stars: Dictionary = progress.get("stars", {})
 			var got = int(result["summary"].get("stars", 0))
@@ -613,7 +661,7 @@ func finish_run(won: bool, z = null) -> void:
 func _show_result(won: bool) -> void:
 	if hud != null and is_instance_valid(hud):
 		hud.visible = false
-	var node = HudScreen.new()
+	var node = load("res://ui/mobile_hud.gd").new() if mobile else HudScreen.new()
 	node.game = self
 	node.result_mode = true
 	node.won = won
@@ -630,7 +678,7 @@ func show_pause() -> void:
 	hud.cancel_selection()
 	paused = true
 	_music_duck = 1.0
-	var node = HudScreen.new()
+	var node = load("res://ui/mobile_hud.gd").new() if mobile else HudScreen.new()
 	node.game = self
 	node.pause_mode_ui = true
 	screen_node = node
@@ -682,7 +730,7 @@ func _update_hover() -> void:
 
 
 func _mouse_world() -> Vector2:
-	return get_viewport().get_mouse_position()
+	return _mobile_world_transform().affine_inverse()*get_viewport().get_mouse_position() if mobile else get_viewport().get_mouse_position()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -754,6 +802,7 @@ func toggle_pause() -> void:
 
 
 func _handle_battle_click(pos: Vector2) -> void:
+	if mobile:pos=_mobile_world_transform().affine_inverse()*pos
 	if sim == null or hud == null:
 		return
 	if hud.has_method("blocks_simulation") and hud.blocks_simulation():
@@ -796,7 +845,9 @@ func _handle_battle_click(pos: Vector2) -> void:
 # ── 设置与进度 ──────────────────────────────────────────────────────────────
 func set_setting(key: String, value) -> void:
 	settings[key] = value
-	if key == "sound":
+	if key == "mobile_target_fps" and mobile:
+		Engine.max_fps=int(value)
+	elif key == "sound":
 		_apply_volume()
 	elif key == "music_volume" or key == "sfx_volume":
 		_apply_volume()
@@ -870,6 +921,9 @@ func _remember_window_size() -> void:
 
 
 func _on_window_size_changed() -> void:
+	if mobile:
+		_apply_mobile_safe_area()
+		return
 	if _qa or _window_changing or DisplayServer.window_get_mode() != DisplayServer.WINDOW_MODE_WINDOWED:
 		return
 	_remember_window_size()
@@ -891,6 +945,9 @@ func _toggle_fullscreen() -> void:
 ## 分辨率：自适应全屏按显示器走；固定档开窗并按所选像素、居中摆放。
 ## 画面本身是 16:9 设计（stretch aspect=keep），非 16:9 窗口会有细窄留边。
 func _apply_resolution() -> void:
+	if mobile:
+		if OS.has_feature("android"):DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_LANDSCAPE)
+		return
 	if DisplayServer.get_name() == "headless":
 		return
 	# QA 截图时用 --qa-size 固定窗口，别被「自适应全屏」抢走
@@ -1168,7 +1225,7 @@ func _setup_audio() -> void:
 	for name in MUSIC_BASE + MUSIC_DAY_TRACKS:
 		var player = AudioStreamPlayer.new()
 		var path = _music_path(name)
-		if ResourceLoader.exists(path):
+		if ResourceLoader.exists(path) and (not mobile or name=="menu"):
 			var stream: AudioStream = load(path)
 			if stream != null:
 				if stream is AudioStreamOggVorbis:
@@ -1205,6 +1262,9 @@ func wave_phase() -> String:
 
 func _has_track(name: String) -> bool:
 	var player = _music_players.get(name)
+	if mobile and player!=null and player.stream==null and ResourceLoader.exists(_music_path(name)):
+		player.stream=load(_music_path(name))
+		if player.stream is AudioStreamOggVorbis:player.stream.loop=true
 	return player != null and player.stream != null
 
 
@@ -1220,6 +1280,7 @@ func resolve_battle_track(day: int, phase: String) -> String:
 
 
 func play_music_scene(scene: String, force: bool = false) -> void:
+	if mobile:_has_track(scene)
 	if _music_current == scene and not force:
 		return
 	_music_current = scene
@@ -1247,6 +1308,7 @@ func _update_music(delta: float) -> void:
 		player.volume_db = lerpf(player.volume_db, goal, clampf(delta * 1.8, 0.0, 1.0))
 		if player.volume_db < -55.0 and goal < -55.0:
 			player.stop()
+			if mobile and name!="menu":player.stream=null
 
 
 func _music_for_wave() -> void:
@@ -1930,3 +1992,41 @@ func _capture(path: String) -> void:
 	var args = OS.get_cmdline_user_args()
 	if "--quit-after-capture" in args:
 		get_tree().call_deferred("quit",0)
+
+
+func _notification(what: int) -> void:
+	if not mobile or ui_root==null:return
+	if what==NOTIFICATION_APPLICATION_PAUSED:
+		if sim!=null:
+			save_run()
+			if screen=="battle" and not paused:show_pause()
+		AudioServer.set_bus_mute(0,true)
+	elif what==NOTIFICATION_APPLICATION_RESUMED:
+		AudioServer.set_bus_mute(0,not bool(settings.get("sound",true)))
+		_apply_mobile_safe_area()
+	elif what==NOTIFICATION_WM_GO_BACK_REQUEST:
+		if screen=="battle" and paused:close_pause()
+		else:_on_escape()
+
+func _apply_mobile_safe_area() -> void:
+	if not OS.has_feature("android"):return
+	var physical:=Vector2(DisplayServer.window_get_size())
+	var safe:=Rect2(DisplayServer.get_display_safe_area())
+	var scale:=minf(physical.x/Geo.VIEW.x,physical.y/Geo.VIEW.y)
+	if scale<=0:return
+	var origin:Vector2=(physical-Geo.VIEW*scale)*0.5
+	var start:Vector2=((safe.position-origin)/scale).max(Vector2.ZERO)
+	var end:Vector2=((safe.end-origin)/scale).min(Geo.VIEW)
+	var fit:=minf((end.x-start.x)/1600.0,(end.y-start.y)/900.0)
+	ui_root.scale=Vector2.ONE*fit
+	ui_root.position=start+(end-start-Geo.VIEW*fit)*0.5
+	ui_root.size=Geo.VIEW
+	if _battle_stage!=null and is_instance_valid(_battle_stage):_battle_stage.transform=ui_root.get_transform()*MOBILE_WORLD
+
+
+func _battle_parent() -> Node:
+	return _battle_stage if _battle_stage!=null else self
+
+
+func _mobile_world_transform() -> Transform2D:
+	return _battle_stage.transform if _battle_stage!=null and is_instance_valid(_battle_stage) else MOBILE_WORLD

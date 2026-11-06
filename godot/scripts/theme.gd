@@ -164,9 +164,10 @@ static func paper_style(alpha: float = 0.94, border: Color = GOLD_DIM,
 
 
 static var text_scale := 1.0
+static var mobile_font_factor := 1.0
 
 static func font_size(base: int) -> int:
-	return roundi(base * text_scale)
+	return roundi(base * text_scale * mobile_font_factor)
 
 
 static func scale_font(node: Control, property: String, base: int) -> void:

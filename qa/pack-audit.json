@@ -1,11 +1,11 @@
 {
-  "original_bytes": 843511776,
-  "candidate_bytes": 751825836,
-  "untouched_files": 878,
-  "removed_files": 223,
+  "original_bytes": 853233176,
+  "candidate_bytes": 760596488,
+  "untouched_files": 895,
+  "removed_files": 226,
   "removed_by_group": {
-    "fallback_key_atlases": 84043376,
-    "unused_and_art_prompts": 7003211
+    "fallback_key_atlases": 84992181,
+    "unused_and_art_prompts": 7004868
   },
   "identical_payload_reuse": 615868,
   "removed_paths": {
@@ -107,6 +107,7 @@
       ".godot/imported/v052-craters.png-64d476880c6de804dfc1dca5deb78470.ctex",
       ".godot/imported/v052-plant-fx.png-91750991e296ea85e89101777d7353be.ctex",
       ".godot/imported/v052-projectiles.png-9485cecdc6c96921f2a7109398d6ba67.ctex",
+      ".godot/imported/v053-buff-fx.png-ac9b40b02dccca9e5ed6c198071477ad.ctex",
       ".godot/imported/vault.png-d93b9a69cba7d5b4076a563835a1584a.ctex",
       ".godot/imported/wall-e1.png-d1822862c653cdca425dc73b3733f231.ctex",
       ".godot/imported/wall-e2.png-8b2b6c3c836b6eb97dc81c9754985872.ctex",
@@ -212,6 +213,7 @@
       "assets/sprites/animation/v052-craters.png.import",
       "assets/sprites/animation/v052-plant-fx.png.import",
       "assets/sprites/animation/v052-projectiles.png.import",
+      "assets/sprites/animation/v053-buff-fx.png.import",
       "assets/sprites/animation/vault.png.import",
       "assets/sprites/animation/wall-e1.png.import",
       "assets/sprites/animation/wall-e2.png.import",
@@ -234,7 +236,8 @@
       "data/v050_art_prompts.json",
       "data/v051_art_prompts.json",
       "data/v052_art_prompts.json",
-      "data/v052_guest_art_prompts.json"
+      "data/v052_guest_art_prompts.json",
+      "data/v053_art_prompts.json"
     ]
   }
 }

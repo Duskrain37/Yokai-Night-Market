@@ -34,10 +34,16 @@ class Plant:
 	var pulse = 0.0
 	var charge = 0.0
 	var bite_t = 0.0
+	var eaten_until := 0.0
 	var dead = false
 	var buff_damage = 0.0
 	var haste = 0.0
 	var herbal_haste := 0.0
+	var soup_bonus := 0.0
+	var soup_until := 0.0
+	var soup_gifts: Dictionary = {}
+	var production_bonus := 0.0
+	var production_haste := 0.0
 	var herbal_until := 0.0
 	var damage_carry: Dictionary = {}
 	var damage_penalty := 0.0
@@ -727,6 +733,8 @@ func place_free(type: String, col: int, row: int) -> Plant:
 	plants.append(plant)
 	rows_planted[row] = true
 	refresh_plant_buffs()
+	if type == "squash":
+		_update_squash(plant)
 	return plant
 
 
@@ -805,6 +813,7 @@ func damage_plant(plant: Plant, amount: float, from: Zombie = null) -> void:
 		return
 	amount *= 1.0 - plant_guard(plant)
 	amount = quantized_damage(plant.damage_carry, "bite" if from != null else "impact", amount, from != null)
+	if from != null and from.eating:plant.eaten_until=time+0.2
 	if from != null:
 		plant.bite_t = maxf(plant.bite_t, 0.2)
 	if plant.wish_t > 0.0 and plant.wish > 0.0:
@@ -868,8 +877,6 @@ func kill_plant(plant: Plant, silent: bool = false) -> void:
 		plant.hp = 1.0
 		return
 	# 火墙（3-3）：被恶客啃塌才炸，铲走的盆不欠这一圈火
-	if not silent and String(plant.type) == "torch" and plant.tier(3) >= 3:
-		_torch_wall(plant)
 	plant.dead = true
 	plant.shell = 0.0
 	if plant.is_lily:
@@ -1011,13 +1018,15 @@ func plant_effect_lines(plant: Plant) -> PackedStringArray:
 		if bonus.y > 0.0:
 			effects.append("攻速增加 %d%%" % roundi(bonus.y * 100.0))
 		lines.append("%s · %s" % [source, "、".join(effects)])
+	if plant.production_bonus > 0.0:
+		lines.append("炭火盆 · 香火产出增加%d%%，生产速度增加%d%%" % [roundi(plant.production_bonus * 100), roundi(plant.production_haste * 100)])
 	if plant.type == "star" and plant.tier(1) > 0:
-		var damage := float(Upgrades.EFFECTS.star.damage_bonus[plant.tier(1)])
+		var damage := 0.0
 		if time < plant.star_morale_until:
 			damage += 0.1 * plant.star_morale_stacks
-		lines.append("灯焰 · 伤害增加 %d%%" % roundi(damage * 100.0))
+		lines.append("灯焰 · 每道基础伤害%d，激励增加%d%%" % [int(Upgrades.EFFECTS.star.damage[plant.tier(1)]),roundi(damage * 100.0)])
 	if plant.type == "star" and time < plant.star_guardian_until:
-		lines.append("急巡 · 攻速增加 300%")
+		lines.append("急巡 · 攻速增加400%，伤害增加200%")
 	if plant.type == "lobber" and time < plant.lob_heat_until and plant.lob_heat_stacks > 0:
 		lines.append("滚烫 · 伤害增加 %d%%" % (plant.lob_heat_stacks * 10))
 	if plant.type == "lion" and plant.dance_t > 0.0:
@@ -1078,10 +1087,29 @@ func refresh_plant_buffs() -> void:
 		var blessing_haste := float(judge_haste.get(plant, 0.0))
 		var till := till_haste[plant.row]
 		var cheer := float(plant.cheer) * float(plant.cheer_value) if plant.cheer_t > 0.0 else 0.0
-		plant.buff_damage = lamp + blessing_damage
+		plant.soup_bonus = 0.0
+		plant.soup_until = 0.0
+		for giver in plant.soup_gifts.keys():
+			var gift: Dictionary = plant.soup_gifts[giver]
+			if float(gift.until) <= time:
+				plant.soup_gifts.erase(giver)
+			else:
+				plant.soup_bonus = maxf(plant.soup_bonus,float(gift.amount))
+				plant.soup_until = maxf(plant.soup_until,float(gift.until))
+		var soup: float = plant.soup_bonus
+		plant.buff_damage = lamp + blessing_damage + soup
+		plant.production_bonus = 0.0
+		plant.production_haste = 0.0
+		if String(plant.def.get("role", "")) == "产能":
+			for source in plants:
+				if source.dead or source.type != "torch" or source.sleep_until > time or source.sealed_until > time: continue
+				if absi(source.row - plant.row) <= 1 and absi(source.col - plant.col) <= 1:
+					plant.production_bonus = maxf(plant.production_bonus, float(Upgrades.EFFECTS.torch.production_bonus[source.tier(2)]))
+					plant.production_haste = maxf(plant.production_haste, float(Upgrades.EFFECTS.torch.production_haste[source.tier(2)]))
 		var herbal: float = plant.herbal_haste if plant.herbal_until > time else 0.0
 		plant.haste = blessing_haste + till + cheer + herbal
 		var sources := {}
+		if soup > 0.0: sources["汤圆仔"] = Vector2(soup, 0)
 		if lamp > 0.0:
 			sources["红灯笼"] = Vector2(lamp, 0.0)
 		if blessing_damage > 0.0 or blessing_haste > 0.0:
@@ -1898,10 +1926,14 @@ func update_plants(dt: float) -> void:
 			var cap = float(tfx["sparks_per_second_cap"][plant.tier(1)])
 			if cap > 0.0:
 				plant.spark_window = minf(cap, plant.spark_window + cap * dt)
-			# 火墙（3-3）：火胎养得住炭，但刚被啃过的 3 秒里不回填
+			# 火墙（3-3）：啃食中持续灼伤，脱离啃食即恢复自身
 			plant.no_bite_t = 0.0 if plant.bite_t > 0.0 else plant.no_bite_t + dt
 			var t3 = plant.tier(3)
-			if t3 >= 3 and plant.no_bite_t >= float(tfx["heal_delay"][t3]) \
+			if t3 >= 3 and plant.eaten_until > time:
+				for guest in zombies:
+					if guest.alive() and guest.pos.distance_to(plant.pos) <= Geo.CELL_W:
+						damage_zombie(guest, 60.0 * dt, true, false, "torch", "fire_wall", false, "fire_wall", plant.uid)
+			if t3 >= 3 and plant.eaten_until <= time \
 					and plant.hp < plant.max_hp:
 				plant.hp = minf(plant.max_hp, plant.hp + float(tfx["heal_dps"][t3]) * dt)
 		elif plant.type == "wall":
@@ -1976,6 +2008,7 @@ func _update_sky_kite(plant: Plant, dt: float) -> void:
 
 
 func _direct_incense(plant: Plant, value: int) -> void:
+	value = roundi(float(value) * (1.0 + plant.production_bonus))
 	sun += value
 	plant.action_at = time
 	plant.pulse = 0.42
@@ -2006,7 +2039,7 @@ func _on_guest_defeated(row: int) -> void:
 
 func _update_wish_till(plant: Plant, dt: float) -> void:
 	if plant.tier(1) == 3:
-		plant.timer += dt
+		plant.timer += dt * (1.0 + plant.production_haste)
 		if plant.timer >= 6.0:
 			plant.timer -= 6.0
 			_till_income(plant, 50)
@@ -2123,11 +2156,11 @@ func _ember_reclaim(owner_uid: String) -> void:
 
 
 func lantern_value(plant: Plant) -> int:
-	return int(Upgrades.EFFECTS["lantern"]["value"][plant.tier(1)])
+	return roundi(float(Upgrades.EFFECTS["lantern"]["value"][plant.tier(1)]) * (1.0 + plant.production_bonus))
 
 
 func lantern_interval(plant: Plant) -> float:
-	return float(Upgrades.EFFECTS["lantern"]["interval"][plant.tier(2)])
+	return float(Upgrades.EFFECTS["lantern"]["interval"][plant.tier(2)]) / (1.0 + plant.production_haste)
 
 
 func _update_producer(plant: Plant, dt: float) -> void:
@@ -2314,64 +2347,45 @@ func bell_slow(plant: Plant) -> float:
 
 ## 铜铃：一声主铃 + 若干声余音。主铃管减速与判定，余音只补减速。
 func _update_bell(plant: Plant, dt: float) -> void:
-	var fx: Dictionary = Upgrades.EFFECTS["bell"]
-	var pulse: Dictionary = plant.def["pulse"]
+	var fx: Dictionary = Upgrades.EFFECTS.bell
 	var tier1 = plant.tier(1)
 	var tier2 = plant.tier(2)
 	var tier3 = plant.tier(3)
 	_update_echoes(plant, dt)
-	plant.timer += dt
-	var interval = float(fx["main_interval"][tier1]) if tier1 > 0 \
-		else float(pulse["interval"])
-	interval /= plant.attack_rate()
-	if plant.timer < interval:
-		return
-	var root_chance = float(fx["root_chance"][tier2])
-	var root_duration = float(fx["root_duration"][tier2])
-	var eater_chance = float(fx["eater_root_chance"][tier2])
-	var eater_cap = int(fx["eater_target_cap"][tier2])
-	var large_root = float(fx["large_root_duration"][tier2])
-	var hit_any = false
-	var eaters_taken = 0
-	for z in zombies:
-		if not z.alive() or z.row != plant.row or z.pos.x <= plant.pos.x - 8.0:
-			continue
-		var previous_hit = float(plant.bell_hits.get(z.uid, -1000.0))
-		var repeated = previous_hit >= time - interval * 1.75
-		plant.bell_hits[z.uid] = time
-		var slow = float(fx["repeat_slow"][tier1]) if repeated else bell_slow(plant)
-		apply_slow(z, float(pulse["slow_duration"]), slow)
-		hit_any = true
-		# 摄心：只有主铃判定、每敌一次；所有硬控都走共享控制账本
-		if z.is_large():
-			if large_root > 0.0:
-				try_hard_cc(z, large_root)
-		elif eater_chance > 0.0 and z.eating and eaters_taken < eater_cap:
-			if try_hard_cc(z, root_duration):
-				eaters_taken += 1
-		elif root_chance > 0.0 and rng.randf() < root_chance:
-			try_hard_cc(z, root_duration)
-	if not hit_any:
-		plant.timer = minf(plant.timer, interval)
-		return
+	var interval = (float(fx.main_interval[tier1]) if tier1 > 0 else float(plant.def.pulse.interval)) / plant.attack_rate()
+	plant.timer = minf(plant.timer + dt, interval)
+	if plant.timer < interval: return
+	var acted = false
+	for guest in zombies:
+		if not guest.alive() or guest.row != plant.row or (tier3 == 0 and guest.pos.x <= plant.pos.x - 8): continue
+		var previous = float(plant.bell_hits.get(guest.uid, -1000.0))
+		plant.bell_hits[guest.uid] = time
+		var repeated = previous >= time - interval * 1.75
+		apply_slow(guest, float(plant.def.pulse.slow_duration), float(fx.repeat_slow[tier1]) if repeated else bell_slow(plant))
+		if tier2 > 0 and rng.randf() < float(fx.root_chance[tier2]):
+			if not guest.is_large() or tier2 == 3:
+				try_hard_cc(guest, float(fx.root_duration[tier2]) * (0.5 if guest.is_large() else 1.0))
+		acted = true
+	if tier3 >= 2:
+		for target in plants:
+			if target.dead or target.row != plant.row: continue
+			var changed = target.sleep_until > time or (tier3 == 3 and target.hp < target.max_hp)
+			target.sleep_until = minf(target.sleep_until, time)
+			if tier3 == 3: target.hp = minf(target.max_hp, target.hp + 55.0)
+			if changed:
+				magic_effect("buff-bell", target.pos + Vector2(0,-20), 82, 0.8)
+				acted = true
+	if not acted: return
 	plant.timer = 0.0
 	plant.action_at = time
 	plant.pulse = 0.55
 	sfx("bell")
-	ring(plant.pos + Vector2(0, -6), Color(0.56, 0.82, 0.85, 0.55), 26.0, 0.5)
-	_bell_pull(plant, fx, tier3)
-	var offsets: Array = fx["echo_offsets"][tier1]
+	magic_effect("buff-bell", plant.pos + Vector2(0,-20), 105, 0.7)
+	var offsets: Array = fx.echo_offsets[tier1]
 	for i in offsets.size():
-		plant.echoes.append({
-			"t": float(offsets[i]),
-			"duration": float(fx["echo_duration"][tier1]),
-			"radius": float(fx["adjacent_radius"][tier1]),
-			"final": i == offsets.size() - 1,
-		})
+		plant.echoes.append({"t":float(offsets[i]),"duration":float(fx.echo_duration[tier1]),"radius":float(fx.adjacent_radius[tier1]),"final":i == offsets.size()-1})
 
 
-## 余音：只补减速，不结算伤害、不触发摄心与引客（批复：子事件不得递归母事件效果）。
-## 绕梁起相邻两行各收到半格的局部圆域，而不是整条邻行都被覆盖。
 func _update_echoes(plant: Plant, dt: float) -> void:
 	if plant.echoes.is_empty():
 		return
@@ -2472,7 +2486,7 @@ func apply_bleed(z: Zombie, dps: float, duration: float) -> void:
 func bell_death_ring(plant: Plant) -> void:
 	var fx: Dictionary = Upgrades.EFFECTS["bell"]
 	var tier3 = plant.tier(3)
-	if tier3 < 3:
+	if tier3 < 3 or float(fx["death_root"][tier3]) <= 0.0:
 		return
 	if time < bell_death_until:
 		return
@@ -3239,12 +3253,11 @@ func _cat_ignite(z: Zombie, shot: Shot) -> void:
 
 
 func _update_lobber(plant: Plant, dt: float) -> void:
-	var fx: Dictionary = Upgrades.EFFECTS["lobber"]
-	var tier2 = plant.tier(2)
-	var interval = float(fx["interval"][tier2]) / plant.attack_rate()
+	var fx: Dictionary = Upgrades.EFFECTS.lobber
 	var target = _lobber_target(plant)
-	if time >= plant.lob_heat_until:
-		plant.lob_heat_stacks = 0
+	var interval = float(fx.interval[plant.tier(2)]) / plant.attack_rate()
+	if target == null and plant.tier(3)>0: interval *= 0.5
+	if time >= plant.lob_heat_until: plant.lob_heat_stacks = 0
 	if plant.lob_followup_at >= 0.0:
 		if time >= plant.lob_followup_at:
 			plant.lob_followup_at = -1.0
@@ -3253,22 +3266,52 @@ func _update_lobber(plant: Plant, dt: float) -> void:
 		return
 	plant.timer = minf(plant.timer + dt, interval)
 	plant.charge = minf(1.0, plant.timer / interval)
-	if target == null or plant.timer < interval:
+	if plant.timer < interval: return
+	if target == null:
+		if plant.tier(3)==0: return
+		var friend = _soup_friend(plant)
+		if friend == null: return
+		var shot = _make_lob(plant, null, friend.pos, float(plant.def.lob.flight))
+		shot.owner_uid = plant.uid
+		shot.src = "lobber"
+		shot.payload = {"friend":friend.uid,"warm":float(fx.warm_bonus[plant.tier(3)]),"warm_life":float(fx.warm_duration[plant.tier(3)])}
+		shots.append(shot)
+		plant.timer = 0.0
+		plant.action_at = time
+		sfx("lob_shot")
 		return
 	plant.timer = 0.0
 	_throw_soup(plant, target, target.pos)
-	if tier2 == 3 and rng.randf() < 0.4:
-		plant.lob_followup_at = time + 0.4
+	if plant.tier(2)==3 and rng.randf()<0.4:
+		plant.lob_followup_at = time+0.4
 		plant.lob_followup_aim = target.pos
 
 
+func _soup_friend(plant: Plant) -> Plant:
+	var chosen: Plant = null
+	for target in plants:
+		if target.dead or target.row != plant.row: continue
+		if float(target.soup_gifts.get(plant.uid, {}).get("until",0.0)) > time: continue
+		var pending = false
+		for shot in shots:
+			if not shot.dead and shot.owner_uid == plant.uid and shot.payload.get("friend","") == target.uid: pending = true
+		if pending: continue
+		if chosen == null or target.pos.x < chosen.pos.x: chosen = target
+	return chosen
+
+
+func _soup_warm(target: Plant, owner: String, strength: float, duration: float) -> void:
+	target.soup_gifts[owner] = {"amount":strength,"until":time+duration}
+	magic_effect("buff-lobber", target.pos + Vector2(0,-20), 90, 0.9)
+	refresh_plant_buffs()
+
+
 func _lobber_target(plant: Plant) -> Zombie:
-	var tail: Zombie = null
-	for z in zombies:
-		if z.alive() and z.row == plant.row and z.pos.x > plant.pos.x + 6.0:
-			if tail == null or z.pos.x > tail.pos.x:
-				tail = z
-	return tail
+	var nearest: Zombie = null
+	for guest in zombies:
+		if guest.alive() and guest.row == plant.row and (plant.tier(3)>0 or guest.pos.x > plant.pos.x + 6):
+			if nearest == null or guest.pos.x < nearest.pos.x: nearest = guest
+	return nearest
 
 
 func _throw_soup(plant: Plant, target: Zombie, fallback: Vector2) -> void:
@@ -3324,11 +3367,10 @@ func _lob_heat_on_hit(shot: Shot) -> void:
 		return
 
 
-func _star_interval(fx: Dictionary, def: Dictionary, tier2: int) -> float:
-	return float(def["interval"]) / (1.0 + float(fx["speed_bonus"][tier2]))
+func _star_interval(fx: Dictionary, _def: Dictionary, tier2: int) -> float:
+	return float(fx.interval[tier2])
 
 
-## 借风只认烟、火、汤三类地效；冷炉塌下来的灰雾与灯焰的余光都不算。
 func star_direction_count(origin: Vector2, dir: Vector2) -> int:
 	var n = 0
 	for z in zombies:
@@ -3358,107 +3400,45 @@ func star_direction_has_target(origin: Vector2, dir: Vector2) -> bool:
 
 
 func _update_star(plant: Plant, dt: float) -> void:
-	var fx: Dictionary = Upgrades.EFFECTS["star"]
-	var def: Dictionary = plant.def["star"]
-	var tier1 = plant.tier(1)
-	var tier2 = plant.tier(2)
-	var tier3 = plant.tier(3)
-	var seeking = tier3 >= 3
-	var haste := 0.0
-	if plant.star_morale_stacks > 0 and time >= plant.star_morale_until:
-		plant.star_morale_stacks = 0
-	if tier2 >= 3 and time < plant.star_guardian_until:
-		haste += float(fx["guardian_speed_bonus"][tier2])
-	var interval = _star_interval(fx, def, tier2) / plant.attack_rate(haste)
-	plant.timer += dt
-	var all = bool(fx["all_dirs"][tier3])
-	var has_target = false
-	for z in zombies:
-		if not z.alive():
-			continue
-		if all or z.pos.x > plant.pos.x:
-			has_target = true
-			break
-	if not has_target:
-		plant.timer = minf(plant.timer, interval)
-		return
-	plant.charge = minf(1.0, plant.timer / interval)
-	if plant.timer < interval:
-		return
+	var fx: Dictionary = Upgrades.EFFECTS.star
+	if plant.star_morale_stacks > 0 and time >= plant.star_morale_until: plant.star_morale_stacks = 0
+	var urgent = plant.tier(2)==3 and time < plant.star_guardian_until
+	var interval = float(fx.interval[plant.tier(2)]) / plant.attack_rate(4.0 if urgent else 0.0)
+	plant.timer = minf(plant.timer + dt, interval)
+	if plant.timer < interval or nearest_zombies(plant.pos,1).is_empty(): return
 	plant.timer = 0.0
-	plant.charge = 0.0
-	var origin = plant.pos + Vector2(0, -22)
-	var dirs: Array = []
-	var targets: Array = []
-	if seeking:
-		# 天网（3-3）：像狐尾灯一样，五团灯焰各自咬住场上最近的恶客
-		targets = nearest_zombies(plant.pos, int(def["dirs"]))
-		if targets.is_empty():
-			return
-		for i in int(def["dirs"]):
-			var target: Zombie = targets[i % targets.size()]
-			dirs.append(Vector2(target.pos.x, target.pos.y - 26.0) - origin)
-	else:
-		dirs = [
-			Vector2(-1, 0), Vector2(0, -1), Vector2(0, 1),
-			Vector2(cos(PI / 3.0), -sin(PI / 3.0)),
-			Vector2(cos(PI / 3.0), sin(PI / 3.0)),
-		]
-	# 侧照（1-1）：五道里朝向敌人最多的那一道主束 +50%，平局按这个固定方向序
-	var focus_index = -1
-	var focus_best = 0
-	if int(fx["focus_beams"][tier1]) > 0:
-		for i in dirs.size():
-			var n = star_direction_count(origin, Vector2(dirs[i]).normalized())
-			if n > focus_best:
-				focus_best = n
-				focus_index = i
-	# 灯轮（2-3）：每轮只有一道是重灯，方向一轮挪一格
-	plant.star_round += 1
-	var heavy_index = -1
-	if int(fx["heavy_per_volley"][tier2]) > 0:
-		heavy_index = plant.star_round % dirs.size()
-	# 一轮五束共用同一份点名记录：同一名被第二道、第三道撞上才逐道加钱
-	var round_log: Dictionary = {"hits": {}}
-	var any = false
-	for i in dirs.size():
-		var unit = Vector2(dirs[i])
-		if unit.length_squared() < 0.0001:
-			continue
-		if not all and not seeking and not star_direction_has_target(origin, unit):
-			continue
-		any = true
+	plant.action_at = time
+	plant.recoil = 0.7
+	var origin = plant.pos + Vector2(0,-22)
+	var power = float(fx.damage[plant.tier(1)])
+	var extra = 0.1*plant.star_morale_stacks + (2.0 if urgent else 0.0)
+	var dirs = [Vector2.LEFT,Vector2.UP,Vector2.DOWN,Vector2(cos(PI/3),-sin(PI/3)),Vector2(cos(PI/3),sin(PI/3))]
+	for direction in dirs:
 		var shot = Shot.new()
 		shot.kind = "star"
-		shot.dir = unit.normalized()
-		shot.pos = origin + shot.dir * 16.0
+		shot.look = "star"
+		shot.dir = direction
+		shot.pos = origin + direction * 16
 		shot.row = plant.row
-		shot.speed = 560.0
-		var raw = float(def["damage"])
-		var self_bonus := float(fx["damage_bonus"][tier1]) + 0.1 * float(plant.star_morale_stacks)
-		shot.owner_uid = plant.uid
-		shot.heavy = i == heavy_index
-		if shot.heavy:
-			raw *= float(fx["heavy_multiplier"][tier2])
-			shot.heavy_knock = float(fx["heavy_knock"][tier2])
-			shot.heavy_knock_icd = float(fx["heavy_knock_icd"][tier2])
-		shot.converge = float(fx["converge_bonus"][tier1])
-		shot.volley = round_log
-		shot.payload = {
-			"glow_r": float(fx["glow_radius"][tier1]) * Geo.CELL_W,
-			"glow_life": float(fx["glow_duration"][tier1]),
-			"glow_buff": float(fx["glow_buff"][tier1]),
-		}
-		_prepare_shot(shot, plant, raw, self_bonus)
-		# 回焰（3-2）：飞出界的灯焰折回来追人，代价是伤害减半；天网不再减半
-		shot.seek = bool(fx["seek"][tier3])
-		shot.seek_factor = float(fx["seek_factor"][tier3])
+		shot.speed = 560
+		shot.seek = plant.tier(3) in [1,2]
+		shot.seek_factor = 0.5 if plant.tier(3)==1 else 1.0
+		shot.payload = {"return_once":not shot.seek}
+		_prepare_shot(shot,plant,power,extra)
 		shots.append(shot)
-	if any:
-		sfx("star_shot")
-		plant.action_at = time
-		plant.recoil = 0.7
-		plant.pulse = 0.45
+	if plant.tier(3)==3:
+		var targets = nearest_zombies(plant.pos,5)
+		for i in 5:
+			var shot = Shot.new()
+			shot.kind = "homing"
+			shot.look = "star"
+			shot.pos = origin
+			shot.row = plant.row
+			shot.target = targets[i % targets.size()]
+			shot.speed = 340
+			_prepare_shot(shot,plant,power,extra)
+			shots.append(shot)
+	sfx("star_shot")
 
 
 func _update_needle(plant: Plant, dt: float) -> void:
@@ -3476,7 +3456,7 @@ func _update_needle(plant: Plant, dt: float) -> void:
 	shot.pos = plant.pos + Vector2(22, -16)
 	shot.row = plant.row
 	shot.speed = float(def["speed"])
-	_prepare_shot(shot, plant, float(def["damage"]))
+	_prepare_shot(shot, plant, float(fx["damage"][plant.tier(1)]))
 	shot.pierce_armor = true
 	shot.pierce_left = int(fx["pierce_targets"][plant.tier(1)]) - 1
 	shot.pierce_all = plant.tier(1) >= 3
@@ -4043,7 +4023,7 @@ func eat_target(z: Zombie) -> Plant:
 	var reach = float(z.def.get("reach", 38.0))
 	var best: Plant = null
 	for plant in plants:
-		if plant.dead or plant.row != z.row:
+		if plant.dead or plant.row != z.row or (plant.type=="squash" and plant.squash_at>=0):
 			continue
 		if plant.is_lily and main_plant_at(plant.col, plant.row) != null:
 			continue
@@ -4509,6 +4489,8 @@ func update_shots(dt: float) -> void:
 				_update_enemy_shot(shot, dt)
 			"homing":
 				_update_homing(shot, dt)
+			"drift":
+				_update_drifting(shot, dt)
 			"lob":
 				_update_lob_shot(shot, dt)
 			"star":
@@ -4611,7 +4593,7 @@ func _torch_oil(plant: Plant, from: Zombie) -> void:
 	if String(plant.type) != "torch" or from == null or tier3 < 2:
 		return
 	var fx: Dictionary = Upgrades.EFFECTS["torch"]
-	if time < float(plant.oil_until):
+	if float(fx["oil_dps"][tier3]) <= 0.0 or time < float(plant.oil_until):
 		return
 	plant.oil_until = time + float(fx["oil_icd"][tier3])
 	add_ground("oil", Vector2(from.pos.x, from.pos.y - 20.0),
@@ -4691,11 +4673,19 @@ func _update_homing(shot: Shot, dt: float) -> void:
 	var previous = shot.pos
 	_apply_torch_pass(shot, previous)
 	if shot.target == null or not shot.target.alive():
+		if shot.dir.length_squared() < 0.001 and shot.target != null:
+			shot.dir = (Vector2(shot.target.pos.x, shot.target.pos.y - 24) - shot.pos).normalized()
 		shot.target = _homing_retarget(shot)
 	if shot.target == null:
-		shot.dead = true
+		shot.kind = "drift"
+		if shot.look.is_empty():shot.look="homing"
+		if shot.dir.length_squared() < 0.001:
+			shot.dir = Vector2.RIGHT
+		_update_drifting(shot, dt)
 		return
 	var aim = Vector2(shot.target.pos.x, shot.target.pos.y - 24.0)
+	if aim.distance_squared_to(shot.pos) > 0.001:
+		shot.dir = (aim - shot.pos).normalized()
 	var delta = aim - shot.pos
 	var distance = delta.length()
 	# 绕（1-1／1-2）：进了圈子就先把半圈绕完，绕完才落到目标身上
@@ -4744,10 +4734,45 @@ func _update_homing(shot: Shot, dt: float) -> void:
 		return
 
 
+func _update_drifting(shot: Shot, dt: float) -> void:
+	var previous = shot.pos
+	shot.pos += shot.dir * shot.speed * dt * PROJECTILE_SPEED_SCALE
+	_apply_torch_pass(shot, previous)
+	var victim: Zombie = null
+	var distance = INF
+	for z in zombies:
+		if not z.alive() or z in shot.hit_ids: continue
+		var center = Vector2(z.pos.x, z.pos.y - 24.0)
+		var closest = Geometry2D.get_closest_point_to_segment(center, previous, shot.pos)
+		if center.distance_to(closest) > 23.0: continue
+		var along = previous.distance_squared_to(closest)
+		if along < distance:
+			distance = along
+			victim = z
+	if victim != null:
+		if shot.look == "star": _star_impact(shot, victim)
+		else:
+			damage_zombie(victim, shot.damage, false, false, shot.src, "", false, "homing", shot.owner_uid)
+			_cat_mark(victim, shot)
+			apply_shot_statuses(victim, shot)
+			apply_shot_blast(shot, victim)
+		shot.dead = true
+		return
+	if shot.pos.x < Geo.BOARD_X - 90 or shot.pos.x > Geo.RETREAT_MAX_X + 90 or shot.pos.y < 80 or shot.pos.y > Geo.BOARD_Y + Geo.BOARD_H + 150:
+		shot.dead = true
+
+
 func _update_lob_shot(shot: Shot, dt: float) -> void:
 	if shot.delay > 0.0:
 		shot.delay = maxf(0.0, shot.delay - dt)
 		return
+	var friend: Plant = null
+	if shot.payload.has("friend"):
+		for plant in plants:
+			if not plant.dead and plant.uid == shot.payload.friend:
+				friend = plant
+				shot.tx = plant.pos.x
+				shot.ty = plant.pos.y - 14
 	if shot.target != null and shot.target.alive():
 		shot.tx = shot.target.pos.x
 		shot.ty = shot.target.pos.y - 14.0
@@ -4764,6 +4789,9 @@ func _update_lob_shot(shot: Shot, dt: float) -> void:
 	if k < 1.0:
 		return
 	shot.dead = true
+	if shot.payload.has("friend"):
+		if friend != null: _soup_warm(friend,shot.owner_uid,float(shot.payload.warm),float(shot.payload.warm_life))
+		return
 	var victim: Zombie = null
 	for z in zombies:
 		if not z.alive() or z.row != shot.row:
@@ -4905,30 +4933,26 @@ func _soup_ground(shot: Shot) -> void:
 func _update_star_shot(shot: Shot, dt: float) -> void:
 	var previous = shot.pos
 	shot.pos += shot.dir * shot.speed * dt * PROJECTILE_SPEED_SCALE
-	shot.life -= dt * PROJECTILE_SPEED_SCALE
 	_apply_torch_pass(shot, previous)
-	var off = shot.pos.x < -100.0 or shot.pos.x > 1380.0 \
-			or shot.pos.y < -100.0 or shot.pos.y > Geo.BOARD_Y + Geo.BOARD_H + 100.0
-	if shot.life <= 0.0 or off:
-		# 回焰 / 天网：撞到地图边界的灯焰折回来，改成追踪弹继续咬住最近的恶客
+	var bounds = Rect2(Geo.BOARD_X-45,Geo.BOARD_Y-65,Geo.RETREAT_MAX_X-Geo.BOARD_X+90,Geo.BOARD_H+130)
+	if not bounds.has_point(shot.pos):
 		if shot.seek:
-			var next = nearest_zombies(shot.pos, 1)
+			var next = nearest_zombies(shot.pos,1)
 			if not next.is_empty():
-				shot.pos = Vector2(
-					clampf(shot.pos.x, Geo.BOARD_X - 30.0, Geo.SPAWN_X + 30.0),
-					clampf(shot.pos.y, Geo.BOARD_Y - 30.0,
-						Geo.BOARD_Y + Geo.BOARD_H + 30.0))
 				shot.kind = "homing"
-				shot.look = "star"
 				shot.target = next[0]
 				shot.row = next[0].row
-				shot.speed = 340.0 * (1.5 if shot.speed_boosted else 1.0)
-				shot.retarget = -1
+				shot.speed = 340.0
+				shot.damage *= shot.seek_factor
+				shot.base_damage *= shot.seek_factor
 				shot.seek = false
-				shot.damage = shot.damage * shot.seek_factor
-				shot.seek_factor = 1.0
-				spark(shot.pos, Color("#ffe08a"), 3)
+				shot.retarget = 0
 				return
+		elif bool(shot.payload.get("return_once",false)) and not bool(shot.payload.get("returned",false)):
+			shot.payload["returned"] = true
+			shot.dir = -shot.dir
+			shot.pos = Vector2(clampf(shot.pos.x,bounds.position.x+1,bounds.end.x-1),clampf(shot.pos.y,bounds.position.y+1,bounds.end.y-1))
+			return
 		shot.dead = true
 		return
 	var victim: Zombie = null
@@ -4963,7 +4987,7 @@ func _star_impact(shot: Shot, victim: Zombie) -> void:
 			if plant.uid == shot.owner_uid and not plant.dead and plant.tier(1) >= 3:
 				if time >= plant.star_morale_until:
 					plant.star_morale_stacks = 0
-				if plant.star_morale_stacks < 3:
+				if plant.star_morale_stacks < 5:
 					plant.star_morale_stacks += 1
 					plant.star_morale_until = time + 5.0
 				break
@@ -5781,13 +5805,13 @@ func _update_healer(plant: Plant, dt: float) -> void:
 			return
 		for target in covered:
 			var strength := float(fx.haste[plant.tier(3)])
-			if plant.tier(3) == 3 and String(target.def.role) == "追魂":
+			if plant.tier(3) == 3 and (String(target.def.role) == "追魂" or (target.type=="star" and target.tier(3)==3)):
 				strength = 0.4
 			var previous := target.herbal_haste if target.herbal_until > time else 0.0
 			if strength >= previous:
 				target.herbal_haste = strength
 				target.herbal_until = time + 3.5
-				magic_effect("blessing", target.pos + Vector2(0, -20), 72.0, 0.7)
+				magic_effect("buff-herb", target.pos + Vector2(0, -20), 72.0, 0.7)
 	else:
 		targets.sort_custom(func(a, b): return a.hp < b.hp)
 		var count := mini(2 if plant.tier(2) == 3 else 1, targets.size())
@@ -5796,7 +5820,7 @@ func _update_healer(plant: Plant, dt: float) -> void:
 			var amount := minf(target.max_hp - target.hp, float(fx.heal[plant.tier(2)]))
 			target.hp += amount
 			float_text(target.pos + Vector2(0, -62), "+%d" % roundi(amount), Color("#b4edc9"), 17)
-			magic_effect("heal", target.pos + Vector2(0, -22), 95.0, 0.65)
+			magic_effect("buff-herb", target.pos + Vector2(0, -22), 95.0, 0.65)
 			ring(target.pos, Color("#b2d5aa"), 32.0, 0.55)
 	plant.timer = 0.0
 	plant.action_at = time
@@ -5816,8 +5840,8 @@ func _umbrella_breeze(plant: Plant) -> void:
 		if gap < 0.0 or gap > 2.0 * Geo.CELL_W:
 			continue
 		z.gust_left = 0.42
-		z.gust_speed = Geo.CELL_W * (0.35 if z.is_large() else 0.7) / z.gust_left
-	magic_effect("blessing", plant.pos + Vector2(45, -15), 100.0, 0.6)
+		z.gust_speed = Geo.CELL_W * (0.45 if z.is_large() else 0.9) / z.gust_left
+	magic_effect("buff-herb", plant.pos + Vector2(45, -15), 100.0, 0.6)
 
 
 func _kite_bounce(shot: Shot, victim: Zombie) -> void:

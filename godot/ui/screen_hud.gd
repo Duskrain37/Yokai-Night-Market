@@ -1144,10 +1144,9 @@ func _build_result() -> void:
 		retry.pressed.connect(func(): game.restart_run())
 		row1.add_child(retry)
 		if won:
-			var next_level = mini(int(result.get("level_id", 1)) + 1,
-				Content.LEVELS.size())
+			var next_level = Content.next_story_level(int(result.get("level_id",1)))
 			var next = Ui.button("下一夜", 23, 224, 56, true)
-			next.disabled = int(result.get("level_id", 1)) >= Content.LEVELS.size()
+			next.disabled = next_level<=0
 			next.pressed.connect(func(): game.show_prep(next_level))
 			row1.add_child(next)
 		var select = Ui.button("换一夜", 17, 132, 44)
@@ -1204,6 +1203,16 @@ class CardButton extends Control:
 		var border = Ui.GOLD if bool(state.get("selected", false)) else (
 			Ui.GOLD_DIM if hovered else Color(0.32, 0.29, 0.23, 0.9))
 		Ui.draw_plate(self, rect, base, border, 14, 2)
+		if hud.game.mobile:
+			Ui.draw_plant_icon(self,card_id,Rect2(6,4,rect.size.x-12,78),Color.WHITE if bool(state.get("affordable",true)) else Color(0.55,0.55,0.55))
+			var text:=str(int(def.cost))
+			draw_string(Ui.body_font(),Vector2(0,rect.size.y-9),text,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x,34,Ui.GOLD_BRIGHT)
+			var cd:=float(state.get("cooldown",0.0))
+			if cd>0:
+				Ui.draw_plate(self,Rect2(0,0,rect.size.x,rect.size.y*clampf(cd/float(state.get("cooldown_max",1.0)),0,1)),Color(0,0,0,0.6),Color.TRANSPARENT,14,0)
+			if bool(state.get("no_placement",false)):draw_string(Ui.body_font(),Vector2(0,32),"无落点",HORIZONTAL_ALIGNMENT_CENTER,rect.size.x,26,Ui.WARN)
+			return
+
 		if bool(state.get("taught", false)):
 			# 这一步该点哪张牌：金框呼吸 + 牌底一个向上的箭头
 			var beat = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 260.0)

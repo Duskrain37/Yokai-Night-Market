@@ -1,0 +1,22 @@
+{
+  "version": "0.5.3",
+  "sources": {
+    "人工_草木 改动与新增说明.txt": "fd8b26438dc193e53aa43d7a10f20583a060c2f1721bf8c567fe53eccb155444",
+    "人工_恶客 改动与新增说明.txt": "094281cecf0eb43372c2f77b12598f809181f3d52d2f5fb6449a89ec656d9e14"
+  },
+  "alias": {
+    "竹云鸢": "逐云鸢 (sky-kite)"
+  },
+  "new_plants": 0,
+  "new_guests": 0,
+  "needle_path1_costs": [
+    125,
+    250,
+    450
+  ],
+  "notes": [
+    "原稿指定数字以data/content.gd和data/upgrades.gd为准，由qa_v053与rules_check核验",
+    "同来源取最高，不同来源增益相加；减益单独相乘",
+    "透骨针穿堂原费用75/150/300提升到125/250/450"
+  ]
+}

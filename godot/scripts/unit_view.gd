@@ -7,6 +7,7 @@ extends Node2D
 const ActorFrames = preload("res://scripts/actor_frames.gd")
 var _actor_frames = ActorFrames.new()
 var _effect_frames = ActorFrames.new()
+var _buff_frames = ActorFrames.new()
 var sim: Sim = null
 var health_bars = "bar"
 var tier_shapes := false
@@ -16,6 +17,7 @@ var shovel_mode = false
 var _textures: Dictionary = {}
 var _guardian: Texture2D = null
 var _time = 0.0
+var _cache_clock := 0.0
 var _armor_atlas: Dictionary = {}
 var _evolve_textures: Dictionary = {}
 var _growth_textures: Dictionary = {}
@@ -28,6 +30,7 @@ func _ready() -> void:
 	z_index = 10
 	_actor_frames.load_sheets()
 	_effect_frames.load_sheets("v052-")
+	_buff_frames.load_sheets("v053-")
 	if FileAccess.file_exists("res://data/actor_attachment_pins.json"):
 		_face_pins = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_attachment_pins.json"))
 	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
@@ -68,31 +71,39 @@ func _ready() -> void:
 			"-v2" if id == "paper" else ""]
 		if ResourceLoader.exists(revealed):
 			_textures[id] = load(revealed)
-	# 三阶换建模：进化到顶的那条路决定这株草木的最终形态（<id>-e<路径>.png）。
-	for type in Content.PLANTS:
-		for path_id in [1, 2, 3]:
-			var evolve_path = "res://assets/sprites/%s-e%d.png" % [type, path_id]
-			if ResourceLoader.exists(evolve_path):
-				_evolve_textures["%s-e%d" % [type, path_id]] = load(evolve_path)
-	# v0.4 hand-painted capstones: use measured regions, never divide generated art blindly.
-	if FileAccess.file_exists("res://data/evolution_art_v040.json"):
-		var catalog: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/evolution_art_v040.json"))
-		for type in catalog:
-			var info: Dictionary=catalog[type]
-			var sheet: Texture2D=load("res://"+String(info.file))
-			for f in info.frames:
-				var r: Array=f.region
-				var atlas=AtlasTexture.new()
-				atlas.atlas=sheet
-				atlas.region=Rect2(r[0],r[1],r[2],r[3])
-				atlas.filter_clip=true
-				_evolve_textures["%s-e%d" % [type,int(f.path)]]=atlas
+	if not OS.has_feature("android") and not "--mobile" in OS.get_cmdline_user_args():
+		# 三阶换建模：进化到顶的那条路决定这株草木的最终形态（<id>-e<路径>.png）。
+		for type in Content.PLANTS:
+			for path_id in [1, 2, 3]:
+				var evolve_path = "res://assets/sprites/%s-e%d.png" % [type, path_id]
+				if ResourceLoader.exists(evolve_path):
+					_evolve_textures["%s-e%d" % [type, path_id]] = load(evolve_path)
+		# v0.4 hand-painted capstones: use measured regions, never divide generated art blindly.
+		if FileAccess.file_exists("res://data/evolution_art_v040.json"):
+			var catalog: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/evolution_art_v040.json"))
+			for type in catalog:
+				var info: Dictionary=catalog[type]
+				var sheet: Texture2D=load("res://"+String(info.file))
+				for f in info.frames:
+					var r: Array=f.region
+					var atlas=AtlasTexture.new()
+					atlas.atlas=sheet
+					atlas.region=Rect2(r[0],r[1],r[2],r[3])
+					atlas.filter_clip=true
+					_evolve_textures["%s-e%d" % [type,int(f.path)]]=atlas
+
 
 
 func _process(delta: float) -> void:
 	if sim != null and sim.visual_hold:
 		return
 	_time += delta
+	_cache_clock+=delta
+	if _cache_clock>=3.0:
+		_cache_clock=0.0
+		_actor_frames.release_unused()
+		_effect_frames.release_unused()
+		_buff_frames.release_unused()
 	_update_armor_falls(delta)
 	queue_redraw()
 
@@ -321,7 +332,7 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 		var actor = String(plant.type)
 		var capstone = Upgrades.capstone(plant.upgrades)
 		var evolved_actor = "%s-e%d" % [actor, capstone]
-		if capstone > 0 and _evolve_textures.has(evolved_actor):
+		if capstone > 0 and (_evolve_textures.has(evolved_actor) or _actor_frames.motion.has(evolved_actor)):
 			actor = evolved_actor
 		var age = sim.time - plant.action_at
 		var action = age < 0.42
@@ -358,10 +369,7 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 		_sprite(texture, foot + Vector2(recoil, bob), height, false, tint, sway, squash)
 	if hp_ratio < 0.4:
 		_draw_wounds(foot + Vector2(recoil, bob), height, 1.0 - hp_ratio / 0.4)
-	if plant.buff_damage > 0.0 or plant.haste > 0.0:
-		var fade := 0.42 + 0.10 * sin(sim.time * 2.5 + plant.phase)
-		_effect_frames.draw_pose(self, "v052-plant-fx", "blessing", sim.time * 2.2 + plant.phase,
-			foot + Vector2(0, 14), height * 0.85, false, Color(1, 1, 1, fade))
+	_draw_source_buffs(plant, foot, height)
 	_draw_shell(plant, foot, height)
 	_draw_upgrade_pips(plant, foot, height)
 	_draw_upgrade_dot(plant, foot, height)
@@ -431,6 +439,24 @@ func _draw_dragon(plant: Sim.Plant, foot: Vector2, height: float, tint: Color) -
 			draw_line(mouth + offset, front + offset * 2.0,
 				Color(0.50, 0.83, 0.70, (0.35 - i * 0.07) * (1.0 - travel)), 6.0 - i, true)
 	return drawn
+
+
+const BUFF_CLIPS := {"红灯笼":"lantern","汤圆仔":"lobber","钟馗像":"judge","回春葫":"herb","清账匣":"till","喝彩":"cheer"}
+
+func _draw_source_buffs(plant: Sim.Plant, foot: Vector2, height: float) -> void:
+	var clips: Array = []
+	for source in sim.plant_bonus_sources.get(plant.uid,{}):
+		if BUFF_CLIPS.has(source): clips.append(BUFF_CLIPS[source])
+	if plant.production_bonus > 0.0: clips.append("torch")
+	if plant.type=="lobber" and plant.lob_heat_stacks>0 and sim.time<plant.lob_heat_until and not "lobber" in clips: clips.append("lobber")
+	if plant.type=="lion" and plant.dance_t>0 and not "cheer" in clips: clips.append("cheer")
+	for i in clips.size():
+		var alpha := 0.44 if clips.size()<3 else 0.3
+		_buff_frames.draw_pose(self,"v053-buff-fx",clips[i],sim.time*2.3+plant.phase+i*0.8,
+			foot+Vector2(0,-height*0.34),height*1.02,false,Color(1,1,1,alpha))
+	if plant.type=="torch" and plant.tier(3)==3 and plant.eaten_until>sim.time:
+		_buff_frames.draw_pose(self,"v053-buff-fx","torch",sim.time*3.2,
+			foot+Vector2(0,-height*0.1),Geo.CELL_W*2.0,false,Color(1,1,1,0.75))
 
 
 func _draw_sleep(foot: Vector2, height: float) -> void:
@@ -668,7 +694,7 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 			_draw_wounds(cabin_foot, height * 0.65, 0.65 if z.armor < z.max_armor * 0.33 else 0.32)
 	var drawn = cabin_drawn
 	if not cabin_drawn and (not z.dying or (z.type == "sedan" and z.split_done)):
-		if swimming and (z.water_entry_t > 0.0 or z.raft_sink_t > 0.0):
+		if swimming and (z.water_entry_t > 0.0 or z.raft_sink_t > 0.0) and not (z.type == "reedboat" and z.armor <= 0.0):
 			var entry = smoothstep(0.0, 0.44, 0.68 - z.water_entry_t) if z.raft_sink_t <= 0.0 else 1.0 - z.raft_sink_t / 0.52
 			_actor_frames.draw_pose(self, actor, "walk", frame,
 				frame_foot + Vector2(0, height * 0.32 * entry), height, z.reverse_t <= 0.0,
@@ -1313,8 +1339,12 @@ func _draw_particles() -> void:
 		match String(p["kind"]):
 			"magic":
 				var effect := String(p.effect)
-				_effect_frames.draw_pose(self, "v052-plant-fx", effect, (1.0 - k) * 3.99,
-					pos, float(p.size), false, Color(1, 1, 1, minf(1.0, k * 3.0)))
+				if effect.begins_with("buff-"):
+					_buff_frames.draw_pose(self,"v053-buff-fx",effect.trim_prefix("buff-"),(1.0-k)*3.99,
+						pos,float(p.size),false,Color(1,1,1,minf(1.0,k*3.0)))
+				else:
+					_effect_frames.draw_pose(self,"v052-plant-fx",effect,(1.0-k)*3.99,
+						pos,float(p.size),false,Color(1,1,1,minf(1.0,k*3.0)))
 			"shovel_lift":
 				_draw_shovel_lift(p, k)
 			"capstone_seal":

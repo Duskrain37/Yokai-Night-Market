@@ -741,55 +741,553 @@
     {
       "detail": "",
       "group": "铜铃",
-      "name": "一阶概率定身走的是同一条账本",
-      "ok": true
-    },
-    {
-      "detail": "stun=0.40",
-      "group": "铜铃",
-      "name": "夺魄必定钉住正在啃草的那一个",
-      "ok": true
-    },
-    {
-      "detail": "far=0.50 near=0.00",
-      "group": "铜铃",
-      "name": "回头只叫前方最远那名",
-      "ok": true
-    },
-    {
-      "detail": "far=0.00",
-      "group": "铜铃",
-      "name": "四秒内同一名不被重复叫回头",
+      "name": "摄心1阶命中后的定身时长",
       "ok": true
     },
     {
       "detail": "",
       "group": "铜铃",
-      "name": "成群把回头者身边的同伴一起减速",
-      "ok": true
-    },
-    {
-      "detail": "bleed=2.50 hp=1360.0",
-      "group": "铜铃",
-      "name": "魂断：大型啃铃会自己流血",
-      "ok": true
-    },
-    {
-      "detail": "rooted=8",
-      "group": "铜铃",
-      "name": "满街铃：被啃毁时全图定身",
+      "name": "摄心1阶命中后的定身时长",
       "ok": true
     },
     {
       "detail": "",
       "group": "铜铃",
-      "name": "满街铃记下共享冷却",
+      "name": "摄心1阶命中后的定身时长",
       "ok": true
     },
     {
-      "detail": "again=0",
+      "detail": "",
       "group": "铜铃",
-      "name": "冷却之内的第二声不响",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心1阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "21",
+      "group": "铜铃",
+      "name": "摄心1阶概率落在固定种子样本合理区间",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心2阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "28",
+      "group": "铜铃",
+      "name": "摄心2阶概率落在固定种子样本合理区间",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "摄心3阶命中后的定身时长",
+      "ok": true
+    },
+    {
+      "detail": "36",
+      "group": "铜铃",
+      "name": "摄心3阶概率落在固定种子样本合理区间",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "清音一阶可命中同行身后",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "清音二阶解除同行沉睡",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "清音三阶治疗同行55生命",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "group": "铜铃",
+      "name": "取消旧满街铃死亡定身",
       "ok": true
     },
     {
@@ -813,13 +1311,13 @@
     {
       "detail": "",
       "group": "香炉",
-      "name": "传印易伤为13%",
+      "name": "传印易伤为20%",
       "ok": true
     },
     {
       "detail": "",
       "group": "香炉",
-      "name": "击倒带印恶客爆出100伤并盖18%易伤",
+      "name": "击倒带印恶客爆出100伤并盖30%易伤",
       "ok": true
     },
     {
@@ -1099,123 +1597,93 @@
       "ok": true
     },
     {
-      "detail": "0.5 vs 0.5",
+      "detail": "",
       "group": "炭火盆",
-      "name": "白板增幅 50% 在 content 与 upgrades 两处一致",
+      "name": "火色第0阶只增幅不灼烧不掉星",
       "ok": true
     },
     {
-      "detail": "buff=0.50 burn=0.0 dmg=30.0 地效=0",
+      "detail": "",
       "group": "炭火盆",
-      "name": "白板：穿盆只吃 50% 增幅，不带灼烧不掉星",
+      "name": "火色第1阶只增幅不灼烧不掉星",
       "ok": true
     },
     {
-      "detail": "burn=5.0/2.0 buff=0.80",
+      "detail": "",
       "group": "炭火盆",
-      "name": "火箭：穿盆的弹附带灼烧，伤害增幅80%",
+      "name": "火色第2阶只增幅不灼烧不掉星",
       "ok": true
     },
     {
-      "detail": "burn=9.0",
+      "detail": "",
       "group": "炭火盆",
-      "name": "余烬（未启用的替代案之外）：二阶灼烧 9/秒仍是这一份",
+      "name": "火色第3阶只增幅不灼烧不掉星",
       "ok": true
     },
     {
-      "detail": "burn=5.0",
+      "detail": "",
       "group": "炭火盆",
-      "name": "两路都有灼烧时只取最强，不相加",
+      "name": "满阶弹速增加50%、附20%半径0.3格溅射",
       "ok": true
     },
     {
-      "detail": "火星=2 弹=pea",
+      "detail": "",
       "group": "炭火盆",
-      "name": "掉星：一颗过盆的弹落两颗火星",
+      "name": "火胎一阶耐久750，仅补上限差值",
       "ok": true
     },
     {
-      "detail": "火星=0",
+      "detail": "",
       "group": "炭火盆",
-      "name": "掉星：一秒的预算用完就不再掉",
+      "name": "火胎二阶耐久1500",
       "ok": true
     },
     {
-      "detail": "window=2.00",
+      "detail": "",
       "group": "炭火盆",
-      "name": "掉星：预算每秒攒回两颗",
+      "name": "被啃时火墙按60每秒伤害且不自愈",
       "ok": true
     },
     {
-      "detail": "扣甲=10.0 hp=9000 火星={ \"kind\": \"spark\", \"pos\": (680.8112, 414.0), \"radius\": 26.0, \"life\": 0.98333333333333, \"damage\": 10.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"large_slow\": -1.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": { \"z-9223371972094720548\": 0.0 } }",
+      "detail": "",
       "group": "炭火盆",
-      "name": "火星只烧 10/秒，走护具不穿本体",
+      "name": "停止啃食即可每秒恢复50",
       "ok": true
     },
     {
-      "detail": "buff=1.30 dmg=46.0 spd=780.0/520.0",
+      "detail": "",
       "group": "炭火盆",
-      "name": "不熄：增幅 130%%、弹速 +50%%，溅射20%%",
+      "name": "火墙连续伤害累计零头且护具先受伤",
       "ok": true
     },
     {
-      "detail": "扣血=0 甲=202",
+      "detail": "",
       "group": "炭火盆",
-      "name": "不熄主弹全额结算护具，不穿甲",
+      "name": "取消旧泼油、反伤和死后火墙",
       "ok": true
     },
     {
-      "detail": "max_hp=300",
+      "detail": "",
       "group": "炭火盆",
-      "name": "厚胎之前：白板耐久 250",
+      "name": "照明第1阶提高香火产出",
       "ok": true
     },
     {
-      "detail": "max=750 hp=480",
+      "detail": "",
       "group": "炭火盆",
-      "name": "厚胎：上限变 750，升阶只补 450 的差值，不满血复活",
+      "name": "照明第2阶提高香火产出",
       "ok": true
     },
     {
-      "detail": "油=1",
+      "detail": "",
       "group": "炭火盆",
-      "name": "泼油：被啃到就在啃它的敌人脚下一摊油",
+      "name": "照明第3阶提高香火产出",
       "ok": true
     },
     {
-      "detail": "0",
+      "detail": "",
       "group": "炭火盆",
-      "name": "泼油：同一盆 2 秒内只泼一摊",
-      "ok": true
-    },
-    {
-      "detail": "reflect=25.0",
-      "group": "炭火盆",
-      "name": "火胎满阶：反伤仍是每秒 25",
-      "ok": true
-    },
-    {
-      "detail": "hp=100.0",
-      "group": "炭火盆",
-      "name": "火墙：刚被啃过的 3 秒里不回填",
-      "ok": true
-    },
-    {
-      "detail": "hp=113",
-      "group": "炭火盆",
-      "name": "火墙：脱离啃食 3 秒后每秒回 40",
-      "ok": true
-    },
-    {
-      "detail": "墙=1 [{ \"kind\": \"wall\", \"pos\": (696.0, 414.0), \"radius\": 156.0, \"life\": 3.0, \"damage\": 60.0, \"icd\": 1.0, \"slow\": 0.0, \"slow_duration\": 0.0, \"src\": \"torch\", \"cap\": 0, \"eater_damage\": 0.0, \"large_slow\": -1.0, \"trip\": 0.0, \"trip_slow\": 0.0, \"trip_slow_duration\": 0.0, \"buff\": 0.0, \"hit\": {  } }]",
-      "group": "炭火盆",
-      "name": "火墙：被啃塌时炸开 1.5 格、每秒 60、烧 3 秒",
-      "ok": true
-    },
-    {
-      "detail": "[]",
-      "group": "炭火盆",
-      "name": "铲走的盆不欠这一圈火",
+      "name": "照明满阶提高生产速度10%",
       "ok": true
     },
     {
@@ -1311,7 +1779,7 @@
     {
       "detail": "",
       "group": "透骨针",
-      "name": "1.1秒前不射击",
+      "name": "1.0秒前不射击",
       "ok": true
     },
     {
@@ -1467,7 +1935,7 @@
     {
       "detail": "",
       "group": "汤圆仔",
-      "name": "三级抛射间隔1.55秒",
+      "name": "三级抛射间隔1.25秒",
       "ok": true
     },
     {
@@ -1491,7 +1959,7 @@
     {
       "detail": "",
       "group": "汤圆仔",
-      "name": "沸汤每秒50伤，普通减速35%，大型减速25%",
+      "name": "暖心路线不再留下旧沸汤",
       "ok": true
     },
     {
@@ -1519,9 +1987,9 @@
       "ok": true
     },
     {
-      "detail": "24.0",
+      "detail": "36.0",
       "group": "五路寻灯",
-      "name": "伤害路线三级未获得激励时伤害增加20%",
+      "name": "伤害路线三级基础伤害36",
       "ok": true
     },
     {
@@ -1545,7 +2013,7 @@
     {
       "detail": "",
       "group": "五路寻灯",
-      "name": "门神惊动后攻速提高300%持续10秒",
+      "name": "门神惊动后攻速提高400%持续10秒",
       "ok": true
     },
     {
@@ -1819,19 +2287,19 @@
       "ok": true
     },
     {
-      "detail": "0.5.2 vs 0.5.2",
+      "detail": "0.5.3 vs 0.5.3",
       "group": "构建",
       "name": "戳记版本与 game.gd 一致",
       "ok": true
     },
     {
-      "detail": "2026-11-06 11:10 2003e0a",
+      "detail": "2026-11-06 20:45 057e9d2",
       "group": "构建",
       "name": "构建时间与短哈希已写入",
       "ok": true
     }
   ],
   "failures": 0,
-  "total": 305,
-  "version": "0.5.2"
+  "total": 383,
+  "version": "0.5.3"
 }

@@ -79,19 +79,19 @@
       "ok": true
     },
     {
-      "detail": "won=true lost=false t=267.4 kills=65 wave=12 sun=75 plants=41",
+      "detail": "won=true lost=false t=270.0 kills=64 wave=12 sun=50 plants=40",
       "group": "对局",
       "name": "第十一夜（暗河） 能推进到后段并正常终局",
       "ok": true
     },
     {
-      "detail": "max_shots=33",
+      "detail": "max_shots=28",
       "group": "对局",
       "name": "第十一夜（暗河） 有射弹出手",
       "ok": true
     },
     {
-      "detail": "kills=65",
+      "detail": "kills=64",
       "group": "对局",
       "name": "第十一夜（暗河） 击退数合理",
       "ok": true
@@ -103,7 +103,7 @@
       "ok": true
     },
     {
-      "detail": "t=267.4",
+      "detail": "t=270.0",
       "group": "对局",
       "name": "第十一夜（暗河） 用时在合理区间",
       "ok": true
@@ -237,5 +237,5 @@
   ],
   "failures": 0,
   "total": 39,
-  "version": "0.5.2"
+  "version": "0.5.3"
 }
