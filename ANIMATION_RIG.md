@@ -51,3 +51,5 @@ python tools/register_actor_atlas.py new-guest "C:/art/new-guest.png" walk,attac
 回春葫本体及 e1/e2/e3 独立形态使用同一套 upright 范式，每种包含 idle/action 各32帧。十二套常规恶客与轿厢改为朝左侧身，游泳与攻击分别绘制。特殊异形维持原轮廓。护具的逐姿势头部锚点存于 `data/actor_attachment_pins.json`，侧身面具与陶瓮战损图存于 `data/armor_profiles_v052.json`；不得使用固定胸前位置替代。
 
 `v052-boss-fx` 六组施法、`v052-plant-fx` 五组治疗与状态、`v052-projectiles` 四组射弹、`v052-craters` 两类坑洞均注册到动作清单，运行32帧图集。特效帧采用稳定格心锚点，禁止随亮区包围盒漂移。轿厢图已含两名轿夫，完整轿厢显示时不再叠画额外轿夫。原始提示词与来源记录见 `data/v052_art_prompts.json`、`data/v052_guest_art_prompts.json`。
+
+新图集的行距可能不均匀，禁止只按整图四等分截取。`tools/fix_atlas_regions_v052.py` 对六套新侧身图以连通主体检测实际行界，保留完整脚部并排除上一行残片；重算脚底和护具脸部锚点后再烘焙。区域审计在 `data/v052_region_audit.json`，美术原图像素保持原样。

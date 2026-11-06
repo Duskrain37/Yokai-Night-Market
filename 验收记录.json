@@ -1,8 +1,8 @@
 {
   "version": "0.5.2",
-  "build_hash": "bac1225",
-  "exe_bytes": 759524904,
-  "exe_sha256": "e071f0c54deab25c47b73974506f118c625c4a9e0643f2fe120e1c948469f193",
+  "build_hash": "b9f3490",
+  "exe_bytes": 751825820,
+  "exe_sha256": "ea631d2686c7e4898679ae573f6be2c2f57fe03eb54790f3fe35a98244bc9042",
   "assertions": {
     "logic-tests": 305,
     "battle-tests": 39,
@@ -28,9 +28,9 @@
   "boss_legacy_fixture_wins": 0,
   "motion_frames": 10496,
   "pack_trim": {
-    "original_bytes": 851210840,
-    "candidate_bytes": 759524904,
-    "untouched_files": 877,
+    "original_bytes": 843511760,
+    "candidate_bytes": 751825820,
+    "untouched_files": 878,
     "removed_files": 223,
     "removed_by_group": {
       "fallback_key_atlases": 84043376,
@@ -271,7 +271,7 @@
     "checks": 11140,
     "failures": 0,
     "frames": 10496,
-    "texture_load_ms": 5289.762
+    "texture_load_ms": 4469.706
   },
   "platform": "Windows x64",
   "verification": "自动检查、Windows 导出包启动、实机画面与恶首阵容模拟。未做人手二十五夜全通。"
