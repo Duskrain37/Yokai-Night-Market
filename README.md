@@ -1,58 +1,36 @@
-# 妖怪夜市 v0.5.3
+# 妖怪夜市 v0.5.3 安卓横屏版
 
-## 下载后直接启动
+## 安装后直接玩
 
-1. [下载 Windows 64 位可执行文件](https://github.com/Duskrain37/Yokai-Night-Market/releases/latest/download/YokaiNightMarket-win64.exe)。
-2. 下载完成后，双击 `YokaiNightMarket-win64.exe` 启动游戏。单文件无需安装或解压。
-3. 安卓手机请[下载 APK](https://github.com/Duskrain37/Yokai-Night-Market/releases/download/v0.5.3-mobile/YokaiNightMarket-android.apk)，允许浏览器安装此 APK 后，点开游戏图标即可游玩。横屏运行，支持 ARM64 / ARMv7，Android 7.0 及以上、OpenGL ES 3.0；建议至少预留 2 GB 存储空间。
-4. 更新公告见[最新发布页](https://github.com/Duskrain37/Yokai-Night-Market/releases/latest)。
+1. [下载安卓 APK](https://github.com/Duskrain37/Yokai-Night-Market/releases/download/v0.5.3-mobile/YokaiNightMarket-android.apk)。
+2. 按系统提示允许浏览器安装本次 APK，安装完成后点游戏图标开始。资源已包含在包内，无需再次下载。
+3. 请横屏游玩。轻点选择和种植，长按约0.45秒取消；列表可滑动，说明点开阅读。
 
-中式怪谈题材的车道塔防。用香火请草木出摊，在灯火与水道之间守住夜市。
+这是独立手机版分支。电脑用户请前往 [PC 默认分支](https://github.com/Duskrain37/Yokai-Night-Market/tree/v0.5.3)，[下载独立 EXE 后双击直接启动](https://github.com/Duskrain37/Yokai-Night-Market/releases/download/v0.5.3/YokaiNightMarket-win64.exe)。
 
-## 内容与操作
+安装下载的 APK，按系统提示允许本次安装，再点图标启动。无需再下载资源，离线可玩。最低 Android 7.0、OpenGL ES 3.0，兼容 ARM64 与 ARMv7。建议4 GB及以上运行内存，预留至少2 GB空间；低内存设备可在设置中选择30帧。APK 使用固定发行证书签名，后续同包名、同证书更新可覆盖安装。卸载会移除本地存档，正常升级请直接覆盖安装。
 
-- 五章二十五夜，另有独立特殊关「鬼市深处」。28 种草木、24 种恶客（鬼新娘随喜轿出现）、5 位原创恶首。
-- 每章五关分别4、4、6、6、8大波；进度每次展示四波，进入下一组时翻页。旗帜与执幡客在每大波的最后一拨登场。
-- 每章关底的最后一大波迎战恶首。第五周关底第四大波还会先遭遇限制形态的玄冥判官。
-- 鬼市深处二十大波，每四波清完迎战一位恶首，阵容和香火保留。第五位恶首退散后通关。
-- 19 株可进化草木各有三条路线，最多开启两路，只有一路能到三阶。部分三阶有专属形态和对应动作帧，逐云鸢、清账匣和烬翼蝉各有三种三阶外观。
-- 首次守夜可先学教程。每周初夜相对平和，第二至四夜各有不同挑战，第五夜迎来最凶险的来客。五张地图各有推荐卡组，在备战页可查看今夜主题、来客与恶首录。
 
-左键选卡、落子或查看草木，右键取消。点青铜起土铲后可拆除龟甲罩或移除草木。数字键1–9切换卡牌，空格/P暂停，Esc返回或取消，F11切换全屏。方括号键调整倍速，选卡与倍速可在设置中改键。显示设置支持更大的字号、阶别形状和战斗文字提醒。战场右上角可随时切换 0.1、1、1.5、2、3 倍速，每场从 1 倍速开始。若卡关，可在设置里开启作弊菜单补充香火。
 
-Windows 成品为单文件，下载后双击运行。玩家数据位于 `%APPDATA%\YokaiNightMarket\`。封面可切换三个独立对局存档槽，每槽留存最近一次守夜结局。旧版进行中的对局自动迁到第一槽。
+## 触屏操作
 
-## 本次更新
+- 轻点卡牌选择，再点棋盘种植；点其他卡牌直接切换。拖动选卡后也可在落点松手种植。
+- 长按约0.45秒相当于右键取消，不会在松手时再补一次种植。滑动列表不会触发卡牌选择。
+- 说明不依赖悬停：选卡后顶部显示主要数值；右侧图鉴可阅读完整本事和九阶进化。回到战场保留原选择。
+- 点场上草木打开进化，点路线查看效果，再点下方确认按钮付费。阅读时暂停对局，已满阶路线仍能查看效果。
+- 左侧双列卡牌；右侧为暂停、起土铲、唤波、倍速、图鉴等操作。默认1倍速，点倍速依次切换。
+- 备战的草木和今夜来客独立上下滚动；图鉴左右栏目独立滚动。切到后台自动保存并暂停，回来后手动继续。
 
-电脑版与安卓手机版同步更新。修正蒲舟客沉舟泳姿、失锁追魂弹和镇煞瓜落地索敌；公告首次自动打开，并加入下载及反馈页。增益特效按草木来源分别绘制，八组特效各有32帧。根据最新草木方案调整九株草木及相关进化费用，详情见 [本版公告](V053_CHANGES.md)。
+## 画面与性能
 
-手机轻点选卡、种植、拾取和查看；长按约0.45秒执行取消。备战、图鉴、设置可上下滑动；点选场上草木后，先点路线读说明，再确认花费进化。需要完整说明时点右侧图鉴，返回后保留选择。后台自动暂停，回来后自行继续。手机布局与电脑版分别适配，设置中可选30/60帧和更大字号。移动版独立说明见 [MOBILE.md](MOBILE.md)。
+固定横屏，棋盘与角色保持同一等比投影，保留完整九列；较长或较方的屏幕采用留边，避免裁掉棋盘。刘海和手势区域另做安全区。界面字号高于电脑默认，可再选择中/大字号。
 
-## 从源码运行
+所有角色、三阶形态和特效保留32帧，未减帧或降低素材分辨率。对超过4096像素的图集，按动作无损拆成独立GPU纹理；原像素、透明度、区域与锚点逐一验证。动作按需异步读取、回收不再使用的缓存；只读取当前音乐并释放已淡出的段落。正式包移除未在役备用图集与工具，不删有效玩法。
 
-Godot 4.7.2、GDScript、原生2D，GL Compatibility。用对应编辑器打开 `project.godot`，按F5运行，不需要旧JS工程、图像生成服务或联网。
+## 开发与签名
 
-```powershell
-powershell -ExecutionPolicy Bypass -File build.ps1 -GodotPath "C:\path\to\Godot_console.exe"
-```
+Godot 4.7.2、OpenJDK 17、Android SDK。安装 Godot 官方相同版本安卓导出模板，设置编辑器的 Java SDK / Android SDK 路径。`export_presets.cfg` 的 Android 为正式 ARM 双架构；Android QA 为本地 x86_64 模拟器用包，禁止将它冒充手机版成品上传。
 
-Windows导出需要同版本模板。当前 `export_presets.cfg` 指向工作区便携模板 `../../tmp/godot-tools/templates/`；其他机器请将两个 `custom_template` 路径改为自己的模板路径，或清空并安装Godot默认模板。Python构建步骤使用Pillow、fonttools；numpy仅用于重制音效。运行素材与字体子集均已提供。
+发行密钥在项目外保存，不随源码发布。构建前通过环境变量 `GODOT_ANDROID_KEYSTORE_RELEASE_PATH`、`GODOT_ANDROID_KEYSTORE_RELEASE_USER`、`GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD` 提供。使用 `tools/build_android.py` 导出并验签；不要把密钥或口令写进 preset、日志或仓库。以后必须沿用原证书才能覆盖安装。
 
-`build.ps1` 导入资源、处理字体和戳记，通过检查后导出 `build/YokaiNightMarket.exe`。本机曾在并行重导字体时发生原生崩溃，已改为串行导入，并使相同字表跳过重写；此编辑器设置不影响正式运行。设置说明见[Godot文档](https://docs.godotengine.org/en/4.3/classes/class_projectsettings.html#class-projectsettings-property-editor-import-use-multiple-threads)。
-
-## 验证与维护
-
-- `qa_logic.gd`、`qa_battle.gd`：规则、进化、正常费用与冷却对局、存档。
-- `qa_boss.gd`、`qa_boss_balance.gd`：恶首事务、参考阵容与多个种子模拟。
-- `qa_special.gd`、`qa_v050.gd`：五恶首衔接、双形态、地形和换岸。流程检验使用清敌辅助。
-- `qa_sweep.gd`：二十五夜压力扫描，同长前四波比较，另列扩展普通波总量。
-- `trim_export.py`：打包后校验全部动画清单和包内逐文件内容，剔除停用资源并去重。每次追加内容先完成运行验收，再更新裁剪依据。
-- `ui_selftest.gd`、`qa_click.gd`、`qa_player_ui.gd`：界面、视口事件点击、全部备战按钮边界、图鉴和进化文案。
-
-结果在 `qa/`，最终包哈希见发布验收记录。固定阵容模拟不是人类实时试玩，不代表所有卡组都在两分钟内击败恶首。验证分别覆盖 Windows x64 成品与 Android x86_64 模拟器；安卓公开 APK 包含 ARM64 / ARMv7。模拟器验证不等于实体手机实测，具体测试记录随发布提供。
-
-历史规则入口见 `V040_IMPLEMENTATION.md`，本版骨骼范式与动画接入见 `ANIMATION_RIG.md`。后续波次进度仍四波一页；玩家界面只用条形表示凶险度，不显示系数与开发说明。
-
-## 授权与素材
-
-引擎、字体声明见仓库的 Godot MIT、第三方与 OFL 文件。新增美术由内置图像生成工具制作，提示词和区域表随源码提供。第四、第五周的六首新曲由本地 songgeneration-mcp 调用 ACE-Step 1.5 制作。
+正式移动分支 `v0.5.3-mobile`，人工发布附件只放 `YokaiNightMarket-android.apk`；PC 默认分支和最新发布仍为 `v0.5.3`。

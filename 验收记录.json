@@ -1,283 +1,236 @@
 {
   "version": "0.5.3",
-  "build_hash": "057e9d2",
-  "exe_bytes": 760596488,
-  "exe_sha256": "b6247b9b8b77460e9deb4ff0451bc9f379e5e34ea700890659a337b6f5e16276",
-  "assertions": {
-    "logic-tests": 383,
-    "battle-tests": 39,
-    "boss-tests": 143,
-    "special-tests": 120,
-    "ui-tests": 78,
-    "click-tests": 65,
-    "player-ui-tests": 273,
-    "animation-tests": 958,
-    "v050-tests": 459,
-    "v051-refresh-tests": 22,
-    "v052-tests": 45,
-    "v053-tests": 41,
-    "mobile-tests": 20,
-    "patch-tests": 145
+  "branch": "v0.5.3-mobile",
+  "build": "057e9d2",
+  "apk": {
+    "file": "YokaiNightMarket-android.apk",
+    "bytes": 697006705,
+    "sha256": "2f7931c10703c90a5eb72a8e73b3536c41e946e00e7e8f25cc24a9e606dbebb7",
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a"
+    ],
+    "animation_frames": 10752,
+    "signature": "Verifies\r\nVerified using v1 scheme (JAR signing): false\r\nVerified using v2 scheme (APK Signature Scheme v2): true\r\nVerified using v3 scheme (APK Signature Scheme v3): true\r\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\r\nVerified using v4 scheme (APK Signature Scheme v4): false\r\nVerified for SourceStamp: false\r\nNumber of signers: 1\r\nSigner #1 certificate DN: CN=Yokai Night Market, O=Duskrain37, C=CN\r\nSigner #1 certificate SHA-256 digest: 8851101094b200c9dcc66455c328ba197ad3cb6b37853923c3ba21a82460a165\r\nSigner #1 certificate SHA-1 digest: a3faf698186a0605487c1dabf17617eed09501a0\r\nSigner #1 certificate MD5 digest: a53628e93f33ffd55c6532ba246a9494\r\nSigner #1 key algorithm: RSA\r\nSigner #1 key size (bits): 3072\r\nSigner #1 public key SHA-256 digest: 13104d8e7332b0f4d6871470b40541387d3e6daa04d03a771ffb62934030a20e\r\nSigner #1 public key SHA-1 digest: d67348612eaa179d35d9a3ddc5baa3497645013b\r\nSigner #1 public key MD5 digest: abfb6b690f8e4ee02b69902f0ddd6890\r\n",
+    "manifest": [
+      "package: name='com.duskrain.nightmarket' versionCode='503' versionName='0.5.3' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'",
+      "sdkVersion:'24'",
+      "targetSdkVersion:'36'",
+      "uses-permission: name='android.permission.VIBRATE'",
+      "supports-screens: 'small' 'normal' 'large' 'xlarge'",
+      "native-code: 'arm64-v8a' 'armeabi-v7a'"
+    ]
   },
-  "assertion_total": 2791,
-  "failures": 0,
-  "boss_simulations": 33,
-  "boss_reference_seconds": [
-    70.7,
-    124.7
-  ],
-  "boss_reference_wins": 15,
-  "boss_legacy_fixture_wins": 0,
-  "motion_frames": 10752,
-  "pack_trim": {
-    "original_bytes": 853233176,
-    "candidate_bytes": 760596488,
-    "untouched_files": 895,
-    "removed_files": 226,
-    "removed_by_group": {
-      "fallback_key_atlases": 84992181,
-      "unused_and_art_prompts": 7004868
-    },
-    "identical_payload_reuse": 615868,
-    "removed_paths": {
-      "fallback_key_atlases": [
-        ".godot/imported/artisan.png-269767585b9503aaca7974e4ba838fec.ctex",
-        ".godot/imported/bell-e1.png-dbbe8d1827cecb0b1a57bbf855ba2df7.ctex",
-        ".godot/imported/bell-e2.png-e24217a6b6b42a5457d9e0d6589a247e.ctex",
-        ".godot/imported/bell-e3.png-88c81baa78d179778801780e6a341863.ctex",
-        ".godot/imported/bell.png-44d438de28d71f645ceb7cf379681d55.ctex",
-        ".godot/imported/bomb.png-7d6321675df08a58393421caaa1c2b31.ctex",
-        ".godot/imported/boss-earth-anticipation.png-a9cc9ae2c13ccdf90b605cbf04341bfa.ctex",
-        ".godot/imported/boss-earth-defeat.png-f0e8b3b82170b78a317e2662c378107d.ctex",
-        ".godot/imported/boss-earth-hurt.png-371c26742203e87544ef0d3b0f3fd650.ctex",
-        ".godot/imported/boss-earth-idle.png-128f81eeab4b622b1d07b3b980c72da7.ctex",
-        ".godot/imported/boss-earth-major.png-1e5731ba226c13b51b18d3c0e47ade8d.ctex",
-        ".godot/imported/boss-earth-small.png-5e061128cbc6b8066c8561cefe2e3300.ctex",
-        ".godot/imported/boss-paper-anticipation.png-518d3ba5d290ebd4403ee02c07793596.ctex",
-        ".godot/imported/boss-paper-defeat.png-bdfd93f948f05315a87cf9e12538ae06.ctex",
-        ".godot/imported/boss-paper-hurt.png-2822b91541e2dbbdd3906cd6a5d20f3c.ctex",
-        ".godot/imported/boss-paper-idle.png-14eac95fb07fa8c9e6d74fdc062ca231.ctex",
-        ".godot/imported/boss-paper-major.png-2183f1f25306c115bc4c9705312dc2a2.ctex",
-        ".godot/imported/boss-paper-small.png-cbb7a0c40fa7d451479037c391c1a2b6.ctex",
-        ".godot/imported/boss-river-anticipation.png-850473b6cffe9ede0efdb7787cf7daa9.ctex",
-        ".godot/imported/boss-river-defeat.png-b6d2e23aad674af90ca08e70fdde777c.ctex",
-        ".godot/imported/boss-river-hurt.png-2408b566f46ab28c0019bde823fa4a33.ctex",
-        ".godot/imported/boss-river-idle.png-0434b0edccee49773e84a30be7640342.ctex",
-        ".godot/imported/boss-river-major.png-561b9c3b57b4ed04c2cbde396641f65b.ctex",
-        ".godot/imported/boss-river-small.png-6fd9667e8d7533f3354ea37df781d017.ctex",
-        ".godot/imported/bucket.png-b2f65ac02821745bfb2ab62749cfe0a8.ctex",
-        ".godot/imported/cat-e1.png-3c64d3feacf0cb07ba632df10c76c1c9.ctex",
-        ".godot/imported/cat-e2.png-3ec993f104c66fc22d9b1545ccf77b2f.ctex",
-        ".godot/imported/cat-e3.png-519294ae3569e8c5c811db7669465257.ctex",
-        ".godot/imported/cat.png-0e4e7a0e3fb5937ff4241f38343078bd.ctex",
-        ".godot/imported/censer-e1.png-307615b1bad611621d521c10546ab8c2.ctex",
-        ".godot/imported/censer-e2.png-b4060cf578d2a4b8a5c949e639c64e2d.ctex",
-        ".godot/imported/censer-e3.png-9ddd6d1514bbe7b71a5f668962f64477.ctex",
-        ".godot/imported/censer.png-8d67ff1cb3d88ec9c6471b5624d49b6d.ctex",
-        ".godot/imported/ember-cicada-e1.png-864d1830b86968d9d62a9dec87f35d60.ctex",
-        ".godot/imported/ember-cicada-e2.png-e1299a97e8201755113ec9f416c7ccc4.ctex",
-        ".godot/imported/ember-cicada-e3.png-fb5c97abb274049223e9013ad1298041.ctex",
-        ".godot/imported/ghost.png-810150c331a378b059cb403d76118598.ctex",
-        ".godot/imported/herb-gourd-e1.png-8ff88d06ce946c882464bbd99ffabed9.ctex",
-        ".godot/imported/herb-gourd-e2.png-55ab395838fe8ad5c7e204cbcf46d625.ctex",
-        ".godot/imported/herb-gourd-e3.png-317ddc69264476dbd37585f9291a0110.ctex",
-        ".godot/imported/herb-gourd.png-917ca8e8650fd3306df553b23696cbfc.ctex",
-        ".godot/imported/ironjudge.png-33f249ed31739f56795129a3d1edea73.ctex",
-        ".godot/imported/judge-e1.png-4e552f680aa68b9315a031c3f5ae6ab8.ctex",
-        ".godot/imported/judge-e2.png-8ee8af6b18e06f4785f162ccb430a46f.ctex",
-        ".godot/imported/judge-e3.png-7e666f0252669236e9751af191613418.ctex",
-        ".godot/imported/judge.png-1d36739b0b65f63c0f8ae1335cb7afc8.ctex",
-        ".godot/imported/kelp.png-ebbeae61cc10d03778f6df5277f18eb3.ctex",
-        ".godot/imported/lantern-e1.png-1a1b8404bf15a92282a259dd799015fb.ctex",
-        ".godot/imported/lantern-e2.png-92ac10426c2618bce5c293d248ab2adb.ctex",
-        ".godot/imported/lantern-e3.png-4e9afef2ba83fa969f110fef9c086919.ctex",
-        ".godot/imported/lantern.png-c43faa2f2d52a251a37172a66c5d5dc3.ctex",
-        ".godot/imported/lily.png-71514b19716e88d311d3b1d0037c892e.ctex",
-        ".godot/imported/lion-e1.png-01351f3ea935860d3d1f8c70403a1784.ctex",
-        ".godot/imported/lion-e2.png-6adfd2139be889baaba1295ccaadbf79.ctex",
-        ".godot/imported/lion-e3.png-ea2ad5c97f28a87cdb9e1d177fb116a3.ctex",
-        ".godot/imported/lion.png-4b9b1725bd832a1eaae75beaca939348.ctex",
-        ".godot/imported/lobber-e1.png-c302cb01fbd096c1758849e8a0576235.ctex",
-        ".godot/imported/lobber-e2.png-bad4c7e1b67b1972a777f6561536439c.ctex",
-        ".godot/imported/lobber-e3.png-776c7dcef47b9aaae50ef109bc7faa4d.ctex",
-        ".godot/imported/lobber.png-5c55353d97e027f94c60bf009e8ac650.ctex",
-        ".godot/imported/mountain.png-9102d1fdb8efd7062a64f82c74094967.ctex",
-        ".godot/imported/mourner.png-3ed1c6ce1c6c81abfe7a3530f74be702.ctex",
-        ".godot/imported/mushroom.png-16ee83d223059da8d526764b0085ee55.ctex",
-        ".godot/imported/needle-e1.png-9c9c9241e076840ee5a85704c7bb063a.ctex",
-        ".godot/imported/needle-e2.png-366a16a353fdf893c274a1595593e714.ctex",
-        ".godot/imported/needle-e3.png-97286e504751badab8657e80ed0f54d4.ctex",
-        ".godot/imported/needle.png-2b8f05296ce3876ada1d4e61c5e166f8.ctex",
-        ".godot/imported/paper.png-63972346550c34418b5c5cac317c5b33.ctex",
-        ".godot/imported/phase-kite.png-93e3e264d5c8f7af3b87bc1adfdaf88a.ctex",
-        ".godot/imported/sedan.png-9ded051bf13b23d7a59d654662c3c24c.ctex",
-        ".godot/imported/shell.png-87f2d5e85d7eebf2866775751c48b953.ctex",
-        ".godot/imported/shooter-e1.png-9e908440ad9cafb79fbd0368ca3de187.ctex",
-        ".godot/imported/shooter-e2.png-b4cf2fcb9c42712e0a131fb6df61d053.ctex",
-        ".godot/imported/shooter-e3.png-a7c3ee178dbd10bf3b5bf07b5e9185b9.ctex",
-        ".godot/imported/shooter.png-dd4dc32c11d2fa2e39f72d8c7db69319.ctex",
-        ".godot/imported/sky-kite-e1.png-3537909d1947531e841c260ef4a63543.ctex",
-        ".godot/imported/sky-kite-e2.png-7ef0784e7c2a44a299c538c5acd54cd8.ctex",
-        ".godot/imported/sky-kite-e3.png-927971ce1746577f959b646047b764f2.ctex",
-        ".godot/imported/star-e1.png-583513c5ea972f3bffaf730c538416ea.ctex",
-        ".godot/imported/star-e2.png-d6c961ac0d9447260113115cd6313841.ctex",
-        ".godot/imported/star-e3.png-a37b9c30c853adf3661fa2264030a365.ctex",
-        ".godot/imported/star.png-d1d816b33fcc988675d0f2c9a018e80a.ctex",
-        ".godot/imported/stonehat.png-f4835ffba5a1bb9c0a89311fcb9948dd.ctex",
-        ".godot/imported/straw.png-2b7891fdb4cb3af38692ea0ac7da8bd7.ctex",
-        ".godot/imported/tongue.png-3fccf1f189f1d57055e7e64654f32e35.ctex",
-        ".godot/imported/torch-e1.png-3001c5b9b151897872eecd7252977a23.ctex",
-        ".godot/imported/torch-e2.png-bae57acce0ea8876ef62eee717efd2cd.ctex",
-        ".godot/imported/torch-e3.png-12fc9e789379c5e5b4f3fbef661487c9.ctex",
-        ".godot/imported/torch.png-530b877d22ea3a2bffb0e02a00aa11db.ctex",
-        ".godot/imported/umbrella-e1.png-7e55ad3f54d39e5ed05c594dbd2bbd67.ctex",
-        ".godot/imported/umbrella-e2.png-92d5eaa6d774969eaa389513704dd34e.ctex",
-        ".godot/imported/umbrella-e3.png-b665c5edfec3cc14d646bb855980880d.ctex",
-        ".godot/imported/umbrella.png-0865d484f6ed8439a20bb6df2eba4c44.ctex",
-        ".godot/imported/v052-boss-fx.png-d2d9f864b2451383b4045ecb2d0c9d71.ctex",
-        ".godot/imported/v052-craters.png-64d476880c6de804dfc1dca5deb78470.ctex",
-        ".godot/imported/v052-plant-fx.png-91750991e296ea85e89101777d7353be.ctex",
-        ".godot/imported/v052-projectiles.png-9485cecdc6c96921f2a7109398d6ba67.ctex",
-        ".godot/imported/v053-buff-fx.png-ac9b40b02dccca9e5ed6c198071477ad.ctex",
-        ".godot/imported/vault.png-d93b9a69cba7d5b4076a563835a1584a.ctex",
-        ".godot/imported/wall-e1.png-d1822862c653cdca425dc73b3733f231.ctex",
-        ".godot/imported/wall-e2.png-8b2b6c3c836b6eb97dc81c9754985872.ctex",
-        ".godot/imported/wall-e3.png-6ad42dd6e979f27a8e57bddbac664d42.ctex",
-        ".godot/imported/wall.png-10b68ea91ef436ad637e0d5856ea2c34.ctex",
-        ".godot/imported/wish-till-e1.png-422bd6cd9fa27d26478b1bd5177f239d.ctex",
-        ".godot/imported/wish-till-e2.png-c0b645fdc702fb253636811110f77e1a.ctex",
-        ".godot/imported/wish-till-e3.png-19668b7d82059c8339c0714b70e01bd8.ctex",
-        "assets/sprites/animation/artisan.png.import",
-        "assets/sprites/animation/bell-e1.png.import",
-        "assets/sprites/animation/bell-e2.png.import",
-        "assets/sprites/animation/bell-e3.png.import",
-        "assets/sprites/animation/bell.png.import",
-        "assets/sprites/animation/bomb.png.import",
-        "assets/sprites/animation/boss-earth-anticipation.png.import",
-        "assets/sprites/animation/boss-earth-defeat.png.import",
-        "assets/sprites/animation/boss-earth-hurt.png.import",
-        "assets/sprites/animation/boss-earth-idle.png.import",
-        "assets/sprites/animation/boss-earth-major.png.import",
-        "assets/sprites/animation/boss-earth-small.png.import",
-        "assets/sprites/animation/boss-paper-anticipation.png.import",
-        "assets/sprites/animation/boss-paper-defeat.png.import",
-        "assets/sprites/animation/boss-paper-hurt.png.import",
-        "assets/sprites/animation/boss-paper-idle.png.import",
-        "assets/sprites/animation/boss-paper-major.png.import",
-        "assets/sprites/animation/boss-paper-small.png.import",
-        "assets/sprites/animation/boss-river-anticipation.png.import",
-        "assets/sprites/animation/boss-river-defeat.png.import",
-        "assets/sprites/animation/boss-river-hurt.png.import",
-        "assets/sprites/animation/boss-river-idle.png.import",
-        "assets/sprites/animation/boss-river-major.png.import",
-        "assets/sprites/animation/boss-river-small.png.import",
-        "assets/sprites/animation/bucket.png.import",
-        "assets/sprites/animation/cat-e1.png.import",
-        "assets/sprites/animation/cat-e2.png.import",
-        "assets/sprites/animation/cat-e3.png.import",
-        "assets/sprites/animation/cat.png.import",
-        "assets/sprites/animation/censer-e1.png.import",
-        "assets/sprites/animation/censer-e2.png.import",
-        "assets/sprites/animation/censer-e3.png.import",
-        "assets/sprites/animation/censer.png.import",
-        "assets/sprites/animation/ember-cicada-e1.png.import",
-        "assets/sprites/animation/ember-cicada-e2.png.import",
-        "assets/sprites/animation/ember-cicada-e3.png.import",
-        "assets/sprites/animation/ghost.png.import",
-        "assets/sprites/animation/herb-gourd-e1.png.import",
-        "assets/sprites/animation/herb-gourd-e2.png.import",
-        "assets/sprites/animation/herb-gourd-e3.png.import",
-        "assets/sprites/animation/herb-gourd.png.import",
-        "assets/sprites/animation/ironjudge.png.import",
-        "assets/sprites/animation/judge-e1.png.import",
-        "assets/sprites/animation/judge-e2.png.import",
-        "assets/sprites/animation/judge-e3.png.import",
-        "assets/sprites/animation/judge.png.import",
-        "assets/sprites/animation/kelp.png.import",
-        "assets/sprites/animation/lantern-e1.png.import",
-        "assets/sprites/animation/lantern-e2.png.import",
-        "assets/sprites/animation/lantern-e3.png.import",
-        "assets/sprites/animation/lantern.png.import",
-        "assets/sprites/animation/lily.png.import",
-        "assets/sprites/animation/lion-e1.png.import",
-        "assets/sprites/animation/lion-e2.png.import",
-        "assets/sprites/animation/lion-e3.png.import",
-        "assets/sprites/animation/lion.png.import",
-        "assets/sprites/animation/lobber-e1.png.import",
-        "assets/sprites/animation/lobber-e2.png.import",
-        "assets/sprites/animation/lobber-e3.png.import",
-        "assets/sprites/animation/lobber.png.import",
-        "assets/sprites/animation/mountain.png.import",
-        "assets/sprites/animation/mourner.png.import",
-        "assets/sprites/animation/mushroom.png.import",
-        "assets/sprites/animation/needle-e1.png.import",
-        "assets/sprites/animation/needle-e2.png.import",
-        "assets/sprites/animation/needle-e3.png.import",
-        "assets/sprites/animation/needle.png.import",
-        "assets/sprites/animation/paper.png.import",
-        "assets/sprites/animation/phase-kite.png.import",
-        "assets/sprites/animation/sedan.png.import",
-        "assets/sprites/animation/shell.png.import",
-        "assets/sprites/animation/shooter-e1.png.import",
-        "assets/sprites/animation/shooter-e2.png.import",
-        "assets/sprites/animation/shooter-e3.png.import",
-        "assets/sprites/animation/shooter.png.import",
-        "assets/sprites/animation/sky-kite-e1.png.import",
-        "assets/sprites/animation/sky-kite-e2.png.import",
-        "assets/sprites/animation/sky-kite-e3.png.import",
-        "assets/sprites/animation/star-e1.png.import",
-        "assets/sprites/animation/star-e2.png.import",
-        "assets/sprites/animation/star-e3.png.import",
-        "assets/sprites/animation/star.png.import",
-        "assets/sprites/animation/stonehat.png.import",
-        "assets/sprites/animation/straw.png.import",
-        "assets/sprites/animation/tongue.png.import",
-        "assets/sprites/animation/torch-e1.png.import",
-        "assets/sprites/animation/torch-e2.png.import",
-        "assets/sprites/animation/torch-e3.png.import",
-        "assets/sprites/animation/torch.png.import",
-        "assets/sprites/animation/umbrella-e1.png.import",
-        "assets/sprites/animation/umbrella-e2.png.import",
-        "assets/sprites/animation/umbrella-e3.png.import",
-        "assets/sprites/animation/umbrella.png.import",
-        "assets/sprites/animation/v052-boss-fx.png.import",
-        "assets/sprites/animation/v052-craters.png.import",
-        "assets/sprites/animation/v052-plant-fx.png.import",
-        "assets/sprites/animation/v052-projectiles.png.import",
-        "assets/sprites/animation/v053-buff-fx.png.import",
-        "assets/sprites/animation/vault.png.import",
-        "assets/sprites/animation/wall-e1.png.import",
-        "assets/sprites/animation/wall-e2.png.import",
-        "assets/sprites/animation/wall-e3.png.import",
-        "assets/sprites/animation/wall.png.import",
-        "assets/sprites/animation/wish-till-e1.png.import",
-        "assets/sprites/animation/wish-till-e2.png.import",
-        "assets/sprites/animation/wish-till-e3.png.import"
-      ],
-      "unused_and_art_prompts": [
-        ".godot/imported/board.jpg-2d4a7ef8c0d84ae917db7df411f9fe99.ctex",
-        ".godot/imported/boss_bar_frame.svg-a5d3dbb3554fb8943c6dc160c25c2528.ctex",
-        ".godot/imported/loading-menu.png-9e7effd94aff5f2a7d3214911db59181.ctex",
-        ".godot/imported/weakpoint.svg-62eaf3f471014e4ed0cba0d3907000c9.ctex",
-        "assets/bg/board.jpg.import",
-        "assets/bg/loading-menu.png.import",
-        "assets/boss/boss_bar_frame.svg.import",
-        "assets/boss/weakpoint.svg.import",
-        "data/v042_art_prompts.json",
-        "data/v050_art_prompts.json",
-        "data/v051_art_prompts.json",
-        "data/v052_art_prompts.json",
-        "data/v052_guest_art_prompts.json",
-        "data/v053_art_prompts.json"
-      ]
-    }
-  },
-  "pack_checks": {
-    "checks": 11406,
+  "device": {
+    "version": "0.5.3",
+    "build": "057e9d2",
+    "total": 24,
     "failures": 0,
-    "frames": 10752,
-    "texture_load_ms": 5837.093
+    "configurations": [
+      {
+        "device": {
+          "build": "057e9d2",
+          "checks": [
+            {
+              "name": "native Android mobile mode",
+              "ok": true
+            },
+            {
+              "name": "no emulated mouse duplicates",
+              "ok": true
+            },
+            {
+              "name": "prep has independent vertical lists",
+              "ok": true
+            },
+            {
+              "name": "finger drag scrolls plants",
+              "ok": true
+            },
+            {
+              "name": "safe area transforms board and HUD together",
+              "ok": true
+            },
+            {
+              "name": "mobile HUD native",
+              "ok": true
+            },
+            {
+              "name": "tap card exactly once",
+              "ok": true
+            },
+            {
+              "name": "tap places at correct projected cell",
+              "ok": true
+            },
+            {
+              "name": "hold cancels without planting",
+              "ok": true
+            },
+            {
+              "name": "upgrade reading pauses combat",
+              "ok": true
+            },
+            {
+              "name": "system back pauses instead of quitting",
+              "ok": true
+            },
+            {
+              "name": "background pauses battle",
+              "ok": true
+            }
+          ],
+          "elapsed_ms": 24860,
+          "failures": 0,
+          "os": "Android",
+          "process_ms_mean": 94.6075666666665,
+          "render_fps": 13.0,
+          "renderer": "gl_compatibility",
+          "safe": "[P: (0, 136), S: (2400, 944)]",
+          "screen": "(2400, 1080)",
+          "static_memory_bytes": 0.0,
+          "total": 12,
+          "ui_position": "(100.7408, 113.3334)",
+          "ui_scale": "(0.874074, 0.874074)",
+          "window": "(2400, 1080)"
+        },
+        "verification": "API35 Android x86_64 emulator with host GPU; automated in-viewport touch events; ARM64/ARMv7 physical devices not tested",
+        "first_launch_announcement": true,
+        "first_launch_log_errors": 0,
+        "orientation": "landscape 2400x1080; internal1600x900 keep aspect; safearea applied",
+        "performance_note": "模拟器的进程与渲染开销不代表实体手机表现，不据此宣称手机帧率。"
+      },
+      {
+        "device": {
+          "build": "057e9d2",
+          "checks": [
+            {
+              "name": "native Android mobile mode",
+              "ok": true
+            },
+            {
+              "name": "no emulated mouse duplicates",
+              "ok": true
+            },
+            {
+              "name": "prep has independent vertical lists",
+              "ok": true
+            },
+            {
+              "name": "finger drag scrolls plants",
+              "ok": true
+            },
+            {
+              "name": "safe area transforms board and HUD together",
+              "ok": true
+            },
+            {
+              "name": "mobile HUD native",
+              "ok": true
+            },
+            {
+              "name": "tap card exactly once",
+              "ok": true
+            },
+            {
+              "name": "tap places at correct projected cell",
+              "ok": true
+            },
+            {
+              "name": "hold cancels without planting",
+              "ok": true
+            },
+            {
+              "name": "upgrade reading pauses combat",
+              "ok": true
+            },
+            {
+              "name": "system back pauses instead of quitting",
+              "ok": true
+            },
+            {
+              "name": "background pauses battle",
+              "ok": true
+            }
+          ],
+          "elapsed_ms": 18219,
+          "failures": 0,
+          "os": "Android",
+          "process_ms_mean": 66.1926000000001,
+          "render_fps": 18.0,
+          "renderer": "gl_compatibility",
+          "safe": "[P: (0, 91), S: (1600, 1109)]",
+          "screen": "(1600, 1200)",
+          "static_memory_bytes": 0.0,
+          "total": 12,
+          "ui_position": "(0.0, 0.0)",
+          "ui_scale": "(1.0, 1.0)",
+          "window": "(1600, 1200)"
+        },
+        "verification": "API35 Android x86_64 emulator with host GPU; automated in-viewport touch events; ARM64/ARMv7 physical devices not tested",
+        "first_launch_announcement": true,
+        "first_launch_log_errors": 0,
+        "orientation": "landscape 2400x1080; internal1600x900 keep aspect; safearea applied",
+        "performance_note": "模拟器的进程与渲染开销不代表实体手机表现，不据此宣称手机帧率。"
+      }
+    ],
+    "physical_arm_devices_tested": false,
+    "asset_parity": {
+      "matching_common_assets": 928,
+      "matching_compiled_scripts": 31,
+      "qa_only": [
+        "assets/scripts/qa_mobile_device.gd.remap",
+        "assets/scripts/qa_mobile_device.gdc"
+      ],
+      "final_only": [],
+      "export_metadata_differences": [
+        "assets/.godot/uid_cache.bin",
+        "assets/assets.sparsepck"
+      ],
+      "export_metadata_reason": "UID cache and sparse pack directory reflect the excluded QA harness; all common compiled scripts, data, textures and audio are byte-identical",
+      "final_abis": [
+        "arm64-v8a",
+        "armeabi-v7a"
+      ],
+      "same_runtime_assets_and_code": true
+    },
+    "memory": "qa/v053-android-meminfo.log；Android 模拟器 PSS 不能当成所有实体手机的内存需求。"
   },
-  "platform": "Windows x64",
-  "verification": "自动检查、Windows 导出包启动、实机画面与恶首阵容模拟。安卓验证单列。未做人手二十五夜全通。"
+  "raw_atlas_split": [
+    {
+      "actor": "dragon",
+      "source_size": [
+        1872,
+        5624
+      ],
+      "actions": 6,
+      "frames": 192,
+      "visible_rgba_unchanged": true
+    },
+    {
+      "actor": "v052-boss-fx",
+      "source_size": [
+        1456,
+        4368
+      ],
+      "actions": 6,
+      "frames": 192,
+      "visible_rgba_unchanged": true
+    },
+    {
+      "actor": "v053-buff-fx",
+      "source_size": [
+        1456,
+        5824
+      ],
+      "actions": 8,
+      "frames": 256,
+      "visible_rgba_unchanged": true
+    }
+  ],
+  "known_limits": [
+    "安卓实测为API35 x86_64模拟器，未实测实体ARM手机；不以模拟器帧率宣称手机性能",
+    "模拟器SwiftShader4.0因驱动shader uniform上限链接失败，切换host GPU后完成安装运行验证",
+    "自动化退出时偶有RefCounted引用计数0警告；12轮界面/战斗往返对象数稳定，孤立节点为0，未观察到累积泄漏"
+  ]
 }
