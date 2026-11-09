@@ -1,0 +1,206 @@
+[
+  {
+    "actor": "reed-chime",
+    "clip": "action",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "reed-chime",
+    "clip": "idle",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "reed-chime-e1",
+    "clip": "action",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "reed-chime-e1",
+    "clip": "idle",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "reed-chime-e2",
+    "clip": "action",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "reed-chime-e2",
+    "clip": "idle",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "reed-chime-e3",
+    "clip": "action",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "reed-chime-e3",
+    "clip": "idle",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "soul-casket",
+    "clip": "action",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "soul-casket",
+    "clip": "idle",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "soul-casket-e1",
+    "clip": "action",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "soul-casket-e1",
+    "clip": "idle",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "soul-casket-e2",
+    "clip": "action",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "soul-casket-e2",
+    "clip": "idle",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "soul-casket-e3",
+    "clip": "action",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "soul-casket-e3",
+    "clip": "idle",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "sky-wick",
+    "clip": "attack",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "sky-wick",
+    "clip": "break",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "sky-wick",
+    "clip": "land",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "sky-wick",
+    "clip": "splash",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "sky-wick",
+    "clip": "swim",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "sky-wick",
+    "clip": "swim_bite",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "sky-wick",
+    "clip": "walk",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "shield-envoy",
+    "clip": "attack",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "shield-envoy",
+    "clip": "swim",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "shield-envoy",
+    "clip": "swim_bite",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "shield-envoy",
+    "clip": "walk",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "oar-barge",
+    "clip": "attack",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "oar-barge",
+    "clip": "sink",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "oar-barge",
+    "clip": "walk",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "v054-relay-fx",
+    "clip": "breath",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "v054-relay-fx",
+    "clip": "collect",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "v054-relay-fx",
+    "clip": "range",
+    "frames": 32,
+    "unique": 32
+  },
+  {
+    "actor": "v054-relay-fx",
+    "clip": "release",
+    "frames": 32,
+    "unique": 32
+  }
+]

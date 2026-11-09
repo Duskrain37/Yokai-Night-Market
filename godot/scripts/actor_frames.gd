@@ -39,7 +39,7 @@ func key_sheet(actor: String) -> Texture2D:
 
 
 func draw_pose(canvas: CanvasItem, actor: String, clip: String, key_position: float,
-		foot: Vector2, height: float, facing_left: bool, tint: Color, deform := Vector2.ONE) -> bool:
+		foot: Vector2, height: float, facing_left: bool, tint: Color, deform := Vector2.ONE, rotation: float=0.0) -> bool:
 	if not catalog.has(actor):
 		return false
 	if _prefix.is_empty() and actor.begins_with("boss-"):
@@ -92,7 +92,7 @@ func draw_pose(canvas: CanvasItem, actor: String, clip: String, key_position: fl
 		var lower := float(info["body_px"]) * 0.34
 		size.y = minf(size.y, anchor[1] - lower)
 		anchor = [anchor[0], size.y]
-	canvas.draw_set_transform(foot, 0.0, Vector2(-scale if flip else scale, scale) * deform)
+	canvas.draw_set_transform(foot, rotation, Vector2(-scale if flip else scale, scale) * deform)
 	canvas.draw_texture_rect_region(texture, Rect2(-Vector2(anchor[0], anchor[1]), size),
 		Rect2(r[0], r[1], size.x, size.y), tint, false, true)
 	canvas.draw_set_transform(Vector2.ZERO)

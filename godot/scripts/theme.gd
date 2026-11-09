@@ -520,3 +520,15 @@ static func tone_color(tone: String) -> Color:
 		"desc":
 			return TEXT_DIM
 	return TEXT
+
+## Built-in dialog buttons reset their minimum size; style margins remain authoritative.
+static func style_dialog(dialog: AcceptDialog) -> void:
+	dialog.theme=make_theme()
+	var button:=dialog.get_ok_button()
+	apply_button_style(button,18)
+	button.add_theme_color_override("font_focus_color",INK)
+	for state in ["normal","hover","pressed","disabled"]:
+		var style: StyleBoxFlat=button.get_theme_stylebox(state).duplicate()
+		style.content_margin_left=28;style.content_margin_right=28
+		style.content_margin_top=10;style.content_margin_bottom=10
+		button.add_theme_stylebox_override(state,style)

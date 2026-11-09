@@ -137,6 +137,8 @@ func _menu_buttons() -> void:
 	footer.add_child(quit)
 	var slots := Ui.button("守夜存档 · %d" % (game.active_slot + 1), 17, 178, 40)
 	footer.add_child(slots)
+	var challenge=Ui.button("一夜重签",17,160,40)
+	challenge.pressed.connect(game.show_challenges);footer.add_child(challenge)
 	slots.pressed.connect(_show_slots)
 
 
@@ -272,14 +274,14 @@ func _records_card() -> void:
 	var cleared: Array = game.progress.get("cleared", [])
 	var stars_got = 0
 	for level in Content.LEVELS:
-		stars_got += int(Dictionary(game.progress.get("stars", {}))
-			.get(str(int(level["id"])), 0))
+		for flag in preload("res://data/nightmare.gd").flags(game.progress,int(level.id)):
+			stars_got+=int(bool(flag))
 	var lines = [
 		"通关 %d / %d 夜" % [cleared.size(), Content.LEVELS.size()],
-		"守夜评级 %d / %d ★" % [stars_got, Content.LEVELS.size() * 3],
+		"守夜评级 %d / %d ★" % [stars_got, Content.LEVELS.size() * 4],
 	]
 	var books: Dictionary = Dictionary(game.records.get("by_diff", {}))
-	for key in ["easy", "normal", "hard"]:
+	for key in ["easy", "normal", "hard", "nightmare"]:
 		var book: Dictionary = Dictionary(books.get(key, {}))
 		if book.is_empty():
 			continue
@@ -294,6 +296,10 @@ func _records_card() -> void:
 			int(ceil(float(legacy.get("best_wave", 0)) / Content.WAVES_PER_GROUP))])
 	if lines.size() == 2:
 		lines.append("还没守过夜：从第壹夜开始")
+	var chosen:Dictionary=books.get(String(game.settings.get("difficulty","easy")),{})
+	var time=chosen.get("best_time",null)
+	var fastest="暂无" if time==null else "%d:%02d" % [int(time)/60,int(time)%60]
+	lines.append("%s · 最快天亮 %s · 最多击退 %d 位" % [game.DIFFICULTY_LABEL[String(game.settings.get("difficulty","easy"))],fastest,int(chosen.get("best_kills",0))])
 	for line in lines:
 		box.add_child(Ui.label(String(line), 17, Color("#4a3520")))
 

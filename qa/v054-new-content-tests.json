@@ -1,0 +1,254 @@
+{
+  "checks": [
+    {
+      "name": "street推荐覆盖全部新旧草木",
+      "ok": true
+    },
+    {
+      "name": "market推荐覆盖全部新旧草木",
+      "ok": true
+    },
+    {
+      "name": "water推荐覆盖全部新旧草木",
+      "ok": true
+    },
+    {
+      "name": "island推荐覆盖全部新旧草木",
+      "ok": true
+    },
+    {
+      "name": "cavern推荐覆盖全部新旧草木",
+      "ok": true
+    },
+    {
+      "name": "reed-chime完整三路九阶",
+      "ok": true
+    },
+    {
+      "name": "reed-chime图鉴有来历和数值",
+      "ok": true
+    },
+    {
+      "name": "soul-casket完整三路九阶",
+      "ok": true
+    },
+    {
+      "name": "soul-casket图鉴有来历和数值",
+      "ok": true
+    },
+    {
+      "name": "竹声基础36且不打身后超距",
+      "ok": true
+    },
+    {
+      "name": "竹声上下两束",
+      "ok": true
+    },
+    {
+      "name": "半圆七向只向有客方向出手",
+      "ok": true
+    },
+    {
+      "name": "前束五命中获得速击",
+      "ok": true
+    },
+    {
+      "name": "强化后下次未过0.75秒不打",
+      "ok": true
+    },
+    {
+      "name": "五命中下次0.75秒后出手",
+      "ok": true
+    },
+    {
+      "name": "未满五发只收不放",
+      "ok": true
+    },
+    {
+      "name": "五发按0.09秒节奏放出",
+      "ok": true
+    },
+    {
+      "name": "收弹保留特殊与增幅",
+      "ok": true
+    },
+    {
+      "name": "冷却期不挡弹",
+      "ok": true
+    },
+    {
+      "name": "三点五秒恢复收弹",
+      "ok": true
+    },
+    {
+      "name": "沿路射弹确实可撞灵枢",
+      "ok": true
+    },
+    {
+      "name": "不重复收同株放出的子弹",
+      "ok": true
+    },
+    {
+      "name": "白板不收抛物弹",
+      "ok": true
+    },
+    {
+      "name": "承天可收抛物弹",
+      "ok": true
+    },
+    {
+      "name": "储弹与收集历史读档不丢失",
+      "ok": true
+    },
+    {
+      "name": "开窍档1容量冷却",
+      "ok": true
+    },
+    {
+      "name": "开窍档2容量冷却",
+      "ok": true
+    },
+    {
+      "name": "开窍档3容量冷却",
+      "ok": true
+    },
+    {
+      "name": "借威独立增伤20%",
+      "ok": true
+    },
+    {
+      "name": "累计收弹耐久上限2000",
+      "ok": true
+    },
+    {
+      "name": "满上限每收一次治疗50",
+      "ok": true
+    },
+    {
+      "name": "范围攻击记录一发且不损血",
+      "ok": true
+    },
+    {
+      "name": "同次范围不重复记弹",
+      "ok": true
+    },
+    {
+      "name": "范围转弹拥有独立模型和伤害",
+      "ok": true
+    },
+    {
+      "name": "灵枢额外增幅与防循环标记沿弹射保留",
+      "ok": true
+    },
+    {
+      "name": "飞行免普通射弹",
+      "ok": true
+    },
+    {
+      "name": "飞行免范围伤害",
+      "ok": true
+    },
+    {
+      "name": "追魂可破飞行道具",
+      "ok": true
+    },
+    {
+      "name": "飞行速度提高50%",
+      "ok": true
+    },
+    {
+      "name": "门神前四格自动陆地降落",
+      "ok": true
+    },
+    {
+      "name": "水路独立落水状态",
+      "ok": true
+    },
+    {
+      "name": "障碍格上破翅坠亡",
+      "ok": true
+    },
+    {
+      "name": "授牌首次尚未到五秒",
+      "ok": true
+    },
+    {
+      "name": "授牌给附近低阶同款盾",
+      "ok": true
+    },
+    {
+      "name": "授牌十一秒再放",
+      "ok": true
+    },
+    {
+      "name": "沉默阻止授牌",
+      "ok": true
+    },
+    {
+      "name": "高阶舟仅水路且其他高阶不下水",
+      "ok": true
+    },
+    {
+      "name": "同步划桨每轮撞击一次300",
+      "ok": true
+    },
+    {
+      "name": "沉舟恰好五名小鬼",
+      "ok": true
+    },
+    {
+      "name": "沉舟后使用游泳而非倒置走路",
+      "ok": true
+    },
+    {
+      "name": "reed-chime注册32帧",
+      "ok": true
+    },
+    {
+      "name": "reed-chime-e1注册32帧",
+      "ok": true
+    },
+    {
+      "name": "reed-chime-e2注册32帧",
+      "ok": true
+    },
+    {
+      "name": "reed-chime-e3注册32帧",
+      "ok": true
+    },
+    {
+      "name": "soul-casket注册32帧",
+      "ok": true
+    },
+    {
+      "name": "soul-casket-e1注册32帧",
+      "ok": true
+    },
+    {
+      "name": "soul-casket-e2注册32帧",
+      "ok": true
+    },
+    {
+      "name": "soul-casket-e3注册32帧",
+      "ok": true
+    },
+    {
+      "name": "sky-wick注册32帧",
+      "ok": true
+    },
+    {
+      "name": "shield-envoy注册32帧",
+      "ok": true
+    },
+    {
+      "name": "oar-barge注册32帧",
+      "ok": true
+    },
+    {
+      "name": "v054-relay-fx注册32帧",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 62
+}

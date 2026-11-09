@@ -1,0 +1,107 @@
+{
+  "origin": "original material modal sound design, no third-party recordings",
+  "files": [
+    {
+      "key": "reed_breath",
+      "material": "hollow bamboo reed with quiet leaf air",
+      "duration": 0.42,
+      "peak_dbfs": -16.334938844902958,
+      "rms_dbfs": -31.00000117376301,
+      "above_3khz": 1.3376880186268387e-07
+    },
+    {
+      "key": "relay_release",
+      "material": "lotus wood latch and old brass seed",
+      "duration": 0.35,
+      "peak_dbfs": -18.87559845198966,
+      "rms_dbfs": -31.000000100827783,
+      "above_3khz": 1.1497209277736325e-08
+    },
+    {
+      "key": "ruin_bloom",
+      "material": "stone cavity, low ash rush",
+      "duration": 0.8,
+      "peak_dbfs": -13.091552388658734,
+      "rms_dbfs": -27.000000000898726,
+      "above_3khz": 1.0210041690854861e-10
+    },
+    {
+      "key": "kite_shot",
+      "material": "bamboo frame and paper flutter",
+      "duration": 0.28,
+      "peak_dbfs": -17.69978696125377,
+      "rms_dbfs": -30.00000065276962,
+      "above_3khz": 7.43364275001215e-08
+    },
+    {
+      "key": "till_income",
+      "material": "abacus bead against wood",
+      "duration": 0.3,
+      "peak_dbfs": -16.856254781856983,
+      "rms_dbfs": -30.000000007126488,
+      "above_3khz": 8.096173495001191e-10
+    },
+    {
+      "key": "till_shot",
+      "material": "short bamboo counting slip",
+      "duration": 0.23,
+      "peak_dbfs": -18.29251087541803,
+      "rms_dbfs": -31.000000014957365,
+      "above_3khz": 1.709036902840009e-09
+    },
+    {
+      "key": "till_call",
+      "material": "wood tally with muted bronze",
+      "duration": 0.48,
+      "peak_dbfs": -15.575517557989043,
+      "rms_dbfs": -29.00000000002915,
+      "above_3khz": 3.4244432257367014e-12
+    },
+    {
+      "key": "pod_income",
+      "material": "soft round coin clink",
+      "duration": 0.32,
+      "peak_dbfs": -15.93064904249812,
+      "rms_dbfs": -30.000000000135095,
+      "above_3khz": 1.607776741222326e-11
+    },
+    {
+      "key": "cicada_shot",
+      "material": "clay fire shell and warm air",
+      "duration": 0.32,
+      "peak_dbfs": -15.613547981255378,
+      "rms_dbfs": -29.000000139064966,
+      "above_3khz": 1.585559014994159e-08
+    },
+    {
+      "key": "cicada_reload",
+      "material": "dry wing fold and ceramic click",
+      "duration": 0.48,
+      "peak_dbfs": -16.401867408096223,
+      "rms_dbfs": -30.000000009143317,
+      "above_3khz": 1.0403598050874237e-09
+    },
+    {
+      "key": "herb_heal",
+      "material": "gourd hollow note and leaf breath",
+      "duration": 0.6,
+      "peak_dbfs": -15.464075475382419,
+      "rms_dbfs": -29.000000016478594,
+      "above_3khz": 1.8803017548131753e-09
+    }
+  ],
+  "audition_order": [
+    "reed_breath",
+    "relay_release",
+    "ruin_bloom",
+    "kite_shot",
+    "till_income",
+    "till_shot",
+    "till_call",
+    "pod_income",
+    "cicada_shot",
+    "cicada_reload",
+    "herb_heal"
+  ],
+  "listening_limit": "Level and spectrum checked; awaiting user headphone/speaker listening."
+}

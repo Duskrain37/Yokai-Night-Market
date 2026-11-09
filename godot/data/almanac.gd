@@ -37,8 +37,8 @@ static func boss_skills(id: String) -> Array:
 	var hp := float(data.max_hp) * BossRules.HEALTH_SCALE * BossRules.EASY_HP_SCALE
 	var force := BossRules.SKILL_FORCE
 	var rows := [
-		["恶首底细", "生命　简单 %d · 普通 %d · 困难 %d。身躯占相邻两行，每施放一至两次小招便随机换行。" % [
-			roundi(hp), roundi(hp * Sim.DIFFICULTY.normal.hp), roundi(hp * Sim.DIFFICULTY.hard.hp)]],
+		["恶首底细", "生命　简单 %d · 普通 %d · 困难 %d · 噩梦 %d。身躯占相邻两行，每施放一至两次小招便随机换行。" % [
+			roundi(hp), roundi(hp * Sim.DIFFICULTY.normal.hp), roundi(hp * Sim.DIFFICULTY.hard.hp), roundi(hp * Sim.DIFFICULTY.nightmare.hp)]],
 		["出招节奏", "现身后准备3秒。首次小招在%.2f秒后到来，之后每%.2f秒再次施放。闪影换行用时%.2f秒。" % [
 			float(data.small_first_s) / BossRules.SKILL_RATE, float(data.small_period_s) / BossRules.SKILL_RATE, BossRules.BLINK_TIME]]]
 	match id:
@@ -103,6 +103,8 @@ static func boss_portrait(id: String) -> Texture2D:
 	return _boss_portraits.get(id)
 
 const PLANTS = {
+	"reed-chime":{"epithet": "一篁响，半庭风", "story": "夜市旁的竹篁被风吹了百年，学会把风藏进空心里。它不开口，陶盆上的老脸替它听着街声。", "quote": "借你一口夜风。"},
+	"soul-casket":{"epithet": "借来的光，一发不少", "story": "老匠把莲籽种进听声匣里。根须长出时，五窍也醒了；它收住路过的光，再循着恶客的气息一一送还。", "quote": "先替你收着。"},
 	"herb-gourd": {"epithet":"一葫清露，救得半巷灯","story":"旧药铺门前的一只青瓷葫芦，听了一辈子问诊。入夜后，它自己摇起药叶扇，只盼这条街上的灯都能亮到天明。","quote":"先把这一口气养回来。"},
 
 	"ruin-cap": {"epithet": "一地劫火", "story": "山坳里的古芝把最后一缕雷火收在伞下。揭开封条，火就沿摊面一格一格漫开。", "quote": "先退两步。"},
@@ -223,6 +225,9 @@ const PLANTS = {
 }
 
 const ZOMBIES = {
+	"sky-wick":{"epithet": "借纸作翅", "story": "纸铺剩下的旧鸢，驮着一个不肯落地的饿鬼。飞到灯火近旁，纸翅就撑不住了。", "counter": "飞行时忽略障碍，移动速度提高50%，不受普通射弹与范围攻击命中；追魂、抛物线与灰烬可打中。门神前四格内遇到可落脚处便降落；障碍上破翅会坠亡。", "quote": "脚下的路，我先借过。"},
+	"shield-envoy":{"epithet": "旧牌分给后来人", "story": "它背着一摞无人认领的护身牌，沿街把牌塞给饿鬼。牌上名字已经磨平，它仍记得授牌的手势。", "counter": "入场5秒后首次授牌，此后每11秒，把2.2格内尚无护具的低阶恶客全部加上1080耐久的护身牌。抛射、范围等非普通射弹攻击可绕过护牌。沉默能阻止授牌。", "quote": "牌拿稳，莫掉了。"},
+	"oar-barge":{"epithet": "五桨一齐，阴舟不歇", "story": "暗河里五个饿鬼合坐一条旧舟，橹声总在同一拍。它们不认渡钱，只认挡在船头的摊位。", "counter": "仅从水路来。每2.4秒同步划桨，前0.75秒冲进；遇到攻击范围内的草木则改为撞击，造成300。船壳击沉后，五名饿鬼落水并继续游来。", "quote": "一、二——划。"},
 	"flinch": {"epithet": "受惊就跑", "story": "它平时贴着墙根挪，直到一支竹签把它吓离了墙。从那以后，挨一下就埋头往前冲。", "counter": "第一次受到伤害后会加快脚步。先在同一行放好后续火力。", "quote": "我本来没这么快。"},
 	"wave-herald": {"epithet": "一面破幡先到", "story": "起风时，一面旧幡会在摊头响起来。拿幡的客只管开路，每逢一大波只来一位。", "counter": "每一大波的最后一拨到场，带来这一轮最紧密的攻势。像普通恶客一样行走和啃食。", "quote": "诸位，进街。"},
 	"formless": {"epithet": "一团泥没有骨头", "story": "水窖漏过一场雨，留下的泥影学会了过街。竹签常穿过它，只有低头啃东西时，它才像有个固定形状。", "counter": "未啃食时，每次受击有50%概率免去这次伤害。啃食时无法闪避。", "quote": "你打中的是哪一块？"},
@@ -373,6 +378,10 @@ static func plant_rows(type: String) -> Array:
 		_row("冷却", "%s 秒" % String.num(float(d.get("cooldown", 0)), 1), "time"),
 	]
 	match type:
+		"reed-chime":
+			rows.append(_row("竹声伤害", "36", "atk"));rows.append(_row("攻击间隔", "1.7 秒", "time"));rows.append(_row("范围", "正前方三格的窄束范围攻击", "desc"))
+		"soul-casket":
+			rows.append(_row("收弹", "5发；每0.09秒放出一发", "desc"));rows.append(_row("收弹冷却", "放出后3.5秒", "time"))
 		"herb-gourd":
 			rows.append(_row("治疗", "50", "hp"))
 			rows.append(_row("治疗间隔", "1.6 秒", "time"))
@@ -527,6 +536,8 @@ static func plant_pitch(type: String) -> String:
 ## 「本事」：由数据推导的一句话说明，含基础数值与升阶方向。
 static func plant_ability(type: String) -> String:
 	const GUIDE = {
+	"reed-chime":"竹声穿过前方三格，打中束内的全部恶客。进化可拓宽为七向扇面、附带减速，或强化竹声与出手节奏。",
+	"soul-casket":"收集路过的己方射弹，保留其全部效果；收满后按0.09秒间隔逐发追魂放出。冷却期间不挡弹。进化可持续收弹、增强或复制放出的射弹，以及纳入抛射与范围攻击。",
 	"herb-gourd": "照料自身和前方三格内生命最低的受伤草木。进化可扩大范围、提高治疗，并在同伴满血时鼓舞。",
 	"ruin-cap": "落地后稍等片刻，便对周围五行五列的恶客造成灰烬伤害。用完即退场，原地留下60秒无法种植的坑洞。",
 	"sky-kite": "越过近处恶客，向本行距离最远的一名恶客抛弹。缄音进化可以压住恶客的特殊能力。",
@@ -670,3 +681,13 @@ static func zombie_entries() -> Array:
 	for type in Content.ZOMBIE_ORDER:
 		out.append(type)
 	return out
+
+
+const BOSS_LORE={
+	"earth":"旧街铺石时，匠人总在地底听见低低的磨牙声。摊贩留下第一盏灯，换得脚下安稳；等灯灭了，街下的旧主便来讨债。",
+	"paper":"河埠的纸铺曾替无名亡魂写愿。纸官把没能寄出的愿望折进袖中，夜夜沿栈道寻找署名的人。",
+	"river":"暗河捞起过一张傩面，晒了三日仍滴着水。后来守夜人见到面具从水下缓缓抬起，才知道河底也有人开市。",
+	"island":"孤岛上每一盏潮灯都照着一条归路。夜叉曾是提灯的引路人，如今铃声只唤来忘记归岸的影子。",
+	"magistrate-bound":"冥判窟的锁链并非为了关住闯入者。旧案压住官印，也压住鬼官半数威势；它隔着锁印，仍在等待最后一个名字。",
+	"magistrate-full":"官印开时，石壁上的旧名一起褪去。鬼市的线索终于在这座地底府衙合拢：它不是来赴夜市的，它要把整条夜市记进册中。"
+}

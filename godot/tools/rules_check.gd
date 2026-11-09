@@ -34,9 +34,9 @@ static func run_all(harness) -> void:
 
 
 static func _check_content(h) -> void:
-	h.check("内容", "28 种草木齐备", Content.PLANTS.size() == 28,
+	h.check("内容", "30 种草木齐备", Content.PLANTS.size() == 30,
 		"实际 %d" % Content.PLANTS.size())
-	h.check("内容", "24 种恶客齐备", Content.ZOMBIES.size() == 24,
+	h.check("内容", "27 种恶客齐备", Content.ZOMBIES.size() == 27,
 		"实际 %d" % Content.ZOMBIES.size())
 	h.check("内容", "二十五夜与特殊关齐备", Content.LEVELS.size() == 26 and Content.get_level(16).get("special",false),
 		"实际 %d" % Content.LEVELS.size())
@@ -168,7 +168,7 @@ static func _check_upgrade_rules(h) -> void:
 					detail += "%s-%d-%d=%d " % [type, path["id"], tier + 1, cost]
 				last = cost
 	h.check("升阶", "所有升阶费用都是 25 的倍数且逐阶递增", cost_ok, detail)
-	h.check("升阶", "19 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 19, detail)
+	h.check("升阶", "21 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 21, detail)
 	h.check("升阶", "签筒连发一级 100 香火",
 		Upgrades.tier_cost("shooter", 1, 1) == 100,
 		str(Upgrades.tier_cost("shooter", 1, 1)))

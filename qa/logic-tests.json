@@ -1,15 +1,15 @@
 {
   "checks": [
     {
-      "detail": "实际 28",
+      "detail": "实际 30",
       "group": "内容",
-      "name": "28 种草木齐备",
+      "name": "30 种草木齐备",
       "ok": true
     },
     {
-      "detail": "实际 24",
+      "detail": "实际 27",
       "group": "内容",
-      "name": "24 种恶客齐备",
+      "name": "27 种恶客齐备",
       "ok": true
     },
     {
@@ -129,7 +129,7 @@
     {
       "detail": "",
       "group": "升阶",
-      "name": "19 株都是三路三阶",
+      "name": "21 株都是三路三阶",
       "ok": true
     },
     {
@@ -2287,13 +2287,13 @@
       "ok": true
     },
     {
-      "detail": "0.5.3 vs 0.5.3",
+      "detail": "0.5.4 vs 0.5.4",
       "group": "构建",
       "name": "戳记版本与 game.gd 一致",
       "ok": true
     },
     {
-      "detail": "2026-11-06 20:45 057e9d2",
+      "detail": "2026-11-09 20:21 d45d46f",
       "group": "构建",
       "name": "构建时间与短哈希已写入",
       "ok": true
@@ -2301,5 +2301,5 @@
   ],
   "failures": 0,
   "total": 383,
-  "version": "0.5.3"
+  "version": "0.5.4"
 }

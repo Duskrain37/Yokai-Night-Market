@@ -329,6 +329,8 @@ func _render_page() -> void:
 		_page.add_child(_paragraph("初遇 · %s" % page[1]))
 		_page.add_child(_paragraph(String(page[2])))
 		_page.add_child(_paragraph("恶首占据相邻两行，两行的射弹都能打中它。留意出招前的红纹和号令，后者会唤来一整大波援军。"))
+		_page.add_child(Ui.strong("来历",19,Ui.GOLD))
+		_page.add_child(_paragraph(Almanac.BOSS_LORE[type] if game.boss_lore_unlocked(type) else "击退这位恶首后，街坊才会向你讲起它的往事。"))
 		for skill in Almanac.boss_skills(type):
 			_page.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
 			_page.add_child(Ui.strong(String(skill[0]), 22, Ui.GOLD_BRIGHT))
@@ -382,6 +384,7 @@ func _render_zombie(type: String) -> void:
 	_page.add_child(_paragraph(String(text["story"])))
 	_page.add_child(Ui.strong("对策", 19, Ui.GOLD))
 	_page.add_child(_paragraph(String(text["counter"])))
+	_page.add_child(_paragraph("若有恶客绕到攻击草木身后，可用追魂或范围攻击解围；也可铲开它面前的草木，让尚未出手的门神收住这一路。"))
 	var quote := Ui.label("「%s」" % String(text["quote"]), 18, Ui.GOLD_BRIGHT)
 	quote.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_page.add_child(quote)

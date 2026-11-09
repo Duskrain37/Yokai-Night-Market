@@ -264,6 +264,20 @@ func _slots() -> void:
 	almanac.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	almanac.pressed.connect(func(): game.open_almanac("plant", 0))
 	actions.add_child(almanac)
+	if String(game.settings.difficulty)=="nightmare" and not bool(game.prep.get("training",false)):
+		var factors:=Ui.button("",18,0,42)
+		factors.name="NightmareFactors"
+		factors.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		var update:=func():
+			var rules=preload("res://data/nightmare.gd")
+			factors.text="噩梦因子 · %d  ›" % rules.points(rules.sanitize(Dictionary(game.settings.get("nightmare_factors",{})),_level()))
+		update.call()
+		factors.pressed.connect(func():
+			var dialog=load("res://ui/nightmare_panel.gd").new()
+			dialog.game=game;dialog.level=_level();dialog.on_changed=update
+			add_child(dialog);dialog.popup_centered()
+			dialog.confirmed.connect(dialog.queue_free);dialog.canceled.connect(dialog.queue_free))
+		box.add_child(factors)
 	var start = Ui.button("开战" if not bool(game.prep.get("training", false)) else "进训练场",
 		22, 0, 58, true)
 	start.size_flags_horizontal = Control.SIZE_EXPAND_FILL

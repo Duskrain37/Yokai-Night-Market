@@ -1,0 +1,22 @@
+[
+  {
+    "day": 4,
+    "source": "C:\\Users\\27402\\.codex\\generated_images\\01a19614-24b1-7cf3-82b9-2ce12ed73f51\\exec-0f45b498-1bef-4cce-a7ec-8955bb7ac8c1.png",
+    "destination": "godot\\assets\\sprites\\mower-day4.png",
+    "rgba": true,
+    "height": 512,
+    "prompt": "Create one production-ready transparent PNG sprite for a Chinese supernatural night-market tower defense game. New island lane guardian: a weathered teal-bronze tide lantern shrine, shaped as a squat carved wave pedestal supporting a maritime ritual lantern with a small curled tiled cap, coral-like bronze finials, worn red cord and one warm amber oil flame. No humanoid, no face, no text, no UI. Full isolated prop centered, entire heavy stone base visible grounded at bottom, 3/4 view facing slightly right, portrait 2:3 composition with narrow clear margins. Match the attached reference only as STYLE reference: dry brush gouache painted texture, warm upper-left lantern light, cool blue lower-right fill, natural chipped stone and aged bronze, muted night blues and old gold, restrained glow. Distinct silhouette from the reference stone lantern: nautical tide shrine with wave carving and bronze cage. Not plastic 3D, no black outline, no drop shadow, no ground plane, no scenery. Genuinely transparent background, clean alpha silhouette. Reference is stylistic context only, create a new object.",
+    "tool": "built-in imagegen",
+    "postprocess": "alpha-bounds crop and proportional 512px height normalization only; no painted pixels substituted"
+  },
+  {
+    "day": 5,
+    "source": "C:\\Users\\27402\\.codex\\generated_images\\01a19614-24b1-7cf3-82b9-2ce12ed73f51\\exec-8472c985-6072-4a88-bca0-4664358dae32.png",
+    "destination": "godot\\assets\\sprites\\mower-day5.png",
+    "rgba": true,
+    "height": 512,
+    "prompt": "One full-body isolated lane-guardian prop sprite for Chinese supernatural night market game, transparent background REQUIRED. Subject: unique underworld judgement stone ward for a subterranean courthouse, a squat rough dark bluish stone official's seal pedestal, heavy eroded rectangular base, above it a faceted black stone ritual stele with carved geometric seal grooves (not readable text), restrained old bronze binding and a small warm amber enclosed lantern recess at its center. A dark carved cloud crown with a stylized seal-knob on top, no human figure, no skeleton or face, no text, no UI. Entire base visible, feet grounded at bottom, three-quarter facing slightly right, portrait 2:3 composition, clear narrow margins. Style matches dry-brush gouache game prop reference, chipped stone brush texture, subdued ink blue and old gold, warm light upper-left and cool fill lower-right. Main silhouette must be distinctly a courthouse seal/stele, not a pagoda lantern, not the reference design. Alpha transparency across EVERY pixel outside solid prop silhouette, including gaps. NO cast shadow, no background glow, no haze, no brown/black backdrop, no floor. Warm glow exists ONLY within lantern recess. Deliver true RGBA sprite on fully transparent canvas.",
+    "tool": "built-in imagegen",
+    "postprocess": "alpha-bounds crop and proportional 512px height normalization only; no painted pixels substituted"
+  }
+]

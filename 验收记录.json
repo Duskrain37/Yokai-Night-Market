@@ -1,8 +1,9 @@
 {
-  "version": "0.5.3",
-  "build_hash": "057e9d2",
-  "exe_bytes": 760596488,
-  "exe_sha256": "b6247b9b8b77460e9deb4ff0451bc9f379e5e34ea700890659a337b6f5e16276",
+  "version": "0.5.4",
+  "build_hash": "a3402aa",
+  "build_files": 687,
+  "exe_bytes": 843561996,
+  "exe_sha256": "54771f45f4fd4699547676ec9d52de3ea90e1adb9f606f3e97905be646e0b438",
   "assertions": {
     "logic-tests": 383,
     "battle-tests": 39,
@@ -10,33 +11,34 @@
     "special-tests": 120,
     "ui-tests": 78,
     "click-tests": 65,
-    "player-ui-tests": 273,
-    "animation-tests": 958,
+    "player-ui-tests": 296,
+    "animation-tests": 1045,
     "v050-tests": 459,
     "v051-refresh-tests": 22,
     "v052-tests": 45,
     "v053-tests": 41,
-    "mobile-tests": 20,
+    "v054-tests": 84,
+    "v054-new-content-tests": 62,
+    "v054-nightmare-tests": 147,
+    "v054-dual-soak": 18,
     "patch-tests": 145
   },
-  "assertion_total": 2791,
+  "assertion_total": 3192,
   "failures": 0,
-  "boss_simulations": 33,
-  "boss_reference_seconds": [
-    70.7,
-    124.7
-  ],
-  "boss_reference_wins": 15,
-  "boss_legacy_fixture_wins": 0,
-  "motion_frames": 10752,
+  "pack_checks": {
+    "checks": 12577,
+    "failures": 0,
+    "frames": 11840,
+    "texture_load_ms": 5273.633
+  },
   "pack_trim": {
-    "original_bytes": 853233176,
-    "candidate_bytes": 760596488,
-    "untouched_files": 895,
-    "removed_files": 226,
+    "original_bytes": 943030640,
+    "candidate_bytes": 843561996,
+    "untouched_files": 1005,
+    "removed_files": 252,
     "removed_by_group": {
-      "fallback_key_atlases": 84992181,
-      "unused_and_art_prompts": 7004868
+      "fallback_key_atlases": 91811070,
+      "unused_and_art_prompts": 7015225
     },
     "identical_payload_reuse": 615868,
     "removed_paths": {
@@ -108,10 +110,16 @@
         ".godot/imported/needle-e2.png-366a16a353fdf893c274a1595593e714.ctex",
         ".godot/imported/needle-e3.png-97286e504751badab8657e80ed0f54d4.ctex",
         ".godot/imported/needle.png-2b8f05296ce3876ada1d4e61c5e166f8.ctex",
+        ".godot/imported/oar-barge.png-9b3fe82983dd60f51a765fec0b5d3c71.ctex",
         ".godot/imported/paper.png-63972346550c34418b5c5cac317c5b33.ctex",
         ".godot/imported/phase-kite.png-93e3e264d5c8f7af3b87bc1adfdaf88a.ctex",
+        ".godot/imported/reed-chime-e1.png-cdfe16a16fa21d3e58bd8126579e9601.ctex",
+        ".godot/imported/reed-chime-e2.png-5efeaf506d9c9978b934cd70a3a0ec2a.ctex",
+        ".godot/imported/reed-chime-e3.png-61a111110868ca1d6a7ec1fff0e4278d.ctex",
+        ".godot/imported/reed-chime.png-6dcd98851ed8d2362462044b56f448f7.ctex",
         ".godot/imported/sedan.png-9ded051bf13b23d7a59d654662c3c24c.ctex",
         ".godot/imported/shell.png-87f2d5e85d7eebf2866775751c48b953.ctex",
+        ".godot/imported/shield-envoy.png-1975bdf90584471e6e88272bcdc8bcaa.ctex",
         ".godot/imported/shooter-e1.png-9e908440ad9cafb79fbd0368ca3de187.ctex",
         ".godot/imported/shooter-e2.png-b4cf2fcb9c42712e0a131fb6df61d053.ctex",
         ".godot/imported/shooter-e3.png-a7c3ee178dbd10bf3b5bf07b5e9185b9.ctex",
@@ -119,6 +127,11 @@
         ".godot/imported/sky-kite-e1.png-3537909d1947531e841c260ef4a63543.ctex",
         ".godot/imported/sky-kite-e2.png-7ef0784e7c2a44a299c538c5acd54cd8.ctex",
         ".godot/imported/sky-kite-e3.png-927971ce1746577f959b646047b764f2.ctex",
+        ".godot/imported/sky-wick.png-2427f24018d2e4e5b25279ff49a98126.ctex",
+        ".godot/imported/soul-casket-e1.png-33606fdf274091ba1f9af88fea45153a.ctex",
+        ".godot/imported/soul-casket-e2.png-660c209e82ea8b118b5128ce7ccaf07b.ctex",
+        ".godot/imported/soul-casket-e3.png-b9905dbec132e1bfb1d61b321e0f7c91.ctex",
+        ".godot/imported/soul-casket.png-c3b19109960ded810d5b9023cd46c145.ctex",
         ".godot/imported/star-e1.png-583513c5ea972f3bffaf730c538416ea.ctex",
         ".godot/imported/star-e2.png-d6c961ac0d9447260113115cd6313841.ctex",
         ".godot/imported/star-e3.png-a37b9c30c853adf3661fa2264030a365.ctex",
@@ -139,6 +152,7 @@
         ".godot/imported/v052-plant-fx.png-91750991e296ea85e89101777d7353be.ctex",
         ".godot/imported/v052-projectiles.png-9485cecdc6c96921f2a7109398d6ba67.ctex",
         ".godot/imported/v053-buff-fx.png-ac9b40b02dccca9e5ed6c198071477ad.ctex",
+        ".godot/imported/v054-relay-fx.png-7a2d870510e7192b04434315a695c76e.ctex",
         ".godot/imported/vault.png-d93b9a69cba7d5b4076a563835a1584a.ctex",
         ".godot/imported/wall-e1.png-d1822862c653cdca425dc73b3733f231.ctex",
         ".godot/imported/wall-e2.png-8b2b6c3c836b6eb97dc81c9754985872.ctex",
@@ -214,10 +228,16 @@
         "assets/sprites/animation/needle-e2.png.import",
         "assets/sprites/animation/needle-e3.png.import",
         "assets/sprites/animation/needle.png.import",
+        "assets/sprites/animation/oar-barge.png.import",
         "assets/sprites/animation/paper.png.import",
         "assets/sprites/animation/phase-kite.png.import",
+        "assets/sprites/animation/reed-chime-e1.png.import",
+        "assets/sprites/animation/reed-chime-e2.png.import",
+        "assets/sprites/animation/reed-chime-e3.png.import",
+        "assets/sprites/animation/reed-chime.png.import",
         "assets/sprites/animation/sedan.png.import",
         "assets/sprites/animation/shell.png.import",
+        "assets/sprites/animation/shield-envoy.png.import",
         "assets/sprites/animation/shooter-e1.png.import",
         "assets/sprites/animation/shooter-e2.png.import",
         "assets/sprites/animation/shooter-e3.png.import",
@@ -225,6 +245,11 @@
         "assets/sprites/animation/sky-kite-e1.png.import",
         "assets/sprites/animation/sky-kite-e2.png.import",
         "assets/sprites/animation/sky-kite-e3.png.import",
+        "assets/sprites/animation/sky-wick.png.import",
+        "assets/sprites/animation/soul-casket-e1.png.import",
+        "assets/sprites/animation/soul-casket-e2.png.import",
+        "assets/sprites/animation/soul-casket-e3.png.import",
+        "assets/sprites/animation/soul-casket.png.import",
         "assets/sprites/animation/star-e1.png.import",
         "assets/sprites/animation/star-e2.png.import",
         "assets/sprites/animation/star-e3.png.import",
@@ -245,6 +270,7 @@
         "assets/sprites/animation/v052-plant-fx.png.import",
         "assets/sprites/animation/v052-projectiles.png.import",
         "assets/sprites/animation/v053-buff-fx.png.import",
+        "assets/sprites/animation/v054-relay-fx.png.import",
         "assets/sprites/animation/vault.png.import",
         "assets/sprites/animation/wall-e1.png.import",
         "assets/sprites/animation/wall-e2.png.import",
@@ -268,16 +294,40 @@
         "data/v051_art_prompts.json",
         "data/v052_art_prompts.json",
         "data/v052_guest_art_prompts.json",
-        "data/v053_art_prompts.json"
+        "data/v053_art_prompts.json",
+        "data/v054_art_prompts.json",
+        "data/v054_new_art_prompts.json"
       ]
     }
   },
-  "pack_checks": {
-    "checks": 11406,
-    "failures": 0,
-    "frames": 10752,
-    "texture_load_ms": 5837.093
+  "campaigns": {
+    "easy": {
+      "wins": 16,
+      "runs": 25
+    },
+    "normal": {
+      "wins": 15,
+      "runs": 25
+    },
+    "hard": {
+      "wins": 13,
+      "runs": 25
+    },
+    "nightmare": {
+      "wins": 11,
+      "runs": 25
+    }
+  },
+  "independent_campaign_repeat": 100,
+  "boss_simulations": 33,
+  "challenge_runs": 6,
+  "new_motion_clips": 34,
+  "new_motion_frames": 1088,
+  "motion_frames": 11840,
+  "input_documents": {
+    "人工_草木 改动与新增说明.txt": "fcb2f7397a42fabb91962acb7fb0837c464b70532be2361fc4ff42be8cac6e9a",
+    "人工_恶客 改动与新增说明.txt": "a0be03a49712f887aec393e5f63b0f3076031132f95fb96e20777e90a3c91397"
   },
   "platform": "Windows x64",
-  "verification": "自动检查、Windows 导出包启动、实机画面与恶首阵容模拟。安卓验证单列。未做人手二十五夜全通。"
+  "verification": "PC源码规则与交互、100场四档策略基线及独立复验、双恶首事务与读档、实际EXE启动、瘦身包资源和Godot画面。机器人失守并非人类不可通证明；未宣称人工25夜全通或低端机实测。移动v0.5.3-mobile保持原样。"
 }

@@ -11,6 +11,10 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	if game.sim==null or game.sim.boss==null:return
+	var members: Array=game.sim.active_bosses()
+	if members.size()>1:
+		for index in members.size():_draw_member(members[index],index,members.size())
+		return
 	var boss=game.sim.boss
 	if game.mobile:
 		if game.hud!=null and game.hud._banner_band!=null and game.hud._banner_band.visible:return
@@ -43,3 +47,19 @@ func _draw_mobile(boss) -> void:
 	var suffix:=" · 退散" if not boss.alive() else (" · 破绽" if boss.state=="recovery" else "")
 	draw_string(font,rect.position+Vector2(24,37),String(boss.config.name)+suffix,HORIZONTAL_ALIGNMENT_LEFT,750,Ui.font_size(28),Ui.GOLD_BRIGHT)
 	draw_string(font,rect.position+Vector2(820,36),"%d / %d" % [ceili(boss.hp),ceili(boss.max_hp)],HORIZONTAL_ALIGNMENT_LEFT,-1,Ui.font_size(23),Ui.TEXT)
+
+func member_rect(index: int,count: int) -> Rect2:
+	var columns:=mini(2,count)
+	var width:=1110.0/columns-10.0
+	return Rect2(350.0+(index%columns)*(width+10.0),132.0+int(index/columns)*64.0,width,60)
+
+func _draw_member(boss,index: int,count: int) -> void:
+	var rect:=member_rect(index,count)
+	Ui.draw_plate(self,rect,Color("#151c23"),Color("#a78353"),18,2)
+	var trough:=Rect2(rect.position+Vector2(18,37),Vector2(rect.size.x-36,13))
+	Ui.draw_gauge(self,trough,clampf(boss.hp/maxf(1.0,boss.max_hp),0,1),Color("#ae493d") if index%2==0 else Color("#965b94"))
+	var status: String="退散" if not boss.alive() else ("蓄势" if boss.state in ["small_warning","major_warning","major_hits"] else "")
+	draw_string(font,rect.position+Vector2(18,25),"%s · %s %s" % [String(boss.config.name),str(index+1),status],HORIZONTAL_ALIGNMENT_LEFT,rect.size.x-170,Ui.font_size(16),Ui.GOLD_BRIGHT)
+	draw_string(font,rect.position+Vector2(rect.size.x-160,25),"%d / %d" % [ceili(boss.hp),ceili(boss.max_hp)],HORIZONTAL_ALIGNMENT_LEFT,150,14,Ui.TEXT)
+	for threshold in boss.config.major_thresholds:
+		draw_circle(Vector2(trough.position.x+trough.size.x*float(threshold),trough.get_center().y),3,Color("#806446") if boss.fired.has(threshold) else Ui.GOLD_BRIGHT)

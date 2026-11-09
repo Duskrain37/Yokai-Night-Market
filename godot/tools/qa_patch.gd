@@ -242,7 +242,7 @@ func v051_content_regressions() -> void:
   for type in picks:
    ranks[type] = Content.tip_rank(map, type)
   check("%s 的全部草木各有明确推荐顺位" % map,
-   picks.size() == 28 and ranks.size() == 28 and not ranks.values().has(999))
+   picks.size() == Content.PLANT_ORDER.size() and ranks.size() == Content.PLANT_ORDER.size() and not ranks.values().has(999))
   for type in picks.slice(0, 10):
    featured[type] = true
  check("五株新草木各有适合入选推荐前十的地图",
@@ -309,7 +309,7 @@ func run() -> void:
     for entry in base.spawn_queue: before_boss[entry.type] = true
   check("第%d夜来客换班保留数量和耐久预算" % int(level.id), mass_kept)
   if String(level.boss_id) != "":
-   var eligible: Array = Content.ZOMBIE_ORDER.filter(func(type): return type not in ["bride", "wave-herald"] and (type != "reedboat" or level.day == 3))
+   var eligible: Array = Content.ZOMBIE_ORDER.filter(func(type): return type not in ["bride", "wave-herald"] and (not bool(Content.ZOMBIES[type].get("water_only",false)) or level.day == 3))
    check("第%d夜恶首前各路合法恶客齐全" % int(level.id), eligible.all(func(type): return before_boss.has(type)))
  var loss = {"called": false}
  sim.on_lose = func(_z): loss.called = true

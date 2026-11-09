@@ -22,6 +22,7 @@ var spawn_count = 1
 var spawn_lane = -1
 var _hover_card = -1
 
+var _factor_label: Label = null
 var _sun_label: Label = null
 var _wave_label: Label = null
 var _hint_label: Label = null
@@ -166,6 +167,14 @@ func _build_hud() -> void:
 	_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint_plate.add_child(_hint_label)
 
+	if sim.difficulty=="nightmare" and sim.factor_points()>0:
+		var factor_plate:=Ui.panel(.88)
+		factor_plate.position=Vector2(18,340);factor_plate.custom_minimum_size=Vector2(175,0)
+		factor_plate.mouse_filter=Control.MOUSE_FILTER_IGNORE;add_child(factor_plate)
+		_factor_label=Ui.label("",14,Ui.GOLD_BRIGHT)
+		_factor_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		_factor_label.custom_minimum_size=Vector2(148,0)
+		factor_plate.add_child(_factor_label)
 	# 卡槽
 	var cards = HBoxContainer.new()
 	cards.add_theme_constant_override("separation", 8)
@@ -398,6 +407,13 @@ func refresh() -> void:
 	var sim: Sim = game.sim
 	if sim == null or result_mode:
 		return
+	if _factor_label!=null:
+		var info: Array[String]=["噩梦 · 因子 %d" % sim.factor_points()]
+		if sim.factor("dim")>0:info.append("十秒香火\n%d / %d" % [sim.incense_received(),[0,750,500][sim.factor("dim")]])
+		if sim.factor("loss")>0:info.append("草木损失 %d / %d" % [sim.nightmare_losses,[0,20,10][sim.factor("loss")]])
+		if sim.factor("seeds")>0:info.append("场上草木 %d / %d" % [sim.plant_population(),[0,25,15][sim.factor("seeds")]])
+		if sim.time<sim.curfew_until:info.append("宵禁还剩 %d 秒" % ceili(sim.curfew_until-sim.time))
+		_factor_label.text="\n".join(info)
 	if _sun_label != null:
 		_sun_label.text = str(sim.sun)
 	var total = int(sim.level.get("waves", []).size())
@@ -733,8 +749,7 @@ func _sync_fan() -> void:
 	var sim: Sim = game.sim
 	var entries: Array = []
 	for path in Upgrades.paths_for(String(plant.type)):
-		var status = Upgrades.path_status(String(plant.type), plant.upgrades,
-			int(path["id"]))
+		var status = sim.upgrade_status(plant,int(path["id"]))
 		var cost = int(status["cost"]) if bool(status["ok"]) else 0
 		var tiers: Array = path["tiers"]
 		var tier_now = int(status["tier"])
@@ -770,8 +785,7 @@ func _fan_signature() -> String:
 		return ""
 	var parts: Array = []
 	for path in Upgrades.paths_for(String(plant.type)):
-		var status = Upgrades.path_status(String(plant.type), plant.upgrades,
-			int(path["id"]))
+		var status = sim.upgrade_status(plant,int(path["id"]))
 		var cost = int(status["cost"]) if bool(status["ok"]) else -1
 		var affordable = sim.sun >= cost if cost >= 0 else false
 		parts.append("%d:%d:%s:%d:%s" % [int(path["id"]), int(status["tier"]),
@@ -1085,7 +1099,7 @@ func _build_result() -> void:
 	var summary: Dictionary = result.get("summary", {})
 	var breached_rows: Array = summary.get("breached_rows", [])
 	var mowers_used = int(summary.get("mowers_used", 0))
-	var plain = bool(result.get("tutorial", false)) or bool(result.get("training", false))
+	var plain = bool(result.get("tutorial", false)) or bool(result.get("training", false)) or bool(result.get("challenge",false))
 	var played: Dictionary = Content.get_level(int(result.get("level_id", 1)))
 	if not summary.is_empty():
 		var stars = clampi(int(summary.get("stars", 0)), 0, 3)
@@ -1112,15 +1126,24 @@ func _build_result() -> void:
 		var key = Ui.label(String(row[0]), 17, Ui.TEXT_DIM)
 		key.custom_minimum_size = Vector2(96, 0)
 		stats.add_child(key)
+		if String(row[0])=="守夜评级" and summary.has("star_flags"):
+			var rating=load("res://ui/star_rating.gd").new()
+			rating.flags=Array(summary.star_flags);rating.factor_count=int(summary.get("factor_points",0)) if not game.sim.cheated else 0
+			stats.add_child(rating)
+			continue
 		var value = Ui.strong(String(row[1]), 24, Ui.GOLD_BRIGHT)
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		stats.add_child(value)
 	box.add_child(Ui.spacer(6))
 	var comment = ""
-	if bool(result.get("tutorial", false)):
+	if bool(result.get("challenge",false)):
+		comment="这一签已过十二分钟，未记成绩。再调整布阵试一次吧。" if bool(result.get("challenge_expired",false)) else "一夜重签 · 十二分钟内守到天亮，只按余香记分；使用调整的这一局不入榜。"
+	elif bool(result.get("tutorial", false)):
 		comment = "灯、签、磨都齐了。十五夜还长，慢慢守。"
 	elif won:
 		comment = "灯还亮着，今夜收摊。"
+		if game.sim.difficulty=="nightmare":
+			comment="本夜使用了调整，红星与因子徽章未记入。" if game.sim.cheated else ("噩梦已破 · 收下红星与 %d 因子朱印。" % game.sim.factor_points() if game.sim.factor_points()>0 else "噩梦已破 · 第四颗红星已点亮。")
 	else:
 		comment = _loss_advice(summary, breached_rows)
 	var comment_label = Ui.label(comment, 18, Ui.TEXT)
@@ -1143,7 +1166,7 @@ func _build_result() -> void:
 		var retry = Ui.button("再来一次", 18 if won else 23, 152 if won else 230, 44 if won else 56, not won)
 		retry.pressed.connect(func(): game.restart_run())
 		row1.add_child(retry)
-		if won:
+		if won and not bool(result.get("challenge",false)):
 			var next_level = Content.next_story_level(int(result.get("level_id",1)))
 			var next = Ui.button("下一夜", 23, 224, 56, true)
 			next.disabled = next_level<=0

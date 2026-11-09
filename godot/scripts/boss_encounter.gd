@@ -4,6 +4,8 @@ extends RefCounted
 var _owner: WeakRef
 var sim:
 	get:return _owner.get_ref() if _owner!=null else null
+var encounter_slot := 0
+var rate_scale := 1.0
 var config: Dictionary = {}
 var id = ""
 var hp = 0.0
@@ -67,11 +69,13 @@ func begin(owner, boss_id: String, last_batch: int = -1, preserve_queue := false
 			config = row.duplicate(true)
 	# Boss is excluded from threat: only an explicit difficulty choice changes its HP.
 	max_hp = float(config.max_hp) * EASY_HP_SCALE * float(sim.difficulty_mult()["hp"]) * HEALTH_SCALE
+	rate_scale=float([1.0,1.5,2.0][sim.factor("boss_power")])
+	max_hp*=rate_scale
 	hp = max_hp
 	began_at = sim.time
 	combat_at = sim.time + 3.0
 	state_end = combat_at
-	small_at = combat_at + float(config.small_first_s) / SKILL_RATE
+	small_at = combat_at + float(config.small_first_s) / (SKILL_RATE * rate_scale)
 	adds_at = combat_at + 5.0
 	wave_end = Array(sim.level.waves).size()
 	if bool(sim.level.get("special",false)):wave_end=(sim.special_bosses_completed+1)*12
@@ -88,9 +92,20 @@ func begin(owner, boss_id: String, last_batch: int = -1, preserve_queue := false
 		"groups":Content.wave_groups(sim.level),"t":3.0,"max":3.0,"ceremony":true}
 	sim.sfx("boss_intro")
 
+func _make_proxy(role: String,row: int,x: float,health: float,meta: Dictionary):
+	var tagged:=meta.duplicate(true)
+	tagged.encounter_slot=encounter_slot
+	return sim.make_boss_proxy(role,row,x,health,tagged)
+
+func set_body_row(row: int) -> void:
+	body_row=row
+	for i in body_targets.size():
+		body_targets[i].row=row+i
+		body_targets[i].pos.y=sim.row_y(row+i)+4.0
+
 func _make_body_targets() -> void:
 	for row in range(body_row, body_row + 2):
-		body_targets.append(sim.make_boss_proxy("body", row, body_x(), max_hp, {}))
+		body_targets.append(_make_proxy("body", row, body_x(), max_hp, {}))
 
 
 func body_x() -> float:
@@ -101,7 +116,10 @@ func _start_blink() -> void:
 	var choices: Array[int] = []
 	for row in sim.rows - 1:
 		if row != body_row:
-			choices.append(row)
+			var free:=true
+			for other in sim.active_bosses():
+				if other!=self and other.alive() and row<=other.body_row+1 and row+1>=other.body_row:free=false
+			if free:choices.append(row)
 	if choices.is_empty():
 		state = "idle"
 		return
@@ -167,7 +185,7 @@ func damage(proxy, amount: float, source: String = "", continuous := false) -> f
 			major_queue.append(threshold)
 	return dealt
 
-func control(seconds: float) -> void:
+func control(seconds: float,_proxy=null) -> void:
 	if not alive(): return
 	var keep: Array=[]
 	var used=0.0
@@ -250,7 +268,7 @@ func tick(dt: float) -> void:
 			if sim.time>=state_end:state="major_gap";state_end=sim.time+1.0
 		"major_gap":
 			if sim.time>=state_end:
-				state="idle";small_at=sim.time+float(config.small_period_s) / SKILL_RATE
+				state="idle";small_at=sim.time+float(config.small_period_s) / (SKILL_RATE * rate_scale)
 		"idle":
 			if not major_queue.is_empty():
 				# Let an already telegraphed crab finish before the next destructive cast.
@@ -263,7 +281,7 @@ func tick(dt: float) -> void:
 						for z in crabs:break_prop(z)
 						major_wait_since=-1;major_queue.pop_front();_start_major()
 			elif sim.time>=small_at:
-				_start_small();small_at=sim.time+float(config.small_period_s) / SKILL_RATE
+				_start_small();small_at=sim.time+float(config.small_period_s) / (SKILL_RATE * rate_scale)
 	if sim.time >= adds_at:
 		_send_reinforcements()
 	peak_adds=maxi(peak_adds,sim.active_zombies())
@@ -289,7 +307,7 @@ func _send_reinforcements() -> void:
 	var mass_ratio = REINFORCEMENT_MASS * Content.wave_mass_ratio(sim.level, index)
 	sim.queue_roster(waves[index], -1, mass_ratio, Content.wave_low_only(sim.level, index), true)
 	reinforcement_index += 1
-	adds_at = sim.time + interval
+	adds_at = sim.time + interval * (0.75 if sim.factor("rush")>0 else 1.0)
 
 
 func _spawn_add(role: String,source=null) -> bool:
@@ -456,11 +474,11 @@ func _resolve_small() -> void:
 				var host=sim.main_plant_at(int(cell.c),int(cell.r))
 				if host!=null and not host.dead and _prop_count()<2:
 					var duration = (2.0 if host.def.has("produce") else 5.0) * SKILL_FORCE
-					host.sealed_until=sim.time+duration
+					host.sealed_until=maxf(host.sealed_until,sim.time+duration)
 					_add_prop("paper_seal",cell,120,duration)
 			"crab":
 				if sim.active_zombies()<int(config.adds.live_cap) + 2:
-					var z=sim.make_boss_proxy("crab",int(cell.r),Geo.SPAWN_X,180 * SKILL_FORCE,
+					var z=_make_proxy("crab",int(cell.r),Geo.SPAWN_X,180 * SKILL_FORCE,
 						{"kind":"crab","until":sim.time+10.0,"next":0.0,"c":int(cell.c),"r":int(cell.r)})
 					props.append(z)
 	sim.sfx("boss_impact")
@@ -478,7 +496,7 @@ func _prop_count() -> int:
 func _add_prop(kind: String,cell: Dictionary,health: float,life: float) -> void:
 	if _prop_count() >= _prop_limit(): return
 	var pos: Vector2=sim.cell_pos(int(cell.c),int(cell.r))
-	var z=sim.make_boss_proxy("prop",int(cell.r),pos.x,health * SKILL_FORCE,
+	var z=_make_proxy("prop",int(cell.r),pos.x,health * SKILL_FORCE,
 		{"kind":kind,"until":sim.time+life,"next":sim.time+(4.0 if kind=="tunnel" else 3.0),
 		"c":int(cell.c),"r":int(cell.r)})
 	props.append(z)
@@ -534,7 +552,14 @@ func break_prop(z) -> void:
 	var kind=String(z.boss_meta.get("kind","tunnel"))
 	if kind=="paper_seal":
 		var host=sim.main_plant_at(int(z.boss_meta.c),z.row)
-		if host!=null and host.uid==String(z.boss_meta.get("host_uid",host.uid)):host.sealed_until=0.0
+		if host!=null and host.uid==String(z.boss_meta.get("host_uid",host.uid)):
+			var remaining:=0.0
+			for peer in sim.active_bosses():
+				for prop in peer.props:
+					if prop!=z and prop.alive() and String(prop.boss_meta.get("kind",""))=="paper_seal" and String(prop.boss_meta.get("host_uid",""))==host.uid:
+						remaining=maxf(remaining,float(prop.boss_meta.until))
+			if is_equal_approx(host.sealed_until,float(z.boss_meta.until)):host.sealed_until=remaining
+			else:host.sealed_until=maxf(host.sealed_until,remaining)
 	emit("break",z.pos,{"prop":kind})
 	sim.sfx("boss_paper" if kind in ["paper_ferry","paper_seal"] else "boss_impact")
 
@@ -581,11 +606,16 @@ func _die() -> void:
 	died_at=sim.time;hp=0;state="dead";major_queue.clear();action={}
 	for z in props:break_prop(z)
 	props.clear()
-	for z in sim.zombies:
-		if not z.dead and z.boss_role=="":emit("release",z.pos)
-		z.dead=true;z.eating=false
-	for p in sim.plants:p.sealed_until=0.0
-	sim.spawn_queue.clear();sim.pending_spawns.clear()
+	var surviving_peer:=false
+	for other in sim.active_bosses():
+		if other!=self and other.alive():surviving_peer=true
+	for z in body_targets:z.dead=true;z.eating=false
+	if not surviving_peer:
+		for z in sim.zombies:
+			if not z.dead and z.boss_role=="":emit("release",z.pos)
+			z.dead=true;z.eating=false
+		for p in sim.plants:p.sealed_until=0.0
+		sim.spawn_queue.clear();sim.pending_spawns.clear()
 	sim.banner={"text":String(config.name)+"退散", "group":int(wave_end / Content.WAVES_PER_GROUP),
 		"groups":Content.wave_groups(sim.level),"t":2.0,"max":2.0}
 	sim.sfx("boss_defeat")
@@ -596,7 +626,7 @@ func serialize() -> Dictionary:
 		"major_queue","fired","action","cell_cooldowns","repair_marks","destruction_used","supply_given","alternate","last_lane",
 		"lane_streak","last_major_row","cc_log","stun_until","total_damage","add_count","peak_adds","major_count","last_boss_destroy_at",
 		"major_wait_since","adds_were_paused","hit_tokens","damage_carry","effects", "body_row", "blink_from",
-		"blink_at", "smalls_to_blink", "small_casts", "reinforcement_index", "wave_end"]:
+		"blink_at", "smalls_to_blink", "small_casts", "reinforcement_index", "wave_end", "encounter_slot", "rate_scale"]:
 		saved[name]=get(name)
 	var proxy_rows: Array=[]
 	for z in body_targets+props:
@@ -605,24 +635,27 @@ func serialize() -> Dictionary:
 	return saved
 
 func restore(owner,data: Dictionary) -> void:
+	encounter_slot=int(data.get("encounter_slot",0))
 	begin(owner,String(data.id), int(data.get("wave_end", -1)))
 	for z in body_targets:z.dead=true
 	body_targets.clear();props.clear()
 	for name in data:
-		if name!="proxies":set(name,data[name])
+		if name!="proxies":
+			var current=get(name)
+			set(name,int(data[name]) if current is int else data[name])
 	for row in data.get("proxies", []):
 		var role := String(row.boss_role)
 		if role in ["body", "weakpoint"]:
 			if int(row.row) not in [body_row, body_row + 1]:
 				continue
-			var z = sim.make_boss_proxy("body", int(row.row), body_x(), max_hp, {})
+			var z = _make_proxy("body", int(row.row), body_x(), max_hp, {})
 			sim.unpack_unit(z, row)
 			z.boss_role = "body"
 			z.type = "boss_body"
 			z.pos.x = body_x()
 			body_targets.append(z)
 		else:
-			var z = sim.make_boss_proxy(role, int(row.row), float(row.pos[0]),
+			var z = _make_proxy(role, int(row.row), float(row.pos[0]),
 				float(row.max_hp), Dictionary(row.boss_meta))
 			sim.unpack_unit(z, row)
 			props.append(z)

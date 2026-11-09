@@ -7,19 +7,19 @@
       "ok": true
     },
     {
-      "detail": "won=true lost=false t=227.1 kills=38 wave=12 sun=350 plants=35",
+      "detail": "won=true lost=false t=223.7 kills=41 wave=12 sun=165 plants=40",
       "group": "对局",
       "name": "第一夜 能推进到后段并正常终局",
       "ok": true
     },
     {
-      "detail": "max_shots=49",
+      "detail": "max_shots=57",
       "group": "对局",
       "name": "第一夜 有射弹出手",
       "ok": true
     },
     {
-      "detail": "kills=38",
+      "detail": "kills=41",
       "group": "对局",
       "name": "第一夜 击退数合理",
       "ok": true
@@ -31,7 +31,7 @@
       "ok": true
     },
     {
-      "detail": "t=227.1",
+      "detail": "t=223.7",
       "group": "对局",
       "name": "第一夜 用时在合理区间",
       "ok": true
@@ -43,19 +43,19 @@
       "ok": true
     },
     {
-      "detail": "won=true lost=false t=247.6 kills=55 wave=12 sun=150 plants=40",
+      "detail": "won=true lost=false t=234.2 kills=53 wave=12 sun=150 plants=45",
       "group": "对局",
       "name": "第六夜（六行） 能推进到后段并正常终局",
       "ok": true
     },
     {
-      "detail": "max_shots=57",
+      "detail": "max_shots=44",
       "group": "对局",
       "name": "第六夜（六行） 有射弹出手",
       "ok": true
     },
     {
-      "detail": "kills=55",
+      "detail": "kills=53",
       "group": "对局",
       "name": "第六夜（六行） 击退数合理",
       "ok": true
@@ -67,7 +67,7 @@
       "ok": true
     },
     {
-      "detail": "t=247.6",
+      "detail": "t=234.2",
       "group": "对局",
       "name": "第六夜（六行） 用时在合理区间",
       "ok": true
@@ -79,19 +79,19 @@
       "ok": true
     },
     {
-      "detail": "won=true lost=false t=270.0 kills=64 wave=12 sun=50 plants=40",
+      "detail": "won=true lost=false t=232.8 kills=62 wave=12 sun=320 plants=41",
       "group": "对局",
       "name": "第十一夜（暗河） 能推进到后段并正常终局",
       "ok": true
     },
     {
-      "detail": "max_shots=28",
+      "detail": "max_shots=56",
       "group": "对局",
       "name": "第十一夜（暗河） 有射弹出手",
       "ok": true
     },
     {
-      "detail": "kills=64",
+      "detail": "kills=62",
       "group": "对局",
       "name": "第十一夜（暗河） 击退数合理",
       "ok": true
@@ -103,7 +103,7 @@
       "ok": true
     },
     {
-      "detail": "t=270.0",
+      "detail": "t=232.8",
       "group": "对局",
       "name": "第十一夜（暗河） 用时在合理区间",
       "ok": true
@@ -157,19 +157,19 @@
       "ok": true
     },
     {
-      "detail": "plants=34 zombies=0 wave=6",
+      "detail": "plants=36 zombies=0 wave=6",
       "group": "存档",
       "name": "对局中段存档非空",
       "ok": true
     },
     {
-      "detail": "t=227.1 kills=38 wave=12",
+      "detail": "t=222.6 kills=40 wave=12",
       "group": "存档",
       "name": "读回存档后能继续打完这一夜",
       "ok": true
     },
     {
-      "detail": "227.1 > 120.0",
+      "detail": "222.6 > 120.0",
       "group": "存档",
       "name": "续局时间接得上",
       "ok": true
@@ -237,5 +237,5 @@
   ],
   "failures": 0,
   "total": 39,
-  "version": "0.5.3"
+  "version": "0.5.4"
 }

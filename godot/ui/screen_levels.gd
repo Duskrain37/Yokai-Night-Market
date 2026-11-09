@@ -50,6 +50,7 @@ var _route_segments: Dictionary = {}
 var _hover = -1
 var _time = 0.0
 var _enter: Button = null
+var _badge: Button = null
 var _almanac: Button = null
 var _special: Button = null
 var _danger: Control = null
@@ -259,11 +260,9 @@ func _draw_nodes() -> void:
 			_draw_centered_line(Ui.body_font(), "✓", tick.x, tick.y + 4.0, 12,
 				Color(0.95, 0.99, 0.93))
 			# 星级挂在夜名下：重打一局是为了把 ☆ 刷成 ★
-			var stars = clampi(int(Dictionary(game.progress.get("stars", {}))
-				.get(str(int(level["id"])), 0)), 0, 3)
-			var mark = "★★★".substr(0, stars) + "☆☆☆".substr(0, 3 - stars)
-			_draw_centered_line(Ui.body_font(), mark, pos.x, pos.y + radius + 58, 14,
-				Ui.GOLD_BRIGHT if stars >= 3 else Ui.GOLD_DIM)
+			var flags: Array=preload("res://data/nightmare.gd").flags(game.progress,int(level.id))
+			var badge:=int(Dictionary(Dictionary(game.progress.get("nightmare_badges",{})).get(str(int(level.id)),{})).get("best",0))
+			preload("res://ui/star_rating.gd").paint(self,Vector2(pos.x-30,pos.y+radius+54),flags,badge,7.0)
 
 
 func _draw_footer() -> void:
@@ -383,9 +382,19 @@ func _build_actions() -> void:
 	_almanac.position = Vector2(352, 804)
 	_almanac.pressed.connect(func(): game.open_almanac("zombie", 0))
 	add_child(_almanac)
+	_badge=Ui.button("噩梦徽章",15,104,38)
+	_badge.position=Vector2(543,804)
+	_badge.pressed.connect(func():
+		var dialog=load("res://ui/nightmare_badges.gd").new()
+		dialog.entry=Dictionary(Dictionary(game.progress.get("nightmare_badges",{})).get(str(selected),{}))
+		dialog.earned=preload("res://data/nightmare.gd").flags(game.progress,selected)
+		add_child(dialog);dialog.popup_centered()
+		dialog.confirmed.connect(dialog.queue_free);dialog.canceled.connect(dialog.queue_free))
+	add_child(_badge)
 
 
 func _refresh_actions() -> void:
+	if _badge!=null:_badge.visible=Dictionary(game.progress.get("nightmare_badges",{})).has(str(selected))
 	_refresh_week_tabs()
 	if _danger!=null:
 		_danger.values=Content.SPECIAL_THREATS if selected==Content.SPECIAL_ID else [float(Content.get_level(selected).threat)]

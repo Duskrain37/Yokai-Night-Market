@@ -1,0 +1,45 @@
+{
+  "tool": "built-in image_gen",
+  "records": [
+    {
+      "id": "soul-casket-final",
+      "prompt": "Background extraction. Cut out ONLY the actual wood, metal, leaf and root character. Remove the big visible soft brown rectangular background/halo completely. No aura. No shadow. All space behind and between root feet must be ZERO ALPHA. Preserve the object exactly. Output RGBA cutout.",
+      "reference": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-5efb3f05-1485-4c41-bc0f-26e9e0820224.png"
+    },
+    {
+      "id": "reed-chime-e3",
+      "prompt": "Reference identity. Draw distinct tier-three powerful physical evolution: stout bamboo pipes reinforced with old bronze muzzle collars, large central pipe surrounded by small reeds, cracked dark ochre temple bowl with larger root claws and restrained deep amber internal breath. Broad low sturdy silhouette, faded scarlet cords. No detached magic or fire. Single complete game sprite, root feet anchored, three-quarter facing RIGHT. Muted dry-brush gouache, matte weathered materials, hand-painted grain, no glossy CG, no text. TRUE TRANSPARENT ALPHA outside hard silhouette, NO HALO or shadow or scenery.",
+      "reference": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-f7b28a55-4a02-43de-abd4-136bd8e6c300.png"
+    },
+    {
+      "id": "soul-casket-e1",
+      "prompt": "Reference identity. Tier-three evolution for this seed-grown projectile-collecting coffer: expanded lattice wooden lid, seven hollow bamboo and copper intake funnels, a winding spiralling lotus vine mechanism bridging funnels, small curious eyes, faded red knot and root feet. An always-open collecting form, physically distinct ornate silhouette. Single complete game sprite, root feet anchored, three-quarter facing RIGHT. Muted dry-brush gouache, matte weathered materials, hand-painted grain, no glossy CG, no text. TRUE TRANSPARENT ALPHA outside hard silhouette, NO HALO or shadow or scenery.",
+      "reference": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-5efb3f05-1485-4c41-bc0f-26e9e0820224.png"
+    },
+    {
+      "id": "soul-casket-e2",
+      "prompt": "Reference identity. Tier-three evolution of this seed-grown projectile-collecting coffer: TWO asymmetrically paired brass trumpet exit mouths pointing RIGHT, deep vermilion lacquer wood, split amber seed windows and branching lotus roots, antique gilded cloud-carving trim, curious eyes and faded red cords. Physical double-barrel form, no bullets. Single complete game sprite, root feet anchored, three-quarter facing RIGHT. Muted dry-brush gouache, matte weathered materials, hand-painted grain, no glossy CG, no text. TRUE TRANSPARENT ALPHA outside hard silhouette, NO HALO or shadow or scenery.",
+      "reference": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-5efb3f05-1485-4c41-bc0f-26e9e0820224.png"
+    },
+    {
+      "id": "soul-casket-e3",
+      "prompt": "Reference identity. Tier-three fortress evolution of this seed-grown projectile collecting coffer: squat heavy jade-stone encased wooden coffer, strongly carved old bronze intake facing right, giant surrounding lotus-leaf plates, thick exposed curling roots, deep turquoise patina and faded red knot, small eyes remain. Distinct armored silhouette, matte handpainted wood/stones. Single complete game sprite, root feet anchored, three-quarter facing RIGHT. Muted dry-brush gouache, matte weathered materials, hand-painted grain, no glossy CG, no text. TRUE TRANSPARENT ALPHA outside hard silhouette, NO HALO or shadow or scenery.",
+      "reference": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-5efb3f05-1485-4c41-bc0f-26e9e0820224.png"
+    },
+    {
+      "id": "shield-envoy",
+      "prompt": "Production 2D game animation atlas, 4 columns x 4 precisely equal rows on truly transparent background, no labels. Same LEFT-FACING tall gaunt Chinese ghost official across every cell. Pale grey tired face profile, sparse topknot, faded ochre-brown robe, weathered wooden rectangular shields strapped in a stack on back, holds a small bronze tally, rope belt and straw sandals. Dry-brush gouache and desaturated jade/old gold/vermilion Chinese night market mood. Row1 four distinct walking poses, feet lift and trailing robe swings. Row2 four distinct attack/casting poses, official draws shield from back and extends to LEFT; end returns hand. Row3 four swimming poses with hands paddling, lower body submerged at stable waterline, do not show legs above head. Row4 four water attack poses handing shield left while treading water. Each whole character padded inside cell, coherent identity/proportions, matte hand-painted texture, no ground, scenery or UI.",
+      "reference": ""
+    },
+    {
+      "id": "oar-barge",
+      "prompt": "Production 2D game animation atlas on TRUE transparent background. Exact 4 columns x 3 equal rows. Same LEFT-facing wide worn Chinese dark wooden dragonless ferry carrying EXACTLY FIVE small emaciated hungry ghosts in ragged brown hemp, grey pale skin, black messy hair; ghosts hold wooden oars. Low small cabinless boat, faded red cord at bow, old copper trim, desaturated gouache Chinese night market style. Row1 coordinated rowing cycle: all five raise oars, dip, pull, recover; boat clear complete silhouette. Row2 ramming cycle: all five brace, row hard, lean together, bow jerks LEFT; five visible at every frame. Row3 sinking sequence: intact cracked hull, hull breaks with falling planks, five ghosts tumble into water, five heads/hands surface swimming LEFT; no extra crew. No labels, no environment, each sprite fully contained and padded in cell. No shiny CG, no neon.",
+      "reference": ""
+    },
+    {
+      "id": "v054-relay-fx",
+      "prompt": "Production effect sprite animation atlas for a Chinese folklore dry-brush gouache tower defense game. True transparent background, fixed exact 4 columns x 4 equal rows, each effect entirely inside its own padded cell with steady center. No text. Palette aged jade, dull ochre, old copper and restrained vermilion, matte textured gouache, NOT neon or glossy. Row1 'borrowed range shot': four animated poses of a SMALL SOLID brass-caged lotus seed, small angular cream folded rice-paper core with jade leaf fins and dark red binding cord; rotating small seed, opaque tangible projectile silhouette, NOT fire/flame or round glowing orb. Row2 'bamboo breath': four animated expanding short swept reed-leaf strokes, jade wind and dry ochre bamboo chaff, tapered streaming to RIGHT. Row3 'collect': four animated inward-curling muted jade leaf spirals with small amber seed dots concentrating into a dark copper ring at center. Row4 'release': four animated outward-blooming old copper lotus petals with small rice-paper fragments, pointing RIGHT. Subtle useful game FX, fixed centered anchors in every row, no backdrop, no checker pattern, no floor shadows. Four consecutive genuinely different poses in each row.",
+      "reference": ""
+    }
+  ]
+}

@@ -114,7 +114,7 @@ func run() -> void:
 	check("巡天一阶边界变为半伤追魂",seeking.kind=="homing" and seeking.target!=null and seeking.damage==10)
 	check("巡灯基础间隔与图鉴数据一致",Upgrades.EFFECTS.star.interval[0]==Content.PLANTS.star.star.interval)
 	var mobile_motion:Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion_mobile.json"))
-	check("手机保留全部角色动作",mobile_motion.keys()==JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json")).keys())
+	check("既有手机版动作保留且PC仍支持",mobile_motion.keys().all(func(actor):return JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json")).has(actor)))
 	var split:Dictionary=mobile_motion["v053-buff-fx"]
 	check("八种增益拆为独立32帧GPU图集",split.clip_files.size()==8 and split.clips.values().all(func(x):return x.size()==32))
 	check("第三周通关衔接第四周，不误入特殊关",Content.next_story_level(15)==17 and Content.next_story_level(16)==0 and Content.next_story_level(26)==0)

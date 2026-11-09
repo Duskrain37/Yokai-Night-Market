@@ -1221,6 +1221,126 @@
 			"ok": true
 		},
 		{
+			"name": "reed-chime 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-chime idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e1 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e1 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 reed-chime-e1",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e2 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e2 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 reed-chime-e2",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e3 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 reed-chime-e3",
+			"ok": true
+		},
+		{
+			"name": "soul-casket 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "soul-casket idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e1 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e1 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 soul-casket-e1",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e2 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e2 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 soul-casket-e2",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e3 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 soul-casket-e3",
+			"ok": true
+		},
+		{
 			"name": "ghost 图集可加载",
 			"ok": true
 		},
@@ -1658,6 +1778,50 @@
 		},
 		{
 			"name": "reed-shot swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-wick walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick swim 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick swim_bite 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shield-envoy 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shield-envoy walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shield-envoy attack 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "oar-barge 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "oar-barge walk 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "oar-barge attack 有4帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -2985,6 +3149,22 @@
 			"ok": true
 		},
 		{
+			"name": "oar-barge 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "oar-barge attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "oar-barge sink 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "oar-barge walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "paper 图集可加载",
 			"ok": true
 		},
@@ -3042,6 +3222,54 @@
 		},
 		{
 			"name": "phase-veil walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-chime action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "reed-chime-e3 idle 有32帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -3169,6 +3397,26 @@
 			"ok": true
 		},
 		{
+			"name": "shield-envoy 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "shield-envoy attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shield-envoy swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shield-envoy swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "shield-envoy walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "shieldguard 图集可加载",
 			"ok": true
 		},
@@ -3282,6 +3530,86 @@
 		},
 		{
 			"name": "sky-kite-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-wick attack 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick break 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick land 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick splash 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick swim 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick swim_bite 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-wick walk 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "soul-casket action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "soul-casket-e3 idle 有32帧且不同画面不少于75%",
 			"ok": true
 		},
 		{
@@ -3641,6 +3969,26 @@
 			"ok": true
 		},
 		{
+			"name": "v054-relay-fx 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "v054-relay-fx breath 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v054-relay-fx collect 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v054-relay-fx range 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v054-relay-fx release 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "vault 图集可加载",
 			"ok": true
 		},
@@ -3834,5 +4182,5 @@
 		}
 	],
 	"failures": 0,
-	"total": 958
+	"total": 1045
 }

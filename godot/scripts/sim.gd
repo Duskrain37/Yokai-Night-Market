@@ -36,6 +36,12 @@ class Plant:
 	var bite_t = 0.0
 	var eaten_until := 0.0
 	var dead = false
+	var reed_quick := false
+	var collector_store: Array=[]
+	var collector_total := 0
+	var collector_ready_at := 0.0
+	var collector_area_seen: Dictionary={}
+	var loss_recorded := false
 	var buff_damage = 0.0
 	var haste = 0.0
 	var herbal_haste := 0.0
@@ -155,6 +161,11 @@ class Plant:
 
 
 class Zombie:
+	var flight_landing_at := -1.0
+	var flight_water := false
+	var flight_broken := false
+	var barge_clock := 0.0
+	var barge_hit := false
 	var uid = ""
 	var boss_role = ""
 	var boss_meta: Dictionary = {}
@@ -268,6 +279,9 @@ class Zombie:
 
 
 class Shot:
+	var relay_original := ""
+	var relay_bonus := 0.0
+	var relay_visits: Array=[]
 	var uid = ""
 	var kind = "pea"       # pea / homing / lob / star
 	var src = ""            # 开火草木的类型，结算页按它归因
@@ -369,6 +383,7 @@ const DIFFICULTY = {
 	"easy": {"count": 1.0, "hp": 1.0},
 	"normal": {"count": 1.1, "hp": 1.1},
 	"hard": {"count": 1.25, "hp": 1.25},
+	"nightmare": {"count": 1.35, "hp": 1.35},
 }
 
 const MAX_LOADOUT = 10
@@ -393,6 +408,10 @@ var time = 0.0
 var wave_index = 0
 var last_group = -1
 var plant_bonus_sources: Dictionary = {}
+var last_guest_damage_at := 0.0
+var _rear_check_at := 0.0
+var _rear_notices: Dictionary = {}
+var _stalemate_notice_at := -1000.0
 var spawn_queue: Array = []
 var pending_spawns: Array = []
 var kills = 0
@@ -433,6 +452,14 @@ var wave_time_offset = 0.0
 var special_rest_until = 0.0
 var boss_history: Array=[]
 
+const Nightmare = preload("res://data/nightmare.gd")
+var _collector_cache_at := -1.0
+var _collector_candidates: Array=[]
+var nightmare_factors: Dictionary = {}
+var incense_window: Array = []
+var nightmare_losses := 0
+var nightmare_failed := false
+var curfew_until := 0.0
 var difficulty = "easy"
 var count_mul = 1.0
 var hp_mul = 1.0
@@ -466,7 +493,7 @@ static func effective_threat(p_level: Dictionary) -> float:
 	return value
 
 
-func setup(p_level: Dictionary, loadout: Array, p_difficulty: String = "easy") -> void:
+func setup(p_level: Dictionary, loadout: Array, p_difficulty: String = "easy", fixed_seed: int = -1) -> void:
 	level = p_level
 	level_id = int(p_level.get("id", 1))
 	rows = clampi(int(p_level.get("rows", 5)), 5, 6)
@@ -478,12 +505,18 @@ func setup(p_level: Dictionary, loadout: Array, p_difficulty: String = "easy") -
 	tutorial = null
 	no_cooldown = false
 	cheated = false
-	rng.seed = hash("%d:%s" % [level_id, difficulty])
+	rng.seed = fixed_seed if fixed_seed>=0 else hash("%d:%s" % [level_id, difficulty])
+	level=level.duplicate(true)
+	if fixed_seed>=0:level["fixed_seed"]=fixed_seed
+	nightmare_factors = Nightmare.sanitize(Dictionary(level.get("nightmare_factors",{})),level) if difficulty=="nightmare" else {}
+	if factor("rush")>0:
+		var first: float=float(level.waves[0].t) if not level.get("waves",[]).is_empty() else 0.0
+		for wave in level.get("waves",[]):wave.t=first+(float(wave.t)-first)*0.75
 	_reset(loadout)
 
 
 func _reset(loadout: Array) -> void:
-	island_seed = int(Time.get_ticks_usec()) if String(level.get("map", "")) == "island" else 0
+	island_seed = int(level.get("fixed_seed",Time.get_ticks_usec())) if String(level.get("map", "")) == "island" else 0
 	tiles = _make_tiles()
 	lilies.clear()
 	cells = []
@@ -493,6 +526,7 @@ func _reset(loadout: Array) -> void:
 		line.fill(null)
 		cells.append(line)
 	plants.clear()
+	_collector_cache_at=-1;_collector_candidates.clear()
 	zombies.clear()
 	shots.clear()
 	grounds.clear()
@@ -504,6 +538,9 @@ func _reset(loadout: Array) -> void:
 	mowers = []
 	for r in rows:
 		mowers.append({"row": r, "ready": true, "active": false, "x": Geo.MOWER_X})
+	incense_window.clear();nightmare_losses=0;nightmare_failed=false;curfew_until=0.0
+	if factor("unguarded")>0:
+		for mower in mowers:mower.ready=false;mower["absent"]=true
 	rows_planted = {}
 	lane_breaches = []
 	for r in rows:
@@ -517,6 +554,7 @@ func _reset(loadout: Array) -> void:
 			cards.append({"id": id, "def": Content.PLANTS[id], "cd": 0.0})
 	sun = int(level.get("start_sun", 100))
 	time = 0.0
+	last_guest_damage_at=0.0;_rear_check_at=0.0;_rear_notices.clear();_stalemate_notice_at=-1000.0
 	wave_index = 0
 	last_group = -1
 	kills = 0
@@ -621,8 +659,63 @@ func unit_scale() -> float:
 	return Geo.unit_scale(rows)
 
 
+func factor(id: String) -> int:
+	return int(nightmare_factors.get(id,0)) if difficulty=="nightmare" else 0
+
+func factor_points() -> int:
+	return Nightmare.points(nightmare_factors)
+
 func difficulty_mult() -> Dictionary:
-	return DIFFICULTY.get(difficulty, DIFFICULTY["easy"])
+	var result: Dictionary=DIFFICULTY.get(difficulty,DIFFICULTY.easy).duplicate()
+	var extra: float=[1.0,1.1,1.2,1.4][factor("swarm")]
+	result.count*=extra;result.hp*=extra
+	return result
+
+func plant_population() -> int:
+	var count := 0
+	for p in plants:
+		if not p.dead:count+=1+int(p.shell>0)
+	return count
+
+func incense_received() -> int:
+	incense_window=incense_window.filter(func(e):return float(e[0])>time-10.0)
+	var total := 0
+	for e in incense_window:total+=int(e[1])
+	return total
+
+func gain_incense(amount: int) -> int:
+	var received := maxi(0,amount)
+	if factor("dim")>0:received=mini(received,maxi(0,int([0,750,500][factor("dim")])-incense_received()))
+	if received>0:
+		sun+=received
+		if factor("dim")>0:incense_window.append([time,received])
+	return received
+
+func upgrade_status(plant: Plant,path_id: int) -> Dictionary:
+	var status := Upgrades.path_status(plant.type,plant.upgrades,path_id)
+	if not status.ok:return status
+	status.cost=ceili(float(status.cost)*float([1.0,1.5,2.0][factor("price")]))
+	if time<curfew_until:
+		status.ok=false;status.reason="宵禁中，%d 秒后可升阶" % ceili(curfew_until-time)
+	if factor("no_capstone")>0 and int(status.next_tier)>=3:
+		status.ok=false;status.reason="噩梦因子：三级进化已封锁"
+	if factor("one_path")>0:
+		for path in plant.upgrades:
+			if int(path)!=path_id and int(plant.upgrades[path])>0:
+				status.ok=false;status.reason="噩梦因子：这一株只能修习一个方向"
+	return status
+
+func active_bosses() -> Array:
+	if boss==null:return []
+	if boss.has_method("members"):return boss.members()
+	return [boss]
+
+func begin_boss(id: String,last_batch: int=-1,preserve_queue:=false,allow_twins:=true) -> void:
+	if factor("twins")>0 and allow_twins:
+		boss=preload("res://scripts/boss_group.gd").new()
+	else:boss=preload("res://scripts/boss_encounter.gd").new()
+	boss.begin(self,id,last_batch,preserve_queue)
+
 
 
 # ── 音效与特效队列 ──────────────────────────────────────────────────────────
@@ -665,8 +758,11 @@ func deny(text: String, at: Vector2) -> void:
 
 # ── 种植 ────────────────────────────────────────────────────────────────────
 func can_place_at(type: String, col: int, row: int) -> Dictionary:
+	if time<curfew_until:return {"ok":false,"reason":"宵禁中，%d 秒后可种植" % ceili(curfew_until-time)}
 	if col < 0 or col >= Geo.COLS or row < 0 or row >= rows:
 		return {"ok": false, "reason": "这里不能种"}
+	if factor("seeds")>0 and plant_population()>=int([0,25,15][factor("seeds")]):
+		return {"ok":false,"reason":"噩梦因子：场上草木已达上限"}
 	var def: Dictionary = Content.PLANTS.get(type, {})
 	if def.is_empty() or bool(def.get("attach", false)):
 		return {"ok": false, "reason": "这里不能种"}
@@ -731,6 +827,7 @@ func place_free(type: String, col: int, row: int) -> Plant:
 		if lily_at(col, row) != null:
 			plant.on_lily = true
 	plants.append(plant)
+	if type=="soul-casket":_collector_cache_at=-1
 	rows_planted[row] = true
 	refresh_plant_buffs()
 	if type == "squash":
@@ -739,6 +836,8 @@ func place_free(type: String, col: int, row: int) -> Plant:
 
 
 func try_place_card(index: int, col: int, row: int, at: Vector2) -> bool:
+	if time<curfew_until:
+		deny("宵禁中，暂不能种植",at);return false
 	if index < 0 or index >= cards.size():
 		return false
 	var card: Dictionary = cards[index]
@@ -750,6 +849,8 @@ func try_place_card(index: int, col: int, row: int, at: Vector2) -> bool:
 		deny("香火不够", at)
 		return false
 	if bool(def.get("attach", false)):
+		if factor("seeds")>0 and plant_population()>=int([0,25,15][factor("seeds")]):
+			deny("噩梦因子：场上草木已达上限",at);return false
 		var host = main_plant_at(col, row)
 		if host == null:
 			deny("先种一株草木，再罩龟甲", at)
@@ -801,6 +902,7 @@ func remove_shell(host: Plant) -> void:
 	if host == null or host.shell <= 0.0:
 		return
 	host.shell = 0.0
+	_nightmare_loss()
 	float_text(host.pos + Vector2(0, -52), "拆下龟甲罩", Color("#dce7c4"), 15)
 	spark(host.pos + Vector2(0, -16), Color("#bfd0a0"), 8)
 	sfx("shell")
@@ -834,6 +936,7 @@ func damage_plant(plant: Plant, amount: float, from: Zombie = null) -> void:
 		plant.shell_pulse = 0.25
 		if plant.shell <= 0.0:
 			plant.shell = 0.0
+			_nightmare_loss()
 			sfx("shell")
 			float_text(plant.pos + Vector2(0, -54), "龟甲碎了", Color("#e8d6a8"), 15)
 			for i in 10:
@@ -870,6 +973,18 @@ func damage_plant(plant: Plant, amount: float, from: Zombie = null) -> void:
 		kill_plant(plant)
 
 
+func _record_plant_loss(plant: Plant) -> void:
+	if plant.loss_recorded:return
+	plant.loss_recorded=true
+	_nightmare_loss(1+int(plant.shell>0))
+
+func _nightmare_loss(count: int=1) -> void:
+	nightmare_losses+=count
+	if factor("loss")>0 and nightmare_losses>=int([0,20,10][factor("loss")]) and not nightmare_failed:
+		nightmare_failed=true
+		banner={"text":"草木凋尽 · 今夜失守","t":4.0,"max":4.0}
+		if on_lose.is_valid():on_lose.call(null)
+
 func kill_plant(plant: Plant, silent: bool = false) -> void:
 	if plant == null or plant.dead:
 		return
@@ -878,6 +993,8 @@ func kill_plant(plant: Plant, silent: bool = false) -> void:
 		return
 	# 火墙（3-3）：被恶客啃塌才炸，铲走的盆不欠这一圈火
 	plant.dead = true
+	if plant.type=="soul-casket":_collector_cache_at=-1
+	_record_plant_loss(plant)
 	plant.shell = 0.0
 	if plant.is_lily:
 		lilies.erase("%d:%d" % [plant.row, plant.col])
@@ -941,7 +1058,7 @@ func shovel_effect(plant: Plant, shell_only: bool = false) -> void:
 func try_upgrade(plant: Plant, path_id: int, at: Vector2) -> Dictionary:
 	if plant == null or plant.dead:
 		return {"ok": false, "reason": "草木已经不在了"}
-	var status = Upgrades.path_status(plant.type, plant.upgrades, path_id)
+	var status = upgrade_status(plant, path_id)
 	if not bool(status["ok"]):
 		var reason = String(status["reason"])
 		deny(reason, at)
@@ -1158,8 +1275,7 @@ func update_waves() -> void:
 		queue_wave(wave, wave_no)
 	_release_queued_zombies()
 	if checkpoint_waiting() and spawn_queue.is_empty() and pending_spawns.is_empty() and active_zombies()==0:
-		boss=preload("res://scripts/boss_encounter.gd").new()
-		boss.begin(self,String(level.boss_checkpoints[special_bosses_completed]))
+		begin_boss(String(level.boss_checkpoints[special_bosses_completed]))
 
 
 func _release_queued_zombies() -> void:
@@ -1171,7 +1287,7 @@ func _release_queued_zombies() -> void:
 		var boss_wave = bool(entry.get("boss_wave", false))
 		var wave_no := int(entry.get("wave_no", -1))
 		var queued_type := String(entry["type"])
-		var type := Content.wave_guest_type(queued_type, wave_no)
+		var type := Content.wave_guest_type(queued_type, wave_no + (3 if factor("early")>0 and wave_no>=0 else 0))
 		var mass_scale := float(entry.get("mass_scale", 1.0))
 		# 旧存档可能在前三大波已排队、尚未放出高阶恶客。
 		if type != queued_type:
@@ -1231,16 +1347,14 @@ func queue_wave(wave: Dictionary, wave_no: int = -1) -> void:
 		wave_no = maxi(0, wave_index - 1)
 	var mid_id := String(level.get("mid_boss", ""))
 	if not training and tutorial == null and mid_id != "" and wave_no == 4 * Content.WAVES_PER_GROUP - 1 and boss == null:
-		boss = preload("res://scripts/boss_encounter.gd").new()
-		boss.begin(self, mid_id, 4 * Content.WAVES_PER_GROUP, true)
+		begin_boss(mid_id, 4 * Content.WAVES_PER_GROUP, true, false)
 		_queue_wave_herald(wave_no)
 		_flag_banner(wave_no)
 		return
 	if not training and tutorial == null and String(level.get("boss_id", "")) != "" \
 			and wave_no == Array(level["waves"]).size() - 1:
 		if boss == null:
-			boss = preload("res://scripts/boss_encounter.gd").new()
-			boss.begin(self, String(level["boss_id"]), -1, true)
+			begin_boss(String(level["boss_id"]), -1, true)
 		_queue_wave_herald(wave_no)
 		_flag_banner(wave_no)
 		return
@@ -1256,6 +1370,7 @@ func queue_wave(wave: Dictionary, wave_no: int = -1) -> void:
 
 
 func _flag_banner(wave_no: int) -> void:
+	if factor("curfew")>0:curfew_until=time+5.0
 	var text := "一大波恶客正在靠近"
 	var subtitle := ""
 	if boss != null and boss.alive():
@@ -1272,11 +1387,21 @@ func _flag_banner(wave_no: int) -> void:
 ## Adjust the sum of enemy HP and armor, including when a whole tier is excluded.
 func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 		low_only: bool = false, boss_wave: bool = false, delay: float = 0.0) -> void:
+	if factor("early")>0 and wave_no>=0:
+		var ahead: Dictionary=level.waves[mini(wave_no+Content.WAVES_PER_GROUP,level.waves.size()-1)]
+		var current_mass:=0.0;var ahead_mass:=0.0
+		for group in wave.get("budget_groups",wave.groups):current_mass+=_enemy_mass(String(group[0]))*int(group[1])
+		for group in ahead.get("budget_groups",ahead.groups):ahead_mass+=_enemy_mass(String(group[0]))*int(group[1])
+		wave=ahead.duplicate(true)
+		# Advance composition, keeping this batch's original durability budget.
+		wave["early_mass_scale"]=current_mass/maxf(1.0,ahead_mass)
+		low_only=false
 	var density = float(difficulty_mult()["count"])
 	var spacing := 0.27 if Content.is_flag_batch(wave_no) else 0.38
 	var original: Array = []
 	var cavern: bool = String(level.get("map", "")) == "cavern" and not level.get("lane_weights", []).is_empty()
 	var mass = 0.0
+	var early_scale: float=float(wave.get("early_mass_scale",1.0))
 	var budget_groups: Array = wave.get("budget_groups", wave["groups"])
 	var guest_slots: Array = wave.get("guest_slots", [])
 	var actual_mass := 0.0
@@ -1288,7 +1413,7 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 		var picks: Array = guest_slots[index] if not guest_slots.is_empty() else [source]
 		for i in count:
 			var pick := String(picks[mini(picks.size() - 1, int(float(i) * picks.size() / count))])
-			var type := Content.wave_guest_type(pick, wave_no)
+			var type := Content.wave_guest_type(pick, wave_no + (3 if factor("early")>0 and wave_no>=0 else 0))
 			original.append({
 				"t": time + delay + original.size() * spacing + rng.randf() * 0.25,
 				"type": type, "row": -1 if cavern else choose_spawn_row(type), "wave_no": wave_no,
@@ -1300,6 +1425,8 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 		if actual_mass > 0.0 and not is_equal_approx(actual_mass, mass * mass_ratio):
 			for entry in original:
 				entry["mass_scale"] = mass * mass_ratio / actual_mass
+		if not is_equal_approx(early_scale,1.0):
+			for entry in original:entry.mass_scale=float(entry.get("mass_scale",1.0))*early_scale
 		if cavern:
 			_assign_cavern_rows(original)
 		spawn_queue.append_array(original)
@@ -1333,7 +1460,7 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 		entries.append({
 			"t": time + delay + i * spacing + rng.randf() * 0.25,
 			"type": type, "row": -1 if cavern else choose_spawn_row(type), "wave_no": wave_no,
-			"mass_scale": durability, "boss_wave": boss_wave,
+			"mass_scale": durability*early_scale, "boss_wave": boss_wave,
 		})
 	if cavern:
 		_assign_cavern_rows(entries)
@@ -1429,7 +1556,7 @@ func choose_spawn_row(type: String, flexible_water: float = -1.0, water_share: f
 	var choices: Array = []
 	var total = 0.0
 	for row in rows:
-		if (water.has(row) and high_tier) or (water_only and not water.has(row)):
+		if (water.has(row) and high_tier and not water_only) or (water_only and not water.has(row)):
 			continue
 		var weight = float(weights[row]) if not weights.is_empty() else (2.0 / 3.0 if water.has(row) else 1.0)
 		if flexible_water >= 0.0 and not water_only and not high_tier and water_share > 0.0 and water_share < 1.0:
@@ -1471,7 +1598,7 @@ func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 		if z.row < 0:
 			return null
 	if z.row in level.get("water_rows", []) \
-			and String(def.get("tier", "")) == "h":
+			and String(def.get("tier", "")) == "h" and not bool(def.get("water_only",false)):
 		z.row = choose_spawn_row(type)
 	z.pos = Vector2(float(opts.get("x", Geo.SPAWN_X + rng.randf() * 70.0)),
 		row_y(z.row) + 4.0)
@@ -1485,7 +1612,7 @@ func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 	z.armor_name = String(def.get("armor_name", ""))
 	z.speed = float(def["speed"])
 	if def.has("special_period"):
-		z.guest_special_at = time + 4.0
+		z.guest_special_at = time + (5.0 if type=="shield-envoy" else 4.0)
 	if type == "phaseguard":
 		z.phase_form = int(opts["phase_form"]) if opts.has("phase_form") else rng.randi_range(0, 1)
 	z.death_dur = 1.0 if bool(def.get("large", false)) else 0.5
@@ -1636,7 +1763,7 @@ func apply_stun(z: Zombie, duration: float) -> void:
 		return
 	if z.boss_role == "body":
 		if boss != null:
-			boss.control(duration)
+			boss.control(duration,z)
 		return
 	z.stun_t = maxf(z.stun_t, duration)
 	z.eating = false
@@ -1699,7 +1826,9 @@ func tick(dt: float) -> void:
 			banner = {}
 	if shake > 0.0:
 		shake = maxf(0.0, shake - dt * 34.0)
+	if nightmare_failed:return
 	time += dt
+	update_rear_notices()
 	_update_craters()
 	update_economy(dt)
 	update_waves()
@@ -1811,7 +1940,7 @@ func battle_summary() -> Dictionary:
 			breached_rows.append(r + 1)
 	var mowers_used = 0
 	for mower in mowers:
-		if not bool(mower["ready"]):
+		if not bool(mower["ready"]) and not bool(mower.get("absent",false)):
 			mowers_used += 1
 	# 整夜一次都没种过草木的行：失败时最该说的一句话往往就是这个
 	var empty_rows: Array = []
@@ -1826,6 +1955,8 @@ func battle_summary() -> Dictionary:
 		"breached_rows": breached_rows,
 		"mowers_used": mowers_used,
 		"stars": 3 if mowers_used == 0 else (2 if mowers_used == 1 else 1),
+		"star_flags":[true,mowers_used<=1,mowers_used==0,difficulty=="nightmare" and not cheated],
+		"nightmare_factors":nightmare_factors.duplicate(),"factor_points":factor_points(),"nightmare_losses":nightmare_losses,
 		"left_sun": int(sun),
 		"plants_lost": plants_lost,
 		"empty_rows": empty_rows,
@@ -1875,7 +2006,11 @@ func update_plants(dt: float) -> void:
 		if plant.shell_pulse > 0.0:
 			plant.shell_pulse = maxf(0.0, plant.shell_pulse - dt)
 		var def = plant.def
-		if def.has("produce"):
+		if def.has("reed_chime"):
+			_update_reed_chime(plant,dt)
+		elif def.has("collector"):
+			pass
+		elif def.has("produce"):
 			_update_producer(plant, dt)
 		elif def.has("healer"):
 			_update_healer(plant, dt)
@@ -1962,7 +2097,7 @@ func _update_ruin_cap(plant: Plant, dt: float) -> void:
 		ring(Vector2(plant.pos.x, row_y(row)), Color("#d0a1cf"), (reach + 0.5) * Geo.CELL_W, 0.55)
 	spark(plant.pos, Color("#b086bd"), 42, 2.1)
 	shake = maxf(shake, 13.0)
-	sfx("explode")
+	sfx("ruin_bloom")
 
 
 func _update_sky_kite(plant: Plant, dt: float) -> void:
@@ -2004,16 +2139,16 @@ func _update_sky_kite(plant: Plant, dt: float) -> void:
 		shots.append(shot)
 	plant.timer = 0.0
 	plant.action_at = time
-	sfx("lob_shot")
+	sfx("kite_shot")
 
 
 func _direct_incense(plant: Plant, value: int) -> void:
 	value = roundi(float(value) * (1.0 + plant.production_bonus))
-	sun += value
+	value = gain_incense(value)
 	plant.action_at = time
 	plant.pulse = 0.42
 	float_text(plant.pos + Vector2(0, -42), "+%d" % value, Color("#ffd98a"), 17, 0.9)
-	sfx("produce")
+	sfx("till_income" if plant.type=="wish-till" else "pod_income")
 
 
 func _till_income(plant: Plant, value: int) -> void:
@@ -2028,7 +2163,7 @@ func _till_income(plant: Plant, value: int) -> void:
 	shot.speed = 520.0
 	_prepare_shot(shot, plant, 80.0)
 	shots.append(shot)
-	sfx("shoot")
+	sfx("till_shot")
 
 
 func _on_guest_defeated(row: int) -> void:
@@ -2069,7 +2204,7 @@ func _update_wish_till(plant: Plant, dt: float) -> void:
 		plant.lane_pull_at = time + float(Upgrades.EFFECTS["wish-till"].pull_interval[tier])
 		plant.action_at = time
 		ring(plant.pos, Color("#e0c282"), 36.0, 0.5)
-		sfx("bell")
+		sfx("till_call")
 
 
 func _till_pull_legal(plant: Plant, guest: Zombie, tier: int) -> bool:
@@ -2111,7 +2246,7 @@ func _update_ember(plant: Plant, dt: float) -> void:
 		plant.ember_ready_at = -1.0
 		plant.ember_ammo = int(fx.ammo[tier2])
 		plant.timer = interval
-		sfx("shell")
+		sfx("cicada_reload")
 	plant.timer = minf(interval, plant.timer + dt)
 	if plant.timer < interval:
 		return
@@ -2139,7 +2274,7 @@ func _update_ember(plant: Plant, dt: float) -> void:
 	if plant.ember_ammo <= 0:
 		plant.ember_reload_at = time
 		plant.ember_ready_at = time + float(fx.reload[tier2])
-	sfx("lob_shot")
+	sfx("cicada_shot")
 
 
 func _ember_reclaim(owner_uid: String) -> void:
@@ -2263,6 +2398,7 @@ func start_volley(plant: Plant) -> void:
 		"timer": 0.0,
 		"lanes": lanes,
 		"lane_shots": lane_shots,
+		"side_schedule":true,
 		"crit_chance": float(fx["crit_chance"][plant.tier(3)]),
 	}
 	fire_volley_shot(plant)
@@ -2283,17 +2419,21 @@ func fire_volley_shot(plant: Plant) -> void:
 	shot.speed = float(plant.def["shot"]["speed"])
 	_prepare_sign_dart(shot, plant, raw, index == 0)
 	shots.append(shot)
-	if index == 0 and not plant.burst["lanes"].is_empty():
-		var lane_index = 0
-		for lane in plant.burst["lanes"]:
-			var count = int(plant.burst["lane_shots"][lane_index])
-			lane_index += 1
-			for k in count:
-				var extra = Shot.new()
-				extra.pos = Vector2(plant.pos.x + 20.0, row_y(int(lane)) - 12.0)
-				extra.row = int(lane)
-				extra.speed = float(plant.def["shot"]["speed"])
-				_prepare_sign_dart(extra, plant, raw)
+	if not plant.burst["lanes"].is_empty():
+		for i in plant.burst.lanes.size():
+			var count=int(plant.burst.lane_shots[i])
+			var copies=1
+			if bool(plant.burst.get("side_schedule",false)):
+				if index>=count:continue
+			else:
+				# A v0.5.3 save already emitted all side darts at index zero.
+				if index>0:continue
+				copies=count
+			for k in copies:
+				var extra=Shot.new()
+				extra.pos=Vector2(plant.pos.x+20,row_y(int(plant.burst.lanes[i]))-12)
+				extra.row=int(plant.burst.lanes[i]);extra.speed=float(plant.def.shot.speed)
+				_prepare_sign_dart(extra,plant,raw)
 				shots.append(extra)
 	plant.action_at = time
 	plant.recoil = 1.0
@@ -2307,6 +2447,8 @@ func fire_volley_shot(plant: Plant) -> void:
 ## 不继承任何升级、盖印、控制；香灰自己不能再产出香灰。再铲一次才腾格。
 func _collapse_to_ash(plant: Plant) -> void:
 	plant.ash = true
+	_record_plant_loss(plant)
+	plant.shell=0
 	plant.upgrades = {1: 0, 2: 0, 3: 0}
 	plant.timer = 0.0
 	plant.hp = 1.0e9
@@ -2356,8 +2498,12 @@ func _update_bell(plant: Plant, dt: float) -> void:
 	plant.timer = minf(plant.timer + dt, interval)
 	if plant.timer < interval: return
 	var acted = false
+	for receiver in plants:
+		if _collector_open(receiver) and receiver.tier(3)>=3 and receiver.row==plant.row and (tier3>0 or receiver.pos.x>=plant.pos.x):
+			_collect_area_packet(receiver,plant,0,{"slow":bell_slow(plant),"slow_duration":float(plant.def.pulse.slow_duration)})
+			acted=true
 	for guest in zombies:
-		if not guest.alive() or guest.row != plant.row or (tier3 == 0 and guest.pos.x <= plant.pos.x - 8): continue
+		if not guest.alive() or _guest_airborne(guest) or guest.row != plant.row or (tier3 == 0 and guest.pos.x <= plant.pos.x - 8): continue
 		var previous = float(plant.bell_hits.get(guest.uid, -1000.0))
 		plant.bell_hits[guest.uid] = time
 		var repeated = previous >= time - interval * 1.75
@@ -2695,17 +2841,18 @@ func _censer_attack(plant: Plant, effect: Dictionary, fx: Dictionary) -> int:
 	sfx("censer")
 	var tier = plant.tier(2)
 	var hits := 0
-	var hit_boss := false
+	var hit_boss: Dictionary={}
+	_collect_area_circle(plant,plant.pos,float(effect.radius),float(effect.damage)*plant.damage_multiplier(),{})
 	for z in _censer_targets(plant, float(effect["radius"])):
 		if not z.alive():
 			continue
 		var marked = mark_stacks(z, "incense") > 0
 		var dealt = damage_zombie(z, float(effect["damage"]) * plant.damage_multiplier(),
 			false, false, plant.type, "incense_primary" if tier == 3 else "")
-		if dealt > 0.0 and (z.boss_role != "body" or not hit_boss):
+		if dealt > 0.0 and (z.boss_role != "body" or not hit_boss.has(int(z.boss_meta.get("encounter_slot",0)))):
 			hits += 1
 		if z.boss_role == "body":
-			hit_boss = true
+			hit_boss[int(z.boss_meta.get("encounter_slot",0))] = true
 		if tier <= 0:
 			continue
 		if z.alive():
@@ -2764,6 +2911,8 @@ func plant_reflect(target: Plant) -> float:
 ## 火胎（炭火盆 3 路）改的是耐久上限，升阶当场把差值一次性补进当前耐久，不按比例满血。
 func apply_hp_scale(plant: Plant) -> void:
 	var want = float(plant.def.get("hp", 300))
+	if plant.type=="soul-casket" and plant.tier(3)>0:
+		want=minf(2000.0 if plant.tier(3)>=3 else 1000.0,400.0+plant.collector_total*10.0)
 	if plant.type == "wish-till" and plant.tier(3) >= 1:
 		want *= 3.0
 	if plant.type == "torch":
@@ -3004,6 +3153,7 @@ func mine_explode(plant: Plant, target: Zombie) -> void:
 	request_hit_stop(0.09)
 	plant_action_effect(plant)
 	plant.dead = true
+	_record_plant_loss(plant)
 	cells[plant.row][plant.col] = null
 	sfx("mine")
 	damage_zombie(target, float(plant.def["mine"]["damage"]) * plant.damage_multiplier(),
@@ -3040,6 +3190,7 @@ func _update_kelp(plant: Plant) -> void:
 	damage_by_type[plant.type] = float(damage_by_type.get(plant.type, 0.0)) + target.hp + target.armor
 	kill_zombie(target)
 	plant.dead = true
+	_record_plant_loss(plant)
 	cells[plant.row][plant.col] = null
 	ring(target.pos + Vector2(0, 12), Color("#8cbdc0"), 38.0, 0.45)
 	sfx("splash")
@@ -3085,7 +3236,7 @@ func nearest_any(plant: Plant) -> Zombie:
 
 ## 每种来源各取最高值，不同来源的伤害增幅相加。
 func _shot_damage(shot: Shot) -> float:
-	return shot.base_damage * (1.0 + shot.lantern_buff + shot.torch_buff + shot.glow)
+	return shot.base_damage * (1.0 + shot.lantern_buff + shot.torch_buff + shot.glow) * (1.0+shot.relay_bonus)
 
 
 func _prepare_shot(shot: Shot, plant: Plant, raw: float, self_bonus: float = 0.0) -> void:
@@ -3601,6 +3752,7 @@ func _update_squash(plant: Plant) -> void:
 	var at = plant.squash_aim
 	request_hit_stop(0.08)
 	plant.dead = true
+	_record_plant_loss(plant)
 	cells[plant.row][plant.col] = null
 	var radius := Geo.CELL_W * 0.5
 	for z in zombies:
@@ -3651,6 +3803,7 @@ func _update_dragon(plant: Plant, dt: float) -> void:
 	if mode != "far" and not targets.is_empty() and plant.dragon_near_timer >= near_interval:
 		plant.dragon_near_timer = 0.0
 		var damage = float(fx["near_damage"][plant.tier(2)]) * plant.damage_multiplier()
+		_collect_area_beam(plant,Vector2.RIGHT,reach,damage,{})
 		for z in targets:
 			damage_zombie(z, damage, true, false, plant.type, "dragon_breath", plant.tier(2) == 3)
 		plant.dragon_near_at = time
@@ -3702,6 +3855,7 @@ func _update_gust(plant: Plant, dt: float) -> void:
 		return
 	plant_action_effect(plant)
 	plant.dead = true
+	_record_plant_loss(plant)
 	cells[plant.row][plant.col] = null
 	sfx("bell")
 	for z in zombies:
@@ -3781,6 +3935,7 @@ func _update_lion(plant: Plant, dt: float) -> void:
 	var damage = raw * plant.damage_multiplier(1.0 if plant.dance_t > 0.0 else 0.0)
 	plant.action_at = time
 	plant.recoil = 1.0
+	_collect_area_beam(plant,Vector2.RIGHT,Geo.CELL_W*(9 if tier2>=2 else (3 if tier2==1 else 1.1)),damage,{})
 	var hit = false
 	for victim in (candidates if tier2 >= 3 else [target]):
 		if not victim.alive():
@@ -3890,7 +4045,6 @@ func _start_last_dance(plant: Plant) -> bool:
 func _finish_dance(plant: Plant) -> void:
 	plant.dance_t = 0.0
 	plant.haste = 0.0
-	plant.dead = true
 	kill_plant(plant, true)
 
 
@@ -3975,6 +4129,7 @@ func explode(plant: Plant) -> void:
 	request_hit_stop(0.09)
 	plant_action_effect(plant)
 	plant.dead = true
+	_record_plant_loss(plant)
 	cells[plant.row][plant.col] = null
 	sfx("explode")
 	var radius = float(plant.def["bomb"]["radius"])
@@ -4038,7 +4193,9 @@ func _tick_guest_special(z: Zombie) -> void:
 		return
 	z.guest_special_at = time + float(z.def["special_period"])
 	z.guest_action_at = time
-	if z.type == "matchmaker":
+	if z.type=="shield-envoy":
+		_grant_shields(z)
+	elif z.type == "matchmaker":
 		pending_spawns.append({"type": "sedan", "row": z.row, "x": z.pos.x + 24.0,
 			"wave_no": z.wave_no, "sedan_bride": true, "guest_summoned": true})
 		ring(z.pos, Color("#b65a65"), 34.0, 0.42)
@@ -4233,6 +4390,8 @@ func update_zombies(dt: float) -> void:
 			damage_zombie(z, z.bleed_dps * dt, true, false, "bell")
 			if z.bleed_t <= 0.0:
 				z.bleed_dps = 0.0
+		if z.type=="sky-wick" and _step_sky_wick(z,dt):continue
+		if z.type=="oar-barge" and _step_barge(z,dt):continue
 		if z.def.has("aura"):
 			z.aura_t -= dt
 			if z.aura_t <= 0.0:
@@ -4482,6 +4641,7 @@ func update_shots(dt: float) -> void:
 			continue
 		if shot.uid=="":shot.uid="s%d" % shot.get_instance_id()
 		if boss!=null:boss.damage_token="shot:"+shot.uid
+		if _collect_incoming(shot,dt):continue
 		if shot.kind != "enemy":
 			_apply_glow_pass(shot)
 		match shot.kind:
@@ -4618,7 +4778,7 @@ func _update_straight(shot: Shot, dt: float) -> void:
 	_apply_torch_pass(shot, previous)
 	var victim: Zombie = null
 	for z in zombies:
-		if z.dead or z.row != shot.row or shot.hit_ids.has(z):
+		if z.dead or _guest_airborne(z) or z.row != shot.row or shot.hit_ids.has(z):
 			continue
 		if shot.pos.x + 8.0 >= z.pos.x - 24.0 and shot.pos.x - 8.0 <= z.pos.x + 24.0:
 			if victim == null or z.pos.x < victim.pos.x:
@@ -4694,6 +4854,7 @@ func _update_homing(shot: Shot, dt: float) -> void:
 		return
 	if distance < 15.0:
 		var victim = shot.target
+		if _relay_impact(shot,victim):return
 		shot.hit_ids.append(victim)
 		if shot.look == "star":
 			_star_impact(shot, victim)
@@ -5014,6 +5175,8 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 		parallel_armor: bool = false, delivery: String = "", owner_uid: String = "") -> float:
 	if z == null or not z.alive():
 		return 0.0
+	if _guest_airborne(z) and (delivery in ["pea","star","drift"] or (delivery=="" and source in ["bell","censer","lion","dragon","reed-chime","torch"])):
+		return 0.0
 	if source == "ember-cicada" and owner_uid != "":
 		for owner in plants:
 			if owner.uid == owner_uid:
@@ -5031,6 +5194,7 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 		var previous=String(boss.damage_token)
 		if previous!="" and event_key!="":boss.damage_token=previous+":"+event_key
 		var dealt_boss=float(boss.damage(z,amount,source,silent))
+		if dealt_boss>0:last_guest_damage_at=time
 		boss.damage_token=previous
 		return dealt_boss
 	if not silent and amount >= 8.0:
@@ -5044,7 +5208,7 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 	if z.type == "phaseguard":
 		var resisted = delivery != "" if z.phase_form == 0 else delivery == "lob"
 		damage *= 0.5 if resisted else 1.2
-	if bool(z.def.get("projectile_shield", false)):
+	if bool(z.def.get("projectile_shield", false)) or z.armor_type=="shield":
 		pierce_armor = delivery.is_empty()
 	var vulnerability := maxf(z.vuln if z.vuln_t > 0.0 else 0.0, 0.25 if z.revealed_tier >= 3 else 0.0)
 	damage *= 1.0 + vulnerability
@@ -5065,6 +5229,7 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 		if z.armor <= 0.0:
 			z.armor = 0.0
 			break_armor(z)
+	if dealt>0.0 or damage>0.0:last_guest_damage_at=time
 	if damage > 0.0 and z.alive():
 		z.hp -= damage
 		dealt += damage
@@ -5086,6 +5251,8 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 
 
 func break_armor(z: Zombie) -> void:
+	if z.type=="sky-wick":_land_sky_wick(z,true)
+	if z.type=="oar-barge":_sink_barge(z)
 	if z.max_armor > 0.0:
 		request_hit_stop(0.095)
 	sfx("shell")
@@ -5197,6 +5364,7 @@ func update_mowers(dt: float) -> void:
 
 
 func restore_mowers() -> void:
+	if factor("unguarded")>0:return
 	for mower in mowers:
 		mower["ready"] = true
 		mower["active"] = false
@@ -5228,9 +5396,9 @@ func collect_orb(orb: Dictionary) -> void:
 	if bool(orb["dead"]):
 		return
 	orb["dead"] = true
-	sun += int(orb["value"])
+	var received := gain_incense(int(orb["value"]))
 	float_text(Vector2(float(orb["x"]), float(orb["y"]) - 12.0),
-		"+%d" % int(orb["value"]), Color("#ffd98a"), 18, 0.9)
+		"+%d" % received, Color("#ffd98a"), 18, 0.9)
 	spark(Vector2(float(orb["x"]), float(orb["y"])), Color("#ffcf7a"), 6)
 	sfx("collect")
 	if tutorial != null and String(tutorial["step"]) == "collect" and tutorial["orb"] == orb:
@@ -5253,7 +5421,7 @@ func pick_orb(at: Vector2) -> Dictionary:
 
 func update_particles(dt: float) -> void:
 	for p in particles:
-		if String(p["kind"]) in ["ring", "bomb_blast", "plant_action", "shovel_lift", "capstone_seal", "magic"]:
+		if String(p["kind"]) in ["ring", "bomb_blast", "plant_action", "shovel_lift", "capstone_seal", "magic", "reed_beam", "relay_collect", "barge_sink"]:
 			p["life"] = float(p["life"]) - dt
 			continue
 		if String(p["kind"]) != "gust_trail":
@@ -5496,7 +5664,8 @@ func serialize() -> Dictionary:
 			if group<0:group=volleys.size();volleys.append(shot.volley)
 		item.volley_group=group;shot_rows.append(item)
 	return {
-		"level_id": level_id, "rows": rows, "time": time, "sun": sun,
+		"level_id": level_id, "rows": rows, "time": time, "sun": sun, "last_guest_damage_at":last_guest_damage_at,
+		"nightmare_losses":nightmare_losses,"nightmare_failed":nightmare_failed,"incense_window":incense_window.duplicate(true),"curfew_until":curfew_until,
 		"wave_index": wave_index, "kills": kills, "plants_lost": plants_lost,
 		"difficulty": difficulty, "count_mul": count_mul, "hp_mul": hp_mul,
 		"plants": plant_rows, "lilies": lily_rows, "zombies": zombie_rows,
@@ -5523,7 +5692,12 @@ func serialize() -> Dictionary:
 func restore(data: Dictionary) -> void:
 	var lvl = Content.get_level(int(data.get("level_id", 1)))
 	# Existing v0.3 runs keep their saved wave schedule instead of suddenly gaining new waves.
-	if data.has("level_snapshot"):lvl=Dictionary(data.level_snapshot)
+	if data.has("level_snapshot"):
+		lvl=Dictionary(data.level_snapshot).duplicate(true)
+		# Snapshot already contains the shortened schedule.
+		if String(data.get("difficulty",""))=="nightmare" and int(Dictionary(lvl.get("nightmare_factors",{})).get("rush",0))>0:
+			var first: float=float(lvl.waves[0].t) if not lvl.get("waves",[]).is_empty() else 0.0
+			for wave in lvl.get("waves",[]):wave.t=first+(float(wave.t)-first)/0.75
 	elif int(data.get("format",0))<4:
 		lvl=lvl.duplicate(true);lvl.waves=Content.build_waves(String(lvl.band),4)
 		lvl.wave_groups=4;lvl.boss_id=""
@@ -5532,10 +5706,13 @@ func restore(data: Dictionary) -> void:
 		island_seed = int(data["island_seed"])
 		tiles = _make_tiles()
 	time = float(data.get("time", 0.0))
+	last_guest_damage_at=float(data.get("last_guest_damage_at",time))
 	sun = int(data.get("sun", 100))
 	wave_index = int(data.get("wave_index", 0))
 	kills = int(data.get("kills", 0))
 	plants_lost = int(data.get("plants_lost", 0))
+	nightmare_losses=int(data.get("nightmare_losses",0));nightmare_failed=bool(data.get("nightmare_failed",false));curfew_until=float(data.get("curfew_until",0.0))
+	incense_window=Array(data.get("incense_window",[])).duplicate(true)
 	count_mul = float(data.get("count_mul", count_mul))
 	hp_mul = float(data.get("hp_mul", hp_mul))
 	training = bool(data.get("training", false))
@@ -5653,7 +5830,7 @@ func restore(data: Dictionary) -> void:
 	wave_time_offset=float(data.get("wave_time_offset",0.0));special_rest_until=float(data.get("special_rest_until",0.0))
 	boss_history=Array(data.get("boss_history",[])).duplicate(true)
 	if not Dictionary(data.get("boss",{})).is_empty():
-		boss=preload("res://scripts/boss_encounter.gd").new()
+		boss=preload("res://scripts/boss_group.gd").new() if Dictionary(data.boss).has("members") else preload("res://scripts/boss_encounter.gd").new()
 		var queued = spawn_queue.duplicate(true)
 		boss.restore(self,Dictionary(data.boss))
 		spawn_queue = queued
@@ -5703,6 +5880,7 @@ func unpack_unit(unit, data: Dictionary) -> void:
 			var up: Dictionary={}
 			for k in data[key]:up[int(k)]=int(data[key][k])
 			unit.set(String(key),up)
+		elif current is int:unit.set(String(key),int(data[key]))
 		else:unit.set(String(key),_unpack_value(data[key]))
 
 
@@ -5824,7 +6002,7 @@ func _update_healer(plant: Plant, dt: float) -> void:
 			ring(target.pos, Color("#b2d5aa"), 32.0, 0.55)
 	plant.timer = 0.0
 	plant.action_at = time
-	sfx("bell")
+	sfx("herb_heal")
 
 
 func magic_effect(kind: String, at: Vector2, height: float, duration: float) -> void:
@@ -5880,9 +6058,278 @@ func _kite_bounce(shot: Shot, victim: Zombie) -> void:
 	bounce.lantern_buff = shot.lantern_buff
 	bounce.torch_buff = shot.torch_buff
 	bounce.glow = shot.glow
+	bounce.relay_bonus=shot.relay_bonus
+	bounce.relay_visits=shot.relay_visits.duplicate()
 	bounce.damage = _shot_damage(bounce)
 	bounce.slow = shot.slow
 	bounce.slow_duration = shot.slow_duration
 	bounce.hit_ids = shot.hit_ids.duplicate()
 	bounce.hit_ids.append(victim)
 	shots.append(bounce)
+
+
+## Conservative coverage check: false warnings are worse than missing a rare case.
+func can_reach_guest(plant: Plant,z: Zombie) -> bool:
+	if plant.dead or plant.sleep_until>time or plant.sealed_until>time or plant.ash:return false
+	var dx=z.pos.x-plant.pos.x
+	var dy=absi(z.row-plant.row)
+	match plant.type:
+		"cat","ember-cicada","star","soul-casket":return true
+		"reed-chime":return dx>=-8 and dx<=Geo.CELL_W*3 and (dy==0 or plant.tier(1)>0)
+		"sky-kite":return dy==0
+		"lobber":return dy==0 and (dx>=-8 or plant.tier(3)>0)
+		"censer":return plant.pos.distance_to(z.pos)<=float(censer_effect(plant).radius)
+		"shooter":return dx>=-8 and (dy==0 or (dy==1 and plant.tier(2)>0))
+		"firework","needle":return dy==0 and dx>=-8
+		"judge":return plant.tier(2)>0 and dy==0 and dx>=-8
+		"lion":return dy==0 and dx>=-8 and (plant.tier(2)>=2 or dx<=(3 if plant.tier(2)==1 else 1.1)*Geo.CELL_W)
+		"dragon":return dy==0 and dx>=-8
+		"umbrella":return dy==0 and dx>=-8 and dx<=float(plant.def.chomp.reach)
+		"torch":return plant.tier(3)==3 and plant.eaten_until>time and plant.pos.distance_to(z.pos)<=Geo.CELL_W
+	return false
+
+func guest_behind_defenders(z: Zombie) -> bool:
+	if not z.alive() or z.boss_role!="" or z.pos.x<Geo.BREACH_X:return false
+	var ahead=false
+	for plant in plants:
+		if can_reach_guest(plant,z):return false
+		if not plant.dead and plant.row==z.row and plant.pos.x>z.pos.x and String(plant.def.role) in ["射线","抛射","范围","破甲","近攻","近战","收妖"]:ahead=true
+	return ahead
+
+func update_rear_notices() -> void:
+	if time<_rear_check_at or tutorial!=null:return
+	_rear_check_at=time+2.0
+	var living=false
+	for z in zombies:
+		if not z.alive():continue
+		living=true
+		if guest_behind_defenders(z) and time-float(_rear_notices.get(z.row,-1000))>=30:
+			_rear_notices[z.row]=time
+			float_text(Vector2(Geo.BOARD_X+45,row_y(z.row)-35),"摊后有客 · 可用追魂或回身攻击应对",Color("#f1cf91"),17,4)
+	if living and spawn_queue.is_empty() and pending_spawns.is_empty() and (training or wave_index>=Array(level.waves).size()) and boss==null and time-last_guest_damage_at>=60 and time-_stalemate_notice_at>=60:
+		_stalemate_notice_at=time
+		banner={"text":"还有恶客留在摊后","subtitle":"可用追魂、范围攻击解围；也可铲开它面前的草木，让门神出手。","t":7.0,"max":7.0}
+
+
+# ── v0.5.4: bamboo beam and projectile relay ─────────────────────────────────
+func _beam_targets(origin: Vector2,direction: Vector2,length: float,width: float=26.0) -> Array:
+	var result: Array=[]
+	for z in zombies:
+		if not z.alive() or _guest_airborne(z):continue
+		var delta: Vector2=z.pos-origin
+		var along:=delta.dot(direction)
+		if along>=-8.0 and along<=length and absf(delta.cross(direction))<=width:result.append(z)
+	return result
+
+func _update_reed_chime(plant: Plant,dt: float) -> void:
+	var tier:=plant.tier(3)
+	var interval: float=[1.7,1.55,1.4,1.25][tier]
+	interval=maxf(.2,interval-(.5 if plant.reed_quick else 0.0))/plant.attack_rate()
+	plant.timer+=dt
+	var angles: Array=[0.0]
+	if plant.tier(1)>=3:angles=[-PI/2,-PI/3,-PI/6,0.0,PI/6,PI/3,PI/2]
+	else:
+		if plant.tier(1)>=1:angles.append_array([-PI/2,PI/2])
+		if plant.tier(1)>=2:angles.append_array([-PI/4,PI/4])
+	var armed: Array=[]
+	for angle in angles:
+		var direction:=Vector2(cos(angle),sin(angle))
+		if not _beam_targets(plant.pos,direction,Geo.CELL_W*3).is_empty():armed.append(angle)
+	if armed.is_empty():plant.timer=minf(plant.timer,interval);return
+	if plant.timer<interval:return
+	plant.timer-=interval;plant.reed_quick=false;plant.action_at=time;plant.recoil=1.0
+	var damage: float=[36.0,42.0,48.0,60.0][tier]*plant.damage_multiplier()
+	var slow: float=[0.0,.1,.2,.4][plant.tier(2)]
+	var front_hits:=0
+	for angle in armed:
+		var direction:=Vector2(cos(angle),sin(angle))
+		particles.append({"kind":"reed_beam","x":plant.pos.x,"y":plant.pos.y-22,"dir":direction,"length":Geo.CELL_W*3,"life":.34,"max":.34,"color":Color("#b1bb8c")})
+		_collect_area_beam(plant,direction,Geo.CELL_W*3,damage,{"slow":slow,"slow_duration":2.0})
+		for z in _beam_targets(plant.pos,direction,Geo.CELL_W*3):
+			if damage_zombie(z,damage,false,false,plant.type)>0:
+				if is_zero_approx(angle):front_hits+=1
+				if slow>0:apply_slow(z,2.0,slow)
+	if tier==3 and front_hits>=5:plant.reed_quick=true
+	sfx("reed_breath")
+
+func _collector_open(plant: Plant) -> bool:
+	return not plant.dead and plant.type=="soul-casket" and plant.sleep_until<=time and plant.sealed_until<=time and time>=plant.collector_ready_at
+
+func _relay_capture(plant: Plant,shot: Shot) -> void:
+	var packet: Dictionary=pack_unit(shot)
+	packet.uid="";packet.dead=false
+	packet.relay_original=shot.relay_original if shot.relay_original!="" else shot.kind
+	var visits: Array=shot.relay_visits.duplicate();visits.append(plant.uid);packet.relay_visits=visits
+	# Completed flight and stale targets must not consume a stored projectile before release.
+	packet.target=null;packet.delay=0.0;packet.t=0.0
+	plant.collector_store.append(packet);plant.collector_total+=1
+	var old_max: float=plant.max_hp
+	apply_hp_scale(plant)
+	if plant.tier(3)>=3 and old_max>=2000.0:plant.hp=minf(plant.max_hp,plant.hp+50)
+	plant.pulse=.24
+	particles.append({"kind":"relay_collect","x":plant.pos.x,"y":plant.pos.y-25,"life":.32,"max":.32,"color":Color("#c0bb83")})
+	var cap: int=[5,7,10,10][plant.tier(1)]
+	if plant.collector_store.size()<cap:return
+	var cargo: Array=plant.collector_store.duplicate(true);plant.collector_store.clear()
+	plant.collector_ready_at=time+float([3.5,3.0,2.5,0.0][plant.tier(1)])
+	var index:=0
+	for stored in cargo:
+		_relay_release(plant,stored,index*.09)
+		if plant.tier(2)>=3 and rng.randf()<.2:_relay_release(plant,stored,index*.09+.18)
+		index+=1
+	plant.action_at=time;plant.recoil=1.0;sfx("relay_release")
+
+func _relay_release(plant: Plant,packet: Dictionary,delay: float) -> Shot:
+	var shot:=Shot.new();unpack_unit(shot,packet)
+	shot.uid="s%d" % shot.get_instance_id();shot.dead=false
+	if shot.look=="":shot.look=shot.relay_original
+	shot.kind="homing";shot.pos=plant.pos+Vector2(22,-27);shot.start=shot.pos
+	var targets:=nearest_zombies(plant.pos,1,shot.hit_ids)
+	shot.target=targets[0] if not targets.is_empty() else null;shot.row=plant.row;shot.delay=delay;shot.dir=Vector2.RIGHT
+	shot.speed=maxf(180.0,shot.speed if shot.speed>0 else 500.0)
+	shot.relay_bonus+=float([0,.1,.2,.2][plant.tier(2)])
+	if shot.base_damage<=0:shot.base_damage=shot.damage
+	shot.damage=_shot_damage(shot)
+	shots.append(shot);return shot
+
+func _collector_pool() -> Array:
+	if _collector_cache_at!=time:
+		_collector_cache_at=time
+		_collector_candidates=plants.filter(func(p):return not p.dead and p.type=="soul-casket")
+	return _collector_candidates
+
+func _collect_incoming(shot: Shot,dt: float) -> bool:
+	var collectors:=_collector_pool()
+	if collectors.is_empty():return false
+	if shot.kind=="enemy" or shot.delay>0 or shot.dead:return false
+	var direction: Vector2=shot.dir
+	if shot.kind=="lob":direction=Vector2(shot.tx,shot.ty)-shot.pos
+	elif shot.kind=="homing" and shot.target!=null:direction=shot.target.pos+Vector2(0,-24)-shot.pos
+	elif shot.kind not in ["drift","star"]:direction=Vector2.RIGHT
+	if direction.length_squared()<.01:direction=Vector2.RIGHT
+	var end: Vector2=shot.pos+direction.normalized()*maxf(shot.speed,500)*dt*PROJECTILE_SPEED_SCALE
+	var closest: Plant=null;var distance:=INF
+	for plant in collectors:
+		if not _collector_open(plant) or shot.relay_visits.has(plant.uid):continue
+		if shot.kind=="lob" and plant.tier(3)<2:continue
+		var center: Vector2=plant.pos+Vector2(0,-25)
+		if shot.kind!="lob" and Geometry2D.get_closest_point_to_segment(center,shot.pos,end).distance_to(center)>29:continue
+		if shot.kind=="lob" and shot.pos.distance_to(center)>43:continue
+		var travelled: float=shot.pos.distance_to(center)
+		if travelled<distance:closest=plant;distance=travelled
+	if closest==null:return false
+	_relay_capture(closest,shot);shot.dead=true;return true
+
+func _collect_area_beam(owner: Plant,direction: Vector2,length: float,damage: float,status: Dictionary={}) -> void:
+	for plant in plants:
+		if not _collector_open(plant) or plant.tier(3)<3 or plant==owner:continue
+		var delta: Vector2=plant.pos-owner.pos
+		if delta.dot(direction)<-8 or delta.dot(direction)>length or absf(delta.cross(direction))>26:continue
+		_collect_area_packet(plant,owner,damage,status)
+
+func _collect_area_circle(owner: Plant,center: Vector2,radius: float,damage: float,status: Dictionary={}) -> void:
+	for plant in plants:
+		if _collector_open(plant) and plant.tier(3)>=3 and plant!=owner and plant.pos.distance_to(center)<=radius:
+			_collect_area_packet(plant,owner,damage,status)
+
+func _collect_area_packet(plant: Plant,owner: Plant,damage: float,status: Dictionary) -> void:
+	# One packet per actual attack; two overlapping components of that attack are not two hits.
+	var key: String=owner.uid+":"+str(time)
+	if plant.collector_area_seen.has(key):return
+	plant.collector_area_seen[key]=true
+	for old in plant.collector_area_seen.keys():
+		if float(String(old).get_slice(":",1))+2<time:plant.collector_area_seen.erase(old)
+	var shot:=Shot.new();_prepare_shot(shot,owner,damage/maxf(.01,owner.damage_multiplier()))
+	shot.kind="area_echo";shot.look="range-echo";shot.speed=440
+	for property in status:shot.set(property,status[property])
+	_relay_capture(plant,shot)
+
+func _relay_impact(shot: Shot,victim: Zombie) -> bool:
+	if shot.relay_original=="":return false
+	if shot.relay_original=="lob":
+		if shot.src=="lobber":_soup_ground(shot);_soup_impact(shot,victim)
+		else:
+			damage_zombie(victim,shot.damage,false,shot.pierce_armor,shot.src,"",false,"homing",shot.owner_uid)
+			apply_shot_statuses(victim,shot);apply_shot_blast(shot,victim)
+			if shot.src=="sky-kite":
+				victim.silence_until=maxf(victim.silence_until,time+float(shot.payload.get("silence",0)))
+				_kite_bounce(shot,victim)
+		shot.dead=true;return true
+	if shot.relay_original not in ["homing","star","area_echo"]:
+		_strike_straight(shot,victim)
+		if not shot.dead:
+			var targets:=nearest_zombies(shot.pos,1,shot.hit_ids)
+			if targets.is_empty():shot.kind="drift"
+			else:shot.target=targets[0]
+		return true
+	return false
+
+# ── v0.5.4 guest equipment and watercraft ────────────────────────────────────
+func _guest_airborne(z: Zombie) -> bool:
+	return z.type=="sky-wick" and z.armor>0 and z.flight_landing_at<0
+
+func _guest_tile(z: Zombie) -> Dictionary:
+	var col:=floori((z.pos.x-Geo.BOARD_X)/Geo.CELL_W)
+	return tile_at(col,z.row) if col>=0 and col<Geo.COLS else {"kind":"edge"}
+
+func _land_sky_wick(z: Zombie,broken:=false) -> void:
+	if z.flight_landing_at>=0:return
+	var tile:=_guest_tile(z)
+	if broken and String(tile.kind) in ["obstacle","object","blocked","pit"]:
+		z.armor=0;z.flight_landing_at=time;kill_zombie(z);return
+	z.armor=0;z.flight_landing_at=time;z.flight_water=_zombie_over_water(z);z.flight_broken=broken
+	z.water_entered=z.flight_water;z.water_entry_t=0.0
+	z.guest_action_at=time;z.eating=false
+	if z.flight_water:ring(z.pos+Vector2(0,16),Color("#89b7b4"),40,.7);sfx("splash")
+	else:spark(z.pos,Color("#c1ae85"),8);sfx("shell")
+
+func _step_sky_wick(z: Zombie,dt: float) -> bool:
+	if z.flight_landing_at>=0:return time-z.flight_landing_at<.7
+	if not _guest_airborne(z):return false
+	var tile:=_guest_tile(z)
+	if z.pos.x<=Geo.BREACH_X+4*Geo.CELL_W and String(tile.kind) not in ["obstacle","object","blocked","pit","edge"]:
+		_land_sky_wick(z);return true
+	z.eating=false
+	var speed: float=z.speed*1.5*(1.0-z.slow_amount if z.slow_t>0 else 1.0)
+	z.pos.x+=speed*dt*(1 if z.reverse_t>0 else -1)
+	z.reverse_t=maxf(0,z.reverse_t-dt);z.anim+=dt
+	if z.pos.x<=Geo.BREACH_X:_land_sky_wick(z)
+	return true
+
+func _grant_shields(z: Zombie) -> void:
+	z.guest_action_at=time;z.support_pulse=.6
+	for other in zombies:
+		if not other.alive() or other==z or String(other.def.get("tier",""))!="l" or other.armor>0:continue
+		if other.pos.distance_to(z.pos)>Geo.CELL_W*2.2:continue
+		var armor: float=1080*hp_mul*float(difficulty_mult().hp)
+		other.armor=armor;other.max_armor=armor;other.armor_type="shield";other.armor_name="护身牌";other.armor_pulse=.8
+		ring(other.pos+Vector2(-16,-30),Color("#a29671"),25,.5)
+	sfx("shell")
+
+func _step_barge(z: Zombie,dt: float) -> bool:
+	if z.type!="oar-barge" or z.armor<=0:return false
+	var phase: float=fposmod(z.barge_clock,2.4)
+	z.barge_clock+=dt;z.anim=z.barge_clock
+	var target:=eat_target(z)
+	z.eating=target!=null
+	if phase<.75:
+		if target!=null:
+			if not z.barge_hit:
+				z.barge_hit=true;z.guest_action_at=time
+				damage_plant(target,300,z);sfx("boss_impact");shake=maxf(shake,3.0)
+		else:
+			var step: float=z.speed*3.2*dt*(1.0-z.slow_amount if z.slow_t>0 else 1.0)
+			z.pos.x+=step*(1 if z.reverse_t>0 else -1)
+			if z.pos.x<Geo.BREACH_X and not z.breached:breach(z)
+	else:z.barge_hit=false
+	z.reverse_t=maxf(0,z.reverse_t-dt)
+	return true
+
+func _sink_barge(z: Zombie) -> void:
+	if z.split_done:return
+	z.split_done=true;z.raft_sink_t=.85;z.dying=true;z.death_t=0;z.death_dur=.85;z.eating=false
+	particles.append({"kind":"barge_sink","x":z.pos.x,"y":z.pos.y,"life":.85,"max":.85,"color":Color.WHITE})
+	for index in 5:
+		pending_spawns.append({"type":"ghost","row":z.row,"x":z.pos.x+(index-2)*48,"mass_scale":z.max_hp/(450.0*maxf(.01,hp_mul)*float(difficulty_mult().hp)),"sedan_split":true,"boss_wave":boss!=null,"wave_no":z.wave_no,"water_entry_t":.4})
+	ring(z.pos+Vector2(0,16),Color("#84aeb3"),68,.85);sfx("splash")
+

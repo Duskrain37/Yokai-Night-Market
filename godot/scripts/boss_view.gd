@@ -3,6 +3,9 @@ extends Node2D
 const ActorFrames = preload("res://scripts/actor_frames.gd")
 var actor_frames = ActorFrames.new()
 var skill_frames = ActorFrames.new()
+var encounter_override = null
+var is_member_view := false
+var member_views: Array=[]
 var sim: Sim
 var textures: Dictionary={}
 var sheets: Dictionary={}
@@ -29,11 +32,29 @@ func _ready() -> void:
 		textures[key]=load("res://assets/boss/"+key+".svg")
 	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR
 
+func _current_encounter():
+	if encounter_override!=null:return encounter_override
+	var active:=sim.active_bosses() if sim!=null else []
+	return active[0] if not active.is_empty() else null
+
 func _process(_delta: float) -> void:
+	if sim!=null and not is_member_view:
+		var active:=sim.active_bosses()
+		for index in range(1,active.size()):
+			var exists:=false
+			for view in member_views:
+				if view.encounter_override==active[index]:exists=true
+			if not exists:
+				var view=load("res://scripts/boss_view.gd").new()
+				view.sim=sim;view.is_member_view=true;view.encounter_override=active[index]
+				add_child(view);member_views.append(view)
+		for view in member_views.duplicate():
+			if not active.has(view.encounter_override) and sim.time-float(view.encounter_override.died_at)>1.8:
+				member_views.erase(view);view.queue_free()
 	if sim != null:
 		if _last_boss != null and not _last_boss.alive():
 			_defeated_boss = _last_boss
-		_last_boss = sim.boss
+		_last_boss = _current_encounter()
 		if _defeated_boss != null and sim.time - float(_defeated_boss.died_at) >= 1.8:
 			_defeated_boss = null
 	if sim != null and sim.visual_hold:
@@ -61,7 +82,8 @@ func _text(value: String,point: Vector2,size: int=20,color: Color=Color("#f0d9a9
 
 func _draw() -> void:
 	if sim == null or sheets.is_empty(): return
-	var boss = sim.boss if sim.boss != null else _defeated_boss
+	var current = _current_encounter()
+	var boss = current if current != null else _defeated_boss
 	if boss == null: return
 	var body_foot = _body_foot(boss.body_row, boss)
 	var sheet="boss_%s_atlas.png" % String(boss.id)
@@ -132,6 +154,11 @@ func _draw() -> void:
 				at + Vector2(0, 28), 220.0, false, Color(1, 1, 1, opacity))
 		if String(fx.kind)=="break":_break(String(fx.prop),at,age)
 		else:_effect(String(fx.kind),at,age)
+	if sim.active_bosses().size()>1 and boss.alive():
+		var seal: Vector2=body_foot+Vector2(-body_height*.36,-body_height*.55)
+		var color:=Color("#d9b571") if int(boss.encounter_slot)==0 else Color("#c797c0")
+		draw_circle(seal,13,Color("#151923"));draw_arc(seal,13,0,TAU,40,color,1.6,true)
+		draw_string(font,seal+Vector2(-4,5),str(int(boss.encounter_slot)+1),HORIZONTAL_ALIGNMENT_LEFT,-1,16,color)
 	if not boss.alive():_effect("release",body_foot-Vector2(0,70),sim.time-float(boss.died_at),240)
 
 
@@ -152,7 +179,7 @@ func _draw_blink(boss, destination: Vector2, height: float) -> void:
 	var elapsed = sim.time - float(boss.blink_at)
 	var length = maxf(0.01, float(boss.state_end) - float(boss.blink_at))
 	var t = clampf(elapsed / length, 0.0, 1.0)
-	var origin = _body_foot(boss.blink_from)
+	var origin = _body_foot(boss.blink_from,boss)
 	var actor = "boss-%s-anticipation" % boss.id
 	var clip := "action"
 	var landing = "boss-%s-idle" % boss.id
@@ -177,7 +204,7 @@ func _warning(boss) -> void:
 	var span := maxf(0.01, end - float(action.get("warning_start", sim.time)))
 	var power := clampf(age / span, 0.0, 1.0)
 	skill_frames.draw_pose(self, "v052-boss-fx", fx_clip, power * 1.4,
-		_body_foot(boss.body_row) + Vector2(-38, -18), 185.0 + 65.0 * power,
+		_body_foot(boss.body_row,boss) + Vector2(-38, -18), 185.0 + 65.0 * power,
 		false, Color(1, 1, 1, 0.45 + power * 0.35))
 	for i in Array(action.targets).size():
 		var cell: Dictionary=action.targets[i]

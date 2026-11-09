@@ -382,6 +382,16 @@
     },
     {
       "detail": "",
+      "name": "图鉴plant28用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴plant29用语",
+      "ok": true
+    },
+    {
+      "detail": "",
       "name": "图鉴zombie0用语",
       "ok": true
     },
@@ -498,6 +508,111 @@
     {
       "detail": "",
       "name": "图鉴zombie23用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴zombie24用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴zombie25用语",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴zombie26用语",
+      "ok": true
+    },
+    {
+      "detail": "有恶客时，额外向正上方、正下方各三格发动攻击。",
+      "name": "进化reed-chime·上下声",
+      "ok": true
+    },
+    {
+      "detail": "有恶客时，再向右上方、右下方各三格发动攻击。",
+      "name": "进化reed-chime·斜篁",
+      "ok": true
+    },
+    {
+      "detail": "改为向右侧半圆扇面每隔30度发出一束攻击，包括正上与正下，共七束。每束长三格。",
+      "name": "进化reed-chime·半庭",
+      "ok": true
+    },
+    {
+      "detail": "攻击附带10%减速，持续2秒。",
+      "name": "进化reed-chime·清露",
+      "ok": true
+    },
+    {
+      "detail": "攻击附带20%减速，持续2秒。",
+      "name": "进化reed-chime·寒露",
+      "ok": true
+    },
+    {
+      "detail": "攻击附带40%减速，持续2秒。",
+      "name": "进化reed-chime·霜露",
+      "ok": true
+    },
+    {
+      "detail": "伤害提高至42，攻击间隔缩短至1.55秒。",
+      "name": "进化reed-chime·厚节",
+      "ok": true
+    },
+    {
+      "detail": "伤害提高至48，攻击间隔缩短至1.4秒。",
+      "name": "进化reed-chime·重节",
+      "ok": true
+    },
+    {
+      "detail": "伤害提高至60，攻击间隔缩短至1.25秒。正前方一束至少命中五名恶客时，下次攻击间隔立即再缩短0.5秒。",
+      "name": "进化reed-chime·惊篁",
+      "ok": true
+    },
+    {
+      "detail": "收满7发后逐发放出，放出后3秒内不收弹。",
+      "name": "进化soul-casket·七窍",
+      "ok": true
+    },
+    {
+      "detail": "收满10发后逐发放出，放出后2.5秒内不收弹。",
+      "name": "进化soul-casket·十窍",
+      "ok": true
+    },
+    {
+      "detail": "取消收弹冷却，每收满10发便逐发放出，期间仍能继续收弹。",
+      "name": "进化soul-casket·常开",
+      "ok": true
+    },
+    {
+      "detail": "由灵枢放出的子弹额外增伤10%。",
+      "name": "进化soul-casket·借锋",
+      "ok": true
+    },
+    {
+      "detail": "额外增伤提高至20%。",
+      "name": "进化soul-casket·借势",
+      "ok": true
+    },
+    {
+      "detail": "每发放出的子弹有20%概率在0.18秒后再发射一枚完整复制弹。",
+      "name": "进化soul-casket·重应",
+      "ok": true
+    },
+    {
+      "detail": "每累计收集一发，自身最大耐久提高10，最高1000。",
+      "name": "进化soul-casket·生根",
+      "ok": true
+    },
+    {
+      "detail": "抛物线子弹也能被收集。",
+      "name": "进化soul-casket·承天",
+      "ok": true
+    },
+    {
+      "detail": "范围攻击命中灵枢时，也会被记录为一发具有同次攻击伤害与状态的独立追魂弹。耐久上限提高至2000，达到上限后每次收集恢复50耐久。",
+      "name": "进化soul-casket·纳万象",
       "ok": true
     },
     {
@@ -1367,5 +1482,5 @@
     }
   ],
   "failures": 0,
-  "total": 273
+  "total": 296
 }

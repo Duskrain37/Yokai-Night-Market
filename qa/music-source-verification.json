@@ -1,0 +1,81 @@
+{
+  "total": 15,
+  "failures": 0,
+  "tracks": [
+    {
+      "name": "day1-battle.ogg",
+      "sha256": "eb61c0ef9e34b650589c9b7f285e14f4b174a6145e3fdc57b8f34ed9c66d1355",
+      "bytes": 2197344
+    },
+    {
+      "name": "day1-hot.ogg",
+      "sha256": "fef763af7e7b420ad24229387dd7a3b6c2156adbd39e857ac6fef852f1eea14a",
+      "bytes": 2225642
+    },
+    {
+      "name": "day1-final.ogg",
+      "sha256": "0a9438659cffdcd5d6e76d1177f29c739450f4e5d80dc07978f145792eb8cae5",
+      "bytes": 2304413
+    },
+    {
+      "name": "day2-battle.ogg",
+      "sha256": "98c215a03af6367e97a5ec46c81d334ec95b2cd4a9f78c1cd1489400094f3d6a",
+      "bytes": 1957306
+    },
+    {
+      "name": "day2-hot.ogg",
+      "sha256": "ae777dfc0d5a54a6af4c3a6cd6a31bd1c7b0242bf39208e84e11ce5574d6f275",
+      "bytes": 2051872
+    },
+    {
+      "name": "day2-final.ogg",
+      "sha256": "3e7acdf2687b810868f676408470bbdd165c1e1f06c2830769307b1746ea9c88",
+      "bytes": 2216024
+    },
+    {
+      "name": "day3-battle.ogg",
+      "sha256": "0aaf1cde73ac0e8e075031b279410b0414c9cd8b94d1befa7b6b5b4abc066aee",
+      "bytes": 2104308
+    },
+    {
+      "name": "day3-hot.ogg",
+      "sha256": "b48ded5b5857f126a2d929f1cf8386ea88c7580c36a8eea7febf0e2bbef11947",
+      "bytes": 2145154
+    },
+    {
+      "name": "day3-final.ogg",
+      "sha256": "17b746201223c4dd582755edcbed2288dfa45fe4d6ad742ab3ebdfe236d808e3",
+      "bytes": 2165891
+    },
+    {
+      "name": "day4-battle.ogg",
+      "sha256": "ea43e3ce386c699a869580475acb339fd8cb41633258d5746b0cb35d369b2450",
+      "bytes": 1902689
+    },
+    {
+      "name": "day4-hot.ogg",
+      "sha256": "1737ad7268c91f072107cdf6b55238804297acdd20c779240173ce298a224111",
+      "bytes": 2323420
+    },
+    {
+      "name": "day4-final.ogg",
+      "sha256": "a7ecedd1f14d5eeba97a2d2b63bfc2ca51f2c1e3a0d0a342bd97ee98cfed934a",
+      "bytes": 2234576
+    },
+    {
+      "name": "day5-battle.ogg",
+      "sha256": "51af777d7be82c3a2959b5262d1c978951c5f35e9114c625479d9f2c7ea56490",
+      "bytes": 1936144
+    },
+    {
+      "name": "day5-hot.ogg",
+      "sha256": "6778e01d29b39576568d9efb6b810d011312433927bf3cf1e6dacc0dffc96faa",
+      "bytes": 2210581
+    },
+    {
+      "name": "day5-final.ogg",
+      "sha256": "4be995de645ee1b00e96a58947c64191f0a78fc168d38ed16ee01edc09077067",
+      "bytes": 2182282
+    }
+  ]
+}

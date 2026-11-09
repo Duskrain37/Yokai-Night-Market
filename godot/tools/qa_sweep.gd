@@ -9,63 +9,50 @@ const CLEAR_WINDOW := 238.0      # 固定前四大波比较窗口；扩展总量
 
 
 func _init() -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://qa"))
-	var rows: Array = []
-	var prev = 0.0
-	var worst_rise = 0.0
-	var problems: Array = []
-	for level in Content.LEVELS:
-		if bool(level.get("special", false)):
-			continue
-		var level_id: int = level.id
-		var prefix=level.duplicate(true)
-		prefix.waves=Array(level.waves).slice(0,12)
-		var pressure = night_pressure(prefix)
-		var regular=level.duplicate(true)
-		if String(level.get("boss_id",""))!="":regular.waves=Array(level.waves).slice(0,-3)
-		var all_pressure=night_pressure(regular)
-		var dps = pressure / CLEAR_WINDOW
-		var rise = 0.0 if prev <= 0.0 else (dps / prev - 1.0) * 100.0
-		prev = dps
-		var run = QaBot.play(level_id, 7)
-		var sim = run["sim"]
-		var mowers_left = 0
-		for mower in sim.mowers:
-			if bool(mower["ready"]):
-				mowers_left += 1
-		if String(run["bad"]) != "":
-			problems.append("第 %d 夜模拟出错：%s" % [level_id, run["bad"]])
-		if rise > MAX_RISE:
-			problems.append("%s 需求 DPS 环比 +%.0f%%，超过 %.0f%% 上限" % [
-				_night_name(level), rise, MAX_RISE])
-		worst_rise = maxf(worst_rise, rise)
-		rows.append({
-			"id": level_id, "night": _night_name(level), "band": String(level["band"]),
-			"map": String(level["map"]), "threat": float(level["threat"]),
-			"eff": Sim.effective_threat(level), "pressure": roundi(pressure),
-			"regular_pressure":roundi(all_pressure),"major_waves":Content.wave_groups(level),
-			"regular_window_s":float(regular.waves[-1].t)-float(regular.waves[0].t)+40.0,
-			"dps": snappedf(dps, 0.1), "rise": snappedf(rise, 0.1),
-			"won": bool(run["won"]), "t": snappedf(float(sim.time), 0.1),
-			"kills": sim.kills, "waves": sim.wave_index, "sun": int(sim.sun),
-			"plants": sim.plants.size(), "mowers": mowers_left,
-		})
-	print("%-12s %-10s %5s %5s %9s %7s %7s  %-4s %6s %5s %5s %5s" % [
-		"夜", "波次档", "显示", "等效", "前四波血", "基准DPS", "环比", "胜负",
-		"用时", "击退", "草木", "门神"])
-	for row in rows:
-		print("%-12s %-10s %5.2f %5.2f %9d %7.1f %6.0f%%  %-4s %6.1f %5d %5d %5d" % [
-			row["night"], row["band"], row["threat"], row["eff"], row["pressure"],
-			row["dps"], row["rise"], "胜" if row["won"] else "负",
-			row["t"], row["kills"], row["plants"], row["mowers"]])
-	print("\n最大单夜环比 +%.0f%%（上限 +%.0f%%）" % [worst_rise, MAX_RISE])
-	_check_week_opener(rows, problems)
-	write_csv(rows)
-	var f=FileAccess.open("res://qa/curve-v040.json",FileAccess.WRITE)
-	f.store_string(JSON.stringify({"comparison":"first four major waves, equal 238s window; boss HP excluded","rows":rows,"problems":problems},"  "))
-	for problem in problems:
-		printerr("FAIL " + problem)
-	print("SWEEP %d 夜  问题 %d" % [rows.size(), problems.size()])
+	var record="--record-baseline" in OS.get_cmdline_user_args()
+	var subset: String=""
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--verify-difficulty="):subset=arg.trim_prefix("--verify-difficulty=")
+	var baseline_path="res://data/qa_campaign_baseline.json"
+	var baseline: Dictionary={}
+	var strategy_sha=FileAccess.get_sha256("res://tools/qa_bot.gd")
+	if FileAccess.file_exists(baseline_path):baseline=JSON.parse_string(FileAccess.get_file_as_string(baseline_path))
+	var rows: Array=[];var all_runs: Array=[];var problems: Array=[];var expected: Dictionary={}
+	for difficulty in ["easy","normal","hard","nightmare"]:
+		if subset!="" and difficulty!=subset:continue
+		var previous=0.0
+		for level in Content.LEVELS:
+			if bool(level.get("special",false)):continue
+			var id=int(level.id)
+			var run=QaBot.play(id,7,difficulty)
+			var sim=run.sim
+			var key="%s:%d" % [difficulty,id]
+			var current={"id":id,"difficulty":difficulty,"outcome":run.outcome,"won":run.won,"lost":run.lost,"bot_stalemate":run.bot_stalemate,"pace_ok":run.pace_ok,"t":snappedf(sim.time,.1),"cards":run.cards,"spawn_trace":run.spawn_trace,"bad":run.bad}
+			all_runs.append(current)
+			expected[key]={"outcome":run.outcome,"won":run.won,"max_seconds":minf(QaBot.MAX_SECONDS,maxf(600,ceil(sim.time/60)*60+60)),"spawn_trace":run.spawn_trace}
+			if not String(run.bad).is_empty():problems.append(key+" simulation error: "+run.bad)
+			if run.outcome in ["timeout","bot_stalemate"]:problems.append(key+" unresolved "+run.outcome)
+			if run.bot_stalemate>0:problems.append(key+" required bot stalemate recovery")
+			if run.won and not run.pace_ok:problems.append(key+" exceeds independent 1200s pacing ceiling")
+			if not record:
+				problems.append_array(compare_run(baseline,key,current,strategy_sha))
+			print("CAMPAIGN ",JSON.stringify(current))
+			if difficulty!="easy":continue
+			var prefix=level.duplicate(true);prefix.waves=Array(level.waves).slice(0,12)
+			var regular=level.duplicate(true)
+			if String(level.get("boss_id",""))!="":regular.waves=Array(level.waves).slice(0,-3)
+			var pressure=night_pressure(prefix);var dps=pressure/CLEAR_WINDOW
+			var rise=0.0 if previous<=0 else (dps/previous-1)*100;previous=dps
+			if rise>MAX_RISE:problems.append(key+" pressure rise exceeds 130%")
+			rows.append({"id":id,"night":_night_name(level),"band":level.band,"map":level.map,"threat":level.threat,"eff":Sim.effective_threat(level),"pressure":roundi(pressure),"regular_pressure":roundi(night_pressure(regular)),"major_waves":Content.wave_groups(level),"regular_window_s":float(regular.waves[-1].t)-float(regular.waves[0].t)+40,"dps":snappedf(dps,.1),"rise":snappedf(rise,.1),"won":run.won,"outcome":run.outcome,"t":snappedf(sim.time,.1),"kills":sim.kills,"waves":sim.wave_index,"sun":sim.sun,"plants":sim.plants.size(),"mowers":sim.mowers.filter(func(m):return m.ready).size()})
+	if not rows.is_empty():_check_week_opener(rows,problems)
+	if subset=="":write_csv(rows)
+	var payload={"comparison":"first four major waves, equal 238s; boss HP excluded; 100 seeded full runs, outcomes are bot-specific","strategy":QaBot.STRATEGY_VERSION,"rows":rows,"runs":all_runs,"problems":problems}
+	var output=FileAccess.open("res://qa/curve-v040.json" if subset=="" else "res://qa/curve-verify-%s.json" % subset,FileAccess.WRITE);output.store_string(JSON.stringify(payload,"  "));output.close()
+	if record and problems.is_empty():
+		var file=FileAccess.open(baseline_path,FileAccess.WRITE);file.store_string(JSON.stringify({"strategy":QaBot.STRATEGY_VERSION,"strategy_sha256":strategy_sha,"content_sha256":FileAccess.get_sha256("res://data/content.gd"),"seed":7,"dt":1.0/30.0,"scope":"Recommended-loadout bot baseline. Defeats are not proof a night is impossible for players.","runs":expected},"  "));file.close()
+	for problem in problems:printerr("FAIL ",problem)
+	print("SWEEP ",all_runs.size()," runs FAILURES ",problems.size())
 	quit(0 if problems.is_empty() else 1)
 
 
@@ -124,3 +111,15 @@ static func write_csv(rows: Array) -> void:
 	var file = FileAccess.open("res://qa/curve.csv", FileAccess.WRITE)
 	file.store_string("\n".join(lines) + "\n")
 	file.close()
+
+
+static func compare_run(baseline: Dictionary,key: String,current: Dictionary,strategy_sha: String) -> Array:
+	var issues=[]
+	var old:Dictionary=baseline.get("runs",{}).get(key,{})
+	if baseline.get("strategy","")!=QaBot.STRATEGY_VERSION or baseline.get("strategy_sha256","")!=strategy_sha or old.is_empty():
+		issues.append(key+" missing matching strategy baseline")
+		return issues
+	if bool(old.won) and not current.won:issues.append(key+" win regression")
+	if float(current.t)>float(old.max_seconds):issues.append(key+" pacing regression")
+	if old.spawn_trace!=current.spawn_trace:issues.append(key+" deterministic spawn trace changed; review baseline explicitly")
+	return issues

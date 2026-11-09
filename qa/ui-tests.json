@@ -7,7 +7,7 @@
       "ok": true
     },
     {
-      "detail": "buttons=8",
+      "detail": "buttons=9",
       "group": "封面",
       "name": "封面按钮不少于六组",
       "ok": true
@@ -19,19 +19,19 @@
       "ok": true
     },
     {
-      "detail": "[\"i\", \"守夜存档 · 1\", \"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
+      "detail": "[\"i\", \"一夜重签\", \"守夜存档 · 1\", \"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
       "group": "封面",
       "name": "新玩家主按钮导向教程",
       "ok": true
     },
     {
-      "detail": "[\"F11 全屏 · Esc 返回\", \"普通：天亮 1 次 · 最多击退 2 波\", \"守夜评级 0 / 78 ★\", \"通关 0 / 26 夜\", \"录\", \"守夜记录\", \"第一课约两分钟：收香火、种签筒、升一阶、请石磨挡一次。\", \"香火为钱，草木为兵。守到天亮，摊子才算收。\", \"YOKAI NIGHT MARKET · 子时开张\", \"夜\", \"妖怪夜市\"]",
+      "detail": "[\"F11 全屏 · Esc 返回\", \"简单 · 最快天亮 暂无 · 最多击退 0 位\", \"普通：天亮 1 次 · 最多击退 2 波\", \"守夜评级 0 / 104 ★\", \"通关 0 / 26 夜\", \"录\", \"守夜记录\", \"第一课约两分钟：收香火、种签筒、升一阶、请石磨挡一次。\", \"香火为钱，草木为兵。守到天亮，摊子才算收。\", \"YOKAI NIGHT MARKET · 子时开张\", \"夜\", \"妖怪夜市\"]",
       "group": "封面",
       "name": "守夜记录按难度分档",
       "ok": true
     },
     {
-      "detail": "[\"F11 全屏 · Esc 返回\", \"普通：天亮 1 次 · 最多击退 2 波\", \"守夜评级 0 / 78 ★\", \"通关 0 / 26 夜\", \"录\", \"守夜记录\", \"第一课约两分钟：收香火、种签筒、升一阶、请石磨挡一次。\", \"香火为钱，草木为兵。守到天亮，摊子才算收。\", \"YOKAI NIGHT MARKET · 子时开张\", \"夜\", \"妖怪夜市\"]",
+      "detail": "[\"F11 全屏 · Esc 返回\", \"简单 · 最快天亮 暂无 · 最多击退 0 位\", \"普通：天亮 1 次 · 最多击退 2 波\", \"守夜评级 0 / 104 ★\", \"通关 0 / 26 夜\", \"录\", \"守夜记录\", \"第一课约两分钟：收香火、种签筒、升一阶、请石磨挡一次。\", \"香火为钱，草木为兵。守到天亮，摊子才算收。\", \"YOKAI NIGHT MARKET · 子时开张\", \"夜\", \"妖怪夜市\"]",
       "group": "封面",
       "name": "只显示天亮次数与击退波数，不列开过调整的夜",
       "ok": true
@@ -49,7 +49,7 @@
       "ok": true
     },
     {
-      "detail": "buttons=9",
+      "detail": "buttons=10",
       "group": "选关",
       "name": "选关页有返回与进入按钮",
       "ok": true
@@ -355,13 +355,13 @@
       "ok": true
     },
     {
-      "detail": "[\"won\", \"time\", \"kills\", \"sun\", \"level_id\", \"training\", \"tutorial\", \"summary\", \"groups_completed\"]",
+      "detail": "[\"won\", \"time\", \"kills\", \"sun\", \"level_id\", \"training\", \"tutorial\", \"challenge\", \"summary\", \"groups_completed\", \"challenge_expired\"]",
       "group": "结算",
       "name": "结算带复盘数据",
       "ok": true
     },
     {
-      "detail": "{ \"top_type\": \"\", \"top_damage\": 0, \"riskiest_wave\": 0, \"risk_peak\": 0, \"breached_rows\": [], \"mowers_used\": 0, \"stars\": 3, \"left_sun\": 800, \"plants_lost\": 0, \"empty_rows\": [1, 2, 4, 5], \"bosses_defeated\": 0, \"boss_history\": [] }",
+      "detail": "{ \"top_type\": \"\", \"top_damage\": 0, \"riskiest_wave\": 0, \"risk_peak\": 0, \"breached_rows\": [], \"mowers_used\": 0, \"stars\": 3, \"star_flags\": [true, true, true, false], \"nightmare_factors\": {  }, \"factor_points\": 0, \"nightmare_losses\": 0, \"left_sun\": 800, \"plants_lost\": 0, \"empty_rows\": [1, 2, 4, 5], \"bosses_defeated\": 0, \"boss_history\": [] }",
       "group": "结算",
       "name": "复盘含主力输出/最险一波/被突破/星级",
       "ok": true
@@ -471,5 +471,5 @@
   ],
   "failures": 0,
   "total": 78,
-  "version": "0.5.3"
+  "version": "0.5.4"
 }

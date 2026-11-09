@@ -13,8 +13,8 @@ const PAGES := ["战斗与操作", "显示", "声音", "键位"]
 const ROWS := {
 	0: [
 		{"key": "difficulty", "label": "难度",
-			"note": "初次守夜可选简单，熟悉布防后再挑战困难；开战后本局保持不变",
-			"options": [["easy", "简单"], ["normal", "普通"], ["hard", "困难"]],
+			"note": "初次守夜可选简单；噩梦可在备战时另选因子。难度只在局外更改",
+			"options": [["easy", "简单"], ["normal", "普通"], ["hard", "困难"], ["nightmare", "噩梦"]],
 			"lock_in_run": true},
 		{"key": "auto_collect", "label": "自动拾取香火",
 			"note": "开启后香火落地一会儿自动收下",
@@ -161,6 +161,7 @@ func _build() -> void:
 	var rows: Array = ROWS.get(page, [])
 	var first := true
 	for row in rows:
+		if String(row.key)=="difficulty" and game.battle_settings_locked():continue
 		if not first:
 			list.add_child(Ui.spacer(8))
 			list.add_child(Ui.hline(Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g,
@@ -204,6 +205,7 @@ func _row(row: Dictionary) -> Control:
 			var selected: bool = _matches(game.settings.get(String(row["key"])),
 				option[0])
 			var button := Ui.button(String(option[1]), 16, 80, 40)
+			button.size_flags_vertical=Control.SIZE_SHRINK_CENTER
 			if selected:
 				button.add_theme_color_override("font_color", Ui.INK)
 				button.add_theme_stylebox_override("normal",
@@ -213,12 +215,22 @@ func _row(row: Dictionary) -> Control:
 			button.disabled = not enabled
 			button.pressed.connect(_set_option.bind(String(row["key"]), option[0]))
 			controls.add_child(button)
+			if String(row.key)=="difficulty" and String(option[0])=="nightmare":
+				var info:=Ui.button("i",17,36,36)
+				info.tooltip_text="噩梦、红星与因子说明"
+				info.size_flags_vertical=Control.SIZE_SHRINK_CENTER
+				for color in ["font_color","font_hover_color","font_pressed_color"]:info.add_theme_color_override(color,Ui.GOLD_BRIGHT)
+				for style in ["normal","hover","pressed"]:info.add_theme_stylebox_override(style,Ui.flat(Color("#411e29"),Ui.GOLD_DIM,18,1))
+				info.pressed.connect(_nightmare_info);controls.add_child(info)
 	return top
 
 
 func _set_option(key: String, value) -> void:
 	game.set_setting(key, value)
 	_build()
+	if key=="difficulty" and value=="nightmare" and not bool(game.settings.get("nightmare_info_seen",false)):
+		game.set_setting("nightmare_info_seen",true)
+		_nightmare_info()
 
 
 func _matches(current, option) -> bool:
@@ -300,3 +312,15 @@ func _input(event: InputEvent) -> void:
 		game.rebind_key(_capturing, event.physical_keycode if event.physical_keycode != 0 else event.keycode)
 	_capturing = ""
 	_build()
+
+func _nightmare_info() -> void:
+	var dialog:=AcceptDialog.new()
+	Ui.style_dialog(dialog)
+	dialog.title="噩梦守夜 · 红星与因子"
+	dialog.dialog_text=preload("res://data/nightmare.gd").INFO
+	dialog.dialog_autowrap=true;dialog.min_size=Vector2i(840,600)
+	dialog.get_ok_button().text="知晓了"
+	dialog.get_ok_button().custom_minimum_size=Vector2(170,42)
+	dialog.get_label().add_theme_font_size_override("font_size",18)
+	add_child(dialog);dialog.popup_centered()
+	dialog.confirmed.connect(dialog.queue_free);dialog.canceled.connect(dialog.queue_free)

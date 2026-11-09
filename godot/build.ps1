@@ -7,6 +7,7 @@
 param(
     [string]$GodotPath = (Join-Path $PSScriptRoot '..\..\tmp\godot-tools\editor\Godot_v4.7.2-stable_win64_console.exe'),
     [switch]$SkipTests,
+    [switch]$VerifyOnly,
     [string]$OutDir = 'build'
 )
 $ErrorActionPreference = 'Stop'
@@ -82,17 +83,33 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw 'v0.5.2 更新检查失败' }
     & $enginePath --headless --path $projectPath --script res://tools/qa_v053.gd --log-file (Join-Path $qa 'v053-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'v0.5.3 更新检查失败' }
-    & $enginePath --headless --path $projectPath --script res://tools/qa_mobile.gd --log-file (Join-Path $qa 'mobile-tests.log') -- --mobile
-    if ($LASTEXITCODE -ne 0) { throw '移动操作检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_v054.gd --log-file (Join-Path $qa 'v054-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw 'PC优化检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_nightmare.gd --log-file (Join-Path $qa 'nightmare-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw '噩梦规则检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_v054_content.gd --log-file (Join-Path $qa 'v054-content-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw '新增草木恶客检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_challenges.gd --log-file (Join-Path $qa 'challenge-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw '三卡挑战检查失败' }
+
 
 }
+
+& $python (Join-Path $projectPath 'tools\verify_music.py')
+if ($LASTEXITCODE -ne 0) { throw '五周配乐与原件不一致' }
+
+if ($VerifyOnly) { Write-Host '本地检查完成；未封包、未上传。'; return }
 
 Write-Host '[7/7] 导出 Windows 单文件…'
 & $enginePath --headless --editor --path $projectPath --export-release 'Windows Desktop' `
     (Join-Path $out 'YokaiNightMarket.exe') --log-file (Join-Path $qa 'export.log')
 if ($LASTEXITCODE -ne 0) { throw '导出失败' }
+if (Select-String -LiteralPath (Join-Path $qa 'export.log') -Pattern 'SCRIPT ERROR|Parse Error|Compilation failed' -Quiet) { throw '导出日志包含脚本错误' }
 & $python (Join-Path $projectPath 'tools\trim_export.py') (Join-Path $out 'YokaiNightMarket.exe') (Join-Path $qa 'pack-audit.json')
 if ($LASTEXITCODE -ne 0) { throw '发行包瘦身或逐文件校验失败' }
 $exe = Get-Item -LiteralPath (Join-Path $out 'YokaiNightMarket.exe')
 $hash = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLower()
 Write-Host ("完成：{0}  {1:N0} 字节  SHA-256 {2}" -f $exe.FullName, $exe.Length, $hash)
+
+& $python (Join-Path $projectPath 'tools\verify_music.py')
+if ($LASTEXITCODE -ne 0) { throw '封包后五周配乐与原件不一致' }

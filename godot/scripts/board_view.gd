@@ -275,6 +275,7 @@ func _draw_range_hint() -> void:
 ## 样貌随地图换——街上是石狮，河埠口是铜锣架，暗河是石灯笼。
 func _draw_mowers() -> void:
 	for mower in sim.mowers:
+		if bool(mower.get("absent",false)):continue
 		var row = int(mower["row"])
 		var flat = Vector2(float(mower["x"]), Geo.row_y(row, sim.rows) + Geo.cell_h(sim.rows) * 0.3)
 		var foot = Geo.to_screen(flat)
@@ -323,7 +324,7 @@ func _draw_mowers() -> void:
 
 ## 门神立绘：assets/sprites/mower-dayN.png（美术交付后放这里）
 func _mower_art() -> Texture2D:
-	var key = "mower-%s" % ({"day4": "day2", "day5": "day3"}.get(map_key, map_key))
+	var key = "mower-%s" % map_key
 	if mower_art.has(key):
 		return mower_art[key]
 	var path = "res://assets/sprites/%s-v2.png" % key

@@ -1,0 +1,18 @@
+{
+  "tool": "built-in image_gen",
+  "source_root": "C:\\Users\\27402\\.codex\\generated_images\\01a19614-24b1-7cf3-82b9-2ce12ed73f51",
+  "files": {
+    "reed-chime": "exec-f7b28a55-4a02-43de-abd4-136bd8e6c300.png",
+    "reed-chime-e1": "exec-9d9f1647-ce3e-447d-bac4-a309a96402c2.png",
+    "reed-chime-e2": "exec-01573c47-b9fb-432b-941e-497920853d9d.png",
+    "reed-chime-e3": "exec-d959fd1b-e097-45cc-b435-be058ae384fc.png",
+    "soul-casket": "exec-45b28efe-a474-4ea3-9ff6-8d74013a4bb4.png",
+    "soul-casket-e1": "exec-a9850532-40bf-4b31-bab5-325016d283cd.png",
+    "soul-casket-e2": "exec-c9b26ff7-fa60-4a32-9f01-9c1058d4b2e8.png",
+    "soul-casket-e3": "exec-03aae069-0393-4f0d-a792-4c5ed319d794.png",
+    "sky-wick": "exec-8963f6d6-e74c-453f-8396-1265da5c429c.png",
+    "shield-envoy": "exec-fc29ac6a-0bc4-44ee-9346-7fda488b2f78.png",
+    "oar-barge": "exec-9a70d892-70cc-47a9-8a1e-87e94dc46785.png"
+  },
+  "preprocess": "alpha bounding crop / fit <=512px height for portraits; measured atlas rows, fixed foot or waterline anchors; originals retained in build-art/v054; plant rig and 32-frame bake registered separately."
+}

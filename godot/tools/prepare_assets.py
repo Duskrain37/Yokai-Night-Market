@@ -13,6 +13,7 @@ Run:  python tools/prepare_assets.py
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import sys
@@ -35,7 +36,7 @@ BACKGROUNDS = ["menu", "board", "map-day1", "map-day2", "map-day3"]
 MUSIC = ["menu", "battle", "hot", "final"]
 # 三天配乐包（「完整」音乐风格用）：../music/dayN-{battle,hot,final}.ogg
 MUSIC_DAYS = ["day%d-%s.ogg" % (d, part)
-              for d in (1, 2, 3) for part in ("battle", "hot", "final")]
+              for d in (1, 2, 3, 4, 5) for part in ("battle", "hot", "final")]
 
 FONT_CACHE = ROOT / "tools" / "fonts-cache"
 
@@ -115,8 +116,12 @@ def copy_tree() -> dict:
     ensure(ASSETS / "music" / "complete")
     for name in MUSIC_DAYS:
         src = day_source / name
-        if src.exists():
-            shutil.copyfile(src, ASSETS / "music" / "complete" / name)
+        if not src.is_file():
+            raise FileNotFoundError(f"Missing approved music master: {src}")
+        dst = ASSETS / "music" / "complete" / name
+        if not dst.is_file() or hashlib.sha256(src.read_bytes()).digest()!=hashlib.sha256(dst.read_bytes()).digest():
+            shutil.copyfile(src,dst)
+        assert hashlib.sha256(src.read_bytes()).digest()==hashlib.sha256(dst.read_bytes()).digest(),name
 
     (ASSETS / "sprite_meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8"

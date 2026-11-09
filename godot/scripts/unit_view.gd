@@ -8,6 +8,7 @@ const ActorFrames = preload("res://scripts/actor_frames.gd")
 var _actor_frames = ActorFrames.new()
 var _effect_frames = ActorFrames.new()
 var _buff_frames = ActorFrames.new()
+var _new_frames = ActorFrames.new()
 var sim: Sim = null
 var health_bars = "bar"
 var tier_shapes := false
@@ -29,8 +30,9 @@ var _profile_armor: Dictionary = {}
 func _ready() -> void:
 	z_index = 10
 	_actor_frames.load_sheets()
-	_effect_frames.load_sheets("v052-")
+	_effect_frames.load_sheets("v05")
 	_buff_frames.load_sheets("v053-")
+	_new_frames=_effect_frames
 	if FileAccess.file_exists("res://data/actor_attachment_pins.json"):
 		_face_pins = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_attachment_pins.json"))
 	texture_filter=CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
@@ -587,6 +589,7 @@ func _draw_upgrade_pips(plant: Sim.Plant, foot: Vector2, height: float) -> void:
 
 # ── 恶客 ────────────────────────────────────────────────────────────────────
 func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
+	if z.type=="oar-barge" and z.dying:return
 	if z.dead:
 		return
 	var texture = texture_for(z.type)
@@ -675,6 +678,14 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	var actor = String(z.type)
 	if z.type == "phaseguard":
 		actor = "phase-kite" if z.phase_form == 1 else "phase-veil"
+	if z.type=="sky-wick":
+		if sim._guest_airborne(z):clip="walk";frame=sim.time*4.0;lift-=38.0
+		elif z.flight_landing_at>=0 and sim.time-z.flight_landing_at<.7:
+			clip="splash" if z.flight_water else ("break" if z.flight_broken else "land");frame=clampf((sim.time-z.flight_landing_at)/.7*3.99,0,3.99)
+			if z.flight_broken and not z.flight_water:lift-=38.0*(1.0-clampf((sim.time-z.flight_landing_at)/.7,0,1))
+		else:actor="ghost"
+	if z.type=="oar-barge":
+		clip="attack" if z.eating else "walk";frame=fposmod(z.barge_clock,2.4)/2.4*4.0
 	var frame_foot = foot + Vector2(0.0, lift)
 	if z.raft_sink_t > 0.0:
 		var raft: Texture2D = _guest_gear.get("raft")
@@ -844,6 +855,7 @@ func _armor_texture(art: String, tier: int) -> Texture2D:
 func _draw_armor(z: Sim.Zombie, animated_foot: Vector2, height: float,
 		body: Texture2D, rotation: float, squash: Vector2, cabin_drawn: bool = false,
 		clip: String = "", key_position: float = 0.0, actor_height: float = 0.0) -> void:
+	if z.type in ["sky-wick","oar-barge"]:return
 	var key = z.get_instance_id()
 	var face = _armor_face(z, clip, key_position, animated_foot, actor_height)
 	var ratio = clampf(z.armor / maxf(1.0, z.max_armor), 0.0, 1.0)
@@ -1176,6 +1188,9 @@ func _draw_shots() -> void:
 			_effect_frames.draw_pose(self, "v052-projectiles", clip, sim.time * 7.0,
 				at + Vector2(0, sprite_height * 0.45), sprite_height, left, Color.WHITE)
 			continue
+		if look=="range-echo":
+			_new_frames.draw_pose(self,"v054-relay-fx","range",sim.time*6.0,at,24,false,Color.WHITE)
+			continue
 		match look if look != "" else String(shot.kind):
 			"dragon_1", "dragon_2", "dragon_3":
 				_draw_dragon_round(at, int(look.right(1)))
@@ -1337,6 +1352,16 @@ func _draw_particles() -> void:
 		var color: Color = p["color"]
 		var pos = Geo.to_screen(Vector2(float(p["x"]), float(p["y"])))
 		match String(p["kind"]):
+			"reed_beam":
+				var start:=Vector2(float(p.x),float(p.y));var direction: Vector2=p.dir
+				for segment in 7:
+					var flat:=start+direction*(segment+.5)*float(p.length)/7.0
+					var at:=Geo.to_screen(flat,sim.rows)
+					_new_frames.draw_pose(self,"v054-relay-fx","breath",(1.0-k)*3.99,at,32,false,Color(1,1,1,k*.75),Vector2.ONE,(Geo.to_screen(flat+direction*10,sim.rows)-at).angle())
+			"relay_collect":
+				_new_frames.draw_pose(self,"v054-relay-fx","collect",(1.0-k)*3.99,pos,44,false,Color(1,1,1,k))
+			"barge_sink":
+				_actor_frames.draw_pose(self,"oar-barge","sink",(1.0-k)*3.99,pos+Vector2(0,15),110*Geo.unit_scale(sim.rows),true,Color(1,1,1,minf(1,k*4)))
 			"magic":
 				var effect := String(p.effect)
 				if effect.begins_with("buff-"):
