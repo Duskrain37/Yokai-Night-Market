@@ -2,6 +2,8 @@
 extends Node
 signal changed
 const Installer=preload("res://scripts/update_installer.gd")
+const Network=preload("res://scripts/update_network.gd")
+const Build=preload("res://data/build_info.gd")
 const API="https://api.github.com/repos/Duskrain37/Yokai-Night-Market/releases/latest"
 const DOWNLOAD_PREFIX="https://github.com/Duskrain37/Yokai-Night-Market/releases/download/"
 const EXE="YokaiNightMarket-win64.exe"
@@ -30,9 +32,12 @@ var _mutex=Mutex.new()
 var _fixture=false
 var fixture_cache=""
 var _download_url=""
+var _network: Dictionary={}
 
 static func sha(bytes: PackedByteArray) -> String:
-	var h=HashingContext.new();h.start(HashingContext.HASH_SHA256);h.update(bytes);return h.finish().hex_encode()
+	var h=HashingContext.new();h.start(HashingContext.HASH_SHA256)
+	if not bytes.is_empty():h.update(bytes)
+	return h.finish().hex_encode()
 static func semver(value: String) -> Array:
 	var r=RegEx.new();r.compile("^v?([0-9]+)\\.([0-9]+)\\.([0-9]+)$")
 	var match=r.search(value)
@@ -105,6 +110,7 @@ func _worker_progress(done: int,total: int):
 	progress=clampf(float(done)/maxi(1,total),0,1);changed.emit()
 func _request(url: String,headers: PackedStringArray,limit: int) -> Array:
 	if cancelled():return []
+	Network.apply(http,url,_network)
 	http.body_size_limit=limit;_waiting=true
 	var err=http.request(url,headers)
 	if err!=OK:_waiting=false;return []
@@ -116,6 +122,8 @@ func start(version: String,path: String,endpoint: String=API,fixture: bool=false
 	if endpoint!=API and not _fixture:state("failed","更新地址无效。");return
 	if not _fixture and (OS.get_name()!="Windows" or OS.has_feature("editor")):
 		state("failed","请在下载的 Windows 游戏成品中检查更新。");return
+	_network={} if _fixture else Network.detect()
+	if _network.get("error",false):state("failed","当前代理格式暂不支持。请使用系统 HTTP 代理，或从发布页手动下载游戏。");return
 	_mutex.lock();_cancelled=false;_mutex.unlock()
 	current_version=version;executable=path;progress=0;received=0;required=0
 	state("checking","正在查看夜市的新消息……")
@@ -128,7 +136,7 @@ func start(version: String,path: String,endpoint: String=API,fixture: bool=false
 	var tag=String(release.get("tag_name",""));latest_version=tag.trim_prefix("v")
 	if semver(tag).is_empty() or bool(release.get("prerelease",false)) or bool(release.get("draft",false)):
 		state("failed","没有可用的正式更新。");return
-	if not newer(tag,version):state("current","已经是最新版本，今夜安心守夜。")
+	if not newer(tag,version) and semver(tag)!=semver(version):state("current","已经是最新版本，今夜安心守夜。")
 	else:
 		var assets=release_assets(release)
 		if _fixture:assets=_fixture_assets(release,endpoint)
@@ -141,6 +149,7 @@ func start(version: String,path: String,endpoint: String=API,fixture: bool=false
 		if "sha256:"+sha(response[3])!=String(assets[MAP].digest):state("failed","更新资料校验未通过，当前版本未更改。");return
 		var data=JSON.parse_string(response[3].get_string_from_utf8())
 		if not data is Dictionary or not valid_manifest(data,assets[EXE],latest_version):state("failed","更新资料校验未通过，当前版本未更改。");return
+		if semver(tag)==semver(version) and String(data.build)==Build.BUILD_HASH:state("current","已经是最新版本，今夜安心守夜。");return
 		manifest=data;candidate=executable+".update-"+String(manifest.sha256).left(12)+".part"
 		cache=fixture_cache if _fixture and not fixture_cache.is_empty() else ProjectSettings.globalize_path("user://updates/"+String(manifest.sha256))
 		if DirAccess.make_dir_recursive_absolute(cache)!=OK:state("failed","无法保存更新内容，请检查可用空间。");return

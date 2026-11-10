@@ -95,6 +95,8 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw 'v0.5.6 balance failed' }
     & $enginePath --headless --path $projectPath --script res://tools/qa_update.gd --log-file (Join-Path $qa 'v056-update-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'v0.5.6 update failed' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_update_network.gd --log-file (Join-Path $qa 'v056-proxy-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw 'v0.5.6 proxy failed' }
 
 
 

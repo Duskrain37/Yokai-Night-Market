@@ -16,7 +16,7 @@ EXE应放在本人可写入目录，建议预留约2GB空间。已有版本可�
 - `YokaiNightMarket-win64.exe`：完整、可直接运行的Windows成品。
 - `YokaiNightMarket-update-map.json`：schema=1，版本、构建哈希、EXE总长度和SHA256，以及连续覆盖整个EXE的资源边界分块。由 `tools/update_manifest.py` 在最终裁剪EXE之后生成。
 
-无需额外发布全量资源包、源码ZIP或逐版本补丁链。客户端读取固定仓库的latest正式发布，不读取移动版、草稿或预发布；即使跳过中间版本，仍可直接复用本地片段、升级到最新。小版本按既定规则覆盖原PC分支并改名，设为默认分支和latest；移动分支保持原样。
+无需额外发布全量资源包、源码ZIP或逐版本补丁链。客户端读取固定仓库的latest正式发布，同版本但构建更新时也会准备差量内容，不读取移动版、草稿或预发布；即使跳过中间版本，仍可直接复用本地片段、升级到最新。小版本按既定规则覆盖原PC分支并改名，设为默认分支和latest；移动分支保持原样。
 
 GitHub发布API提供附件的SHA256 `digest` 字段，客户端使用它核对索引和最终EXE；资料见[GitHub Release Assets](https://docs.github.com/en/rest/releases/assets)。这依赖GitHub HTTPS及仓库发布权限，不是独立的代码签名。
 
@@ -29,6 +29,8 @@ python tools/update_manifest.py build/v0.5.6/YokaiNightMarket.exe --version 0.5.
 ## 实现与限制
 
 `delta_update.gd`按Godot嵌入包的资源边界分块，块内上限1MiB。扫描本地EXE建立SHA256索引，资源在新版中移动位置仍能复用；缺失相邻片段合并为最多4MiB的Range请求。缺失块逐块校验，完整重建后再次校验EXE总SHA256。当前支持Godot PCK格式4、Windows x64单文件、2GiB以下EXE。更换打包格式前必须同步分块器与QA。
+
+连接会沿用HTTPS_PROXY环境变量或Windows手动HTTP代理，并遵守相应排除列表；无代理时直连。本轮现场发现下载域名直连超时，补齐代理兼容后用真实GitHub索引及三个不同EXE片段复验通过。不自动处理Socks、需身份验证的代理或PAC脚本；这类配置可改用HTTP代理或手动下载。
 
 扫描与合成在工作线程中执行。下载用Godot自带[HTTPRequest](https://docs.godotengine.org/en/stable/classes/class_httprequest.html)，关闭gzip、设置超时和响应上限。必须收到准确HTTP206、长度、Content-Range与块摘要；不接受返回完整EXE的HTTP200，不自动全量回退。已验证块存在 `user://updates/<目标SHA256>/`；成功安装后清除此目标的片段缓存，取消或失败保留以便继续。
 
@@ -48,6 +50,9 @@ python tools/update_manifest.py build/v0.5.6/YokaiNightMarket.exe --version 0.5.
 
 这些是程序与Windows安装链的验证，不代表所有安全软件、代理、磁盘故障均已穷举测试。
 
-## 本次最终成品的差量结果
 
-目标EXE 895,521,524字节；相对v0.5.5可复用890,717,911字节，25个缺失块合计4,803,613字节（0.536%）。带少量区间间隙的实际Range传输4,804,491字节；中断后仅需补546,578字节，完整缓存再试0字节。重建SHA256与正式EXE一致。此为特定两版实测，未来下载量取决于修改的资源，不承诺每版固定大小。
+## 最终交付构建与差量
+
+最终构建2bcd33c。EXE 895,528,384字节，SHA256 0178b3c83a1ad82976eeebb7a629fc775c3f704267d7891dd027e6f8631124c0。相对v0.5.5，27个缺失块共4,810,453字节（0.537%）；可复用890,717,931字节。HTTP区间合并后的实际传输4811365字节，中断后补550087字节，缓存再试0字节。实际重建结果与EXE一致。未来下载量取决于修改资源，不承诺固定大小。
+
+首次候选构建b7bbca9的公开下载域名连接未沿用系统代理，现场核验发现超时。最终交付已补齐环境HTTP代理、Windows手动代理和绕过列表，增加22项代理检查，并在真实GitHub上逐段核对；首次候选的提交保留在历史中，正式EXE与本页所列哈希为准。

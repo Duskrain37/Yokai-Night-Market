@@ -1,7 +1,7 @@
 {
-  "original_bytes": 998220344,
-  "candidate_bytes": 895521524,
-  "untouched_files": 1087,
+  "original_bytes": 998227200,
+  "candidate_bytes": 895528384,
+  "untouched_files": 1089,
   "removed_files": 282,
   "removed_by_group": {
     "fallback_key_atlases": 95008019,

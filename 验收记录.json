@@ -1,9 +1,9 @@
 {
   "version": "0.5.6",
-  "build_hash": "b7bbca9",
-  "build_files": 740,
-  "exe_bytes": 895521524,
-  "exe_sha256": "ca518d57bcf2f63fa700da510801716c9d292e9971ffed94c237a6b648316a10",
+  "build_hash": "2bcd33c",
+  "build_files": 742,
+  "exe_bytes": 895528384,
+  "exe_sha256": "0178b3c83a1ad82976eeebb7a629fc775c3f704267d7891dd027e6f8631124c0",
   "assertions": {
     "logic-tests": 383,
     "battle-tests": 39,
@@ -26,22 +26,23 @@
     "v056-balance-tests": 172,
     "v056-update-tests": 2816,
     "v056-ui-tests": 25,
-    "v056-network-tests": 21,
+    "v056-network-tests": 29,
+    "v056-proxy-tests": 22,
     "patch-tests": 145,
     "windows-installer": 3
   },
-  "assertion_total": 6472,
+  "assertion_total": 6502,
   "failures": 0,
   "pack_checks": {
-    "checks": 13489,
+    "checks": 13490,
     "failures": 0,
     "frames": 12672,
-    "texture_load_ms": 6220.313
+    "texture_load_ms": 6108.812
   },
   "pack_trim": {
-    "original_bytes": 998220344,
-    "candidate_bytes": 895521524,
-    "untouched_files": 1087,
+    "original_bytes": 998227200,
+    "candidate_bytes": 895528384,
+    "untouched_files": 1089,
     "removed_files": 282,
     "removed_by_group": {
       "fallback_key_atlases": 95008019,

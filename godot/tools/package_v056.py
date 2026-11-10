@@ -4,7 +4,7 @@ import hashlib,json,re,shutil
 from stamp_build import source_hash
 PROJECT=Path(__file__).resolve().parents[1];ROOT=PROJECT.parent
 VERSION='0.5.6';RELEASES=ROOT/'releases';RELEASE=RELEASES/('v'+VERSION);QA=PROJECT/'qa'
-SUITES=('logic-tests','battle-tests','boss-tests','special-tests','ui-tests','click-tests','player-ui-tests','animation-tests','v050-tests','v051-refresh-tests','v052-tests','v053-tests','v054-tests','v054-new-content-tests','v054-nightmare-tests','v054-dual-soak','v055-tests','v055-ui-tests','v056-balance-tests','v056-update-tests','v056-ui-tests','v056-network-tests')
+SUITES=('logic-tests','battle-tests','boss-tests','special-tests','ui-tests','click-tests','player-ui-tests','animation-tests','v050-tests','v051-refresh-tests','v052-tests','v053-tests','v054-tests','v054-new-content-tests','v054-nightmare-tests','v054-dual-soak','v055-tests','v055-ui-tests','v056-balance-tests','v056-update-tests','v056-ui-tests','v056-network-tests','v056-proxy-tests')
 EVIDENCE=('menu','update-checking','update-downloading','update-ready','update-failed','news')
 def read(name):return json.loads((QA/(name+'.json')).read_text(encoding='utf-8-sig'))
 def digest(path):
