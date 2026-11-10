@@ -183,17 +183,17 @@ const TREES = {
 				{
 					"name": "清露",
 					"cost": 100,
-					"desc": "攻击附带10%减速，持续2秒。"
+					"desc": "攻击附带15%减速，持续2秒。"
 				},
 				{
 					"name": "寒露",
 					"cost": 200,
-					"desc": "攻击附带20%减速，持续2秒。"
+					"desc": "攻击附带25%减速，持续2秒。"
 				},
 				{
 					"name": "霜露",
 					"cost": 400,
-					"desc": "攻击附带40%减速，持续2秒。"
+					"desc": "攻击附带45%减速，持续2秒。"
 				}
 			]
 		},
@@ -205,17 +205,17 @@ const TREES = {
 				{
 					"name": "厚节",
 					"cost": 125,
-					"desc": "伤害提高至42，攻击间隔缩短至1.55秒。"
+					"desc": "伤害提高至49，攻击间隔缩短至1.5秒。"
 				},
 				{
 					"name": "重节",
 					"cost": 250,
-					"desc": "伤害提高至48，攻击间隔缩短至1.4秒。"
+					"desc": "伤害提高至56，攻击间隔缩短至1.35秒。"
 				},
 				{
 					"name": "惊篁",
 					"cost": 475,
-					"desc": "伤害提高至60，攻击间隔缩短至1.25秒。正前方一束至少命中五名恶客时，下次攻击间隔立即再缩短0.5秒。"
+					"desc": "伤害提高至70，攻击间隔缩短至1.2秒。正前方一束至少命中五名恶客时，下次攻击间隔立即再缩短0.5秒。"
 				}
 			]
 		}
@@ -251,17 +251,17 @@ const TREES = {
 				{
 					"name": "借锋",
 					"cost": 125,
-					"desc": "由灵枢放出的子弹额外增伤10%。"
+					"desc": "由灵枢放出的子弹合计增伤20%（基础为10%）。"
 				},
 				{
 					"name": "借势",
 					"cost": 250,
-					"desc": "额外增伤提高至20%。"
+					"desc": "由灵枢放出的子弹合计增伤提高至30%。"
 				},
 				{
 					"name": "重应",
 					"cost": 500,
-					"desc": "每发放出的子弹有20%概率在0.18秒后再发射一枚完整复制弹。"
+					"desc": "每发放出的子弹有30%概率在0.18秒后再发射一枚完整复制弹。"
 				}
 			]
 		},
@@ -705,17 +705,17 @@ const TREES = {
 				{
 					"name": "散烟",
 					"cost": 75,
-					"desc": "喷烟半径增至1.6格。"
+					"desc": "喷烟半径增至1.8格。"
 				},
 				{
 					"name": "漫庭",
 					"cost": 150,
-					"desc": "喷烟半径增至1.9格。"
+					"desc": "喷烟半径增至2.1格。"
 				},
 				{
 					"name": "满街",
 					"cost": 275,
-					"desc": "喷烟半径增至2.3格。"
+					"desc": "喷烟半径增至2.5格。"
 				}
 			]
 		},
@@ -759,7 +759,7 @@ const TREES = {
 				{
 					"name": "连烟",
 					"cost": 350,
-					"desc": "攻击间隔缩短至1.45秒。一次命中至少三名恶客时，0.3秒后补喷并重新计时；每4秒至多触发一次。"
+					"desc": "攻击间隔缩短至1.35秒。一次命中至少三名恶客时，0.3秒后补喷并重新计时；每4秒至多触发一次。"
 				}
 			]
 		}
@@ -1316,17 +1316,17 @@ const TREES = {
 			"tiers": [
 				{
 					"cost": 100,
-					"desc": "每道灯焰伤害提高到25。",
+					"desc": "每道灯焰伤害提高到34。",
 					"name": "添焰"
 				},
 				{
 					"cost": 200,
-					"desc": "每道灯焰伤害提高到30。",
+					"desc": "每道灯焰伤害提高到40。",
 					"name": "燃灯"
 				},
 				{
 					"cost": 400,
-					"desc": "每道灯焰伤害提高到36；亲手击退恶客后伤害增加10%，持续5秒，最多叠加五层。层数变化时刷新。",
+					"desc": "每道灯焰伤害提高到46；亲手击退恶客后伤害增加10%，持续5秒，最多叠加五层。层数变化时刷新。",
 					"name": "长明"
 				}
 			]
@@ -1338,17 +1338,17 @@ const TREES = {
 			"tiers": [
 				{
 					"cost": 125,
-					"desc": "攻击间隔缩短至1.4秒。 任一路门神被惊动后，自身攻速提高400%、伤害提高200%，持续10秒。",
+					"desc": "攻击间隔缩短至1.25秒。 任一路门神被惊动后，自身攻速提高400%、伤害提高200%，持续10秒。",
 					"name": "快转"
 				},
 				{
 					"cost": 250,
-					"desc": "攻击间隔缩短至1.2秒。",
+					"desc": "攻击间隔缩短至1.1秒。",
 					"name": "连转"
 				},
 				{
 					"cost": 500,
-					"desc": "攻击间隔缩短至1秒。亲手击退恶客后，攻速提高5%，持续5秒，最多叠5层；层数改变时刷新持续时间。",
+					"desc": "攻击间隔缩短至0.95秒。亲手击退恶客后，攻速提高5%，持续5秒，最多叠5层；层数改变时刷新持续时间。",
 					"name": "急巡"
 				}
 			]
@@ -1583,6 +1583,8 @@ const TREES = {
 }
 
 const EFFECTS = {
+	"reed-chime":{"damage":[42,49,56,70],"interval":[1.6,1.5,1.35,1.2],"slow":[0,.15,.25,.45]},
+	"soul-casket":{"bonus":[.1,.2,.3,.3],"copy_chance":.3},
 	"herb-gourd": {"heal":[50,64,78,96],"interval":[1.6,1.47,1.34,1.2],"haste":[0,0.05,0.1,0.2]},
 	"sky-kite": {"targets": [1, 2, 3, 4], "damage": [40, 50, 60, 70], "bounces": [0, 1, 2, 4], "slow": [0, 0.15, 0.3, 0.3], "silence": [0, 0, 0, 2.5]},
 	"wish-till": {"income": [5, 9, 13, 20], "haste": [0, 0.05, 0.1, 0.15], "pull_interval": [0, 0, 5, 5]},
@@ -1616,7 +1618,7 @@ const EFFECTS = {
 		"knock_cells": [0.0, 0.0, 0.0, 0.6],
 	},
 	"bell": {"main_interval": [0.0, 2.0, 1.5, 1.2], "repeat_slow": [0.0, 0.0, 0.0, 0.4], "adjacent_radius": [0.0, 0.0, 0.5, 0.5], "backlash_dps_cap": [0, 0, 0, 35], "backlash_duration": [0.0, 0.0, 0.0, 2.5], "backlash_ratio": [0, 0, 0, 0], "companion_duration": [0.0, 0.0, 1.5, 1.5], "companion_radius": [0.0, 0.0, 0.6, 0.6], "companion_slow": [0.0, 0.0, 0.2, 0.2], "companion_targets": [0, 0, 2, 2], "death_root": [0, 0, 0, 0], "death_root_large": [0, 0, 0, 0], "eater_root_chance": [0, 0, 0, 0], "eater_target_cap": [0, 0, 0, 0], "echo_duration": [0.0, 1.0, 1.2, 1.2], "echo_offsets": [[], [0.6], [0.6], [0.6]], "global_death_icd": [0, 0, 0, 8], "knock_cells": [0.0, 0.0, 0.0, 0.3], "knock_targets": [0, 0, 0, 1], "large_root_duration": [0, 0, 0, 0.3], "range_cells": [0, 2, 2, 2], "reverse_duration": [0, 0, 0, 0], "reverse_icd": [0, 4, 4, 4], "root_chance": [0, 0.1, 0.15, 0.2], "root_duration": [0, 0.4, 0.5, 0.6], "cleanse": [false, false, true, true], "heal": [0, 0, 0, 55]},
-	"censer": {"radius": [0.0, 1.6, 1.9, 2.3], "interval": [2.5, 2.15, 1.8, 1.45], "mark_duration": [0.0, 3.2, 3.2, 3.2], "vuln": [0, 0.1, 0.2, 0.3], "spread_hops": [0, 0, 2, 2], "spread_radius": [0, 0, 1, 1], "spread_targets": [0, 0, 2, 2], "ash_damage": [0, 0, 0, 18], "ash_interval": [0, 0, 0, 6], "ash_radius": [0.0, 0.0, 0.0, 1.3461538461538463]},
+	"censer": {"radius": [0.0, 1.8, 2.1, 2.5], "interval": [2.5, 2.15, 1.8, 1.35], "mark_duration": [0.0, 3.2, 3.2, 3.2], "vuln": [0, 0.1, 0.2, 0.3], "spread_hops": [0, 0, 2, 2], "spread_radius": [0, 0, 1, 1], "spread_targets": [0, 0, 2, 2], "ash_damage": [0, 0, 0, 18], "ash_interval": [0, 0, 0, 6], "ash_radius": [0.0, 0.0, 0.0, 1.3461538461538463]},
 	"umbrella": {"chew_reduction": [0.0, 0.2, 0.4, 0.5], "armor_transfer_ratio": [0.0, 0.0, 0.0, 0.3], "bone_damage": [0, 0, 0, 140], "bone_icd": [0, 0, 0, 0], "bone_root": [0.0, 0.0, 0.0, 0.3], "capture_income": [0, 0, 0, 100], "chew_reflect_dps": [0, 0, 30, 30], "death_saves": [0, 0, 0, 0], "hp_max_floor": [0, 0, 0, 300], "hp_max_loss": [0, 0, 0, 200], "income_icd": [0, 6, 6, 6], "mid_income": [0, 0, 0, 100], "pull_cells": [0.0, 0.4, 0.4, 0.4], "pull_damage": [0, 0, 40, 40], "pull_icd": [0, 6, 6, 6], "pull_range": [0, 1, 1, 1], "reflect_cap": [0, 0, 0, 150], "reflect_ratio": [0.0, 0.0, 0.0, 0.5], "restore_ratio": [0.0, 0.0, 0.0, 0.3], "save_icd": [0, 0, 0, 2], "secondary_duration": [0, 12, 12, 12], "secondary_slots": [0, 1, 1, 2], "target": [0.0, 0.0, "frontmost_ally", "frontmost_ally"], "total_reflect_cap": [0, 0, 0, 0], "wish_cap": [0, 1, 1, 1], "wish_duration": [0, 8, 8, 8], "wish_guard": [0.0, 0.0, 0.25, 0.25], "wish_hp": [0, 300, 600, 900], "wish_regen": [0, 0, 0, 50], "wish_total_cap": [0, 0, 0, 500]},
 	"lion": {
 		"armor_strip": [0, 0, 100, 100],
@@ -1653,7 +1655,7 @@ const EFFECTS = {
 	"lobber": {"damage": [40, 70, 100, 130], "interval": [2.3, 2.05, 1.6, 1.25], "pool_radius": [0, 0, 0, 0], "pool_duration": [0, 3, 3, 3], "pool_dps": [0, 0, 0, 0], "pool_slow": [0, 0, 0, 0], "merged_radius": [0, 0, 0, 0], "merged_dps": [0, 0, 18, 50], "warm_bonus": [0, 0.12, 0.20, 0.30], "warm_duration": [0, 4, 6, 1000000000.0]},
 	"dragon": {"near_range": [3.0, 3.5, 4.0, 5.0], "near_damage": [12, 18, 24, 30]},
 	"torch": {"buff": [0.5, 0.8, 1.1, 1.3], "splash_ratio": [0.0, 0.0, 0.0, 0.2], "splash_radius": [0.0, 0.0, 0.0, 0.3], "burn_dps": [0, 0, 0, 0], "burn_duration": [0, 0, 0, 0], "ember": [0, 0, 0, 0], "ember_duration": [0, 0, 0, 0], "explode_radius": [0, 0, 0, 0], "heal_delay": [0, 0, 0, 0], "heal_dps": [0, 0, 0, 50], "max_hp": [0, 750, 1500, 1500], "oil_dps": [0, 0, 0, 0], "oil_duration": [0, 0, 2, 2], "oil_icd": [0, 0, 2, 2], "oil_radius": [0.0, 0.0, 0.35, 0.35], "pierce_main": [0.0, 0.0, 0.0, false], "reflect_total_dps": [0, 0, 0, 0], "secondary_inherits": [0.0, 0.0, 0.0, false], "shot_speed": [0.0, 0.0, 0.0, 0.5], "spark_dps": [0, 0, 10, 10], "spark_duration": [0, 0, 1, 1], "spark_radius": [0.0, 0.0, 0.25, 0.25], "sparks_per_projectile": [0, 0, 0, 0], "sparks_per_second_cap": [0, 0, 0, 0], "wall_dps": [0, 0, 0, 60], "wall_duration": [0, 0, 0, 3], "wall_radius": [0, 0, 0, 1], "production_bonus": [0, 0.1, 0.2, 0.25], "production_haste": [0, 0, 0, 0.1]},
-	"star": {"damage_bonus": [0, 0, 0, 0], "speed_bonus": [0.0, 0.25, 0.5, 1.0], "guardian_speed_bonus": [0, 0, 0, 4], "all_dirs": [true, true, true, true], "converge_bonus": [0.0, 0.0, 0.0, 0.0], "focus_beams": [0, 0, 0, 0], "focus_bonus": [0.0, 0.5, 0.5, 0.5], "glow_buff": [0.0, 0.0, 0.0, 0.15], "glow_duration": [0, 0, 0, 1], "glow_radius": [0.0, 0.0, 0.0, 0.0], "ground_interval_factor": [0.0, 0.0, 0.0, 0.0], "heavy_knock": [0.0, 0.0, 0.0, 0.3], "heavy_knock_icd": [0, 0, 0, 3], "heavy_multiplier": [0, 0, 0, 3], "heavy_per_volley": [0, 0, 0, 0], "interval_floor": [0.0, 0.0, 0.0, 0.0], "interval_keep": [0.0, 0.0, 0.0, 0.0], "seek": [false, true, true, false], "seek_factor": [1, 0.5, 1, 1], "damage": [20, 25, 30, 36], "interval": [1.6, 1.4, 1.2, 1], "guardian_damage_bonus": [0, 0, 0, 2]},
+	"star": {"damage_bonus": [0, 0, 0, 0], "speed_bonus": [0.0, 0.25, 0.5, 1.0], "guardian_speed_bonus": [0, 0, 0, 4], "all_dirs": [true, true, true, true], "converge_bonus": [0.0, 0.0, 0.0, 0.0], "focus_beams": [0, 0, 0, 0], "focus_bonus": [0.0, 0.5, 0.5, 0.5], "glow_buff": [0.0, 0.0, 0.0, 0.15], "glow_duration": [0, 0, 0, 1], "glow_radius": [0.0, 0.0, 0.0, 0.0], "ground_interval_factor": [0.0, 0.0, 0.0, 0.0], "heavy_knock": [0.0, 0.0, 0.0, 0.3], "heavy_knock_icd": [0, 0, 0, 3], "heavy_multiplier": [0, 0, 0, 3], "heavy_per_volley": [0, 0, 0, 0], "interval_floor": [0.0, 0.0, 0.0, 0.0], "interval_keep": [0.0, 0.0, 0.0, 0.0], "seek": [false, true, true, false], "seek_factor": [1, 0.5, 1, 1], "damage": [28, 34, 40, 46], "interval": [1.4, 1.25, 1.1, .95], "guardian_damage_bonus": [0, 0, 0, 2]},
 	"needle": {"interval": [1.6, 1.4, 1.2, 1.0], "pierce_targets": [1, 2, 3, 0], "vuln": [0.0, 0.1, 0.15, 0.3], "damage": [24, 30, 36, 42]},
 	"firework": {
 		"interval": [3.5, 3.1, 2.7, 2.3],

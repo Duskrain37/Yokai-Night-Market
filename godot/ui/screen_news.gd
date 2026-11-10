@@ -55,14 +55,14 @@ func select_page(value: int) -> void:
 	for i in _tabs.size(): _tabs[i].modulate=Color.WHITE if i==page else Color(0.7,0.7,0.7)
 	if page==1:
 		_content.add_child(Ui.title("下载正式版本",36))
-		_add_text("电脑下载Windows可执行文件，双击即可开始；安卓手机下载APK并安装后，就能随时守夜。请从本项目的GitHub发布页获取更新。")
+		_add_text("电脑下载Windows可执行文件，双击即可开始；安卓手机下载APK并安装后，就能随时守夜。请从本项目的GitHub发布页获取成品。电脑版也可在封面点击“检查更新”，准备好后重启游戏完成更新。")
 		for item in [["Windows 64位下载","https://github.com/Duskrain37/Yokai-Night-Market/releases/latest/download/YokaiNightMarket-win64.exe"],["安卓APK下载","https://github.com/Duskrain37/Yokai-Night-Market/releases/download/v0.5.3-mobile/YokaiNightMarket-android.apk"],["查看全部发布","https://github.com/Duskrain37/Yokai-Night-Market/releases"]]:
 			_add_link(item[0],item[1])
 		_content.add_child(Ui.title("欢迎来信",36))
 		_add_text("无论是游玩感受、平衡建议，还是遇到的异常，都欢迎在GitHub提出Issue。遇到异常时，带上游戏版本、设备型号、截图和出现问题前的操作，会更方便查清缘由。")
 		_add_link("在GitHub反馈建议","https://github.com/Duskrain37/Yokai-Night-Market/issues/new")
 		return
-	var data: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/news_v055.json"))
+	var data: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/news_v056.json"))
 	for section in data.sections:
 		_content.add_child(Ui.title(String(section.title),36 if game.mobile else 28))
 		for item in section.items:

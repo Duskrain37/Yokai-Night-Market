@@ -1,9 +1,9 @@
 {
-  "version": "0.5.5",
-  "build_hash": "46e7ef6",
-  "build_files": 731,
-  "exe_bytes": 895497676,
-  "exe_sha256": "31b0456df12b8d54a66cb0101a0f0affbdc077325e050cff5fdb7290e758c2db",
+  "version": "0.5.6",
+  "build_hash": "b7bbca9",
+  "build_files": 740,
+  "exe_bytes": 895521524,
+  "exe_sha256": "ca518d57bcf2f63fa700da510801716c9d292e9971ffed94c237a6b648316a10",
   "assertions": {
     "logic-tests": 383,
     "battle-tests": 39,
@@ -23,24 +23,29 @@
     "v054-dual-soak": 18,
     "v055-tests": 77,
     "v055-ui-tests": 87,
-    "patch-tests": 145
+    "v056-balance-tests": 172,
+    "v056-update-tests": 2816,
+    "v056-ui-tests": 25,
+    "v056-network-tests": 21,
+    "patch-tests": 145,
+    "windows-installer": 3
   },
-  "assertion_total": 3435,
+  "assertion_total": 6472,
   "failures": 0,
   "pack_checks": {
-    "checks": 13485,
+    "checks": 13489,
     "failures": 0,
     "frames": 12672,
-    "texture_load_ms": 5304.064
+    "texture_load_ms": 6220.313
   },
   "pack_trim": {
-    "original_bytes": 998192752,
-    "candidate_bytes": 895497676,
-    "untouched_files": 1081,
-    "removed_files": 281,
+    "original_bytes": 998220344,
+    "candidate_bytes": 895521524,
+    "untouched_files": 1087,
+    "removed_files": 282,
     "removed_by_group": {
       "fallback_key_atlases": 95008019,
-      "unused_and_art_prompts": 7041760
+      "unused_and_art_prompts": 7045426
     },
     "identical_payload_reuse": 615868,
     "removed_paths": {
@@ -316,6 +321,7 @@
         "assets/boss/boss_bar_frame.svg.import",
         "assets/boss/weakpoint.svg.import",
         "data/news_v054.json",
+        "data/news_v055.json",
         "data/v042_art_prompts.json",
         "data/v050_art_prompts.json",
         "data/v051_art_prompts.json",
@@ -332,12 +338,50 @@
     }
   },
   "input_documents": {
-    "pc端待办1.docx": "2448b7903b1b9ae74807c50fcf5152026238f521f603f88f5480bab18f411cb9",
-    "草木改动与新增1.docx": "e92419ea631bb3aa3b6e78f8f12823ccbe786e96e06af61627094025542e3101"
+    "pc端待办1.docx": "899cd64b293d02ae6d5aa2005b69e90feb341cf032d00190c5f6c5b4cf205be5",
+    "草木平衡性检查_v0.5.5.md": "63f604797860e23b00bc3063703aa1264908aec6540fe694c3e3a2f3b8b55394"
   },
-  "new_clips": 26,
-  "new_frames": 832,
-  "portraits": 11,
+  "new_clips": 0,
+  "new_frames": 0,
+  "portraits": 0,
+  "campaign_review": {
+    "runs": 100,
+    "strategy_unchanged": true,
+    "outcome_changes": [
+      {
+        "night": "normal:10",
+        "before": "lost",
+        "after": "won"
+      },
+      {
+        "night": "normal:12",
+        "before": "won",
+        "after": "lost"
+      },
+      {
+        "night": "hard:18",
+        "before": "lost",
+        "after": "won"
+      },
+      {
+        "night": "nightmare:8",
+        "before": "won",
+        "after": "lost"
+      },
+      {
+        "night": "nightmare:9",
+        "before": "lost",
+        "after": "won"
+      }
+    ],
+    "wins": {
+      "easy": 16,
+      "normal": 15,
+      "hard": 14,
+      "nightmare": 11
+    },
+    "failures": 0
+  },
   "campaigns": {
     "easy": {
       "runs": 25,
@@ -349,7 +393,7 @@
     },
     "hard": {
       "runs": 25,
-      "won": 13
+      "won": 14
     },
     "nightmare": {
       "runs": 25,

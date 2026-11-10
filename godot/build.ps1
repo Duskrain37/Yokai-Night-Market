@@ -91,6 +91,11 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw '新增草木恶客检查失败' }
     & $enginePath --headless --path $projectPath --script res://tools/qa_v055.gd --log-file (Join-Path $qa 'v055-tests.log')
     if ($LASTEXITCODE -ne 0) { throw 'v0.5.5 rules failed' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_v056.gd --log-file (Join-Path $qa 'v056-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw 'v0.5.6 balance failed' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_update.gd --log-file (Join-Path $qa 'v056-update-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw 'v0.5.6 update failed' }
+
 
 
 

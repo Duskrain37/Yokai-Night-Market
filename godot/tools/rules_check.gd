@@ -1029,12 +1029,12 @@ static func _star_beam(sim, dir: Vector2):
 
 
 ## 五路巡灯（批复版）：照法管这一道多亮、旋法管转多快、巡天保持原稿。
-## 白板 20 伤 / 1.6 秒 / 五向只写在 content 一处。
+## 白板 28 伤 / 1.4 秒 / 五向只写在 content 一处。
 static func _check_star(h) -> void:
 	var fx: Dictionary = Upgrades.EFFECTS["star"]
 	var def: Dictionary = Content.PLANTS["star"]["star"]
 	for tier in 4:
-		var want = [1.6,1.4,1.2,1.0][tier]
+		var want = [1.4,1.25,1.1,.95][tier]
 		var sim = h.sim_for(6, ["star"], "easy")
 		h.check("五路寻灯", "第%d档攻速独立结算" % tier,
 			is_equal_approx(sim._star_interval(fx, def, tier), want))
@@ -1047,7 +1047,7 @@ static func _check_star(h) -> void:
 	lamp.timer = 2.0
 	sim._update_star(lamp, 0.02)
 	var first = sim.shots[0]
-	h.check("五路寻灯", "伤害路线三级基础伤害36", is_equal_approx(first.damage, 36.0),
+	h.check("五路寻灯", "伤害路线三级基础伤害46", is_equal_approx(first.damage, 46.0),
 		"%.1f" % first.damage)
 	sim._star_impact(first, victim)
 	h.check("五路寻灯", "击杀得一层激励5秒", lamp.star_morale_stacks == 1
@@ -1058,7 +1058,7 @@ static func _check_star(h) -> void:
 	next.hp = 90000.0
 	sim._update_star(lamp, 0.02)
 	h.check("五路寻灯", "一层激励追加10%伤害",
-		is_equal_approx(sim.shots[0].damage, 39.6))
+		is_equal_approx(sim.shots[0].damage, 50.6))
 	lamp.star_morale_stacks = 3
 	lamp.star_morale_until = sim.time - 0.01
 	sim._update_star(lamp, 0.02)
@@ -1374,8 +1374,8 @@ static func _check_censer(h) -> void:
 		censer.upgrades[3] = tier
 		var values = sim.censer_effect(censer)
 		h.check("香炉", "第%d阶半径与喷烟间隔" % tier,
-			is_equal_approx(values.radius / Geo.CELL_W, [0, 1.6, 1.9, 2.3][tier])
-			and is_equal_approx(values.interval, [0, 2.15, 1.8, 1.45][tier]))
+			is_equal_approx(values.radius / Geo.CELL_W, [0, 1.8, 2.1, 2.5][tier])
+			and is_equal_approx(values.interval, [0, 2.15, 1.8, 1.35][tier]))
 	censer.upgrades = {1: 0, 2: 2, 3: 0}
 	var doomed = sim.spawn_zombie("ghost", 2, {"x": censer.pos.x + 110.0})
 	var outside = sim.spawn_zombie("bucket", 2, {"x": censer.pos.x + 190.0})

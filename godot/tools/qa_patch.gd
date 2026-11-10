@@ -132,8 +132,8 @@ func v051_content_regressions() -> void:
  sim.spawn_zombie("ghost", 0, {"x": star.pos.x + 100.0})
  sim.shots.clear()
  sim._update_star(star, 2.0)
- check("巡灯基础36、激励30%、两种庇护各25%相加，弱灯笼不叠加",
-  is_equal_approx(star.buff_damage, 0.5) and not sim.shots.is_empty() and is_equal_approx(sim.shots[0].damage, 64.8))
+ check("巡灯基础46、激励30%、两种庇护各25%相加，弱灯笼不叠加",
+  is_equal_approx(star.buff_damage, 0.5) and not sim.shots.is_empty() and is_equal_approx(sim.shots[0].damage, 82.8))
  var pod = sim.place_free("cash-pod", 6, 0)
  var start = sim.sun
  sim.damage_plant(pod, 99.0)

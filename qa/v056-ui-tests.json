@@ -1,0 +1,106 @@
+{
+  "checks": [
+    {
+      "name": "封面有检查更新入口",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·checking完整窗口在视野内",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·checking底部按钮在窗内",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·checking按钮主次正确",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·downloading完整窗口在视野内",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·downloading底部按钮在窗内",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·downloading按钮主次正确",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·ready完整窗口在视野内",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·ready底部按钮在窗内",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·ready按钮主次正确",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·failed完整窗口在视野内",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·failed底部按钮在窗内",
+      "ok": true
+    },
+    {
+      "name": "字号1.0·failed按钮主次正确",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·checking完整窗口在视野内",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·checking底部按钮在窗内",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·checking按钮主次正确",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·downloading完整窗口在视野内",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·downloading底部按钮在窗内",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·downloading按钮主次正确",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·ready完整窗口在视野内",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·ready底部按钮在窗内",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·ready按钮主次正确",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·failed完整窗口在视野内",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·failed底部按钮在窗内",
+      "ok": true
+    },
+    {
+      "name": "字号1.2·failed按钮主次正确",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 25
+}

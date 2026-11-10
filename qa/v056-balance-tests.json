@@ -1,0 +1,694 @@
+{
+  "checks": [
+    {
+      "name": "lantern本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "lantern进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "lantern路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lantern路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lantern路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lantern效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "shooter本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "shooter进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "shooter路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "shooter路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "shooter路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "shooter效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "wall本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "wall进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "wall路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "wall路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "wall路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "wall效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "bomb本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "bomb进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "bomb效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "bell本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "bell进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "bell路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "bell路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "bell路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "bell效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "censer本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "censer进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "censer路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "censer路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "censer路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "censer效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "umbrella本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "umbrella进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "umbrella路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "umbrella路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "umbrella路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "umbrella效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "lion本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "lion进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "lion路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lion路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lion路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lion效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "mushroom本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "mushroom进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "mushroom效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "cat本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "cat进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "cat路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "cat路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "cat路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "cat效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "shell本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "shell进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "shell效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "lobber本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "lobber进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "lobber路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lobber路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lobber路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "lobber效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "torch本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "torch进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "torch路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "torch路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "torch路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "torch效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "star本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "star进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "star路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "star路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "star路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "star效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "needle本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "needle进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "needle路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "needle路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "needle路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "needle效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "judge本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "judge进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "judge路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "judge路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "judge路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "judge效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "lily本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "lily进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "lily效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "kelp本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "kelp进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "kelp效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "gust本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "gust进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "gust效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "firework本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "firework进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "firework路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "firework路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "firework路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "firework效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "squash本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "squash进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "squash效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "dragon本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "dragon进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "dragon路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "dragon路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "dragon路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "dragon效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "ruin-cap本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "ruin-cap进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "ruin-cap效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "sky-kite本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "sky-kite进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "sky-kite路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "sky-kite路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "sky-kite路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "sky-kite效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "wish-till本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "wish-till进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "wish-till路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "wish-till路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "wish-till路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "wish-till效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "cash-pod本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "cash-pod进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "cash-pod效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "ember-cicada本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "ember-cicada进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "ember-cicada路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "ember-cicada路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "ember-cicada路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "ember-cicada效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "herb-gourd本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "herb-gourd进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "herb-gourd路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "herb-gourd路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "herb-gourd路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "herb-gourd效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "reed-chime本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "reed-chime进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "reed-chime路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "reed-chime路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "reed-chime路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "reed-chime效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "soul-casket本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "soul-casket进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "soul-casket路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "soul-casket路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "soul-casket路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "soul-casket效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "year-banyan本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "year-banyan进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "year-banyan路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "year-banyan路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "year-banyan路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "year-banyan效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar本体仅改变获批数字",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar进化路数保持",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar路线0费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar路线1费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar路线2费用与机制保持",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar效果表无越权变更",
+      "ok": true
+    },
+    {
+      "name": "恶客、关卡、推荐表未改",
+      "ok": true
+    },
+    {
+      "name": "篁音仍穿过束内全部三客",
+      "ok": true
+    },
+    {
+      "name": "篁音三阶数值",
+      "ok": true
+    },
+    {
+      "name": "灵枢增伤与复制率",
+      "ok": true
+    },
+    {
+      "name": "禁止非法双毕业搭配",
+      "ok": true
+    },
+    {
+      "name": "图鉴与实际基础一致",
+      "ok": true
+    },
+    {
+      "name": "公告版本与获批七株齐备",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 172
+}

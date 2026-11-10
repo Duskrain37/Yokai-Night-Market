@@ -389,9 +389,9 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("攻击间隔","6.3秒；炮弹升空后1.5秒落下","time"))
 			rows.append(_row("目标","自动轰击最密集的一群恶客，炮弹落点锁定","desc"))
 		"reed-chime":
-			rows.append(_row("竹声伤害", "36", "atk"));rows.append(_row("攻击间隔", "1.7 秒", "time"));rows.append(_row("范围", "正前方三格的窄束范围攻击", "desc"))
+			rows.append(_row("竹声伤害", str(Upgrades.EFFECTS["reed-chime"].damage[0]), "atk"));rows.append(_row("攻击间隔", "1.6 秒", "time"));rows.append(_row("范围", "正前方三格的窄束范围攻击", "desc"))
 		"soul-casket":
-			rows.append(_row("收弹", "5发；每0.09秒放出一发", "desc"));rows.append(_row("收弹冷却", "放出后3.5秒", "time"))
+			rows.append(_row("收弹", "5发；每0.09秒放出一发", "desc"));rows.append(_row("收弹冷却", "放出后3.5秒", "time"));rows.append(_row("借弹增幅","基础10%，可进化为20%与30%","desc"))
 		"herb-gourd":
 			rows.append(_row("治疗", "50", "hp"))
 			rows.append(_row("治疗间隔", "1.6 秒", "time"))

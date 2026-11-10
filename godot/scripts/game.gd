@@ -18,7 +18,7 @@ var _loading_hold: Dictionary = {}
 var load_timings: Array=[]
 var _loading_busy := false
 
-const VERSION = "0.5.5"
+const VERSION = "0.5.6"
 const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
 var touch_router: Node
 const SAVE_PATH = "user://run.json"
@@ -174,6 +174,10 @@ func _ready() -> void:
 	show_menu()
 	if _loading_screen != null:
 		await _reveal_loaded()
+	if not mobile:
+		preload("res://scripts/update_installer.gd").acknowledge(Build.BUILD_HASH)
+		var notice="" if _qa else preload("res://scripts/update_installer.gd").notice()
+		if not notice.is_empty():OS.alert(notice,"夜市更新")
 	_handle_cli()
 	if mobile and _qa and "--mobile-smoke" in OS.get_cmdline_user_args():
 		var runner=load("res://scripts/qa_mobile_device.gd").new()
@@ -1771,6 +1775,14 @@ func _handle_cli() -> void:
 			match target:
 				"menu":
 					show_menu()
+				"update":
+					if _qa and not mobile:
+						show_menu();screen_node._open_update()
+						var dialog=screen_node.get_node("UpdateDialog")
+						await get_tree().create_timer(.2).timeout
+						var until=Time.get_ticks_msec()+40000
+						while dialog.updater.phase=="checking" and Time.get_ticks_msec()<until:await get_tree().create_timer(.1).timeout
+						print("UPDATE_PROBE ",dialog.updater.phase," latest=",dialog.updater.latest_version)
 				"levels":
 					show_levels()
 					if _qa and _qa_prep_level>1:screen_node.switch_to_level(_qa_prep_level)

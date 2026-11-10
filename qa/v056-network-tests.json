@@ -1,0 +1,145 @@
+{
+  "cases": [
+    {
+      "checks": [
+        {
+          "name": "非206或错误块拒绝完成",
+          "ok": true
+        },
+        {
+          "name": "原游戏未被覆盖",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "mode": "refuse",
+      "phase": "failed",
+      "received": 0,
+      "required": 4804491,
+      "reused": 890717911
+    },
+    {
+      "checks": [
+        {
+          "name": "非206或错误块拒绝完成",
+          "ok": true
+        },
+        {
+          "name": "原游戏未被覆盖",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "mode": "corrupt",
+      "phase": "failed",
+      "received": 0,
+      "required": 4804491,
+      "reused": 890717911
+    },
+    {
+      "checks": [
+        {
+          "name": "可即时取消",
+          "ok": true
+        },
+        {
+          "name": "原游戏未被覆盖",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "mode": "cancel",
+      "phase": "cancelled",
+      "received": 0,
+      "required": 4804491,
+      "reused": 890717911
+    },
+    {
+      "checks": [
+        {
+          "name": "非206或错误块拒绝完成",
+          "ok": true
+        },
+        {
+          "name": "原游戏未被覆盖",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "mode": "interrupted",
+      "phase": "failed",
+      "received": 4257913,
+      "required": 4804491,
+      "reused": 890717911
+    },
+    {
+      "checks": [
+        {
+          "name": "差量准备完成",
+          "ok": true
+        },
+        {
+          "name": "传输小于全量10%",
+          "ok": true
+        },
+        {
+          "name": "输出与正式EXE完全一致",
+          "ok": true
+        },
+        {
+          "name": "fixture不会退出或安装",
+          "ok": true
+        },
+        {
+          "name": "原游戏未被覆盖",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "mode": "good",
+      "phase": "ready",
+      "received": 546578,
+      "required": 546578,
+      "reused": 890717911
+    },
+    {
+      "checks": [
+        {
+          "name": "差量准备完成",
+          "ok": true
+        },
+        {
+          "name": "传输小于全量10%",
+          "ok": true
+        },
+        {
+          "name": "输出与正式EXE完全一致",
+          "ok": true
+        },
+        {
+          "name": "fixture不会退出或安装",
+          "ok": true
+        },
+        {
+          "name": "原游戏未被覆盖",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "mode": "good",
+      "phase": "ready",
+      "received": 0,
+      "required": 0,
+      "reused": 890717911
+    }
+  ],
+  "target": "final v0.5.6 EXE",
+  "source": "published v0.5.5 EXE",
+  "uncached_range_bytes": 4804491,
+  "resumed_bytes": 546578,
+  "cached_retry_bytes": 0,
+  "byte_identical": true,
+  "original_unchanged": true,
+  "failures": 0,
+  "total": 21
+}

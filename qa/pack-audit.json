@@ -1,11 +1,11 @@
 {
-  "original_bytes": 998192752,
-  "candidate_bytes": 895497676,
-  "untouched_files": 1081,
-  "removed_files": 281,
+  "original_bytes": 998220344,
+  "candidate_bytes": 895521524,
+  "untouched_files": 1087,
+  "removed_files": 282,
   "removed_by_group": {
     "fallback_key_atlases": 95008019,
-    "unused_and_art_prompts": 7041760
+    "unused_and_art_prompts": 7045426
   },
   "identical_payload_reuse": 615868,
   "removed_paths": {
@@ -281,6 +281,7 @@
       "assets/boss/boss_bar_frame.svg.import",
       "assets/boss/weakpoint.svg.import",
       "data/news_v054.json",
+      "data/news_v055.json",
       "data/v042_art_prompts.json",
       "data/v050_art_prompts.json",
       "data/v051_art_prompts.json",

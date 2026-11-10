@@ -32,7 +32,7 @@ const TIERS = {
 # ── 草木 ────────────────────────────────────────────────────────────────────
 # cost 香火 / cooldown 冷却秒 / hp 耐久 / sprite_h 立绘高度基准（像素，1600×900 画布）
 const PLANTS = {
-	"year-banyan":{"name": "岁灯榕", "role": "产能", "cost": 100, "cooldown": 9, "hp": 300, "sprite_h": 88, "growth_tree": true, "produce": {"interval": 10.0, "first": 3.0, "value": 50}, "tint": "#b9a05f"},
+	"year-banyan":{"name": "岁灯榕", "role": "产能", "cost": 125, "cooldown": 9, "hp": 300, "sprite_h": 88, "growth_tree": true, "produce": {"interval": 10.0, "first": 3.0, "value": 50}, "tint": "#b9a05f"},
 	"sky-mortar":{"name": "镇霄炮", "role": "抛射", "cost": 350, "cooldown": 18, "hp": 400, "sprite_h": 110, "sky_mortar": true, "tint": "#ae7951"},
 
 	"reed-chime":{"name":"篁音簇","role":"范围","cost":175,"cooldown":10,"hp":320,"sprite_h":104,"reed_chime":true,"tint":"#9a9b62"},
@@ -61,7 +61,7 @@ const PLANTS = {
 		"sprite_h": 96, "pulse": {"interval": 2.5, "slow": 0.25,
 			"slow_duration": 1.5}, "tint": "#d8ab4c",
 	},
-	"censer": {"name": "香炉", "role": "范围", "cost": 150, "cooldown": 8, "hp": 340, "sprite_h": 90, "censer": {"interval": 2.5, "radius": 140.0, "damage": 45.0}, "tint": "#a4845c"},
+	"censer": {"name": "香炉", "role": "范围", "cost": 150, "cooldown": 8, "hp": 340, "sprite_h": 90, "censer": {"interval": 2.5, "radius": 156.0, "damage": 50.0}, "tint": "#a4845c"},
 	"umbrella": {
 		"name": "纸伞", "role": "收妖", "cost": 150, "cooldown": 12, "hp": 900,
 		"sprite_h": 112, "chomp": {"reach": 74.0, "chew": 6.0,
@@ -89,7 +89,7 @@ const PLANTS = {
 	},
 	"star": {
 		"name": "五路巡灯", "role": "五向", "cost": 175, "cooldown": 9, "hp": 300,
-		"sprite_h": 100, "star": {"interval": 1.6, "damage": 20.0, "dirs": 5}, "tint": "#e8c25c",
+		"sprite_h": 100, "star": {"interval": 1.4, "damage": 28.0, "dirs": 5}, "tint": "#e8c25c",
 	},
 	"needle": {"name": "透骨针", "role": "破甲", "cost": 125, "cooldown": 8, "hp": 300, "sprite_h": 92, "needle": {"interval": 1.6, "damage": 24, "speed": 720.0}, "tint": "#e4dcc4"},
 	"judge": {
@@ -109,7 +109,7 @@ const PLANTS = {
 		"name": "镇煞瓜", "role": "灰烬", "cost": 75, "cooldown": 30, "hp": 300,
 		"sprite_h": 88, "ash": true, "no_upgrade": true, "squash": true, "tint": "#91a46b",
 	},
-	"dragon": {"name": "龙首铳", "role": "近攻", "cost": 325, "cooldown": 10, "hp": 300, "sprite_h": 102, "dragon": true, "tint": "#b08d54"},
+	"dragon": {"name": "龙首铳", "role": "近攻", "cost": 350, "cooldown": 10, "hp": 300, "sprite_h": 102, "dragon": true, "tint": "#b08d54"},
 	"lily": {
 		"name": "夜莲", "role": "浮台", "cost": 25, "cooldown": 5, "hp": 260,
 		"sprite_h": 56, "lily": true, "water_only": true, "no_upgrade": true,
@@ -117,7 +117,7 @@ const PLANTS = {
 	},
 	"herb-gourd": {"name":"回春葫","role":"扶伤","cost":175,"cooldown":22,"hp":300,"sprite_h":100,"healer":true,"tint":"#719e85"},
 	"ruin-cap": {"name": "劫火芝", "role": "灰烬", "cost": 275, "cooldown": 56, "hp": 300, "sprite_h": 108, "ash": true, "no_upgrade": true, "ruin": {"fuse": 1.1, "reach": 2, "damage": 1800}, "tint": "#8b638c"},
-	"sky-kite": {"name": "逐云鸢", "role": "抛射", "cost": 200, "cooldown": 8, "hp": 300, "sprite_h": 105, "kite": {"interval": 1.3}, "tint": "#60958c"},
+	"sky-kite": {"name": "逐云鸢", "role": "抛射", "cost": 225, "cooldown": 8, "hp": 300, "sprite_h": 105, "kite": {"interval": 1.3}, "tint": "#60958c"},
 	"wish-till": {"name": "清账匣", "role": "产能", "cost": 75, "cooldown": 16, "hp": 300, "sprite_h": 92, "till": true, "tint": "#a18452"},
 	"cash-pod": {"name": "铜钱荚", "role": "灰烬", "cost": 0, "cooldown": 26, "hp": 400, "sprite_h": 78, "ash": true, "no_upgrade": true, "cash_pod": true, "tint": "#a35336"},
 	"ember-cicada": {"name": "烬翼蝉", "role": "追魂", "cost": 275, "cooldown": 10, "hp": 320, "sprite_h": 105, "ember": true, "tint": "#b9673e"},

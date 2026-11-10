@@ -13,6 +13,10 @@ func _ready() -> void:
 	_title_block()
 	_menu_buttons()
 	_information_button()
+	if not game.mobile:
+		var update=Ui.button("检查更新",17,148,40)
+		update.position=Vector2(1328,44);update.name="CheckUpdate"
+		update.pressed.connect(_open_update);add_child(update)
 	_records_card()
 	_decor()
 	_petals_setup()
@@ -376,3 +380,10 @@ func _information_button() -> void:
 	button.add_theme_color_override("font_color", Ui.GOLD_BRIGHT)
 	button.pressed.connect(game.open_news)
 	add_child(button)
+
+
+func _open_update():
+	var existing=get_node_or_null("UpdateDialog")
+	if existing!=null:existing.grab_focus();return
+	var dialog=load("res://ui/update_dialog.gd").new();dialog.game=game;dialog.name="UpdateDialog"
+	add_child(dialog);dialog.popup_centered()

@@ -71,7 +71,7 @@ def remove_candidates(pack):
               "assets/bg/loading-menu.png"}
     return {
         "fallback_key_atlases": set().union(*(pack.imported(x) for x in removable_sources)),
-        "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name in {"data/v055_art_sources.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json"})}
+        "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name in {"data/v055_art_sources.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json","data/news_v055.json"})}
             | set().union(*(pack.imported(x) for x in unused if x + ".import" in pack.entries)),
     }
 

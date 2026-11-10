@@ -25,26 +25,26 @@ func run():
  var s:=sim_for();var p=s.place_free("reed-chime",2,2);p.timer=10
  var z=target(s,2,p.pos.x+180);var behind=target(s,2,p.pos.x-80);var far=target(s,2,p.pos.x+400)
  s._update_reed_chime(p,0)
- check("竹声基础36且不打身后超距",z.hp==9964 and behind.hp==10000 and far.hp==10000)
+ check("竹声基础42且不打身后超距",z.hp==9958 and behind.hp==10000 and far.hp==10000)
  p.upgrades={1:1,2:3,3:0};p.timer=10
  var up=target(s,1,p.pos.x);var down=target(s,3,p.pos.x)
  s._update_reed_chime(p,0)
- check("竹声上下两束",up.hp==9964 and down.hp==9964 and is_equal_approx(up.slow_amount,.4))
+ check("竹声上下两束",up.hp==9958 and down.hp==9958 and is_equal_approx(up.slow_amount,.45))
  p.upgrades={1:3,2:0,3:0};p.timer=10;s.particles=[];s._update_reed_chime(p,0)
  check("半圆七向只向有客方向出手",s.particles.filter(func(fx):return fx.kind=="reed_beam").size()==3)
  s=sim_for();p=s.place_free("reed-chime",2,2);p.upgrades={1:0,2:0,3:3};p.timer=10
  for i in 5:target(s,2,p.pos.x+60+i*40)
  s._update_reed_chime(p,0)
- check("前束五命中获得速击",p.reed_quick and s.zombies.all(func(g):return g.hp==9940))
- p.timer=0;s._update_reed_chime(p,.74);check("强化后下次未过0.75秒不打",s.zombies[0].hp==9940)
- s._update_reed_chime(p,.02);check("五命中下次0.75秒后出手",s.zombies[0].hp==9880)
+ check("前束五命中获得速击",p.reed_quick and s.zombies.all(func(g):return g.hp==9930))
+ p.timer=0;s._update_reed_chime(p,.69);check("强化后下次未过0.7秒不打",s.zombies[0].hp==9930)
+ s._update_reed_chime(p,.02);check("五命中下次0.7秒后出手",s.zombies[0].hp==9860)
  s=sim_for();p=s.place_free("soul-casket",2,2);target(s,2,p.pos.x+240)
  for i in 4:s._relay_capture(p,packet())
  check("未满五发只收不放",p.collector_store.size()==4 and s.shots.is_empty())
  s._relay_capture(p,packet())
  check("五发按0.09秒节奏放出",s.shots.size()==5 and is_equal_approx(s.shots[4].delay,.36) and is_equal_approx(p.collector_ready_at,3.5))
  var shot: Sim.Shot=s.shots[0]
- check("收弹保留特殊与增幅",shot.kind=="homing" and shot.relay_original=="pea" and shot.src=="needle" and shot.look=="frost-sign" and shot.damage==60 and shot.pierce_left==2 and shot.pierce_armor and shot.burn==12 and shot.vuln==.2 and shot.torch_splash_ratio==.2)
+ check("收弹保留特殊与增幅",shot.kind=="homing" and shot.relay_original=="pea" and shot.src=="needle" and shot.look=="frost-sign" and is_equal_approx(shot.damage,66) and shot.pierce_left==2 and shot.pierce_armor and shot.burn==12 and shot.vuln==.2 and shot.torch_splash_ratio==.2)
  check("冷却期不挡弹",not s._collector_open(p))
  s.time=3.5;check("三点五秒恢复收弹",s._collector_open(p))
  var collision:=packet();collision.pos=p.pos+Vector2(-25,-25);collision.row=p.row
@@ -64,7 +64,7 @@ func run():
   check("开窍档%d容量冷却"%tier,s.shots.size()==capacity and is_equal_approx(p.collector_ready_at,[3.5,3.0,2.5,0.0][tier]))
  s=sim_for();p=s.place_free("soul-casket",2,2);p.upgrades={1:3,2:2,3:0}
  for i in 10:s._relay_capture(p,packet())
- check("借威独立增伤20%",is_equal_approx(s.shots[0].damage,72.0))
+ check("借威独立增伤30%",is_equal_approx(s.shots[0].damage,78.0))
  s=sim_for();p=s.place_free("soul-casket",2,2);p.upgrades={1:0,2:0,3:3}
  for i in 161:s._relay_capture(p,packet())
  check("累计收弹耐久上限2000",p.max_hp==2000)

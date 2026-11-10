@@ -6242,7 +6242,7 @@ func _beam_targets(origin: Vector2,direction: Vector2,length: float,width: float
 
 func _update_reed_chime(plant: Plant,dt: float) -> void:
 	var tier:=plant.tier(3)
-	var interval: float=[1.7,1.55,1.4,1.25][tier]
+	var interval: float=Upgrades.EFFECTS["reed-chime"].interval[tier]
 	interval=maxf(.2,interval-(.5 if plant.reed_quick else 0.0))/plant.attack_rate()
 	plant.timer+=dt
 	var angles: Array=[0.0]
@@ -6257,8 +6257,8 @@ func _update_reed_chime(plant: Plant,dt: float) -> void:
 	if armed.is_empty():plant.timer=minf(plant.timer,interval);return
 	if plant.timer<interval:return
 	plant.timer-=interval;plant.reed_quick=false;plant.action_at=time;plant.recoil=1.0
-	var damage: float=[36.0,42.0,48.0,60.0][tier]*plant.damage_multiplier()
-	var slow: float=[0.0,.1,.2,.4][plant.tier(2)]
+	var damage: float=Upgrades.EFFECTS["reed-chime"].damage[tier]*plant.damage_multiplier()
+	var slow: float=Upgrades.EFFECTS["reed-chime"].slow[plant.tier(2)]
 	var front_hits:=0
 	for angle in armed:
 		var direction:=Vector2(cos(angle),sin(angle))
@@ -6294,7 +6294,7 @@ func _relay_capture(plant: Plant,shot: Shot) -> void:
 	var index:=0
 	for stored in cargo:
 		_relay_release(plant,stored,index*.09)
-		if plant.tier(2)>=3 and rng.randf()<.2:_relay_release(plant,stored,index*.09+.18)
+		if plant.tier(2)>=3 and rng.randf()<float(Upgrades.EFFECTS["soul-casket"].copy_chance):_relay_release(plant,stored,index*.09+.18)
 		index+=1
 	plant.action_at=time;plant.recoil=1.0;sfx("relay_release")
 
@@ -6306,7 +6306,7 @@ func _relay_release(plant: Plant,packet: Dictionary,delay: float) -> Shot:
 	var targets:=nearest_zombies(plant.pos,1,shot.hit_ids)
 	shot.target=targets[0] if not targets.is_empty() else null;shot.row=plant.row;shot.delay=delay;shot.dir=Vector2.RIGHT
 	shot.speed=maxf(180.0,shot.speed if shot.speed>0 else 500.0)
-	shot.relay_bonus+=float([0,.1,.2,.2][plant.tier(2)])
+	shot.relay_bonus+=float(Upgrades.EFFECTS["soul-casket"].bonus[plant.tier(2)])
 	shot.relay_multiplier*=plant.damage_multiplier()
 	if shot.base_damage<=0:shot.base_damage=shot.damage
 	shot.damage=_shot_damage(shot)

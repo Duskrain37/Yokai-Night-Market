@@ -70,7 +70,7 @@ func run():
 	s=setup();p=s.place_free("soul-casket",2,2);p.buff_damage=.5;p.haste=10
 	shot=Sim.Shot.new();shot.kind="pea";shot.src="shooter";shot.base_damage=20;shot.damage=30;shot.lantern_buff=.5
 	var packet:=s.pack_unit(shot);s._relay_release(p,packet,0)
-	check("原弹增伤与灵枢增伤独立乘算45",is_equal_approx(s.shots[0].damage,45))
+	check("原弹增伤与灵枢增伤独立乘算49.5",is_equal_approx(s.shots[0].damage,49.5))
 	s._relay_capture(p,shot);check("灵枢攻速不改变收弹门槛",p.collector_store.size()==1 and s.shots.size()==1)
 	s=setup();p=s.place_free("sky-mortar",2,2);var a=guest(s,0,1000);var b=guest(s,3,1100);var c=guest(s,3,1140)
 	check("炮弹选择最密集位置",s._mortar_aim() in [b,c])

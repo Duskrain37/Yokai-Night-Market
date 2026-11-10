@@ -2,103 +2,115 @@
   {
     "suite": "logic",
     "exit": 0,
-    "seconds": 1.0,
+    "seconds": 1.7,
     "issues": []
   },
   {
     "suite": "battle",
     "exit": 0,
-    "seconds": 12.2,
+    "seconds": 20.3,
     "issues": []
   },
   {
     "suite": "boss",
     "exit": 0,
-    "seconds": 0.6,
+    "seconds": 0.8,
     "issues": []
   },
   {
     "suite": "special",
     "exit": 0,
-    "seconds": 1.3,
+    "seconds": 1.6,
     "issues": []
   },
   {
     "suite": "click",
     "exit": 0,
-    "seconds": 5.4,
+    "seconds": 7.5,
     "issues": []
   },
   {
     "suite": "player_ui",
     "exit": 0,
-    "seconds": 3.4,
+    "seconds": 5.7,
     "issues": []
   },
   {
     "suite": "patch",
     "exit": 0,
-    "seconds": 5.4,
+    "seconds": 7.3,
     "issues": []
   },
   {
     "suite": "animation",
     "exit": 0,
-    "seconds": 9.3,
+    "seconds": 13.1,
     "issues": []
   },
   {
     "suite": "v050",
     "exit": 0,
-    "seconds": 0.6,
+    "seconds": 0.8,
     "issues": []
   },
   {
     "suite": "v051_refresh",
     "exit": 0,
-    "seconds": 2.9,
+    "seconds": 3.8,
     "issues": []
   },
   {
     "suite": "v052",
     "exit": 0,
-    "seconds": 2.9,
+    "seconds": 3.7,
     "issues": []
   },
   {
     "suite": "v053",
     "exit": 0,
-    "seconds": 4.0,
+    "seconds": 6.3,
     "issues": []
   },
   {
     "suite": "v054",
     "exit": 0,
-    "seconds": 4.1,
+    "seconds": 5.5,
     "issues": []
   },
   {
     "suite": "v054_content",
     "exit": 0,
-    "seconds": 0.6,
+    "seconds": 0.7,
     "issues": []
   },
   {
     "suite": "nightmare",
     "exit": 0,
-    "seconds": 3.0,
+    "seconds": 3.8,
     "issues": []
   },
   {
     "suite": "dual_soak",
     "exit": 0,
-    "seconds": 8.5,
+    "seconds": 13.1,
     "issues": []
   },
   {
     "suite": "v055",
     "exit": 0,
-    "seconds": 0.5,
+    "seconds": 0.6,
+    "issues": []
+  },
+  {
+    "suite": "update",
+    "exit": 0,
+    "seconds": 0.3,
+    "issues": []
+  },
+  {
+    "suite": "v056",
+    "exit": 0,
+    "seconds": 0.6,
     "issues": []
   }
 ]

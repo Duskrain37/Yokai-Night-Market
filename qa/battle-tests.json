@@ -7,13 +7,13 @@
       "ok": true
     },
     {
-      "detail": "won=true lost=false t=223.7 kills=41 wave=12 sun=165 plants=40",
+      "detail": "won=true lost=false t=221.6 kills=41 wave=12 sun=265 plants=40",
       "group": "对局",
       "name": "第一夜 能推进到后段并正常终局",
       "ok": true
     },
     {
-      "detail": "max_shots=57",
+      "detail": "max_shots=61",
       "group": "对局",
       "name": "第一夜 有射弹出手",
       "ok": true
@@ -31,7 +31,7 @@
       "ok": true
     },
     {
-      "detail": "t=223.7",
+      "detail": "t=221.6",
       "group": "对局",
       "name": "第一夜 用时在合理区间",
       "ok": true
@@ -43,19 +43,19 @@
       "ok": true
     },
     {
-      "detail": "won=true lost=false t=234.2 kills=53 wave=12 sun=150 plants=45",
+      "detail": "won=true lost=false t=240.0 kills=54 wave=12 sun=100 plants=45",
       "group": "对局",
       "name": "第六夜（六行） 能推进到后段并正常终局",
       "ok": true
     },
     {
-      "detail": "max_shots=44",
+      "detail": "max_shots=58",
       "group": "对局",
       "name": "第六夜（六行） 有射弹出手",
       "ok": true
     },
     {
-      "detail": "kills=53",
+      "detail": "kills=54",
       "group": "对局",
       "name": "第六夜（六行） 击退数合理",
       "ok": true
@@ -67,7 +67,7 @@
       "ok": true
     },
     {
-      "detail": "t=234.2",
+      "detail": "t=240.0",
       "group": "对局",
       "name": "第六夜（六行） 用时在合理区间",
       "ok": true
@@ -79,19 +79,19 @@
       "ok": true
     },
     {
-      "detail": "won=true lost=false t=233.3 kills=62 wave=12 sun=305 plants=41",
+      "detail": "won=true lost=false t=233.6 kills=61 wave=12 sun=475 plants=41",
       "group": "对局",
       "name": "第十一夜（暗河） 能推进到后段并正常终局",
       "ok": true
     },
     {
-      "detail": "max_shots=53",
+      "detail": "max_shots=61",
       "group": "对局",
       "name": "第十一夜（暗河） 有射弹出手",
       "ok": true
     },
     {
-      "detail": "kills=62",
+      "detail": "kills=61",
       "group": "对局",
       "name": "第十一夜（暗河） 击退数合理",
       "ok": true
@@ -103,7 +103,7 @@
       "ok": true
     },
     {
-      "detail": "t=233.3",
+      "detail": "t=233.6",
       "group": "对局",
       "name": "第十一夜（暗河） 用时在合理区间",
       "ok": true
@@ -163,13 +163,13 @@
       "ok": true
     },
     {
-      "detail": "t=223.5 kills=39 wave=12",
+      "detail": "t=226.3 kills=40 wave=12",
       "group": "存档",
       "name": "读回存档后能继续打完这一夜",
       "ok": true
     },
     {
-      "detail": "223.5 > 120.0",
+      "detail": "226.3 > 120.0",
       "group": "存档",
       "name": "续局时间接得上",
       "ok": true
@@ -237,5 +237,5 @@
   ],
   "failures": 0,
   "total": 39,
-  "version": "0.5.5"
+  "version": "0.5.6"
 }
