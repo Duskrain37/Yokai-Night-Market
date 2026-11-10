@@ -34,7 +34,7 @@ static func run_all(harness) -> void:
 
 
 static func _check_content(h) -> void:
-	h.check("内容", "30 种草木齐备", Content.PLANTS.size() == 30,
+	h.check("内容", "32 种草木齐备", Content.PLANTS.size() == 32,
 		"实际 %d" % Content.PLANTS.size())
 	h.check("内容", "27 种恶客齐备", Content.ZOMBIES.size() == 27,
 		"实际 %d" % Content.ZOMBIES.size())
@@ -168,7 +168,7 @@ static func _check_upgrade_rules(h) -> void:
 					detail += "%s-%d-%d=%d " % [type, path["id"], tier + 1, cost]
 				last = cost
 	h.check("升阶", "所有升阶费用都是 25 的倍数且逐阶递增", cost_ok, detail)
-	h.check("升阶", "21 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 21, detail)
+	h.check("升阶", "23 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 23, detail)
 	h.check("升阶", "签筒连发一级 100 香火",
 		Upgrades.tier_cost("shooter", 1, 1) == 100,
 		str(Upgrades.tier_cost("shooter", 1, 1)))
@@ -843,7 +843,7 @@ static func _check_needle(h) -> void:
 			var armor = z.armor
 			sim._strike_straight(shot, z)
 			h.check("透骨针", "第%d阶第%d针足额穿甲直伤" % [tier, i + 1],
-				is_equal_approx(z.hp, hp - [24.0,28.0,32.0,36.0][tier]) and is_equal_approx(z.armor, armor))
+				is_equal_approx(z.hp, hp - [24.0,30.0,36.0,42.0][tier]) and is_equal_approx(z.armor, armor))
 		h.check("透骨针", "第%d阶穿透数正确" % tier, shot.dead == (tier < 3))
 	plant.upgrades[2] = 3
 	plant.needle_shots = 3
@@ -855,8 +855,8 @@ static func _check_needle(h) -> void:
 	var large = sim.spawn_zombie("mountain", 2, {"x": 1250.0})
 	sim._strike_straight(pin, large)
 	sim._strike_straight(pin, enemies[4])
-	h.check("透骨针", "第四针只钉第一名；大型0.15秒",
-		is_equal_approx(large.stun_t, 0.15) and is_zero_approx(enemies[4].stun_t))
+	h.check("透骨针", "第四针只钉第一名；大型0.3秒",
+		is_equal_approx(large.stun_t, 0.3) and is_zero_approx(enemies[4].stun_t))
 	plant.upgrades[3] = 3
 	plant.timer = 1.1
 	sim._update_needle(plant, 0.0)
@@ -866,8 +866,8 @@ static func _check_needle(h) -> void:
 	var hp = target.hp
 	target.armor = 70.0
 	sim.damage_zombie(target, 100.0, true)
-	h.check("透骨针", "40%护具易伤与20%本体易伤分开结算",
-		is_equal_approx(target.armor, 0.0) and is_equal_approx(target.hp, hp - 60.0))
+	h.check("透骨针", "60%护具易伤与30%本体易伤分开结算",
+		is_equal_approx(target.armor, 0.0) and is_equal_approx(target.hp, hp - 73.0))
 	h.check("透骨针", "易伤持续2.5秒",
 		is_equal_approx(target.vuln_t, 2.5) and is_equal_approx(target.armor_vuln_until - sim.time, 2.5))
 

@@ -177,11 +177,11 @@ func _build_hud() -> void:
 		factor_plate.add_child(_factor_label)
 	# 卡槽
 	var cards = HBoxContainer.new()
-	cards.add_theme_constant_override("separation", 8)
+	cards.add_theme_constant_override("separation", 5)
 	cards.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	cards.anchor_left = 0.0
 	cards.anchor_right = 1.0
-	cards.offset_left = 300.0
+	cards.offset_left = 292.0
 	cards.offset_right = -300.0
 	cards.offset_top = 18.0
 	cards.offset_bottom = 130.0
@@ -194,7 +194,7 @@ func _build_hud() -> void:
 		card.index = i
 		card.card_id = String(sim.cards[i]["id"])
 		card.hud = self
-		card.custom_minimum_size = Vector2(78, 108)
+		card.custom_minimum_size = Vector2(74, 108)
 		cards.add_child(card)
 		_card_nodes.append(card)
 
@@ -1099,7 +1099,7 @@ func _build_result() -> void:
 	var summary: Dictionary = result.get("summary", {})
 	var breached_rows: Array = summary.get("breached_rows", [])
 	var mowers_used = int(summary.get("mowers_used", 0))
-	var plain = bool(result.get("tutorial", false)) or bool(result.get("training", false)) or bool(result.get("challenge",false))
+	var plain = bool(result.get("tutorial", false)) or bool(result.get("training", false))
 	var played: Dictionary = Content.get_level(int(result.get("level_id", 1)))
 	if not summary.is_empty():
 		var stars = clampi(int(summary.get("stars", 0)), 0, 3)
@@ -1136,9 +1136,7 @@ func _build_result() -> void:
 		stats.add_child(value)
 	box.add_child(Ui.spacer(6))
 	var comment = ""
-	if bool(result.get("challenge",false)):
-		comment="这一签已过十二分钟，未记成绩。再调整布阵试一次吧。" if bool(result.get("challenge_expired",false)) else "一夜重签 · 十二分钟内守到天亮，只按余香记分；使用调整的这一局不入榜。"
-	elif bool(result.get("tutorial", false)):
+	if bool(result.get("tutorial", false)):
 		comment = "灯、签、磨都齐了。十五夜还长，慢慢守。"
 	elif won:
 		comment = "灯还亮着，今夜收摊。"
@@ -1166,7 +1164,7 @@ func _build_result() -> void:
 		var retry = Ui.button("再来一次", 18 if won else 23, 152 if won else 230, 44 if won else 56, not won)
 		retry.pressed.connect(func(): game.restart_run())
 		row1.add_child(retry)
-		if won and not bool(result.get("challenge",false)):
+		if won:
 			var next_level = Content.next_story_level(int(result.get("level_id",1)))
 			var next = Ui.button("下一夜", 23, 224, 56, true)
 			next.disabled = next_level<=0
@@ -1255,7 +1253,7 @@ class CardButton extends Control:
 		# 名称与费用
 		var font = Ui.body_font()
 		var name_text = String(def["name"])
-		var name_size := Ui.font_size(15)
+		var name_size := mini(Ui.font_size(15),int((rect.size.x-6)/maxi(1,name_text.length())))
 		var width = font.get_string_size(name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x
 		draw_string(font, Vector2((rect.size.x - width) * 0.5, rect.size.y - 22),
 			name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size, Ui.TEXT)

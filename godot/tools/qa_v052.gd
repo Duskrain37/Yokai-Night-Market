@@ -49,10 +49,11 @@ func run() -> void:
 	for plant in s.plants:
 		plant.hp = plant.max_hp
 	var cat := s.place_free("cat", 3, 2)
+	var attack := s.place_free("shooter",5,2)
 	healer.timer = 99
 	s._update_healer(healer, 0.01)
 	s.refresh_plant_buffs()
-	check("满血改为鼓舞，追魂得到40%，其他20%", is_equal_approx(cat.haste, 0.4) and is_equal_approx(near.haste, 0.2))
+	check("满血鼓舞追魂40%、普通攻击20%、无攻击石磨不受益", is_equal_approx(cat.haste, 0.4) and is_equal_approx(attack.haste, 0.2) and near.haste==0)
 	s.time += 3.6
 	s.refresh_plant_buffs()
 	check("鼓舞在3.5秒后结束", cat.haste == 0.0)

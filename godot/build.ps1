@@ -89,8 +89,9 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw '噩梦规则检查失败' }
     & $enginePath --headless --path $projectPath --script res://tools/qa_v054_content.gd --log-file (Join-Path $qa 'v054-content-tests.log')
     if ($LASTEXITCODE -ne 0) { throw '新增草木恶客检查失败' }
-    & $enginePath --headless --path $projectPath --script res://tools/qa_challenges.gd --log-file (Join-Path $qa 'challenge-tests.log')
-    if ($LASTEXITCODE -ne 0) { throw '三卡挑战检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_v055.gd --log-file (Join-Path $qa 'v055-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw 'v0.5.5 rules failed' }
+
 
 
 }

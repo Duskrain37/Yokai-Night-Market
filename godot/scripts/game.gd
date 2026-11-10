@@ -18,7 +18,7 @@ var _loading_hold: Dictionary = {}
 var load_timings: Array=[]
 var _loading_busy := false
 
-const VERSION = "0.5.4"
+const VERSION = "0.5.5"
 const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
 var touch_router: Node
 const SAVE_PATH = "user://run.json"
@@ -28,6 +28,7 @@ const DEFAULT_KEYS := {
 	"card_1": KEY_1, "card_2": KEY_2, "card_3": KEY_3,
 	"card_4": KEY_4, "card_5": KEY_5, "card_6": KEY_6,
 	"card_7": KEY_7, "card_8": KEY_8, "card_9": KEY_9,
+	"card_10": KEY_0, "card_11": KEY_MINUS, "card_12": KEY_EQUAL,
 	"speed_down": KEY_BRACKETLEFT, "speed_up": KEY_BRACKETRIGHT,
 }
 const SETTINGS_PATH = "user://settings.json"
@@ -101,9 +102,6 @@ var loadout: Array = []
 const Nightmare=preload("res://data/nightmare.gd")
 var prep = {}
 var training = {}
-var challenge: Dictionary={}
-var challenge_scores: Dictionary={}
-const ChallengeRules=preload("res://data/challenges.gd")
 var paused = false
 var speed = 1.0
 var run_mode = "normal"
@@ -344,8 +342,6 @@ func close_overlay() -> void:
 				return
 			if paused:
 				show_pause()
-		"challenges":
-			show_challenges()
 		"result":
 			screen = "result"
 			_clear_screen()
@@ -403,13 +399,10 @@ func _start_battle_now(level_id: int, cards: Array, mode: String, save_initial :
 	else:
 		tutorial_active = false
 		var level = Content.get_level(level_id)
-		if mode=="challenge":
-			sim.setup(level,cards,"normal",int(challenge.seed))
-		else:
-			level=level.duplicate(true)
-			if mode=="normal" and String(settings["difficulty"])=="nightmare":
-				level.nightmare_factors=Nightmare.sanitize(Dictionary(settings.get("nightmare_factors",{})),level)
-			sim.setup(level, cards, String(settings["difficulty"]))
+		level=level.duplicate(true)
+		if mode=="normal" and String(settings["difficulty"])=="nightmare":
+			level.nightmare_factors=Nightmare.sanitize(Dictionary(settings.get("nightmare_factors",{})),level)
+		sim.setup(level, cards, String(settings["difficulty"]))
 		if mode == "training":
 			sim.training = true
 			sim.no_cooldown = not bool(training.get("cooldown_locked", true))
@@ -600,9 +593,6 @@ func _tick_battle(delta: float) -> void:
 					view.queue_redraw()
 		sim.hit_stop_requested = 0.0
 	_drain_sounds()
-	if run_mode=="challenge" and sim.time>=720.0 and not sim.is_cleared():
-		finish_run(false)
-		return
 	if String(sim.tutorial_step()) == "done" and tutorial_active:
 		finish_run(true)
 		return
@@ -646,20 +636,17 @@ func finish_run(won: bool, z = null) -> void:
 		"level_id": sim.level_id,
 		"training": sim.training,
 		"tutorial": sim.tutorial != null,
-		"challenge": run_mode=="challenge",
 		"summary": sim.battle_summary(),
 		"groups_completed": sim.completed_major_waves(),
-		"challenge_expired":run_mode=="challenge" and sim.time>=720 and not won,
 	}
 	_remember_bosses()
-	if run_mode=="challenge":_record_challenge(won)
-	else:_update_records(won)
+	_update_records(won)
 	if sim.tutorial != null:
 		# 教过一遍就记一笔：封面主按钮只带没学过的人进教程
 		if won and not bool(progress.get("taught", false)):
 			progress["taught"] = true
 			save_progress()
-	if not sim.training and sim.tutorial == null and run_mode!="challenge":
+	if not sim.training and sim.tutorial == null:
 		run_snapshots[active_slot] = {"result": result.duplicate(true),
 			"sim": sim.serialize(), "saved_at": int(Time.get_unix_time_from_system())}
 		clear_run()
@@ -717,9 +704,6 @@ func close_pause() -> void:
 
 
 func restart_run() -> void:
-	if run_mode=="challenge":
-		start_challenge(String(challenge.get("id","")))
-		return
 	var level_id = sim.level_id if sim != null else selected_level
 	var mode = "normal"
 	if sim != null and sim.training:
@@ -801,8 +785,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_escape() -> void:
 	match screen:
-		"challenges":
-			show_menu()
 		"settings", "almanac", "training", "news":
 			if screen == "training":
 				show_menu()
@@ -1084,7 +1066,6 @@ func _records_v2() -> void:
 
 
 func save_run() -> void:
-	if run_mode=="challenge":return
 	if sim == null or sim.training or sim.tutorial != null:
 		return
 	var payload = {
@@ -1185,7 +1166,6 @@ func _load_state() -> void:
 		settings["key_bindings"] = {}
 	_apply_ui_text_size()
 	_load_slots()
-	challenge_scores=_read_json("user://challenge-scores.json",{})
 
 
 func _data_path(path: String) -> String:
@@ -2065,28 +2045,6 @@ func _battle_parent() -> Node:
 func _mobile_world_transform() -> Transform2D:
 	return _battle_stage.transform if _battle_stage!=null and is_instance_valid(_battle_stage) else MOBILE_WORLD
 
-
-func show_challenges() -> void:
-	paused=false;_clear_battle()
-	var node=load("res://ui/screen_challenges.gd").new();node.game=self
-	_set_screen(node,"challenges");play_music_scene("menu")
-
-func start_challenge(id: String) -> void:
-	var entry=ChallengeRules.find(id)
-	if entry.is_empty() or not _night_ids(progress.get("cleared",[])).has(int(entry.level)):return
-	challenge=entry.duplicate(true)
-	challenge.run_id=str(Time.get_unix_time_from_system())+"-"+str(Time.get_ticks_usec())
-	start_battle(int(entry.level),entry.cards,"challenge")
-
-func _record_challenge(won: bool) -> void:
-	if not won or sim==null or sim.cheated or run_mode!="challenge" or challenge.is_empty() or sim.time>720.0:return
-	var entries: Array=challenge_scores.get(String(challenge.id),[])
-	for entry in entries:
-		if entry.get("run","")==challenge.run_id:return
-	entries.append({"sun":sim.sun,"run":challenge.run_id,"date":Time.get_date_string_from_system()})
-	entries.sort_custom(func(a,b):return int(a.sun)>int(b.sun))
-	challenge_scores[String(challenge.id)]=entries.slice(0,5)
-	_write_json("user://challenge-scores.json",challenge_scores)
 
 func _remember_bosses() -> void:
 	if sim==null or sim.training or sim.tutorial!=null or sim.cheated:return

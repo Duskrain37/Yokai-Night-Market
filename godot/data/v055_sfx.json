@@ -1,0 +1,120 @@
+{
+  "origin": "original material resonance, no music modification",
+  "sounds": [
+    {
+      "event": "banyan_income",
+      "recipe": [
+        0.45,
+        [
+          [
+            220,
+            0.6,
+            9
+          ],
+          [
+            330,
+            0.15,
+            13
+          ]
+        ],
+        0.15,
+        1000,
+        -31,
+        "soft ripe paper fruit and hollow root"
+      ]
+    },
+    {
+      "event": "banyan_grow",
+      "recipe": [
+        0.7,
+        [
+          [
+            147,
+            0.5,
+            5
+          ],
+          [
+            220,
+            0.2,
+            8
+          ]
+        ],
+        0.4,
+        950,
+        -31,
+        "old wood unfurling and leaf breath"
+      ]
+    },
+    {
+      "event": "banyan_shot",
+      "recipe": [
+        0.2,
+        [
+          [
+            247,
+            0.55,
+            20
+          ],
+          [
+            370,
+            0.2,
+            22
+          ]
+        ],
+        0.3,
+        1300,
+        -32,
+        "dry seed husk click"
+      ]
+    },
+    {
+      "event": "mortar_launch",
+      "recipe": [
+        0.55,
+        [
+          [
+            65,
+            0.65,
+            8
+          ],
+          [
+            98,
+            0.3,
+            12
+          ]
+        ],
+        0.6,
+        700,
+        -28,
+        "low bronze barrel and soft powder rush"
+      ]
+    },
+    {
+      "event": "mortar_impact",
+      "recipe": [
+        0.8,
+        [
+          [
+            49,
+            0.65,
+            5
+          ],
+          [
+            83,
+            0.3,
+            8
+          ],
+          [
+            147,
+            0.1,
+            13
+          ]
+        ],
+        0.7,
+        650,
+        -27,
+        "distant earth thump and bronze dust"
+      ]
+    }
+  ]
+}

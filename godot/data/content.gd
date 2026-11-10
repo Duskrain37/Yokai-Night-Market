@@ -13,7 +13,7 @@ const PLANT_ORDER: Array[String] = [
 	"lantern", "shooter", "wall", "bomb", "bell", "censer", "umbrella", "lion",
 	"mushroom", "cat", "shell", "lobber", "torch", "star", "needle", "judge",
 	"lily", "kelp", "gust", "firework", "squash", "dragon",
-	"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada", "herb-gourd", "reed-chime", "soul-casket",
+	"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada", "herb-gourd", "reed-chime", "soul-casket", "year-banyan", "sky-mortar",
 ]
 
 const ZOMBIE_ORDER: Array[String] = [
@@ -32,6 +32,9 @@ const TIERS = {
 # ── 草木 ────────────────────────────────────────────────────────────────────
 # cost 香火 / cooldown 冷却秒 / hp 耐久 / sprite_h 立绘高度基准（像素，1600×900 画布）
 const PLANTS = {
+	"year-banyan":{"name": "岁灯榕", "role": "产能", "cost": 100, "cooldown": 9, "hp": 300, "sprite_h": 88, "growth_tree": true, "produce": {"interval": 10.0, "first": 3.0, "value": 50}, "tint": "#b9a05f"},
+	"sky-mortar":{"name": "镇霄炮", "role": "抛射", "cost": 350, "cooldown": 18, "hp": 400, "sprite_h": 110, "sky_mortar": true, "tint": "#ae7951"},
+
 	"reed-chime":{"name":"篁音簇","role":"范围","cost":175,"cooldown":10,"hp":320,"sprite_h":104,"reed_chime":true,"tint":"#9a9b62"},
 	"soul-casket":{"name":"五窍灵枢","role":"借弹","cost":125,"cooldown":12,"hp":400,"sprite_h":92,"collector":true,"tint":"#b59457"},
 	"lantern": {
@@ -279,11 +282,11 @@ static func map_picture(level: Dictionary, overview := false) -> String:
 
 # 五种地图均为全部草木提供明确的推荐顺序。
 const LOADOUT_TIPS = {
-	"street": ["lantern", "shooter", "wall", "wish-till", "cash-pod", "bell", "censer", "torch", "mushroom", "bomb", "cat", "needle", "herb-gourd", "judge", "umbrella", "lion", "lobber", "star", "firework", "dragon", "squash", "gust", "shell", "sky-kite", "ember-cicada", "ruin-cap", "reed-chime", "soul-casket", "lily", "kelp"],
-	"market": ["lantern", "shooter", "wall", "sky-kite", "lobber", "ember-cicada", "cat", "star", "bell", "herb-gourd", "bomb", "judge", "censer", "torch", "needle", "wish-till", "umbrella", "lion", "mushroom", "firework", "dragon", "squash", "gust", "shell", "cash-pod", "ruin-cap", "reed-chime", "soul-casket", "lily", "kelp"],
-	"water": ["lily", "lantern", "shooter", "wall", "kelp", "cat", "sky-kite", "wish-till", "lobber", "herb-gourd", "bell", "firework", "censer", "torch", "needle", "judge", "star", "umbrella", "lion", "mushroom", "dragon", "squash", "bomb", "gust", "shell", "ember-cicada", "cash-pod", "reed-chime", "soul-casket", "ruin-cap"],
-	"island": ["lantern", "shooter", "wall", "sky-kite", "ember-cicada", "star", "cash-pod", "firework", "ruin-cap", "herb-gourd", "gust", "lobber", "cat", "bomb", "judge", "censer", "wish-till", "bell", "torch", "shell", "needle", "mushroom", "squash", "dragon", "lion", "umbrella", "reed-chime", "soul-casket", "lily", "kelp"],
-	"cavern": ["lily", "lantern", "shooter", "wall", "kelp", "sky-kite", "ember-cicada", "wish-till", "firework", "herb-gourd", "ruin-cap", "cat", "dragon", "star", "shell", "cash-pod", "lobber", "gust", "judge", "bell", "bomb", "torch", "censer", "needle", "umbrella", "lion", "mushroom", "reed-chime", "soul-casket", "squash"],
+	"street": ["lantern", "shooter", "wall", "wish-till", "cash-pod", "bell", "censer", "torch", "mushroom", "bomb", "cat", "year-banyan", "needle", "herb-gourd", "judge", "umbrella", "lion", "sky-mortar", "lobber", "star", "firework", "dragon", "squash", "gust", "shell", "sky-kite", "ember-cicada", "ruin-cap", "reed-chime", "soul-casket", "lily", "kelp"],
+	"market": ["lantern", "shooter", "wall", "sky-kite", "lobber", "ember-cicada", "cat", "star", "bell", "herb-gourd", "bomb", "year-banyan", "judge", "censer", "torch", "needle", "wish-till", "sky-mortar", "umbrella", "lion", "mushroom", "firework", "dragon", "squash", "gust", "shell", "cash-pod", "ruin-cap", "reed-chime", "soul-casket", "lily", "kelp"],
+	"water": ["lily", "lantern", "shooter", "wall", "kelp", "cat", "sky-kite", "wish-till", "lobber", "herb-gourd", "bell", "year-banyan", "firework", "censer", "torch", "needle", "judge", "sky-mortar", "star", "umbrella", "lion", "mushroom", "dragon", "squash", "bomb", "gust", "shell", "ember-cicada", "cash-pod", "reed-chime", "soul-casket", "ruin-cap"],
+	"island": ["lantern", "shooter", "wall", "sky-kite", "ember-cicada", "year-banyan", "star", "cash-pod", "sky-mortar", "firework", "ruin-cap", "herb-gourd", "gust", "lobber", "cat", "bomb", "judge", "censer", "wish-till", "bell", "torch", "shell", "needle", "mushroom", "squash", "dragon", "lion", "umbrella", "reed-chime", "soul-casket", "lily", "kelp"],
+	"cavern": ["lily", "lantern", "shooter", "wall", "kelp", "year-banyan", "sky-kite", "ember-cicada", "sky-mortar", "wish-till", "firework", "herb-gourd", "ruin-cap", "cat", "dragon", "star", "shell", "cash-pod", "lobber", "gust", "judge", "bell", "bomb", "torch", "censer", "needle", "umbrella", "lion", "mushroom", "reed-chime", "soul-casket", "squash"],
 }
 
 

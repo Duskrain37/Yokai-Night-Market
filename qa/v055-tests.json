@@ -1,0 +1,314 @@
+{
+  "checks": [
+    {
+      "name": "常规携带12株",
+      "ok": true
+    },
+    {
+      "name": "限带因子档1",
+      "ok": true
+    },
+    {
+      "name": "限带因子档2",
+      "ok": true
+    },
+    {
+      "name": "year-banyan名册图鉴三路完整",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·疏叶",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·繁枝",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·长明",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·吐籽",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·连籽",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·金实",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·庇佑",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·明视",
+      "ok": true
+    },
+    {
+      "name": "year-banyan阶费用递增整25·同心",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar名册图鉴三路完整",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·疾引",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·贯云",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·双震",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·重丸",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·崩山",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·焚甲",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·收息",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·聚息",
+      "ok": true
+    },
+    {
+      "name": "sky-mortar阶费用递增整25·引魂",
+      "ok": true
+    },
+    {
+      "name": "street推荐覆盖32株",
+      "ok": true
+    },
+    {
+      "name": "market推荐覆盖32株",
+      "ok": true
+    },
+    {
+      "name": "water推荐覆盖32株",
+      "ok": true
+    },
+    {
+      "name": "island推荐覆盖32株",
+      "ok": true
+    },
+    {
+      "name": "cavern推荐覆盖32株",
+      "ok": true
+    },
+    {
+      "name": "首次3秒前无产出",
+      "ok": true
+    },
+    {
+      "name": "首次3秒产50",
+      "ok": true
+    },
+    {
+      "name": "后续10秒未到不产出",
+      "ok": true
+    },
+    {
+      "name": "后续10秒产出",
+      "ok": true
+    },
+    {
+      "name": "30秒首长产65",
+      "ok": true
+    },
+    {
+      "name": "60秒二长产80",
+      "ok": true
+    },
+    {
+      "name": "白板最多两次成长",
+      "ok": true
+    },
+    {
+      "name": "满阶延长成长且耐久按年轮增加",
+      "ok": true
+    },
+    {
+      "name": "成长后1秒额外产出不改主计时",
+      "ok": true
+    },
+    {
+      "name": "最多四长110香火900耐久",
+      "ok": true
+    },
+    {
+      "name": "成长上限后30秒额外生产",
+      "ok": true
+    },
+    {
+      "name": "成长计时与额外产出读档不丢失",
+      "ok": true
+    },
+    {
+      "name": "四长2-3发六枚34伤籽弹",
+      "ok": true
+    },
+    {
+      "name": "四长同心5x5伤速各16",
+      "ok": true
+    },
+    {
+      "name": "非攻击草木不吃攻速增伤",
+      "ok": true
+    },
+    {
+      "name": "专门生产间隔加成精确缩短16%",
+      "ok": true
+    },
+    {
+      "name": "灵枢可加伤但不能加攻速",
+      "ok": true
+    },
+    {
+      "name": "庇佑覆盖自身与友方25%",
+      "ok": true
+    },
+    {
+      "name": "明视使射弹能索敌身后",
+      "ok": true
+    },
+    {
+      "name": "明视射弹真正向左飞",
+      "ok": true
+    },
+    {
+      "name": "明视普通射弹能打到飞行护具",
+      "ok": true
+    },
+    {
+      "name": "不足二长不能对空",
+      "ok": true
+    },
+    {
+      "name": "明视范围内移除灰烬免疫",
+      "ok": true
+    },
+    {
+      "name": "辅助源沉睡立即失效",
+      "ok": true
+    },
+    {
+      "name": "原弹增伤与灵枢增伤独立乘算45",
+      "ok": true
+    },
+    {
+      "name": "灵枢攻速不改变收弹门槛",
+      "ok": true
+    },
+    {
+      "name": "炮弹选择最密集位置",
+      "ok": true
+    },
+    {
+      "name": "炮弹锁定落点且1.5秒飞行",
+      "ok": true
+    },
+    {
+      "name": "1.49秒不结算",
+      "ok": true
+    },
+    {
+      "name": "炮弹1.5秒范围全额215",
+      "ok": true
+    },
+    {
+      "name": "连炮每发降伤25%",
+      "ok": true
+    },
+    {
+      "name": "0.8秒前不补炮",
+      "ok": true
+    },
+    {
+      "name": "0.8秒补炮后开始冷却",
+      "ok": true
+    },
+    {
+      "name": "灰烬炮同时伤本体护甲525",
+      "ok": true
+    },
+    {
+      "name": "灰烬击退不留尸并返30",
+      "ok": true
+    },
+    {
+      "name": "普通击退仍有尸体",
+      "ok": true
+    },
+    {
+      "name": "灰烬不留下可复生尸体",
+      "ok": true
+    },
+    {
+      "name": "炮弹击退发48独立追魂",
+      "ok": true
+    },
+    {
+      "name": "追魂余弹不递归产生余弹",
+      "ok": true
+    },
+    {
+      "name": "巡灯2-1已获得门神激励",
+      "ok": true
+    },
+    {
+      "name": "巡灯2-3亲手击退叠五层攻速",
+      "ok": true
+    },
+    {
+      "name": "巡灯攻速激励到时清空",
+      "ok": true
+    },
+    {
+      "name": "透骨针42伤0.6秒定住大型减半",
+      "ok": true
+    },
+    {
+      "name": "透骨针解甲30/60",
+      "ok": true
+    },
+    {
+      "name": "铜铃同排加速仅攻击草木",
+      "ok": true
+    },
+    {
+      "name": "汤圆增幅12/20/30",
+      "ok": true
+    },
+    {
+      "name": "签筒1-3全队叠加封顶五支",
+      "ok": true
+    },
+    {
+      "name": "炮弹覆盖双行同一恶首只结算一次",
+      "ok": true
+    },
+    {
+      "name": "炮弹击退恶首也返香且另一位独立存活",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 77
+}

@@ -246,6 +246,9 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 	var foot = _plant_foot(plant, cell_h)
 	var height = float(plant.def.get("sprite_h", 92)) * Geo.unit_scale(sim.rows) \
 		* Geo.scale_at_flat(plant.pos, sim.rows)
+	if plant.type=="year-banyan":
+		var phase_growth:=clampf((sim.time-plant.growth_at)/.8,0,1)
+		height*=1.0+.035*(maxi(0,plant.growth_steps-1)+(phase_growth if plant.growth_steps>0 else 0.0))
 	var idle: Vector2 = PLANT_IDLE.get(plant.type, Vector2(1.6, 1.4))
 	var phase = plant.phase
 	var bob = sin(_time * idle.y + phase) * idle.x
@@ -443,10 +446,15 @@ func _draw_dragon(plant: Sim.Plant, foot: Vector2, height: float, tint: Color) -
 	return drawn
 
 
-const BUFF_CLIPS := {"红灯笼":"lantern","汤圆仔":"lobber","钟馗像":"judge","回春葫":"herb","清账匣":"till","喝彩":"cheer"}
+const BUFF_CLIPS := {"红灯笼":"lantern","汤圆仔":"lobber","钟馗像":"judge","回春葫":"herb","清账匣":"till","喝彩":"cheer","铜铃":"bell"}
 
 func _draw_source_buffs(plant: Sim.Plant, foot: Vector2, height: float) -> void:
 	var clips: Array = []
+	if sim.plant_bonus_sources.get(plant.uid,{}).has("岁灯榕") or plant.production_reduction>0:
+		for leaf in 3:
+			var a: float=sim.time*.6+leaf*TAU/3
+			var at: Vector2=foot+Vector2(cos(a)*height*.35,-height*.32+sin(a)*6)
+			_new_frames.draw_pose(self,"v055-projectiles","seed",sim.time*1.8+leaf,at,9,false,Color(.7,.95,.6,.38))
 	for source in sim.plant_bonus_sources.get(plant.uid,{}):
 		if BUFF_CLIPS.has(source): clips.append(BUFF_CLIPS[source])
 	if plant.production_bonus > 0.0: clips.append("torch")
@@ -1188,6 +1196,10 @@ func _draw_shots() -> void:
 			_effect_frames.draw_pose(self, "v052-projectiles", clip, sim.time * 7.0,
 				at + Vector2(0, sprite_height * 0.45), sprite_height, left, Color.WHITE)
 			continue
+		if look in ["banyan-seed","mortar-shell","mortar-soul"]:
+			var clip: String={"banyan-seed":"seed","mortar-shell":"shell","mortar-soul":"soul"}[look]
+			_new_frames.draw_pose(self,"v055-projectiles",clip,sim.time*6.0,at,30 if clip=="shell" else 23,false,Color.WHITE)
+			continue
 		if look=="range-echo":
 			_new_frames.draw_pose(self,"v054-relay-fx","range",sim.time*6.0,at,24,false,Color.WHITE)
 			continue
@@ -1364,7 +1376,17 @@ func _draw_particles() -> void:
 				_actor_frames.draw_pose(self,"oar-barge","sink",(1.0-k)*3.99,pos+Vector2(0,15),110*Geo.unit_scale(sim.rows),true,Color(1,1,1,minf(1,k*4)))
 			"magic":
 				var effect := String(p.effect)
-				if effect.begins_with("buff-"):
+				if effect.begins_with("v055-"):
+					if effect=="v055-mortar-blast":
+						_new_frames.draw_pose(self,"v055-projectiles","blast",(1.0-k)*3.99,pos,float(p.size),false,Color(1,1,1,minf(1,k*3)))
+					elif effect=="v055-mortar-muzzle":
+						_new_frames.draw_pose(self,"v055-projectiles","blast",(1.0-k)*2,pos,float(p.size)*.65,false,Color(1,.85,.65,k*.7))
+					else:
+						for leaf in 5:
+							var a: float=leaf*TAU/5.0+(1.0-k)*.6
+							var center: Vector2=pos+Vector2(cos(a)*24,sin(a)*10-30*(1-k))
+							_new_frames.draw_pose(self,"v055-projectiles","seed",(1.0-k)*3.99,center,14.0,false,Color(.8,1,.75,k*.7))
+				elif effect.begins_with("buff-"):
 					_buff_frames.draw_pose(self,"v053-buff-fx",effect.trim_prefix("buff-"),(1.0-k)*3.99,
 						pos,float(p.size),false,Color(1,1,1,minf(1.0,k*3.0)))
 				else:

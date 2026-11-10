@@ -1,0 +1,104 @@
+[
+  {
+    "suite": "logic",
+    "exit": 0,
+    "seconds": 1.0,
+    "issues": []
+  },
+  {
+    "suite": "battle",
+    "exit": 0,
+    "seconds": 12.2,
+    "issues": []
+  },
+  {
+    "suite": "boss",
+    "exit": 0,
+    "seconds": 0.6,
+    "issues": []
+  },
+  {
+    "suite": "special",
+    "exit": 0,
+    "seconds": 1.3,
+    "issues": []
+  },
+  {
+    "suite": "click",
+    "exit": 0,
+    "seconds": 5.4,
+    "issues": []
+  },
+  {
+    "suite": "player_ui",
+    "exit": 0,
+    "seconds": 3.4,
+    "issues": []
+  },
+  {
+    "suite": "patch",
+    "exit": 0,
+    "seconds": 5.4,
+    "issues": []
+  },
+  {
+    "suite": "animation",
+    "exit": 0,
+    "seconds": 9.3,
+    "issues": []
+  },
+  {
+    "suite": "v050",
+    "exit": 0,
+    "seconds": 0.6,
+    "issues": []
+  },
+  {
+    "suite": "v051_refresh",
+    "exit": 0,
+    "seconds": 2.9,
+    "issues": []
+  },
+  {
+    "suite": "v052",
+    "exit": 0,
+    "seconds": 2.9,
+    "issues": []
+  },
+  {
+    "suite": "v053",
+    "exit": 0,
+    "seconds": 4.0,
+    "issues": []
+  },
+  {
+    "suite": "v054",
+    "exit": 0,
+    "seconds": 4.1,
+    "issues": []
+  },
+  {
+    "suite": "v054_content",
+    "exit": 0,
+    "seconds": 0.6,
+    "issues": []
+  },
+  {
+    "suite": "nightmare",
+    "exit": 0,
+    "seconds": 3.0,
+    "issues": []
+  },
+  {
+    "suite": "dual_soak",
+    "exit": 0,
+    "seconds": 8.5,
+    "issues": []
+  },
+  {
+    "suite": "v055",
+    "exit": 0,
+    "seconds": 0.5,
+    "issues": []
+  }
+]

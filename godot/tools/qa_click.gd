@@ -231,8 +231,8 @@ func _run() -> void:
 			await click(_button_center(recommendation))
 		var picks: Array = game.screen_node._picked
 		check("备战：点第%d周推荐按钮会装入本夜卡组" % week,
-			recommendation != null and picks == Content.night_loadout_tips(Content.get_level(level_id)).slice(0, 10))
-		check("备战：第%d周的实用新草木能进入十张推荐" % week,
+			recommendation != null and picks == Content.night_loadout_tips(Content.get_level(level_id)).slice(0, Sim.MAX_LOADOUT))
+		check("备战：第%d周的实用新草木能进入十二张推荐" % week,
 			picks.has("sky-kite") and picks.has("ember-cicada") and (week != 5 or picks.has("lily")))
 	game.show_prep(Content.level_id_for(5, 4))
 	game.screen_node.skip_cinema()

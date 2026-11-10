@@ -1,0 +1,74 @@
+{
+  "tool": "built-in image_gen",
+  "portraits": {
+    "year-banyan": {
+      "source": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-2cbcccec-6e0a-4cb1-ae90-78386b488635.png",
+      "prompt": "Use case stylized-concept. Production 2D tower-defense plant sprite for Chinese supernatural nightmarket, named Sui Deng Rong, an anthropomorphic tiny old banyan tree in a shallow cracked celadon round planter; bulbous twisted tan roots, warm amber paper lantern fruit hanging under dense muted olive leaves, two small calm eyes in trunk. Three-quarter view facing right, full body centered, thick readable silhouette. Match Chinese hand-painted dry gouache brush and aged tactile paper paint, restrained saturation, warm material highlights, no shiny CGI, no anime. Base young form, modest round crown and three lantern fruit. Isolated single character, genuinely transparent background, no environment, no cast shadow, no text, no UI. Entire sprite fits with margin, usable at100px tall.",
+      "size": [
+        597,
+        552
+      ]
+    },
+    "year-banyan-e1": {
+      "source": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-d1c58a85-1bfc-4fe3-a819-45768e111eb2.png",
+      "prompt": "Production single 2D tower defense sprite, third-tier evolution of a small anthropomorphic banyan lantern tree in cracked celadon planter. Dry brush gouache Chinese supernatural nightmarket style, muted olive foliage, tan knotted roots with small sleepy eyes, warm amber fruit lanterns. FULL BODY centered transparent background. Evolution 'Eternal Harvest': round layered lush canopy, FIVE amber lantern fruit, pale braided aerial roots forming an ornate low arch, small old bronze longevity bell under center branches. Clearly different silhouette from base but same material identity. Restrained warm accents, no shiny CGI, no modernity, no text, no environment, no shadow. 3/4 front view turned right. Crisp silhouette at100pixels. One isolated character only.",
+      "size": [
+        547,
+        552
+      ]
+    },
+    "year-banyan-e2": {
+      "source": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-e42d3e6e-4837-44ba-b8db-cf06ded9f423.png",
+      "prompt": "Edit target into a COMPACT upright sprite suitable for ONE tile. Preserve this old banyan face, celadon planter, warm lantern fruit, dry gouache material and muted olive leaves. Move both wooden seed-trumpet pods CLOSE INTO THE CROWN, attached to trunk, one just above face one below, facing right. Much shorter branches. Overall width at most1.1x height, not long horizontal protrusions. Full body, compact rounded silhouette, genuinely transparent background, no background, no text. Both seed pods visibly part of the plant, not detached.",
+      "size": [
+        559,
+        552
+      ]
+    },
+    "year-banyan-e3": {
+      "source": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-ea03c846-e495-4297-9c06-0ba0dca082c8.png",
+      "prompt": "Single production 2D tower defense plant sprite, full body transparent background. Third-tier support evolution of tiny anthropomorphic old banyan lantern tree. Twisted tan trunk with calm small eyes in cracked celadon planter; olive leaves, warm amber fruit lanterns. Evolution 'One Heart': branches form a wide almost circular leafy canopy with FOUR small hanging jade disk pendants and one central amber heart-shaped lantern; aerial roots weave a protective open lattice around trunk. Restrained turquoise light confined to jade, red knotted cords. Chinese supernatural nightmarket handpainted dry gouache, tactile aged materials, warm highlights, subdued saturation. No text, no scene, no detached VFX.",
+      "size": [
+        603,
+        552
+      ]
+    },
+    "sky-mortar": {
+      "source": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-72fd3d78-ee2c-4313-9d49-35b739269e99.png",
+      "prompt": "Single production 2D Chinese supernatural tower defense plant sprite 'Zhen Xiao Pao'. A powerful antique bronze vertical mortar cannon fused with gnarled dark roots, mounted on a low vermilion lacquer wooden carriage with two chunky small wheels. Barrel pointing upward and slightly right at65degrees, flared heavy muzzle, engraved simple cloud ornaments, red silk cord, small stern eyes on base. Massive believable 'big gun', not a cute toy, not modern artillery. Whole body visible, clear muzzle opening, 3/4 side view facing right. Isolated on genuine transparent background, no text, no background. Dry gouache brushwork, chipped patinated bronze and weathered red wood, warm highlights, restrained saturation, no CGI.",
+      "size": [
+        575,
+        552
+      ]
+    },
+    "sky-mortar-e1": {
+      "source": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-e5a93437-2949-43ac-b678-bb460bb62b0e.png",
+      "prompt": "Edit target: preserve this twin-barreled cannon exactly, but REMOVE ALL the background completely. Genuine transparent alpha everywhere outside the cannon, its roots wheels and tassels. Remove colored fog, backdrop, ground plane, and cast shadows. Keep the aged patinated bronze red wood dry gouache texture, reduce smooth CGI sheen. Fullbody centered margins. No new object, no text.",
+      "size": [
+        632,
+        426
+      ]
+    },
+    "sky-mortar-e2": {
+      "source": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-eba1f450-38cf-42c5-b71b-c49aa4f1f94d.png",
+      "prompt": "Single full-body production sprite, Chinese supernatural tower defense third-tier 'Ash Armorbreaker' mortar. ONE massive short thick blackened-bronze barrel aimed upward/right65degrees, broad flared cloud-engraved muzzle with orange cracks inside, ribbed iron bands, heavy low vermilion carriage rooted in stone-colored roots. Two wooden wheels and small stern eyes in base. Charred incense paper ribbon tied near breech, restrained embers only in muzzle. Distinct squat heavily armored silhouette. Isolated genuine transparent background. Chinese dry-brush gouache, aged materials, restrained saturation, no CGI, no background, no text, no explosion.",
+      "size": [
+        603,
+        552
+      ]
+    },
+    "sky-mortar-e3": {
+      "source": "C:/Users/27402/.codex/generated_images/01a19614-24b1-7cf3-82b9-2ce12ed73f51/exec-66adde81-e98a-4226-b1af-d3638e8e3434.png",
+      "prompt": "Single full-body production sprite, Chinese supernatural tower defense third-tier 'Soul Gathering' mortar cannon. Antique bronze barrel aimed upward/right65degrees on low vermilion lacquer root carriage and two wooden wheels, little stern eyes. A circular carved jade ring mounted around breech, small brass incense coin bells and ONE coiled pale-teal spirit ribbon curl close to the cannon, engraved old cloud motifs. Recognizable heavy cannon and restrained jade accents, distinct from twin-barrel and armorbreaker. Isolated genuine transparent background. Hand-painted dry gouache, tactile worn bronze wood red cords, low saturation, no text, no scenery, no CGI.",
+      "size": [
+        595,
+        552
+      ]
+    }
+  },
+  "projectiles": {
+    "key": "fx",
+    "path": "C:\\Users\\27402\\.codex\\generated_images\\01a19614-24b1-7cf3-82b9-2ce12ed73f51\\exec-a49aa167-aa32-4797-a1d9-254cf9244d22.png",
+    "prompt": "Production sprite atlas ONE coherent image 4x4 equally spaced cells, each isolated on transparent background, no text no grid lines, dry gouache Chinese ghost nightmarket muted amber and teal, polished game VFX sprites. Row1 FOUR consecutive poses of one golden banyan seed projectile, warm oval seed with tiny red husk twisting, same center anchor. Row2 FOUR consecutive poses of one antique dark bronze mortar shell with red silk tail tassel, going upward then rotating to descend, same center anchor. Row3 FOUR consecutive poses of a small pale-jade ribbon spirit comet with brass coin core, distinct from foxfire flame. Row4 FOUR progressive impact poses of a compact circular mortar blast: glowing bronze dust center, jagged vermilion ink petals, expanding warm smoke cloud, dispersing ash. Every cell centered separately with generous margins; fill only middle70percent of each cell so no overlap. Real transparency. No environment, no 3D glossy look."
+  }
+}

@@ -105,8 +105,8 @@ func _stage_prep() -> void:
 	check("备战", "水路缺夜莲时露出换卡按钮", screen._fix_row.visible
 		and screen._needs_lily())
 	screen._swap_in_lily()
-	check("备战", "一键换进夜莲且仍是十张",
-		Array(screen._picked).has("lily") and Array(screen._picked).size() == 10,
+	check("备战", "一键加进夜莲可扩至十一张",
+		Array(screen._picked).has("lily") and Array(screen._picked).size() == 11,
 		str(screen._picked))
 	check("备战", "换完不再提示缺夜莲", not screen._needs_lily()
 		and not screen._fix_row.visible)

@@ -7,7 +7,7 @@
       "ok": true
     },
     {
-      "detail": "buttons=9",
+      "detail": "buttons=8",
       "group": "封面",
       "name": "封面按钮不少于六组",
       "ok": true
@@ -19,7 +19,7 @@
       "ok": true
     },
     {
-      "detail": "[\"i\", \"一夜重签\", \"守夜存档 · 1\", \"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
+      "detail": "[\"i\", \"守夜存档 · 1\", \"收摊退出\", \"设置\", \"训练与教程\", \"草木志 · 恶客录\", \"挑选一夜\", \"先学一夜守夜\"]",
       "group": "封面",
       "name": "新玩家主按钮导向教程",
       "ok": true
@@ -139,9 +139,9 @@
       "ok": true
     },
     {
-      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"bell\", \"censer\", \"umbrella\", \"torch\", \"needle\", \"cat\"]",
+      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"bell\", \"censer\", \"umbrella\", \"lion\", \"torch\", \"needle\", \"cat\"]",
       "group": "备战",
-      "name": "一键换进夜莲且仍是十张",
+      "name": "一键加进夜莲可扩至十一张",
       "ok": true
     },
     {
@@ -151,7 +151,7 @@
       "ok": true
     },
     {
-      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"kelp\", \"cat\", \"sky-kite\", \"wish-till\", \"lobber\", \"herb-gourd\"]",
+      "detail": "[\"lily\", \"lantern\", \"shooter\", \"wall\", \"kelp\", \"cat\", \"sky-kite\", \"wish-till\", \"lobber\", \"herb-gourd\", \"bell\", \"year-banyan\"]",
       "group": "备战",
       "name": "推荐配卡随地图：暗河先带夜莲",
       "ok": true
@@ -355,7 +355,7 @@
       "ok": true
     },
     {
-      "detail": "[\"won\", \"time\", \"kills\", \"sun\", \"level_id\", \"training\", \"tutorial\", \"challenge\", \"summary\", \"groups_completed\", \"challenge_expired\"]",
+      "detail": "[\"won\", \"time\", \"kills\", \"sun\", \"level_id\", \"training\", \"tutorial\", \"summary\", \"groups_completed\"]",
       "group": "结算",
       "name": "结算带复盘数据",
       "ok": true
@@ -471,5 +471,5 @@
   ],
   "failures": 0,
   "total": 78,
-  "version": "0.5.4"
+  "version": "0.5.5"
 }

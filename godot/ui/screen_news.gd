@@ -62,7 +62,7 @@ func select_page(value: int) -> void:
 		_add_text("无论是游玩感受、平衡建议，还是遇到的异常，都欢迎在GitHub提出Issue。遇到异常时，带上游戏版本、设备型号、截图和出现问题前的操作，会更方便查清缘由。")
 		_add_link("在GitHub反馈建议","https://github.com/Duskrain37/Yokai-Night-Market/issues/new")
 		return
-	var data: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/news_v054.json"))
+	var data: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/news_v055.json"))
 	for section in data.sections:
 		_content.add_child(Ui.title(String(section.title),36 if game.mobile else 28))
 		for item in section.items:

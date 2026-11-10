@@ -1,11 +1,11 @@
 {
-  "original_bytes": 943030640,
-  "candidate_bytes": 843561996,
-  "untouched_files": 1005,
-  "removed_files": 252,
+  "original_bytes": 998192752,
+  "candidate_bytes": 895497676,
+  "untouched_files": 1081,
+  "removed_files": 281,
   "removed_by_group": {
-    "fallback_key_atlases": 91811070,
-    "unused_and_art_prompts": 7015225
+    "fallback_key_atlases": 95008019,
+    "unused_and_art_prompts": 7041760
   },
   "identical_payload_reuse": 615868,
   "removed_paths": {
@@ -46,6 +46,9 @@
       ".godot/imported/ember-cicada-e1.png-864d1830b86968d9d62a9dec87f35d60.ctex",
       ".godot/imported/ember-cicada-e2.png-e1299a97e8201755113ec9f416c7ccc4.ctex",
       ".godot/imported/ember-cicada-e3.png-fb5c97abb274049223e9013ad1298041.ctex",
+      ".godot/imported/firework-e1.png-a7494f13cdfda8238639e35e73a2c67f.ctex",
+      ".godot/imported/firework-e2.png-15413baa65edff06737dd28ab31e1d7b.ctex",
+      ".godot/imported/firework-e3.png-194f1df69dedc1dbd746fb87c8ac5a4b.ctex",
       ".godot/imported/ghost.png-810150c331a378b059cb403d76118598.ctex",
       ".godot/imported/herb-gourd-e1.png-8ff88d06ce946c882464bbd99ffabed9.ctex",
       ".godot/imported/herb-gourd-e2.png-55ab395838fe8ad5c7e204cbcf46d625.ctex",
@@ -94,6 +97,10 @@
       ".godot/imported/sky-kite-e1.png-3537909d1947531e841c260ef4a63543.ctex",
       ".godot/imported/sky-kite-e2.png-7ef0784e7c2a44a299c538c5acd54cd8.ctex",
       ".godot/imported/sky-kite-e3.png-927971ce1746577f959b646047b764f2.ctex",
+      ".godot/imported/sky-mortar-e1.png-f067a8492881f23fe09f914389efb4fb.ctex",
+      ".godot/imported/sky-mortar-e2.png-78325ef2809fd95cb5bf3f0a1303794b.ctex",
+      ".godot/imported/sky-mortar-e3.png-abc0d2b90410ba747aaaa80a13d55db8.ctex",
+      ".godot/imported/sky-mortar.png-3406ed64ba1b5f0743838ecded6f46ef.ctex",
       ".godot/imported/sky-wick.png-2427f24018d2e4e5b25279ff49a98126.ctex",
       ".godot/imported/soul-casket-e1.png-33606fdf274091ba1f9af88fea45153a.ctex",
       ".godot/imported/soul-casket-e2.png-660c209e82ea8b118b5128ce7ccaf07b.ctex",
@@ -120,6 +127,7 @@
       ".godot/imported/v052-projectiles.png-9485cecdc6c96921f2a7109398d6ba67.ctex",
       ".godot/imported/v053-buff-fx.png-ac9b40b02dccca9e5ed6c198071477ad.ctex",
       ".godot/imported/v054-relay-fx.png-7a2d870510e7192b04434315a695c76e.ctex",
+      ".godot/imported/v055-projectiles.png-beca2321b7531348cb6848e6b0a713fa.ctex",
       ".godot/imported/vault.png-d93b9a69cba7d5b4076a563835a1584a.ctex",
       ".godot/imported/wall-e1.png-d1822862c653cdca425dc73b3733f231.ctex",
       ".godot/imported/wall-e2.png-8b2b6c3c836b6eb97dc81c9754985872.ctex",
@@ -128,6 +136,10 @@
       ".godot/imported/wish-till-e1.png-422bd6cd9fa27d26478b1bd5177f239d.ctex",
       ".godot/imported/wish-till-e2.png-c0b645fdc702fb253636811110f77e1a.ctex",
       ".godot/imported/wish-till-e3.png-19668b7d82059c8339c0714b70e01bd8.ctex",
+      ".godot/imported/year-banyan-e1.png-55cf4001c077f3946c8f64136d34fe44.ctex",
+      ".godot/imported/year-banyan-e2.png-40c172bddfefe5ab711538a1ddf80470.ctex",
+      ".godot/imported/year-banyan-e3.png-b26d7796354153050cc1d5c4500d8899.ctex",
+      ".godot/imported/year-banyan.png-c319ef07b58ef8847be5428b516b3c62.ctex",
       "assets/sprites/animation/artisan.png.import",
       "assets/sprites/animation/bell-e1.png.import",
       "assets/sprites/animation/bell-e2.png.import",
@@ -164,6 +176,9 @@
       "assets/sprites/animation/ember-cicada-e1.png.import",
       "assets/sprites/animation/ember-cicada-e2.png.import",
       "assets/sprites/animation/ember-cicada-e3.png.import",
+      "assets/sprites/animation/firework-e1.png.import",
+      "assets/sprites/animation/firework-e2.png.import",
+      "assets/sprites/animation/firework-e3.png.import",
       "assets/sprites/animation/ghost.png.import",
       "assets/sprites/animation/herb-gourd-e1.png.import",
       "assets/sprites/animation/herb-gourd-e2.png.import",
@@ -212,6 +227,10 @@
       "assets/sprites/animation/sky-kite-e1.png.import",
       "assets/sprites/animation/sky-kite-e2.png.import",
       "assets/sprites/animation/sky-kite-e3.png.import",
+      "assets/sprites/animation/sky-mortar-e1.png.import",
+      "assets/sprites/animation/sky-mortar-e2.png.import",
+      "assets/sprites/animation/sky-mortar-e3.png.import",
+      "assets/sprites/animation/sky-mortar.png.import",
       "assets/sprites/animation/sky-wick.png.import",
       "assets/sprites/animation/soul-casket-e1.png.import",
       "assets/sprites/animation/soul-casket-e2.png.import",
@@ -238,6 +257,7 @@
       "assets/sprites/animation/v052-projectiles.png.import",
       "assets/sprites/animation/v053-buff-fx.png.import",
       "assets/sprites/animation/v054-relay-fx.png.import",
+      "assets/sprites/animation/v055-projectiles.png.import",
       "assets/sprites/animation/vault.png.import",
       "assets/sprites/animation/wall-e1.png.import",
       "assets/sprites/animation/wall-e2.png.import",
@@ -245,7 +265,11 @@
       "assets/sprites/animation/wall.png.import",
       "assets/sprites/animation/wish-till-e1.png.import",
       "assets/sprites/animation/wish-till-e2.png.import",
-      "assets/sprites/animation/wish-till-e3.png.import"
+      "assets/sprites/animation/wish-till-e3.png.import",
+      "assets/sprites/animation/year-banyan-e1.png.import",
+      "assets/sprites/animation/year-banyan-e2.png.import",
+      "assets/sprites/animation/year-banyan-e3.png.import",
+      "assets/sprites/animation/year-banyan.png.import"
     ],
     "unused_and_art_prompts": [
       ".godot/imported/board.jpg-2d4a7ef8c0d84ae917db7df411f9fe99.ctex",
@@ -256,6 +280,7 @@
       "assets/bg/loading-menu.png.import",
       "assets/boss/boss_bar_frame.svg.import",
       "assets/boss/weakpoint.svg.import",
+      "data/news_v054.json",
       "data/v042_art_prompts.json",
       "data/v050_art_prompts.json",
       "data/v051_art_prompts.json",
@@ -263,7 +288,11 @@
       "data/v052_guest_art_prompts.json",
       "data/v053_art_prompts.json",
       "data/v054_art_prompts.json",
-      "data/v054_new_art_prompts.json"
+      "data/v054_new_art_prompts.json",
+      "data/v055_art_sources.json",
+      "data/v055_firework_art_prompts.json",
+      "data/v055_generation_prompts.json",
+      "data/v055_sfx.json"
     ]
   }
 }

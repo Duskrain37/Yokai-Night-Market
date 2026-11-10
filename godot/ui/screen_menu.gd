@@ -137,8 +137,6 @@ func _menu_buttons() -> void:
 	footer.add_child(quit)
 	var slots := Ui.button("守夜存档 · %d" % (game.active_slot + 1), 17, 178, 40)
 	footer.add_child(slots)
-	var challenge=Ui.button("一夜重签",17,160,40)
-	challenge.pressed.connect(game.show_challenges);footer.add_child(challenge)
 	slots.pressed.connect(_show_slots)
 
 

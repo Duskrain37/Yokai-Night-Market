@@ -57,20 +57,20 @@ func run() -> void:
 	var last := s.spawn_zombie("ghost",2,{"x":1200})
 	check("汤圆优先前方最左目标",s._lobber_target(soup)==first)
 	first.dead=true;last.dead=true
-	var friend := s.place_free("wall",0,2);friend.hp=2000
+	var friend := s.place_free("shooter",0,2);friend.hp=200
 	soup.upgrades[3]=1
 	s._update_lobber(soup,10)
 	check("无敌人时温暖最左友方",s.shots.size()==1 and s.shots[0].payload.get("friend","")==friend.uid)
 	var friendly: Sim.Shot=s.shots[0]
 	s._update_lob_shot(friendly,2)
-	check("友方汤圆无伤害且增伤12%",friend.hp==2000 and is_equal_approx(friend.buff_damage,0.12))
+	check("友方汤圆无伤害且增伤12%",friend.hp==200 and is_equal_approx(friend.buff_damage,0.12))
 	s.time=4.1;s.refresh_plant_buffs()
 	check("温暖按时到期",friend.buff_damage==0)
-	s._soup_warm(friend,soup.uid,0.24,1e9)
+	s._soup_warm(friend,soup.uid,0.30,1e9)
 	s._soup_warm(friend,"another",0.12,4)
-	check("同类温暖取最高",is_equal_approx(friend.buff_damage,0.24))
+	check("同类温暖取最高",is_equal_approx(friend.buff_damage,0.30))
 	var restored := Sim.new();restored.restore(JSON.parse_string(JSON.stringify(s.serialize())))
-	check("温暖跟随存档",is_equal_approx(restored.main_plant_at(0,2).buff_damage,0.24))
+	check("温暖跟随存档",is_equal_approx(restored.main_plant_at(0,2).buff_damage,0.30))
 	s=battle()
 	var bell := s.place_free("bell",3,2);bell.upgrades[3]=3
 	friend=s.place_free("shooter",1,2);friend.hp=100;friend.sleep_until=100
@@ -90,7 +90,7 @@ func run() -> void:
 	check("增产没有误算攻击增伤",producer.buff_damage==0)
 	check("新耐久上限1500",Upgrades.EFFECTS.torch.max_hp[2]==1500)
 	check("删去火盆旧灼烧与掉星",Upgrades.EFFECTS.torch.burn_dps==[0,0,0,0] and Upgrades.EFFECTS.torch.sparks_per_projectile==[0,0,0,0])
-	check("透骨针基础与三阶伤害",Content.PLANTS.needle.needle.damage==24 and Upgrades.EFFECTS.needle.damage==[24,28,32,36])
+	check("透骨针基础与三阶伤害",Content.PLANTS.needle.needle.damage==24 and Upgrades.EFFECTS.needle.damage==[24,30,36,42])
 	check("逐云鸢原稿费用与伤害",Content.PLANTS["sky-kite"].cost==200 and Upgrades.EFFECTS["sky-kite"].damage==[40,50,60,70])
 	check("烬翼蝉消耗275",Content.PLANTS["ember-cicada"].cost==275)
 	s=battle()

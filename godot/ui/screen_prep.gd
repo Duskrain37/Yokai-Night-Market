@@ -1,7 +1,7 @@
 ## 备战：左边是十八种草木名册，右边是上场卡组、今夜恶客与开战。
 ##
 ## 与 v0.2.4 的差异：名册与卡组分栏，不再与提示文字共用一块区域（旧版训练备战
-## 的文字交叠正是这么来的）；卡组上限十张，超出时给出明确提示。
+## 的文字交叠正是这么来的）；卡组上限十二张，超出时给出明确提示。
 extends Control
 
 var game = null
@@ -58,6 +58,10 @@ func _reveal_after_cinema() -> void:
 		child.modulate.a = 0.0
 		create_tween().tween_property(child, "modulate:a", 1.0, 0.45)
 
+
+func _capacity() -> int:
+	if String(game.settings.difficulty)!="nightmare" or bool(game.prep.get("training",false)):return Sim.MAX_LOADOUT
+	return preload("res://data/nightmare.gd").loadout_limit(Dictionary(game.settings.get("nightmare_factors",{})))
 
 func _level() -> Dictionary:
 	return game.prep.get("level", Content.get_level(1))
@@ -150,7 +154,7 @@ func _roster() -> void:
 	var head = Ui.hbox(12)
 	box.add_child(head)
 	head.add_child(Ui.strong("草木名册", 22, Ui.GOLD))
-	head.add_child(Ui.label("滚动翻阅，点选或取下，一局最多十张。", 15, Ui.TEXT_DIM))
+	head.add_child(Ui.label("滚动翻阅，点选或取下，一局最多十二张，因子可限制携带数量。", 15, Ui.TEXT_DIM))
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
@@ -184,16 +188,16 @@ func _slots() -> void:
 	_count_label = Ui.label("", 16, Ui.TEXT_DIM)
 	head.add_child(_count_label)
 	var grid = GridContainer.new()
-	grid.columns = 5
+	grid.columns = 6
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 6)
 	box.add_child(grid)
 	_slot_nodes.clear()
-	for i in 10:
+	for i in Sim.MAX_LOADOUT:
 		var slot = SlotCard.new()
 		slot.index = i
 		slot.screen = self
-		slot.custom_minimum_size = Vector2(80, 96)
+		slot.custom_minimum_size = Vector2(65, 90)
 		grid.add_child(slot)
 		_slot_nodes.append(slot)
 	# Keep the launch controls inside the viewport even with all enemy types + water warning.
@@ -274,7 +278,7 @@ func _slots() -> void:
 		update.call()
 		factors.pressed.connect(func():
 			var dialog=load("res://ui/nightmare_panel.gd").new()
-			dialog.game=game;dialog.level=_level();dialog.on_changed=update
+			dialog.game=game;dialog.level=_level();dialog.on_changed=func():update.call();_refresh()
 			add_child(dialog);dialog.popup_centered()
 			dialog.confirmed.connect(dialog.queue_free);dialog.canceled.connect(dialog.queue_free))
 		box.add_child(factors)
@@ -291,10 +295,10 @@ func _auto_pick() -> void:
 	var tips: Array = Content.night_loadout_tips(_level())
 	_picked.clear()
 	for type in tips:
-		if Content.PLANTS.has(type) and _picked.size() < 10:
+		if Content.PLANTS.has(type) and _picked.size() < _capacity():
 			_picked.append(type)
 	for type in Content.PLANT_ORDER:
-		if _picked.size() >= 10:
+		if _picked.size() >= _capacity():
 			break
 		if not _picked.has(type):
 			_picked.append(type)
@@ -307,7 +311,7 @@ func _swap_in_lily() -> void:
 	if _picked.has("lily"):
 		return
 	var map := String(_level()["map"])
-	if _picked.size() >= 10:
+	if _picked.size() >= _capacity():
 		var worst := 0
 		for i in _picked.size():
 			if String(_picked[i]) == "lily":
@@ -333,10 +337,11 @@ func open_zombie_almanac(id: String) -> void:
 
 
 func toggle_plant(type: String) -> void:
+	if not Content.PLANTS.has(type):return
 	if _picked.has(type):
 		_picked.erase(type)
-	elif _picked.size() >= 10:
-		_warning.text = "卡组已满十张，先取下一张再选。"
+	elif _picked.size() >= _capacity():
+		_warning.text = "卡组已满%d张，先取下一张再选。" % _capacity()
 		game.play_sfx("deny")
 		_refresh()
 		return
@@ -352,9 +357,10 @@ func _refresh() -> void:
 		card.chosen = _picked.has(card.plant_id)
 		card.queue_redraw()
 	for slot in _slot_nodes:
+		slot.visible=slot.index<_capacity() or slot.index<_picked.size()
 		slot.set_plant(String(_picked[slot.index]) if slot.index < _picked.size() else "")
 	if _count_label != null:
-		_count_label.text = "%d / 10" % _picked.size()
+		_count_label.text = "%d / %d" % [_picked.size(),_capacity()]
 	if _warning != null:
 		if _picked.is_empty():
 			_warning.text = "空手上阵会被恶客直接推平；至少带一株能产香火的草木。"
@@ -362,8 +368,8 @@ func _refresh() -> void:
 			_warning.text = "没有产能草木，香火只靠天上掉的，会很难撑住。"
 		elif _needs_lily():
 			_warning.text = "水面要先放夜莲。\n当前卡组没有夜莲，可用下方按钮换入。"
-		elif _picked.size() > 10:
-			_warning.text = "卡组超出十张。"
+		elif _picked.size() > _capacity():
+			_warning.text = "当前因子限带%d张，请取下多余草木。" % _capacity()
 		else:
 			_warning.text = ""
 		if _level().get("water_rows", []).is_empty():
@@ -394,6 +400,9 @@ func _has_producer() -> bool:
 
 
 func _start() -> void:
+	if _picked.size()>_capacity():
+		_warning.text="行囊装不下了，请先取下多余草木。"
+		game.play_sfx("deny");return
 	if _picked.is_empty():
 		_warning.text = "先选至少一株草木。"
 		game.play_sfx("deny")
@@ -520,9 +529,10 @@ class SlotCard extends Control:
 		var def: Dictionary = Content.PLANTS[plant_id]
 		var font = Ui.body_font()
 		var text = String(def["name"])
-		var width = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+		var text_size:=mini(14,int((rect.size.x-6)/maxi(1,text.length())))
+		var width = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, text_size).x
 		draw_string(font, Vector2((rect.size.x - width) * 0.5, rect.size.y - 8), text,
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Ui.TEXT)
+			HORIZONTAL_ALIGNMENT_LEFT, -1, text_size, Ui.TEXT)
 
 
 ## 今夜恶客的一枚头像牌：立绘、名字、阶级色点；首遇的挂「新」，点开进图鉴。

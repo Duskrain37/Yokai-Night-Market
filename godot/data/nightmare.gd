@@ -1,6 +1,7 @@
 ## Nightmare factors are immutable per run. Levels are sanitized against stage eligibility.
 extends RefCounted
 const FACTORS = [
+	{"id":"light_pack","name":"行囊受限","descriptions":["本局最多携带10株草木","本局最多携带8株草木"],"points":[1,3]},
 	{"id":"price","name":"进化涨价","descriptions":["所有进化费用提高 50%","所有进化费用提高 100%"],"points":[1,2]},
 	{"id":"curfew","name":"宵禁","descriptions":["一大波恶客到来后的 5 秒内不能种植或升阶"],"points":[1]},
 	{"id":"swarm","name":"群鬼压境","descriptions":["恶客数量与血量额外提高 10%","恶客数量与血量额外提高 20%","恶客数量与血量额外提高 40%"],"points":[1,2,3]},
@@ -15,7 +16,10 @@ const FACTORS = [
 	{"id":"twins","name":"呼朋引伴","descriptions":["最终波同时迎战两位相同恶首；深处每次迎战均生效"],"points":[2],"boss_only":true},
 	{"id":"rush","name":"攻势不歇","descriptions":["各拨攻势与恶首援军的间隔缩短 25%"],"points":[1]},
 ]
-const INFO = "噩梦中，恶客的数量与血量均为简单的 1.35 倍。\n\n守到天亮即可独立获得第四颗红星，惊动门神也不会失去红星。三颗金星分别要求：通关、至多惊动一次门神、从未惊动门神；每颗分别保存已获得的成绩。\n\n备战时可自由添加噩梦因子，每条旁的数字是因子数，分档词条按当前档位计分。带因子通关，可在红星旁留下朱印与最佳因子数，并收录本次挑战徽章。\n\n灯火限制使用连续滚动的 10 秒窗口，超出部分不会入账。草木损失包括被摧毁、铲除和灰烬草木用毕；夜莲和龟甲罩也各算一株；龟甲罩被拆除、击碎或随宿主退场时也计入损失。独修一途按每株草木分别限制。进化涨价仅提高升阶费用；宵禁从一大波提示出现时开始，持续 5 秒。无门神因子不视为惊动门神。\n\n因子随本局保存，开战后不能更改。训练、教学、三卡试炼和使用作弊的战斗不授予噩梦星与徽章。"
+const INFO = "噩梦中，恶客的数量与血量均为简单的 1.35 倍。\n\n守到天亮即可独立获得第四颗红星，惊动门神也不会失去红星。三颗金星分别要求：通关、至多惊动一次门神、从未惊动门神；每颗分别保存已获得的成绩。\n\n备战时可自由添加噩梦因子，每条旁的数字是因子数，分档词条按当前档位计分。带因子通关，可在红星旁留下朱印与最佳因子数，并收录本次挑战徽章。\n\n灯火限制使用连续滚动的 10 秒窗口，超出部分不会入账。草木损失包括被摧毁、铲除和灰烬草木用毕；夜莲和龟甲罩也各算一株；龟甲罩被拆除、击碎或随宿主退场时也计入损失。独修一途按每株草木分别限制。进化涨价仅提高升阶费用；宵禁从一大波提示出现时开始，持续 5 秒。无门神因子不视为惊动门神。\n\n常规守夜最多可带十二株草木；“行囊受限”可改为十株（一因子）或八株（三因子）。选好因子后须取下超出的牌，开战时锁定。\n\n因子随本局保存，开战后不能更改。训练、教学和使用作弊的战斗不授予噩梦星与徽章。"
+static func loadout_limit(raw: Dictionary) -> int:
+	return [12,10,8][clampi(int(raw.get("light_pack",0)),0,2)]
+
 static func has_boss(level: Dictionary) -> bool:
 	return String(level.get("boss_id",""))!="" or not Array(level.get("boss_checkpoints",[])).is_empty()
 static func sanitize(raw: Dictionary, level: Dictionary) -> Dictionary:

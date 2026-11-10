@@ -317,8 +317,20 @@ func _nightmare_info() -> void:
 	var dialog:=AcceptDialog.new()
 	Ui.style_dialog(dialog)
 	dialog.title="噩梦守夜 · 红星与因子"
-	dialog.dialog_text=preload("res://data/nightmare.gd").INFO
-	dialog.dialog_autowrap=true;dialog.min_size=Vector2i(840,600)
+	dialog.min_size=Vector2i(900,650)
+	# AcceptDialog's built-in label retains an unconstrained minimum width on long CJK lines.
+	# Use a width-constrained container and scrolling content instead.
+	var margin:=MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.offset_left=24;margin.offset_top=18;margin.offset_right=-24;margin.offset_bottom=-70
+	dialog.add_child(margin)
+	var scroll:=ScrollContainer.new()
+	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	margin.add_child(scroll)
+	var body:=Ui.label(preload("res://data/nightmare.gd").INFO,18,Ui.TEXT)
+	body.name="NightmareInfoText";body.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	body.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	scroll.add_child(body)
 	dialog.get_ok_button().text="知晓了"
 	dialog.get_ok_button().custom_minimum_size=Vector2(170,42)
 	dialog.get_label().add_theme_font_size_override("font_size",18)

@@ -117,7 +117,7 @@ func v051_content_regressions() -> void:
   donor.upgrades[1] = 3
  var shooter = sim.place_free("shooter", 4, 0)
  sim.start_volley(shooter)
- check("四个满阶签筒只为全队叠加三发", sim._shooter_team_bonus() == 3 and shooter.burst.left == 3)
+ check("四个满阶签筒为全队叠加四发", sim._shooter_team_bonus() == 4 and shooter.burst.left == 4)
  var lamp = sim.place_free("lantern", 1, 2)
  var weak_lamp = sim.place_free("lantern", 2, 2)
  var judge = sim.place_free("judge", 4, 2)
@@ -243,9 +243,9 @@ func v051_content_regressions() -> void:
    ranks[type] = Content.tip_rank(map, type)
   check("%s 的全部草木各有明确推荐顺位" % map,
    picks.size() == Content.PLANT_ORDER.size() and ranks.size() == Content.PLANT_ORDER.size() and not ranks.values().has(999))
-  for type in picks.slice(0, 10):
+  for type in picks.slice(0, Sim.MAX_LOADOUT):
    featured[type] = true
- check("五株新草木各有适合入选推荐前十的地图",
+ check("五株新草木各有适合入选推荐前十二的地图",
   ["ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada"].all(func(type): return featured.has(type)))
 
 

@@ -62,3 +62,8 @@ python tools/register_actor_atlas.py new-guest "C:/art/new-guest.png" walk,attac
 蒲舟客用 `tools/fix_atlas_regions_v053.py` 计算实际泳姿主体行界，沉舟后立即显示 swim / swim_bite，船体另行下沉，禁止把上一行脚部混入泳姿。
 
 安卓清单`data/actor_motion_mobile.json`由`tools/prepare_mobile_motion.py`生成。超4096图集按动作拆分到`assets/sprites/mobile-motion/`，`clip_files`指定每组纹理；rect移到该动作局部坐标，anchor与body_px保持不变。每个片段仍为32帧。审核记录含可见RGBA与透明度完全一致的校验，不能借拆图缩分辨率。常规角色继续用原动作图集。电脑版不导出手机专用副本；手机版不导出被拆分的重复大图集。
+
+
+## v0.5.5 接入
+
+岁灯榕 year-banyan 对应 canopy，镇霄炮 sky-mortar 对应 vessel，烟花童 firework 对应 upright；三者已登记于 BY_TYPE。肖像按 <id>.png、<id>-e1.png 至 -e3.png 命名，骨骼关键姿势与32帧烘焙流程不变。当前新增26条clip、832帧，不需要为相同形态手工重复接线。详见 V055_ART.md。

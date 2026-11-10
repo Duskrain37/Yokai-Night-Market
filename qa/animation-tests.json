@@ -1341,6 +1341,126 @@
 			"ok": true
 		},
 		{
+			"name": "year-banyan 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "year-banyan idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e1 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e1 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 year-banyan-e1",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e2 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e2 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 year-banyan-e2",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e3 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 year-banyan-e3",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e1 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e1 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 sky-mortar-e1",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e2 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e2 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 sky-mortar-e2",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e3 idle 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e3 action 有4帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "三阶独立立绘 sky-mortar-e3",
+			"ok": true
+		},
+		{
 			"name": "ghost 图集可加载",
 			"ok": true
 		},
@@ -2697,6 +2817,42 @@
 			"ok": true
 		},
 		{
+			"name": "firework-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "firework-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "firework-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "firework-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "firework-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "firework-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "firework-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "firework-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "firework-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "flinch 图集可加载",
 			"ok": true
 		},
@@ -3533,6 +3689,54 @@
 			"ok": true
 		},
 		{
+			"name": "sky-mortar 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "sky-mortar-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "sky-wick 图集可加载",
 			"ok": true
 		},
@@ -3989,6 +4193,26 @@
 			"ok": true
 		},
 		{
+			"name": "v055-projectiles 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "v055-projectiles blast 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v055-projectiles seed 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v055-projectiles shell 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "v055-projectiles soul 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "vault 图集可加载",
 			"ok": true
 		},
@@ -4125,6 +4349,54 @@
 			"ok": true
 		},
 		{
+			"name": "year-banyan 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "year-banyan action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e1 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e1 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e1 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e2 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e2 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e2 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e3 图集可加载",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e3 action 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
+			"name": "year-banyan-e3 idle 有32帧且不同画面不少于75%",
+			"ok": true
+		},
+		{
 			"name": "鬼新娘不能被普通刷怪入口直接创建",
 			"ok": true
 		},
@@ -4182,5 +4454,5 @@
 		}
 	],
 	"failures": 0,
-	"total": 1045
+	"total": 1113
 }

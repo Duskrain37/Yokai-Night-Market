@@ -9,6 +9,7 @@ const PROFILES = {
 	"quadruped": {"pivots": [Vector2(.47,.74), Vector2(.69,.39), Vector2(.29,.73), Vector2(.74,.74)], "force": 1.3},
 }
 const BY_TYPE = {
+	"year-banyan":"canopy", "sky-mortar":"vessel", "firework":"upright",
 	"lantern": "lantern", "shooter": "upright", "wall": "vessel", "bell": "lantern",
 	"censer": "vessel", "umbrella": "canopy", "lion": "quadruped", "cat": "lantern",
 	"lobber": "upright", "torch": "vessel", "star": "lantern", "needle": "upright",
