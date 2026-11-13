@@ -1,0 +1,59 @@
+{
+  "runs": 100,
+  "strategy": "recommended-v2; original role buckets frozen by plant ID, placement/economy unchanged",
+  "strategy_sha256": "20ecd6a6b83f4ada8152a1a930414da8f8fb05dc3b11bc8325dd59a7bfe98393",
+  "taxonomy_migration": {
+    "reason": "Role display tags were unified. The bot now freezes the prior role buckets by plant ID; placement, upgrade routes, timings and normal economy are unchanged.",
+    "previous_roles": {
+      "year-banyan": "产能",
+      "sky-mortar": "抛射",
+      "reed-chime": "范围",
+      "soul-casket": "借弹",
+      "lantern": "产能",
+      "shooter": "射线",
+      "wall": "防御",
+      "bomb": "灰烬",
+      "bell": "辅助",
+      "censer": "范围",
+      "umbrella": "收妖",
+      "lion": "近战",
+      "mushroom": "灰烬",
+      "cat": "追魂",
+      "shell": "护罩",
+      "lobber": "抛射",
+      "torch": "增幅",
+      "star": "五向",
+      "needle": "破甲",
+      "judge": "庇护",
+      "gust": "灰烬",
+      "firework": "抛射",
+      "squash": "灰烬",
+      "dragon": "近攻",
+      "lily": "浮台",
+      "herb-gourd": "扶伤",
+      "ruin-cap": "灰烬",
+      "sky-kite": "抛射",
+      "wish-till": "产能",
+      "cash-pod": "灰烬",
+      "ember-cicada": "追魂",
+      "kelp": "灰烬"
+    },
+    "placement_policy_unchanged": true,
+    "new_active_skills_automated": false
+  },
+  "outcome_changes": [
+    {
+      "night": "nightmare:9",
+      "before": "lost",
+      "after": "won"
+    }
+  ],
+  "wins": {
+    "easy": 19,
+    "normal": 15,
+    "hard": 14,
+    "nightmare": 12
+  },
+  "failures": 0,
+  "limitations": "Bot does not cast new active skills. This is a fixed-strategy regression, not proof of human full completion."
+}

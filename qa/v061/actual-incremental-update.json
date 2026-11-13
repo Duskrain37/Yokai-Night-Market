@@ -1,0 +1,151 @@
+{
+  "target_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+  "target_size": 918161008,
+  "old_sha256": "fefcbc893b4af1390dd56ff9423a90ca1ceda3c1f2b6ddf6974e4a938df90999",
+  "runs": [
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v061 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused more than ninety percent",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已准备好。重启后即可进入 v0.6.1。",
+      "phase": "ready",
+      "received": 37943992,
+      "required": 37943992,
+      "reused": 880220468,
+      "target_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+      "updater_build": "2bcd33c",
+      "updater_version": "0.5.6",
+      "wire_exe_bytes": 37943992,
+      "range_requests": 30,
+      "duration_seconds": 13.31
+    },
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v061 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused more than ninety percent",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已下载并校验完成，即将重启进入 v0.6.1。",
+      "phase": "ready",
+      "received": 5112086,
+      "required": 5112086,
+      "reused": 913050448,
+      "target_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+      "updater_build": "97d79b5",
+      "updater_version": "0.6.0",
+      "wire_exe_bytes": 5112086,
+      "range_requests": 21,
+      "duration_seconds": 12.67
+    },
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v061 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused more than ninety percent",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已下载并校验完成，即将重启进入 v0.6.1。",
+      "phase": "ready",
+      "received": 5112086,
+      "required": 5112086,
+      "reused": 913050448,
+      "target_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+      "updater_build": "f7bd605",
+      "updater_version": "0.6.1",
+      "wire_exe_bytes": 5112086,
+      "range_requests": 21,
+      "duration_seconds": 12.11
+    }
+  ]
+}

@@ -46,18 +46,18 @@ const TREES = {
 			"tiers": [
 				{
 					"name": "吐籽",
-					"cost": 125,
+					"cost": 100,
 					"desc": "获得射弹攻击：每1.4秒发射一枚榕籽，造成20伤害。"
 				},
 				{
-					"name": "连籽",
-					"cost": 250,
-					"desc": "每轮连续发射2枚榕籽，每成长一次再增加1枚，连发间隔与签筒相同。"
+					"name": "丰实",
+					"cost": 200,
+					"desc": "榕籽伤害提高到30，每次成长再增加4。"
 				},
 				{
-					"name": "金实",
-					"cost": 500,
-					"desc": "榕籽伤害提高到26，每成长一次再提高2。"
+					"name": "繁籽",
+					"cost": 375,
+					"desc": "每轮连续发射2枚榕籽，每成长一次再增加1枚，连发间隔与签筒相同。保留30+每次成长4的伤害。"
 				}
 			]
 		},
@@ -130,11 +130,25 @@ const TREES = {
 			]
 		},
 		{
-			"id": 3, "name": "镇平安", "color": "#508e86",
+			"id": 3,
+			"name": "镇平安",
+			"color": "#508e86",
 			"tiers": [
-				{"name":"看破", "cost":175, "desc":"炮弹能攻击空中恶客，且无法被闪避或免疫；看破优先于恶客的免疫效果。"},
-				{"name":"八方碎霄", "cost":375, "desc":"每枚炮弹命中时，从爆炸中心向八方分射8块弹片；弹片属于射弹，速度为签筒的三分之二，每块伤害45。"},
-				{"name":"霄炮镇平安", "cost":900, "desc":"获得主动技能：连续向天空发射7枚660伤害的重炮，每发间隔0.25秒，冷却55秒。点击炮身上方的镇字朱印施放。"}
+				{
+					"name": "看破",
+					"cost": 175,
+					"desc": "炮弹能攻击空中恶客，且无法被闪避或免疫；看破优先于恶客的免疫效果。"
+				},
+				{
+					"name": "八方碎霄",
+					"cost": 375,
+					"desc": "每枚炮弹命中时，从爆炸中心向八方分射8块弹片；弹片属于射弹，速度为签筒的三分之二，每块伤害45。"
+				},
+				{
+					"name": "霄炮镇平安",
+					"cost": 900,
+					"desc": "获得主动技能：连续向天空发射7枚660伤害的重炮，每发间隔0.25秒，冷却55秒。可从进化面板的技能图标施放，或在设置中开启右键模型技能图标。"
+				}
 			]
 		}
 	],
@@ -237,17 +251,17 @@ const TREES = {
 				{
 					"name": "借锋",
 					"cost": 125,
-					"desc": "由灵枢放出的子弹合计增伤20%（基础为10%）。"
+					"desc": "由灵枢放出的子弹合计增伤提高到35%。"
 				},
 				{
 					"name": "借势",
 					"cost": 250,
-					"desc": "由灵枢放出的子弹合计增伤提高至30%。"
+					"desc": "由灵枢放出的子弹合计增伤提高到50%。"
 				},
 				{
 					"name": "重应",
 					"cost": 500,
-					"desc": "每发放出的子弹有30%概率在0.18秒后再发射一枚完整复制弹。"
+					"desc": "每发放出的子弹必定额外复制一发，保留原弹全部效果。"
 				}
 			]
 		},
@@ -759,17 +773,17 @@ const TREES = {
 				{
 					"name": "护符",
 					"cost": 100,
-					"desc": "庇护减伤提高到35%。"
+					"desc": "3×3庇护内的草木受到伤害降低45%。"
 				},
 				{
 					"name": "伏煞",
 					"cost": 200,
-					"desc": "庇护减伤提高到50%。"
+					"desc": "庇护减伤提高到60%。"
 				},
 				{
 					"name": "续命",
-					"cost": 400,
-					"desc": "每株受庇护草木第一次受到致命一击时保留1点耐久，且3秒内免疫伤害。"
+					"cost": 550,
+					"desc": "庇护扩展到5×5。范围内每株非灰烬草木受到致命伤时保留1耐久并免伤3秒；每株独立冷却60秒。与镇街整行范围并存。"
 				}
 			]
 		},
@@ -779,19 +793,19 @@ const TREES = {
 			"name": "镇街",
 			"tiers": [
 				{
-					"name": "朱砂",
+					"name": "镇街",
 					"cost": 150,
-					"desc": "每1.6秒向本行射出一枚伤害为38的朱砂弹。"
+					"desc": "庇护改为本行整行；范围内非大型恶客移速降低20%，草木攻速提高20%。"
 				},
 				{
-					"name": "守坊",
-					"cost": 175,
-					"desc": "庇护扩大为以自身为中心的3×3格。"
+					"name": "慑妖",
+					"cost": 300,
+					"desc": "移速降低25%，大型恶客也受影响；范围内草木攻速提高25%。"
 				},
 				{
-					"name": "镇市",
-					"cost": 325,
-					"desc": "庇护扩大为以自身为中心的5×5格。"
+					"name": "神威护境",
+					"cost": 750,
+					"desc": "减速和攻速增幅提高到30%。获得唯一主动技能「神威护境」：清除所有草木负面状态，庇护扩展到全场、沉默所有恶客，减速和攻速增幅提高到40%，持续8秒，冷却50秒。由最先升到此阶的在场钟馗像持有，共享冷却。"
 				}
 			]
 		},
@@ -803,17 +817,17 @@ const TREES = {
 				{
 					"name": "点香",
 					"cost": 100,
-					"desc": "庇护内草木的伤害提高10%。"
+					"desc": "庇护内草木伤害提高20%。"
 				},
 				{
 					"name": "添香",
 					"cost": 200,
-					"desc": "庇护内草木的伤害提高20%。"
+					"desc": "庇护内草木伤害提高30%。"
 				},
 				{
 					"name": "灯明",
 					"cost": 375,
-					"desc": "庇护内草木的伤害提高25%，攻击速度提高10%。"
+					"desc": "庇护内草木伤害提高35%。庇护扩大到5×5，与镇街整行范围并存。"
 				}
 			]
 		}
@@ -915,18 +929,18 @@ const TREES = {
 			"name": "狮步",
 			"tiers": [
 				{
-					"cost": 150,
+					"cost": 125,
 					"desc": "醒狮跃起远撞，本行攻击距离增加到3格。",
 					"name": "远跃"
 				},
 				{
-					"cost": 275,
+					"cost": 200,
 					"desc": "远撞可贯穿本行全程，仍只攻击本行。",
 					"name": "通街"
 				},
 				{
-					"cost": 475,
-					"desc": "攻击速度降低20%；每次远撞击中本行所有恶客。",
+					"cost": 350,
+					"desc": "攻击间隔增加至1.8秒；每次远撞击中本行所有恶客。",
 					"name": "满街狮吼"
 				}
 			]
@@ -943,13 +957,13 @@ const TREES = {
 				},
 				{
 					"cost": 150,
-					"desc": "撞头命中时恢复50耐久。推开恶客时，还会为相邻草木喝彩，攻击速度提高5%，持续3秒，最多三层。",
+					"desc": "撞头命中恢复50耐久。推开恶客时，为除自己外造价最高的3株草木喝彩，每层攻速提高5%，持续3秒，最多三层。",
 					"name": "喝彩"
 				},
 				{
-					"cost": 275,
-					"desc": "撞头命中时，自己与前后一格的草木各恢复75耐久。被恶客击倒后仍可再舞3秒，然后退场。",
-					"name": "最后一舞"
+					"cost": 350,
+					"desc": "喝彩改为除自己外造价最高的5株草木及自己，每层攻速提高10%，持续3秒，最多三层；撞头命中恢复75耐久。",
+					"name": "满堂喝彩"
 				}
 			]
 		}
@@ -1243,8 +1257,8 @@ const TREES = {
 					"name": "四发"
 				},
 				{
-					"cost": 550,
-					"desc": "每轮发射六支竹签，有10%概率改为十二支。场上每个练成六发的签筒，使所有签筒每轮多射一支，最多额外五支。",
+					"cost": 400,
+					"desc": "每轮发射六支竹签。每个练成六发的签筒使所有签筒每轮多射一支，最多额外五支；不再随机改为十二支。",
 					"name": "六发"
 				}
 			]
@@ -1272,24 +1286,24 @@ const TREES = {
 			]
 		},
 		{
-			"color": "#d0a044",
+			"color": "#619f86",
 			"id": 3,
-			"name": "重弹",
+			"name": "急雨",
 			"tiers": [
 				{
-					"cost": 125,
-					"desc": "每支竹签有10%概率造成双倍伤害，另有10%概率使命中目标的移动速度降低20%，持续2秒。",
-					"name": "重弹"
+					"name": "疾签",
+					"cost": 100,
+					"desc": "每次普通攻击有10%概率使下次攻击间隔立刻减少1秒；每7秒最多触发一次。"
 				},
 				{
-					"cost": 225,
-					"desc": "双倍伤害竹签和减速竹签的概率各提高到20%。",
-					"name": "重型"
+					"name": "骤签",
+					"cost": 200,
+					"desc": "触发概率提高到15%，每6秒最多触发一次。"
 				},
 				{
-					"cost": 400,
-					"desc": "双倍伤害竹签和减速竹签的概率各提高到33%。",
-					"name": "霜重"
+					"name": "万签骤雨",
+					"cost": 600,
+					"desc": "获得主动技能「万签骤雨」：向本行连续倾泻130发竹签，每发间隔0.02秒，冷却45秒。"
 				}
 			]
 		}
@@ -1380,7 +1394,7 @@ const TREES = {
 				},
 				{
 					"cost": 325,
-					"desc": "射弹伤害增幅提高到130%，弹速提高50%；命中后对周围0.3格的恶客造成直击伤害20%的溅射。",
+					"desc": "射弹增伤提高到130%，弹速提高50%；命中后对0.4格内恶客造成直击伤害40%的溅射。",
 					"name": "不熄"
 				}
 			]
@@ -1392,17 +1406,17 @@ const TREES = {
 			"tiers": [
 				{
 					"cost": 100,
-					"desc": "自身周围九格内，生产型草木产出的香火增加10%。",
+					"desc": "3×3范围内生产型草木的香火产出提高20%。",
 					"name": "照灯"
 				},
 				{
 					"cost": 200,
-					"desc": "香火产出增幅提高到20%。",
+					"desc": "生产辅助范围提高到5×5，保留20%的香火产出增幅。",
 					"name": "旺灯"
 				},
 				{
 					"cost": 350,
-					"desc": "香火产出增幅提高到25%，生产速度同时提高10%。",
+					"desc": "5×5范围内香火产出提高25%，生产速度提高10%。",
 					"name": "满堂"
 				}
 			]
@@ -1410,22 +1424,22 @@ const TREES = {
 		{
 			"color": "#7f8d94",
 			"id": 3,
-			"name": "火胎",
+			"name": "穿薪",
 			"tiers": [
 				{
-					"cost": 75,
-					"desc": "耐久上限提高到750，立即补足增加的耐久。",
-					"name": "厚胎"
+					"name": "续薪",
+					"cost": 125,
+					"desc": "穿过的原本无穿透射弹获得一次穿透：首次100%伤害，第二个目标40%。"
 				},
 				{
-					"cost": 150,
-					"desc": "耐久上限提高到1500，立即补足增加的耐久。",
-					"name": "坚炉"
+					"name": "传薪",
+					"cost": 250,
+					"desc": "原本无穿透射弹的第二个目标伤害提高到80%。"
 				},
 				{
-					"cost": 350,
-					"desc": "被啃食时，持续灼烧自身一格内的恶客，每秒造成60；未被啃食时每秒恢复50生命。",
-					"name": "火墙"
+					"name": "薪火相传",
+					"cost": 500,
+					"desc": "原本无穿透射弹获得两次穿透：第一、第二、第三个目标分别造成100%、100%、50%伤害。不改变本就有穿透的射弹。"
 				}
 			]
 		}
@@ -1569,92 +1583,1511 @@ const TREES = {
 }
 
 const EFFECTS = {
-	"reed-chime":{"damage":[42,49,56,70],"interval":[1.6,1.5,1.35,1.2],"slow":[0,.15,.25,.45]},
-	"soul-casket":{"bonus":[.1,.2,.3,.3],"copy_chance":.3},
-	"herb-gourd": {"heal":[50,64,78,96],"interval":[1.6,1.47,1.34,1.2],"haste":[0,0.05,0.1,0.2]},
-	"sky-kite": {"targets": [1, 2, 3, 4], "damage": [40, 50, 60, 70], "bounces": [0, 1, 2, 4], "slow": [0, 0.15, 0.3, 0.3], "silence": [0, 0, 0, 2.5]},
-	"wish-till": {"income": [5, 9, 13, 20], "haste": [0, 0.05, 0.1, 0.15], "pull_interval": [0, 0, 5, 5]},
-	"ember-cicada": {"damage": [82, 104, 126, 156], "splash": [0.5, 0.65, 0.8, 1], "radius": [0.3, 0.3, 0.3, 0.5], "interval": [1.2, 1.1, 1, 0.5], "reload": [4.8, 4.4, 4, 4], "ammo": [4, 4, 4, 6]},
+	"reed-chime": {
+		"damage": [
+			42,
+			49,
+			56,
+			70
+		],
+		"interval": [
+			1.6,
+			1.5,
+			1.35,
+			1.2
+		],
+		"slow": [
+			0,
+			0.15,
+			0.25,
+			0.45
+		]
+	},
+	"soul-casket": {
+		"bonus": [
+			0.2,
+			0.35,
+			0.5,
+			0.5
+		],
+		"copy_chance": 1.0
+	},
+	"herb-gourd": {
+		"heal": [
+			50,
+			64,
+			78,
+			96
+		],
+		"interval": [
+			1.6,
+			1.47,
+			1.34,
+			1.2
+		],
+		"haste": [
+			0,
+			0.05,
+			0.1,
+			0.2
+		]
+	},
+	"sky-kite": {
+		"targets": [
+			1,
+			2,
+			3,
+			4
+		],
+		"damage": [
+			40,
+			50,
+			60,
+			70
+		],
+		"bounces": [
+			0,
+			1,
+			2,
+			4
+		],
+		"slow": [
+			0,
+			0.15,
+			0.3,
+			0.3
+		],
+		"silence": [
+			0,
+			0,
+			0,
+			2.5
+		]
+	},
+	"wish-till": {
+		"income": [
+			5,
+			9,
+			13,
+			20
+		],
+		"haste": [
+			0,
+			0.05,
+			0.1,
+			0.15
+		],
+		"pull_interval": [
+			0,
+			0,
+			5,
+			5
+		]
+	},
+	"ember-cicada": {
+		"damage": [
+			82,
+			104,
+			126,
+			156
+		],
+		"splash": [
+			0.5,
+			0.65,
+			0.8,
+			1
+		],
+		"radius": [
+			0.3,
+			0.3,
+			0.3,
+			0.5
+		],
+		"interval": [
+			1.2,
+			1.1,
+			1,
+			0.5
+		],
+		"reload": [
+			4.8,
+			4.4,
+			4,
+			4
+		],
+		"ammo": [
+			4,
+			4,
+			4,
+			6
+		]
+	},
 	"shooter": {
-		"volley": [1, 2, 4, 6],
-		"volley_bonus": [0, 0, 0, 12],
-		"volley_bonus_chance": [0.0, 0.0, 0.0, 0.1],
-		"adjacent_sides": [0, 1, 2, 2],
-		"adjacent_split": [false, false, false, true],
-		"crit_chance": [0.0, 0.1, 0.2, 0.33],
+		"volley": [
+			1,
+			2,
+			4,
+			6
+		],
+		"volley_bonus": [
+			0,
+			0,
+			0,
+			0
+		],
+		"volley_bonus_chance": [
+			0,
+			0,
+			0,
+			0
+		],
+		"adjacent_sides": [
+			0,
+			1,
+			2,
+			2
+		],
+		"adjacent_split": [
+			false,
+			false,
+			false,
+			true
+		],
+		"crit_chance": [
+			0,
+			0,
+			0,
+			0
+		],
+		"quick_chance": [
+			0,
+			0.1,
+			0.15,
+			0.15
+		],
+		"quick_cooldown": [
+			0,
+			7.0,
+			6.0,
+			6.0
+		]
 	},
 	"lantern": {
-		"value": [25, 35, 50, 100],
-		"interval": [8.0, 7.0, 6.0, 5.0],
-		"produce_shot": [0.0, 0.0, 0.0, 110.0],
-		"buff_range": [0, 1, 3, 99],
-		"buff_damage": [0.0, 0.2, 0.2, 0.25],
+		"value": [
+			25,
+			35,
+			50,
+			100
+		],
+		"interval": [
+			8.0,
+			7.0,
+			6.0,
+			5.0
+		],
+		"produce_shot": [
+			0.0,
+			0.0,
+			0.0,
+			110.0
+		],
+		"buff_range": [
+			0,
+			1,
+			3,
+			99
+		],
+		"buff_damage": [
+			0.0,
+			0.2,
+			0.2,
+			0.25
+		]
 	},
 	"wall": {
-		"heal": [0.0, 20.0, 40.0, 40.0],
-		"heal_while_eaten": [false, false, false, true],
-		"reflect": [0.0, 15.0, 30.0, 50.0],
-		"bomb_damage": [0.0, 0.0, 0.0, 900.0],
-		"bomb_radius": [0.0, 0.0, 0.0, 88.0],
-		"gravel": [0, 1, 1, 1],
-		"gravel_damage": [0.0, 20.0, 20.0, 20.0],
+		"heal": [
+			0.0,
+			20.0,
+			40.0,
+			40.0
+		],
+		"heal_while_eaten": [
+			false,
+			false,
+			false,
+			true
+		],
+		"reflect": [
+			0.0,
+			15.0,
+			30.0,
+			50.0
+		],
+		"bomb_damage": [
+			0.0,
+			0.0,
+			0.0,
+			900.0
+		],
+		"bomb_radius": [
+			0.0,
+			0.0,
+			0.0,
+			88.0
+		],
+		"gravel": [
+			0,
+			1,
+			1,
+			1
+		],
+		"gravel_damage": [
+			0.0,
+			20.0,
+			20.0,
+			20.0
+		],
 		"gravel_interval": 2.8,
-		"vuln": [0.0, 0.0, 0.1, 0.1],
+		"vuln": [
+			0.0,
+			0.0,
+			0.1,
+			0.1
+		],
 		"vuln_duration": 3.0,
-		"knock_cells": [0.0, 0.0, 0.0, 0.6],
+		"knock_cells": [
+			0.0,
+			0.0,
+			0.0,
+			0.6
+		]
 	},
-	"bell": {"main_interval": [0.0, 2.0, 1.5, 1.2], "repeat_slow": [0.0, 0.0, 0.0, 0.4], "adjacent_radius": [0.0, 0.0, 0.5, 0.5], "backlash_dps_cap": [0, 0, 0, 35], "backlash_duration": [0.0, 0.0, 0.0, 2.5], "backlash_ratio": [0, 0, 0, 0], "companion_duration": [0.0, 0.0, 1.5, 1.5], "companion_radius": [0.0, 0.0, 0.6, 0.6], "companion_slow": [0.0, 0.0, 0.2, 0.2], "companion_targets": [0, 0, 2, 2], "death_root": [0, 0, 0, 0], "death_root_large": [0, 0, 0, 0], "eater_root_chance": [0, 0, 0, 0], "eater_target_cap": [0, 0, 0, 0], "echo_duration": [0.0, 1.0, 1.2, 1.2], "echo_offsets": [[], [0.6], [0.6], [0.6]], "global_death_icd": [0, 0, 0, 8], "knock_cells": [0.0, 0.0, 0.0, 0.3], "knock_targets": [0, 0, 0, 1], "large_root_duration": [0, 0, 0, 0.3], "range_cells": [0, 2, 2, 2], "reverse_duration": [0, 0, 0, 0], "reverse_icd": [0, 4, 4, 4], "root_chance": [0, 0.1, 0.15, 0.2], "root_duration": [0, 0.4, 0.5, 0.6], "cleanse": [false, false, true, true], "heal": [0, 0, 0, 55]},
-	"censer": {"radius": [0.0, 1.8, 2.1, 2.5], "interval": [2.5, 2.15, 1.8, 1.35], "mark_duration": [0.0, 3.2, 3.2, 3.2], "vuln": [0, 0.1, 0.2, 0.3], "spread_hops": [0, 0, 2, 2], "spread_radius": [0, 0, 1, 1], "spread_targets": [0, 0, 2, 2], "ash_damage": [0, 0, 0, 18], "ash_interval": [0, 0, 0, 6], "ash_radius": [0.0, 0.0, 0.0, 1.3461538461538463]},
-	"umbrella": {"chew_reduction": [0.0, 0.2, 0.4, 0.5], "armor_transfer_ratio": [0.0, 0.0, 0.0, 0.3], "bone_damage": [0, 0, 0, 140], "bone_icd": [0, 0, 0, 0], "bone_root": [0.0, 0.0, 0.0, 0.3], "capture_income": [0, 0, 0, 100], "chew_reflect_dps": [0, 0, 30, 30], "death_saves": [0, 0, 0, 0], "hp_max_floor": [0, 0, 0, 300], "hp_max_loss": [0, 0, 0, 200], "income_icd": [0, 6, 6, 6], "mid_income": [0, 0, 0, 100], "pull_cells": [0.0, 0.4, 0.4, 0.4], "pull_damage": [0, 0, 40, 40], "pull_icd": [0, 6, 6, 6], "pull_range": [0, 1, 1, 1], "reflect_cap": [0, 0, 0, 150], "reflect_ratio": [0.0, 0.0, 0.0, 0.5], "restore_ratio": [0.0, 0.0, 0.0, 0.3], "save_icd": [0, 0, 0, 2], "secondary_duration": [0, 12, 12, 12], "secondary_slots": [0, 1, 1, 2], "target": [0.0, 0.0, "frontmost_ally", "frontmost_ally"], "total_reflect_cap": [0, 0, 0, 0], "wish_cap": [0, 1, 1, 1], "wish_duration": [0, 8, 8, 8], "wish_guard": [0.0, 0.0, 0.25, 0.25], "wish_hp": [0, 300, 600, 900], "wish_regen": [0, 0, 0, 50], "wish_total_cap": [0, 0, 0, 500]},
+	"bell": {
+		"main_interval": [
+			0.0,
+			2.0,
+			1.5,
+			1.2
+		],
+		"repeat_slow": [
+			0.0,
+			0.0,
+			0.0,
+			0.4
+		],
+		"adjacent_radius": [
+			0.0,
+			0.0,
+			0.5,
+			0.5
+		],
+		"backlash_dps_cap": [
+			0,
+			0,
+			0,
+			35
+		],
+		"backlash_duration": [
+			0.0,
+			0.0,
+			0.0,
+			2.5
+		],
+		"backlash_ratio": [
+			0,
+			0,
+			0,
+			0
+		],
+		"companion_duration": [
+			0.0,
+			0.0,
+			1.5,
+			1.5
+		],
+		"companion_radius": [
+			0.0,
+			0.0,
+			0.6,
+			0.6
+		],
+		"companion_slow": [
+			0.0,
+			0.0,
+			0.2,
+			0.2
+		],
+		"companion_targets": [
+			0,
+			0,
+			2,
+			2
+		],
+		"death_root": [
+			0,
+			0,
+			0,
+			0
+		],
+		"death_root_large": [
+			0,
+			0,
+			0,
+			0
+		],
+		"eater_root_chance": [
+			0,
+			0,
+			0,
+			0
+		],
+		"eater_target_cap": [
+			0,
+			0,
+			0,
+			0
+		],
+		"echo_duration": [
+			0.0,
+			1.0,
+			1.2,
+			1.2
+		],
+		"echo_offsets": [
+			[],
+			[
+				0.6
+			],
+			[
+				0.6
+			],
+			[
+				0.6
+			]
+		],
+		"global_death_icd": [
+			0,
+			0,
+			0,
+			8
+		],
+		"knock_cells": [
+			0.0,
+			0.0,
+			0.0,
+			0.3
+		],
+		"knock_targets": [
+			0,
+			0,
+			0,
+			1
+		],
+		"large_root_duration": [
+			0,
+			0,
+			0,
+			0.3
+		],
+		"range_cells": [
+			0,
+			2,
+			2,
+			2
+		],
+		"reverse_duration": [
+			0,
+			0,
+			0,
+			0
+		],
+		"reverse_icd": [
+			0,
+			4,
+			4,
+			4
+		],
+		"root_chance": [
+			0,
+			0.1,
+			0.15,
+			0.2
+		],
+		"root_duration": [
+			0,
+			0.4,
+			0.5,
+			0.6
+		],
+		"cleanse": [
+			false,
+			false,
+			true,
+			true
+		],
+		"heal": [
+			0,
+			0,
+			0,
+			55
+		]
+	},
+	"censer": {
+		"radius": [
+			0.0,
+			1.8,
+			2.1,
+			2.5
+		],
+		"interval": [
+			2.5,
+			2.15,
+			1.8,
+			1.35
+		],
+		"mark_duration": [
+			0.0,
+			3.2,
+			3.2,
+			3.2
+		],
+		"vuln": [
+			0,
+			0.1,
+			0.2,
+			0.3
+		],
+		"spread_hops": [
+			0,
+			0,
+			2,
+			2
+		],
+		"spread_radius": [
+			0,
+			0,
+			1,
+			1
+		],
+		"spread_targets": [
+			0,
+			0,
+			2,
+			2
+		],
+		"ash_damage": [
+			0,
+			0,
+			0,
+			18
+		],
+		"ash_interval": [
+			0,
+			0,
+			0,
+			6
+		],
+		"ash_radius": [
+			0.0,
+			0.0,
+			0.0,
+			1.3461538461538463
+		]
+	},
+	"umbrella": {
+		"chew_reduction": [
+			0.0,
+			0.2,
+			0.4,
+			0.5
+		],
+		"armor_transfer_ratio": [
+			0.0,
+			0.0,
+			0.0,
+			0.3
+		],
+		"bone_damage": [
+			0,
+			0,
+			0,
+			140
+		],
+		"bone_icd": [
+			0,
+			0,
+			0,
+			0
+		],
+		"bone_root": [
+			0.0,
+			0.0,
+			0.0,
+			0.3
+		],
+		"capture_income": [
+			0,
+			0,
+			0,
+			100
+		],
+		"chew_reflect_dps": [
+			0,
+			0,
+			30,
+			30
+		],
+		"death_saves": [
+			0,
+			0,
+			0,
+			0
+		],
+		"hp_max_floor": [
+			0,
+			0,
+			0,
+			300
+		],
+		"hp_max_loss": [
+			0,
+			0,
+			0,
+			200
+		],
+		"income_icd": [
+			0,
+			6,
+			6,
+			6
+		],
+		"mid_income": [
+			0,
+			0,
+			0,
+			100
+		],
+		"pull_cells": [
+			0.0,
+			0.4,
+			0.4,
+			0.4
+		],
+		"pull_damage": [
+			0,
+			0,
+			40,
+			40
+		],
+		"pull_icd": [
+			0,
+			6,
+			6,
+			6
+		],
+		"pull_range": [
+			0,
+			1,
+			1,
+			1
+		],
+		"reflect_cap": [
+			0,
+			0,
+			0,
+			150
+		],
+		"reflect_ratio": [
+			0.0,
+			0.0,
+			0.0,
+			0.5
+		],
+		"restore_ratio": [
+			0.0,
+			0.0,
+			0.0,
+			0.3
+		],
+		"save_icd": [
+			0,
+			0,
+			0,
+			2
+		],
+		"secondary_duration": [
+			0,
+			12,
+			12,
+			12
+		],
+		"secondary_slots": [
+			0,
+			1,
+			1,
+			2
+		],
+		"target": [
+			0.0,
+			0.0,
+			"frontmost_ally",
+			"frontmost_ally"
+		],
+		"total_reflect_cap": [
+			0,
+			0,
+			0,
+			0
+		],
+		"wish_cap": [
+			0,
+			1,
+			1,
+			1
+		],
+		"wish_duration": [
+			0,
+			8,
+			8,
+			8
+		],
+		"wish_guard": [
+			0.0,
+			0.0,
+			0.25,
+			0.25
+		],
+		"wish_hp": [
+			0,
+			300,
+			600,
+			900
+		],
+		"wish_regen": [
+			0,
+			0,
+			0,
+			50
+		],
+		"wish_total_cap": [
+			0,
+			0,
+			0,
+			500
+		]
+	},
 	"lion": {
-		"armor_strip": [0, 0, 100, 100],
-		"brace_damage": [0, 0, 0, 60],
-		"brace_duration": [0.0, 0.0, 0.0, 0.8],
-		"brace_icd": [0, 0, 0, 3],
-		"brace_targets": [0, 0, 0, 2],
-		"changes_grid": [0.0, false, false, false],
-		"charge_cap": [0, 0, 0, 200],
-		"charge_per_kill_cap": [0, 0, 0, 50],
-		"charge_reentrant": [0.0, 0.0, 0.0, false],
-		"haste_duration": [0, 0, 3, 3],
-		"haste_per_stack": [0.0, 0.0, 0.05, 0.05],
-		"haste_range": [0, 0, 1, 1],
-		"haste_stacks": [0, 0, 3, 3],
-		"head_damage": [0, 80, 110, 140],
-		"heal_per_attack": [0, 25, 50, 75],
-		"knock_cells": [0.0, 0.0, 0.3, 0.3],
-		"large_throw": [0.0, 0.0, false, false],
-		"last_dance_heal": [0, 0, 0, 100],
-		"last_dance_interval": [0.0, 0.0, 0.0, 0.75],
-		"last_dance_seconds": [0, 0, 0, 3],
-		"lunge_cells": [0.0, 0.5, 0.5, 0.5],
-		"pull_cells": [0.0, 0.2, 0.2, 0.2],
-		"pull_icd": [0, 3, 3, 3],
-		"revives": [0.0, 0.0, 0.0, false],
-		"step_damage": [0, 0, 30, 30],
-		"step_target_cap": [0, 0, 2, 2],
-		"throw_cells": [0, 1, 1, 1],
-		"throw_chance": [0.0, 0.0, 0.0, 0.30],
-		"throw_icd": [0, 0, 0, 3],
+		"armor_strip": [
+			0,
+			0,
+			100,
+			100
+		],
+		"brace_damage": [
+			0,
+			0,
+			0,
+			60
+		],
+		"brace_duration": [
+			0.0,
+			0.0,
+			0.0,
+			0.8
+		],
+		"brace_icd": [
+			0,
+			0,
+			0,
+			3
+		],
+		"brace_targets": [
+			0,
+			0,
+			0,
+			2
+		],
+		"changes_grid": [
+			0.0,
+			false,
+			false,
+			false
+		],
+		"charge_cap": [
+			0,
+			0,
+			0,
+			200
+		],
+		"charge_per_kill_cap": [
+			0,
+			0,
+			0,
+			50
+		],
+		"charge_reentrant": [
+			0.0,
+			0.0,
+			0.0,
+			false
+		],
+		"haste_duration": [
+			0,
+			0,
+			3,
+			3
+		],
+		"haste_per_stack": [
+			0,
+			0,
+			0.05,
+			0.1
+		],
+		"haste_range": [
+			0,
+			0,
+			1,
+			1
+		],
+		"haste_stacks": [
+			0,
+			0,
+			3,
+			3
+		],
+		"head_damage": [
+			0,
+			80,
+			110,
+			140
+		],
+		"heal_per_attack": [
+			0,
+			25,
+			50,
+			75
+		],
+		"knock_cells": [
+			0.0,
+			0.0,
+			0.3,
+			0.3
+		],
+		"large_throw": [
+			0.0,
+			0.0,
+			false,
+			false
+		],
+		"last_dance_heal": [
+			0,
+			0,
+			0,
+			100
+		],
+		"last_dance_interval": [
+			0.0,
+			0.0,
+			0.0,
+			0.75
+		],
+		"last_dance_seconds": [
+			0,
+			0,
+			0,
+			0
+		],
+		"lunge_cells": [
+			0.0,
+			0.5,
+			0.5,
+			0.5
+		],
+		"pull_cells": [
+			0.0,
+			0.2,
+			0.2,
+			0.2
+		],
+		"pull_icd": [
+			0,
+			3,
+			3,
+			3
+		],
+		"revives": [
+			0.0,
+			0.0,
+			0.0,
+			false
+		],
+		"step_damage": [
+			0,
+			0,
+			30,
+			30
+		],
+		"step_target_cap": [
+			0,
+			0,
+			2,
+			2
+		],
+		"throw_cells": [
+			0,
+			1,
+			1,
+			1
+		],
+		"throw_chance": [
+			0.0,
+			0.0,
+			0.0,
+			0.3
+		],
+		"throw_icd": [
+			0,
+			0,
+			0,
+			3
+		]
 	},
-	"cat": {"count": [2, 3, 4, 5], "explosion_damage": [0, 0, 0, 0], "explosion_icd": [0.0, 0.0, 3.2, 3.2], "explosion_radius": [0.0, 0.0, 0.5, 0.5], "explosion_targets": [0, 0, 3, 3], "graze_damage": [0, 8, 20, 20], "graze_targets": [0, 1, 2, 2], "hits": [1, 1, 1, 2], "large_root": [0.0, 0.0, 0.0, 0.2], "last_multiplier": [0, 0, 0, 2], "mark_duration": [0.0, 3.2, 3.2, 3.2], "mark_vuln": [0.0, 0.05, 0.1, 0.1], "marks_per_volley": [0, 1, 1, 1], "interval_reduction": [0.0, 0.2, 0.4, 0.6], "ten_flames_chance": [0.0, 0.0, 0.0, 0.1], "ten_flames_cooldown": 6.0, "proc_icd": [0.0, 0.0, 0.0, 6.4], "reveal_duration": [0, 0, 0, 2], "root": [0.0, 0.0, 0.0, 0.6], "tail_count": [0, 0, 0, 2], "tail_damage": [0, 0, 0, 12], "tail_gap": [0.0, 0.0, 0.0, 0.12], "volley_damage": [0.0, 0.0, 30.0, 30.0], "vuln": [0.0, 0.0, 0.0, 0.2]},
-	"lobber": {"damage": [40, 70, 100, 130], "interval": [2.3, 2.05, 1.6, 1.25], "pool_radius": [0, 0, 0, 0], "pool_duration": [0, 3, 3, 3], "pool_dps": [0, 0, 0, 0], "pool_slow": [0, 0, 0, 0], "merged_radius": [0, 0, 0, 0], "merged_dps": [0, 0, 18, 50], "warm_bonus": [0, 0.12, 0.20, 0.30], "warm_duration": [0, 4, 6, 1000000000.0]},
-	"dragon": {"near_range": [3.0, 3.5, 4.0, 5.0], "near_damage": [12, 18, 24, 30]},
-	"torch": {"buff": [0.5, 0.8, 1.1, 1.3], "splash_ratio": [0.0, 0.0, 0.0, 0.2], "splash_radius": [0.0, 0.0, 0.0, 0.3], "burn_dps": [0, 0, 0, 0], "burn_duration": [0, 0, 0, 0], "ember": [0, 0, 0, 0], "ember_duration": [0, 0, 0, 0], "explode_radius": [0, 0, 0, 0], "heal_delay": [0, 0, 0, 0], "heal_dps": [0, 0, 0, 50], "max_hp": [0, 750, 1500, 1500], "oil_dps": [0, 0, 0, 0], "oil_duration": [0, 0, 2, 2], "oil_icd": [0, 0, 2, 2], "oil_radius": [0.0, 0.0, 0.35, 0.35], "pierce_main": [0.0, 0.0, 0.0, false], "reflect_total_dps": [0, 0, 0, 0], "secondary_inherits": [0.0, 0.0, 0.0, false], "shot_speed": [0.0, 0.0, 0.0, 0.5], "spark_dps": [0, 0, 10, 10], "spark_duration": [0, 0, 1, 1], "spark_radius": [0.0, 0.0, 0.25, 0.25], "sparks_per_projectile": [0, 0, 0, 0], "sparks_per_second_cap": [0, 0, 0, 0], "wall_dps": [0, 0, 0, 60], "wall_duration": [0, 0, 0, 3], "wall_radius": [0, 0, 0, 1], "production_bonus": [0, 0.1, 0.2, 0.25], "production_haste": [0, 0, 0, 0.1]},
-	"star": {"damage_bonus": [0, 0, 0, 0], "speed_bonus": [0.0, 0.25, 0.5, 1.0], "guardian_speed_bonus": [0, 0, 0, 4], "all_dirs": [true, true, true, true], "converge_bonus": [0.0, 0.0, 0.0, 0.0], "focus_beams": [0, 0, 0, 0], "focus_bonus": [0.0, 0.5, 0.5, 0.5], "glow_buff": [0.0, 0.0, 0.0, 0.15], "glow_duration": [0, 0, 0, 1], "glow_radius": [0.0, 0.0, 0.0, 0.0], "ground_interval_factor": [0.0, 0.0, 0.0, 0.0], "heavy_knock": [0.0, 0.0, 0.0, 0.3], "heavy_knock_icd": [0, 0, 0, 3], "heavy_multiplier": [0, 0, 0, 3], "heavy_per_volley": [0, 0, 0, 0], "interval_floor": [0.0, 0.0, 0.0, 0.0], "interval_keep": [0.0, 0.0, 0.0, 0.0], "seek": [false, true, true, false], "seek_factor": [1, 0.5, 1, 1], "damage": [28, 34, 40, 46], "interval": [1.4, 1.25, 1.1, .95], "guardian_damage_bonus": [0, 0, 0, 2]},
-	"needle": {"interval": [1.6, 1.4, 1.2, 1.0], "pierce_targets": [1, 2, 3, 0], "vuln": [0.0, 0.1, 0.15, 0.3], "damage": [24, 30, 36, 42]},
+	"cat": {
+		"count": [
+			2,
+			3,
+			4,
+			5
+		],
+		"explosion_damage": [
+			0,
+			0,
+			0,
+			0
+		],
+		"explosion_icd": [
+			0.0,
+			0.0,
+			3.2,
+			3.2
+		],
+		"explosion_radius": [
+			0.0,
+			0.0,
+			0.5,
+			0.5
+		],
+		"explosion_targets": [
+			0,
+			0,
+			3,
+			3
+		],
+		"graze_damage": [
+			0,
+			8,
+			20,
+			20
+		],
+		"graze_targets": [
+			0,
+			1,
+			2,
+			2
+		],
+		"hits": [
+			1,
+			1,
+			1,
+			2
+		],
+		"large_root": [
+			0.0,
+			0.0,
+			0.0,
+			0.2
+		],
+		"last_multiplier": [
+			0,
+			0,
+			0,
+			2
+		],
+		"mark_duration": [
+			0.0,
+			3.2,
+			3.2,
+			3.2
+		],
+		"mark_vuln": [
+			0.0,
+			0.05,
+			0.1,
+			0.1
+		],
+		"marks_per_volley": [
+			0,
+			1,
+			1,
+			1
+		],
+		"interval_reduction": [
+			0.0,
+			0.2,
+			0.4,
+			0.6
+		],
+		"ten_flames_chance": [
+			0.0,
+			0.0,
+			0.0,
+			0.1
+		],
+		"ten_flames_cooldown": 6.0,
+		"proc_icd": [
+			0.0,
+			0.0,
+			0.0,
+			6.4
+		],
+		"reveal_duration": [
+			0,
+			0,
+			0,
+			2
+		],
+		"root": [
+			0.0,
+			0.0,
+			0.0,
+			0.6
+		],
+		"tail_count": [
+			0,
+			0,
+			0,
+			2
+		],
+		"tail_damage": [
+			0,
+			0,
+			0,
+			12
+		],
+		"tail_gap": [
+			0.0,
+			0.0,
+			0.0,
+			0.12
+		],
+		"volley_damage": [
+			0.0,
+			0.0,
+			30.0,
+			30.0
+		],
+		"vuln": [
+			0.0,
+			0.0,
+			0.0,
+			0.2
+		]
+	},
+	"lobber": {
+		"damage": [
+			40,
+			70,
+			100,
+			130
+		],
+		"interval": [
+			2.3,
+			2.05,
+			1.6,
+			1.25
+		],
+		"pool_radius": [
+			0,
+			0,
+			0,
+			0
+		],
+		"pool_duration": [
+			0,
+			3,
+			3,
+			3
+		],
+		"pool_dps": [
+			0,
+			0,
+			0,
+			0
+		],
+		"pool_slow": [
+			0,
+			0,
+			0,
+			0
+		],
+		"merged_radius": [
+			0,
+			0,
+			0,
+			0
+		],
+		"merged_dps": [
+			0,
+			0,
+			18,
+			50
+		],
+		"warm_bonus": [
+			0,
+			0.12,
+			0.2,
+			0.3
+		],
+		"warm_duration": [
+			0,
+			4,
+			6,
+			1000000000.0
+		]
+	},
+	"dragon": {
+		"near_range": [
+			3.0,
+			3.5,
+			4.0,
+			5.0
+		],
+		"near_damage": [
+			12,
+			18,
+			24,
+			30
+		]
+	},
+	"torch": {
+		"buff": [
+			0.5,
+			0.8,
+			1.1,
+			1.3
+		],
+		"splash_ratio": [
+			0,
+			0,
+			0,
+			0.4
+		],
+		"splash_radius": [
+			0,
+			0,
+			0,
+			0.4
+		],
+		"burn_dps": [
+			0,
+			0,
+			0,
+			0
+		],
+		"burn_duration": [
+			0,
+			0,
+			0,
+			0
+		],
+		"ember": [
+			0,
+			0,
+			0,
+			0
+		],
+		"ember_duration": [
+			0,
+			0,
+			0,
+			0
+		],
+		"explode_radius": [
+			0,
+			0,
+			0,
+			0
+		],
+		"heal_delay": [
+			0,
+			0,
+			0,
+			0
+		],
+		"heal_dps": [
+			0,
+			0,
+			0,
+			0
+		],
+		"max_hp": [
+			0,
+			0,
+			0,
+			0
+		],
+		"oil_dps": [
+			0,
+			0,
+			0,
+			0
+		],
+		"oil_duration": [
+			0,
+			0,
+			2,
+			2
+		],
+		"oil_icd": [
+			0,
+			0,
+			2,
+			2
+		],
+		"oil_radius": [
+			0.0,
+			0.0,
+			0.35,
+			0.35
+		],
+		"pierce_main": [
+			0.0,
+			0.0,
+			0.0,
+			false
+		],
+		"reflect_total_dps": [
+			0,
+			0,
+			0,
+			0
+		],
+		"secondary_inherits": [
+			0.0,
+			0.0,
+			0.0,
+			false
+		],
+		"shot_speed": [
+			0.0,
+			0.0,
+			0.0,
+			0.5
+		],
+		"spark_dps": [
+			0,
+			0,
+			10,
+			10
+		],
+		"spark_duration": [
+			0,
+			0,
+			1,
+			1
+		],
+		"spark_radius": [
+			0.0,
+			0.0,
+			0.25,
+			0.25
+		],
+		"sparks_per_projectile": [
+			0,
+			0,
+			0,
+			0
+		],
+		"sparks_per_second_cap": [
+			0,
+			0,
+			0,
+			0
+		],
+		"wall_dps": [
+			0,
+			0,
+			0,
+			0
+		],
+		"wall_duration": [
+			0,
+			0,
+			0,
+			0
+		],
+		"wall_radius": [
+			0,
+			0,
+			0,
+			0
+		],
+		"production_bonus": [
+			0,
+			0.2,
+			0.2,
+			0.25
+		],
+		"production_haste": [
+			0,
+			0,
+			0,
+			0.1
+		],
+		"production_range": [
+			0,
+			1,
+			2,
+			2
+		],
+		"pierce_count": [
+			0,
+			1,
+			1,
+			2
+		],
+		"pierce_factors": [
+			[],
+			[
+				1.0,
+				0.4
+			],
+			[
+				1.0,
+				0.8
+			],
+			[
+				1.0,
+				1.0,
+				0.5
+			]
+		]
+	},
+	"star": {
+		"damage_bonus": [
+			0,
+			0,
+			0,
+			0
+		],
+		"speed_bonus": [
+			0.0,
+			0.25,
+			0.5,
+			1.0
+		],
+		"guardian_speed_bonus": [
+			0,
+			0,
+			0,
+			4
+		],
+		"all_dirs": [
+			true,
+			true,
+			true,
+			true
+		],
+		"converge_bonus": [
+			0.0,
+			0.0,
+			0.0,
+			0.0
+		],
+		"focus_beams": [
+			0,
+			0,
+			0,
+			0
+		],
+		"focus_bonus": [
+			0.0,
+			0.5,
+			0.5,
+			0.5
+		],
+		"glow_buff": [
+			0.0,
+			0.0,
+			0.0,
+			0.15
+		],
+		"glow_duration": [
+			0,
+			0,
+			0,
+			1
+		],
+		"glow_radius": [
+			0.0,
+			0.0,
+			0.0,
+			0.0
+		],
+		"ground_interval_factor": [
+			0.0,
+			0.0,
+			0.0,
+			0.0
+		],
+		"heavy_knock": [
+			0.0,
+			0.0,
+			0.0,
+			0.3
+		],
+		"heavy_knock_icd": [
+			0,
+			0,
+			0,
+			3
+		],
+		"heavy_multiplier": [
+			0,
+			0,
+			0,
+			3
+		],
+		"heavy_per_volley": [
+			0,
+			0,
+			0,
+			0
+		],
+		"interval_floor": [
+			0.0,
+			0.0,
+			0.0,
+			0.0
+		],
+		"interval_keep": [
+			0.0,
+			0.0,
+			0.0,
+			0.0
+		],
+		"seek": [
+			false,
+			true,
+			true,
+			false
+		],
+		"seek_factor": [
+			1,
+			0.5,
+			1,
+			1
+		],
+		"damage": [
+			28,
+			34,
+			40,
+			46
+		],
+		"interval": [
+			1.4,
+			1.25,
+			1.1,
+			0.95
+		],
+		"guardian_damage_bonus": [
+			0,
+			0,
+			0,
+			2
+		]
+	},
+	"needle": {
+		"interval": [
+			1.6,
+			1.4,
+			1.2,
+			1.0
+		],
+		"pierce_targets": [
+			1,
+			2,
+			3,
+			0
+		],
+		"vuln": [
+			0.0,
+			0.1,
+			0.15,
+			0.3
+		],
+		"damage": [
+			24,
+			30,
+			36,
+			42
+		]
+	},
 	"firework": {
-		"interval": [3.5, 3.1, 2.7, 2.3],
-		"damage": [100, 130, 160, 220],
-		"radius": [0.8, 0.8, 0.8, 1.3],
-		"splash": [0.50, 0.65, 0.80, 1.0],
+		"interval": [
+			3.5,
+			3.1,
+			2.7,
+			2.3
+		],
+		"damage": [
+			100,
+			130,
+			160,
+			220
+		],
+		"radius": [
+			0.8,
+			0.8,
+			0.8,
+			1.3
+		],
+		"splash": [
+			0.5,
+			0.65,
+			0.8,
+			1.0
+		]
 	},
 	"judge": {
-		"reduction": [0.20, 0.35, 0.50, 0.50],
-		"damage_buff": [0.0, 0.10, 0.20, 0.25],
-		"haste": [0.0, 0.0, 0.0, 0.10],
+		"reduction": [
+			0.3,
+			0.45,
+			0.6,
+			0.6
+		],
+		"damage_buff": [
+			0,
+			0.2,
+			0.3,
+			0.35
+		],
+		"haste": [
+			0,
+			0.2,
+			0.25,
+			0.3
+		],
+		"slow": [
+			0,
+			0.2,
+			0.25,
+			0.3
+		]
 	},
-	"shell": {"hp": 1400.0},
+	"shell": {
+		"hp": 1400.0
+	}
 }
 
 static func paths_for(type: String) -> Array:

@@ -166,7 +166,7 @@ func damage(proxy, amount: float, source: String = "", continuous := false) -> f
 	if damage_token!="" and hit_tokens.has(damage_token): return 0.0
 	if damage_token!="": hit_tokens[damage_token]=sim.time
 	var damage_value = amount
-	if proxy!=null and proxy.vuln_t>0: damage_value*=1.0+proxy.vuln
+	if proxy!=null: damage_value*=sim.guest_vulnerability(proxy)
 	if state=="recovery": damage_value*=1.25
 	if damage_token.begins_with("percent:"):damage_value=minf(damage_value,max_hp*0.01)
 	damage_value = Sim.quantized_damage(damage_carry, source, damage_value, continuous)
@@ -212,6 +212,7 @@ func tick(dt: float) -> void:
 	for z in body_targets:
 		sim.update_marks(z,dt)
 		z.hurt=maxf(0,z.hurt-dt)
+		sim._refresh_guest_attributes(z)
 		if z.vuln_t>0: z.vuln_t=maxf(0,z.vuln_t-dt)
 		if z.burn_t>0:
 			z.burn_t=maxf(0,z.burn_t-dt)
@@ -247,6 +248,11 @@ func tick(dt: float) -> void:
 			supply_given = true
 		return
 	if sim.time<stun_until: return
+	if sim.time<sim.global_silence_until:
+		# Silence pauses future casts without expiring the warning into a burst on release.
+		state_end+=dt;small_at+=dt;adds_at+=dt
+		if action.has("warning_end"):action.warning_end=float(action.warning_end)+dt
+		return
 	match state:
 		"small_warning":
 			if sim.time>=state_end:
@@ -510,6 +516,7 @@ func _update_props(dt: float,paused_adds: bool) -> void:
 	var keep: Array=[]
 	for z in props:
 		if not z.alive():continue
+		sim._refresh_guest_attributes(z)
 		z.hurt=maxf(0,z.hurt-dt)
 		z.vuln_t=maxf(0,z.vuln_t-dt);z.slow_t=maxf(0,z.slow_t-dt)
 		if z.burn_t>0:
@@ -539,7 +546,7 @@ func _update_props(dt: float,paused_adds: bool) -> void:
 			if host!=null:
 				_hurt_cell({"c":host.col,"r":host.row},300);break_prop(z);continue
 			if z.pos.x<=sim.cell_pos(2,z.row).x:break_prop(z);continue
-		elif paused_adds:
+		elif paused_adds or sim.time<z.silence_until:
 			meta.next=maxf(float(meta.next),sim.time+2.0)
 		elif sim.time>=float(meta.next):
 			_spawn_add("light" if String(meta.kind)=="tunnel" else "armor",z)

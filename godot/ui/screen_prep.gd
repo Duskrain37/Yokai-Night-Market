@@ -193,8 +193,8 @@ func _roster() -> void:
 
 func _category(type: String) -> String:
 	var def: Dictionary = Content.PLANTS[type]
-	if def.has("produce") or def.has("till"): return "产能"
-	if String(def.role) in ["防御", "护甲", "浮台", "扶伤"]: return "守护"
+	if String(def.role)=="产能": return "产能"
+	if String(def.role) in ["防御", "辅助"]: return "守护"
 	if bool(def.get("ash", false)) or String(def.role) == "收妖": return "奇术"
 	return "输出"
 

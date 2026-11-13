@@ -1,0 +1,25 @@
+[
+  {
+    "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v061\\native-menu-1600x900.png",
+    "exit_code": 0,
+    "name": "native-menu-1600x900"
+  },
+  {
+    "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v061\\native-levels-1280x800.png",
+    "exit_code": 0,
+    "name": "native-levels-1280x800"
+  },
+  {
+    "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v061\\native-battle-1600x1000.png",
+    "exit_code": 0,
+    "name": "native-battle-1600x1000"
+  },
+  {
+    "exit_code": 0,
+    "name": "packed-gallery-1280x800"
+  },
+  {
+    "exit_code": 0,
+    "name": "packed-gallery-2560x1600"
+  }
+]

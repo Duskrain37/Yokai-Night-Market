@@ -46,7 +46,7 @@ func run():
 	check("成长计时与额外产出读档不丢失",grown.growth_steps==4 and grown.growth_next==p.growth_next and grown.tree_bonus_next==p.tree_bonus_next)
 	s=setup();p=s.place_free("year-banyan",2,2);p.upgrades={1:0,2:3,3:0};p.growth_steps=4
 	guest(s,2,p.pos.x+220);s._update_banyan(p,2)
-	check("四长2-3发六枚34伤籽弹",s.shots.size()==6 and s.shots.all(func(a):return a.damage==34 and a.look=="banyan-seed") and is_equal_approx(s.shots[-1].delay,.45))
+	check("四长2-3发六枚46伤籽弹",s.shots.size()==6 and s.shots.all(func(a):return a.damage==46 and a.look=="banyan-seed") and is_equal_approx(s.shots[-1].delay,.45))
 	s=setup();p=s.place_free("year-banyan",3,2);p.upgrades={1:0,2:0,3:3};p.growth_steps=4
 	var shooter=s.place_free("shooter",1,2);var lamp=s.place_free("lantern",3,1);var relay=s.place_free("soul-casket",4,2);var wall=s.place_free("wall",5,2)
 	s.refresh_plant_buffs()
@@ -70,7 +70,7 @@ func run():
 	s=setup();p=s.place_free("soul-casket",2,2);p.buff_damage=.5;p.haste=10
 	shot=Sim.Shot.new();shot.kind="pea";shot.src="shooter";shot.base_damage=20;shot.damage=30;shot.lantern_buff=.5
 	var packet:=s.pack_unit(shot);s._relay_release(p,packet,0)
-	check("原弹增伤与灵枢增伤独立乘算49.5",is_equal_approx(s.shots[0].damage,49.5))
+	check("原弹增伤与灵枢增伤独立乘算54",is_equal_approx(s.shots[0].damage,54))
 	s._relay_capture(p,shot);check("灵枢攻速不改变收弹门槛",p.collector_store.size()==1 and s.shots.size()==1)
 	s=setup();p=s.place_free("sky-mortar",2,2);var a=guest(s,0,1000);var b=guest(s,3,1100);var c=guest(s,3,1140)
 	check("炮弹选择最密集位置",s._mortar_aim() in [b,c])

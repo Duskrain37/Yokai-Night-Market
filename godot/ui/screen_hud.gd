@@ -775,6 +775,7 @@ func _build_fan(plant, at: Vector2) -> void:
 	_fan.plant = plant
 	_fan.sim = game.sim
 	_fan.picked.connect(_on_fan_pick)
+	_fan.skill_picked.connect(_on_active_skill)
 	_fan.dismissed.connect(close_fan)
 	add_child(_fan)
 	_sync_fan()
@@ -810,9 +811,12 @@ func _sync_fan() -> void:
 			"ok": bool(status["ok"]),
 			"cost": cost,
 			"reason": String(status["reason"]),
+			"kind": String(status["kind"]),
 			"affordable": sim.sun >= cost,
 			"next_name": next_name,
 			"next_desc": next_desc,
+			"has_skill": bool(sim.active_skill_status(plant).unlocked) and int(sim.active_skill_status(plant).path)==int(path.id),
+			"panel_enabled": game.active_skill_panel_enabled(),
 		})
 	_fan.entries = entries
 	_fan.queue_redraw()
@@ -833,6 +837,8 @@ func _fan_signature() -> String:
 			str(bool(status["ok"])), cost, str(affordable)])
 	parts.append(str(int(ceil(plant.hp))))
 	parts.append(str(plant.shell > 0.0))
+	parts.append(str(sim.active_skill_status(plant)))
+	parts.append(str(game.settings.get("active_skill_mode","both")))
 	return "|".join(parts)
 
 
@@ -1341,3 +1347,8 @@ class CardButton extends Control:
 		if bool(state.get("no_placement", false)):
 			Ui.draw_plate(self, Rect2(4, 4, size.x - 8, 20), Color("#3c251c"), Ui.GOLD_DIM, 2, 1)
 			draw_string(Ui.body_font(), Vector2(0, 19), "暂无落点", HORIZONTAL_ALIGNMENT_CENTER, size.x, 12, Ui.WARN)
+
+func _on_active_skill() -> void:
+	if focus_plant==null:return
+	if not game.active_skill_panel_enabled():game.sim.deny("当前仅开启右键图标施放",focus_plant.pos);return
+	game.sim.activate_skill(focus_plant);_sync_fan();refresh()

@@ -577,11 +577,11 @@ static func _check_lion(h) -> void:
 	dancer.upgrades = {1: 0, 2: 0, 3: 3}
 	dancer.hp = 5.0
 	sim6.damage_plant(dancer, 500.0)
-	h.check("醒狮", "最后一舞：致命一击没让它当场倒下",
-		not dancer.dead and dancer.dance_t > 0.0, "dance=%.2f" % dancer.dance_t)
+	h.check("醒狮", "满堂喝彩不再保留旧最后一舞免死",
+		dancer.dead and dancer.dance_t == 0.0, "dance=%.2f" % dancer.dance_t)
 	for i in 220:
 		sim6.update_plants(1.0 / 60.0)
-	h.check("醒狮", "最后一舞：三秒到就强制退场", dancer.dance_t <= 0.0,
+	h.check("醒狮", "旧最后一舞计时没有残留", dancer.dance_t <= 0.0,
 		"dance=%.2f" % dancer.dance_t)
 
 
@@ -794,33 +794,33 @@ static func _check_torch(h) -> void:
 		h.check("炭火盆", "火色第%d阶只增幅不灼烧不掉星" % tier,
 			is_equal_approx(shot.damage, [30.0,36.0,42.0,46.0][tier]) and shot.burn == 0.0 and sim.grounds.is_empty())
 		if tier == 3:
-			h.check("炭火盆", "满阶弹速增加50%、附20%半径0.3格溅射",
-				is_equal_approx(shot.speed,base_speed*1.5) and is_equal_approx(shot.torch_splash_ratio,0.2) and is_equal_approx(shot.torch_splash_radius,0.3*Geo.CELL_W) and not shot.pierce_armor)
+			h.check("炭火盆", "满阶弹速增加50%、附40%半径0.4格溅射",
+				is_equal_approx(shot.speed,base_speed*1.5) and is_equal_approx(shot.torch_splash_ratio,0.4) and is_equal_approx(shot.torch_splash_radius,0.4*Geo.CELL_W) and not shot.pierce_armor)
 	var sim2 = h.sim_for(6,["torch","lantern"],"easy")
 	var jar = sim2.place_free("torch",3,2)
 	jar.hp = 30.0;jar.upgrades[3] = 1;sim2.apply_hp_scale(jar)
-	h.check("炭火盆", "火胎一阶耐久750，仅补上限差值",jar.max_hp==750 and jar.hp==480)
+	h.check("炭火盆", "最高一阶耐久800，仅补上限差值",jar.max_hp==800 and jar.hp==530)
 	jar.upgrades[3]=2;sim2.apply_hp_scale(jar)
-	h.check("炭火盆", "火胎二阶耐久1500",jar.max_hp==1500 and jar.hp==1230)
+	h.check("炭火盆", "最高二阶耐久1300",jar.max_hp==1300 and jar.hp==1030)
 	jar.upgrades[3]=3;jar.hp=100.0
 	var biter=sim2.spawn_zombie("ghost",2,{"x":jar.pos.x+35})
 	biter.hp=9000;biter.eating=true
 	sim2.damage_plant(jar,1,biter)
 	var hp=biter.hp;sim2.update_plants(0.1)
-	h.check("炭火盆", "被啃时火墙按60每秒伤害且不自愈",is_equal_approx(hp-biter.hp,6.0) and jar.hp==99)
+	h.check("炭火盆", "穿薪不再保留旧被啃火墙",hp==biter.hp and jar.hp==99)
 	biter.eating=false;sim2.time+=0.21;sim2.update_plants(0.1)
-	h.check("炭火盆", "停止啃食即可每秒恢复50",jar.hp==104)
+	h.check("炭火盆", "穿薪不再保留旧脱战回复",jar.hp==99)
 	var armored=sim2.spawn_zombie("bucket",2,{"x":jar.pos.x+60})
 	var body=armored.hp;var armor=armored.armor
 	jar.eaten_until=sim2.time+1;sim2.update_plants(0.07)
-	h.check("炭火盆", "火墙连续伤害累计零头且护具先受伤",body==armored.hp and armor-armored.armor==4)
+	h.check("炭火盆", "穿薪不产生旧火墙连续伤害",body==armored.hp and armor==armored.armor)
 	sim2.kill_plant(jar)
 	h.check("炭火盆", "取消旧泼油、反伤和死后火墙",sim2.grounds.is_empty() and sim2.plant_reflect(jar)==0)
 	var lamp=sim2.place_free("lantern",2,1)
 	var light=sim2.place_free("torch",3,1)
 	for tier in [1,2,3]:
 		light.upgrades[2]=tier;sim2.refresh_plant_buffs()
-		h.check("炭火盆", "照明第%d阶提高香火产出" % tier,sim2.lantern_value(lamp)==[25,28,30,31][tier])
+		h.check("炭火盆", "照明第%d阶提高香火产出" % tier,sim2.lantern_value(lamp)==[25,30,30,31][tier])
 	h.check("炭火盆", "照明满阶提高生产速度10%",is_equal_approx(sim2.lantern_interval(lamp),8.0/1.1))
 
 ## 放一轮透骨针并让它飞到穿无可穿，返回这一轮的针。
@@ -880,22 +880,22 @@ static func _check_judge(h) -> void:
 	var corner = sim.place_free("shooter", 5, 4)
 	sim.spawn_zombie("ghost", 2, {"x": idol.pos.x + 300.0})
 	sim._update_judge(idol, 10.0)
-	h.check("钟馗像", "白板不攻击，自身与相邻格受庇护", sim.shots.is_empty()
-		and is_equal_approx(sim.plant_guard(idol), 0.20)
-		and is_equal_approx(sim.plant_guard(near), 0.20)
-		and is_zero_approx(sim.plant_guard(diagonal)))
+	h.check("钟馗像", "白板不攻击，3×3均受30%庇护", sim.shots.is_empty()
+		and is_equal_approx(sim.plant_guard(idol), 0.30)
+		and is_equal_approx(sim.plant_guard(near), 0.30)
+		and is_equal_approx(sim.plant_guard(diagonal), 0.30))
 	idol.upgrades[2] = 2
-	h.check("钟馗像", "守坊扩至3×3", sim.plant_guard(diagonal) > 0.0 and sim.plant_guard(corner) == 0.0)
+	h.check("钟馗像", "守坊改为本行整行", sim.plant_guard(near) > 0.0 and sim.plant_guard(diagonal) == 0.0 and sim.plant_guard(corner) == 0.0)
 	idol.upgrades[2] = 3
 	sim._update_judge(idol, 1.59)
 	h.check("钟馗像", "朱砂弹未满间隔不发", sim.shots.is_empty())
 	sim._update_judge(idol, 0.02)
-	h.check("钟馗像", "镇市扩至5×5，朱砂弹38伤", sim.plant_guard(corner) > 0.0
-		and sim.shots.size() == 1 and is_equal_approx(sim.shots[0].damage, 38.0))
+	h.check("钟馗像", "神威路线被动仍为本行，不再发朱砂弹", sim.plant_guard(near) > 0.0
+		and sim.plant_guard(corner) == 0.0 and sim.shots.is_empty())
 	idol.upgrades[2] = 0
 	idol.upgrades[1] = 3
 	sim.damage_plant(near, 100.0)
-	h.check("钟馗像", "50%减伤对非啃食伤害同样生效", is_equal_approx(near.hp, near.max_hp - 50.0))
+	h.check("钟馗像", "60%减伤对非啃食伤害同样生效", is_equal_approx(near.hp, near.max_hp - 40.0))
 	sim.damage_plant(near, 5000.0)
 	sim.damage_plant(idol, 5000.0)
 	sim.damage_plant(near, 5000.0)
@@ -911,8 +911,8 @@ static func _check_judge(h) -> void:
 	idol.upgrades[1] = 0
 	idol.upgrades[3] = 3
 	sim.refresh_plant_buffs()
-	h.check("钟馗像", "赐福仅庇护范围内加伤与攻速", near.buff_damage == 0.25 and near.haste == 0.10
-		and diagonal.buff_damage == 0.0)
+	h.check("钟馗像", "赐福3-3在5×5内提供35%伤害且不额外加攻速", is_equal_approx(near.buff_damage,0.35) and near.haste == 0.0
+		and is_equal_approx(diagonal.buff_damage,0.35))
 
 
 static func _check_new_cards(h) -> void:
@@ -1423,7 +1423,7 @@ static func _check_new_mechanics(h) -> void:
 			side += 1
 	h.check("新机制", "四发 + 全力 = 主行 4 发、邻行共 3 发",
 		main == 4 and side == 3, "main=%d side=%d" % [main, side])
-	# 六发满阶：10% 概率一次倾出十二支
+	# 六发满阶取消随机十二支；自身算一株团队补弹
 	var top = 0
 	shooter.upgrades = {1: 3, 2: 0, 3: 0}
 	for i in 200:
@@ -1432,7 +1432,7 @@ static func _check_new_mechanics(h) -> void:
 		while int(shooter.burst.get("left", 0)) > 0:
 			sim.fire_volley_shot(shooter)
 		top = maxi(top, sim.shots.size())
-	h.check("新机制", "六发满阶偶发十二支并给自己再补一支", top == 13, "最多 %d 支" % top)
+	h.check("新机制", "六发满阶固定六支并给自己再补一支", top == 7, "最多 %d 支" % top)
 
 	# 石磨：被啃毁时炸开 900 灰烬，只覆盖 1 格
 	var sim2 = h.sim_for(6, ["wall"], "easy")

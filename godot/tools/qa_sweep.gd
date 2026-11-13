@@ -49,7 +49,7 @@ func _init() -> void:
 	if subset=="":write_csv(rows)
 	var payload={"comparison":"first four major waves, equal 238s; boss HP excluded; 100 seeded full runs, outcomes are bot-specific","strategy":QaBot.STRATEGY_VERSION,"rows":rows,"runs":all_runs,"problems":problems}
 	var output=FileAccess.open("res://qa/curve-v040.json" if subset=="" else "res://qa/curve-verify-%s.json" % subset,FileAccess.WRITE);output.store_string(JSON.stringify(payload,"  "));output.close()
-	if record and problems.is_empty():
+	if record and problems.is_empty() and not "--report-only" in OS.get_cmdline_user_args():
 		var file=FileAccess.open(baseline_path,FileAccess.WRITE);file.store_string(JSON.stringify({"strategy":QaBot.STRATEGY_VERSION,"strategy_sha256":strategy_sha,"content_sha256":FileAccess.get_sha256("res://data/content.gd"),"seed":7,"dt":1.0/30.0,"scope":"Recommended-loadout bot baseline. Defeats are not proof a night is impossible for players.","runs":expected},"  "));file.close()
 	for problem in problems:printerr("FAIL ",problem)
 	print("SWEEP ",all_runs.size()," runs FAILURES ",problems.size())

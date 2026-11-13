@@ -72,6 +72,11 @@ func _build_book() -> void:
 			game.show_menu()
 		else:
 			game.close_overlay())
+	var calc_label:=Ui.label("属性计算",15,Ui.TEXT_DIM)
+	head.add_child(calc_label)
+	var calc:=Ui.button("i",18,36,36)
+	calc.name="AttributeInfo";calc.tooltip_text="属性计算方式与举例"
+	calc.pressed.connect(_attribute_info);head.add_child(calc)
 	head.add_child(close)
 	outer.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
 
@@ -461,6 +466,11 @@ func _path_block(type: String, path: Dictionary) -> Control:
 	portrait.custom_minimum_size = Vector2(110, 100)
 	portrait.tooltip_text = "三阶形态"
 	header.add_child(portrait)
+	var skill:Dictionary=preload("res://data/active_skills.gd").definition(type)
+	if not skill.is_empty() and int(skill.path)==int(path.id):
+		var icon:=TextureRect.new();icon.texture=load(skill.icon);icon.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;icon.custom_minimum_size=Vector2(60,60)
+		icon.tooltip_text=("唯一 · " if skill.unique else "主动 · ")+String(skill.name);header.add_child(icon)
 	var tiers: Array = path.tiers
 	var shown = tiers.size() if _expanded else mini(1, tiers.size())
 	for i in shown:
@@ -523,7 +533,7 @@ func _sorted_indices() -> Array:
 	var result: Array = range(entries.size())
 	if tab == "boss" or String(game.settings.get(_sort_key(), "release")) == "release":
 		return result
-	var roles := ["产能", "射线", "抛射", "追魂", "范围", "五向", "破甲", "近战", "近攻", "收妖", "防御", "护罩", "辅助", "增幅", "庇护", "扶伤", "浮台", "灰烬"]
+	var roles := ["产能","射弹","群攻","近战","防御","辅助","灰烬"]
 	result.sort_custom(func(a, b):
 		var left := 0
 		var right := 0
@@ -537,3 +547,11 @@ func _sorted_indices() -> Array:
 			if right < 0: right = roles.size()
 		return int(a) < int(b) if left == right else left < right)
 	return result
+
+func _attribute_info() -> void:
+	var dialog:=AcceptDialog.new();dialog.name="AttributeCalculation";dialog.title="属性计算";Ui.style_dialog(dialog)
+	dialog.dialog_text=preload("res://data/attribute_rules.gd").explanation()
+	dialog.min_size=Vector2i(840,600);dialog.get_label().autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	dialog.get_label().add_theme_font_size_override("font_size",20)
+	dialog.get_ok_button().text="明白了";add_child(dialog);dialog.popup_centered(Vector2i(880,640))
+	dialog.confirmed.connect(dialog.queue_free);dialog.canceled.connect(dialog.queue_free)

@@ -1,0 +1,21 @@
+{
+  "version": "0.6.1",
+  "build": "f7bd605",
+  "files": 769,
+  "frozen_at": "2026-11-14T01:27:34.292856+08:00",
+  "regression_suites": 24,
+  "mechanics": 80,
+  "viewport_interactions": 14,
+  "campaigns": 100,
+  "boss_fixtures": 33,
+  "native_captures": 36,
+  "font_supported_required": [
+    1832,
+    1832,
+    1804
+  ],
+  "approved_music_tracks": 15,
+  "requirements_docx_sha256": "4083aa1b206857947a1b06c423c60c534d27631003b26bdcca3f40c7e75e2cab",
+  "source_checks_passed": true,
+  "failures": 0
+}

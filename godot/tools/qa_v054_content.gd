@@ -44,7 +44,7 @@ func run():
  s._relay_capture(p,packet())
  check("五发按0.09秒节奏放出",s.shots.size()==5 and is_equal_approx(s.shots[4].delay,.36) and is_equal_approx(p.collector_ready_at,3.5))
  var shot: Sim.Shot=s.shots[0]
- check("收弹保留特殊与增幅",shot.kind=="homing" and shot.relay_original=="pea" and shot.src=="needle" and shot.look=="frost-sign" and is_equal_approx(shot.damage,66) and shot.pierce_left==2 and shot.pierce_armor and shot.burn==12 and shot.vuln==.2 and shot.torch_splash_ratio==.2)
+ check("收弹保留特殊与增幅",shot.kind=="homing" and shot.relay_original=="pea" and shot.src=="needle" and shot.look=="frost-sign" and is_equal_approx(shot.damage,72) and shot.pierce_left==2 and shot.pierce_armor and shot.burn==12 and shot.vuln==.2 and shot.torch_splash_ratio==.2)
  check("冷却期不挡弹",not s._collector_open(p))
  s.time=3.5;check("三点五秒恢复收弹",s._collector_open(p))
  var collision:=packet();collision.pos=p.pos+Vector2(-25,-25);collision.row=p.row
@@ -64,7 +64,7 @@ func run():
   check("开窍档%d容量冷却"%tier,s.shots.size()==capacity and is_equal_approx(p.collector_ready_at,[3.5,3.0,2.5,0.0][tier]))
  s=sim_for();p=s.place_free("soul-casket",2,2);p.upgrades={1:3,2:2,3:0}
  for i in 10:s._relay_capture(p,packet())
- check("借威独立增伤30%",is_equal_approx(s.shots[0].damage,78.0))
+ check("借威二阶独立增伤50%",is_equal_approx(s.shots[0].damage,90.0))
  s=sim_for();p=s.place_free("soul-casket",2,2);p.upgrades={1:0,2:0,3:3}
  for i in 161:s._relay_capture(p,packet())
  check("累计收弹耐久上限2000",p.max_hp==2000)
@@ -85,7 +85,7 @@ func run():
  check("飞行免范围伤害",s.damage_zombie(z,100,false,false,"censer")==0 and z.armor==armor)
  check("追魂可破飞行道具",s.damage_zombie(z,100,false,false,"cat","",false,"homing")>0 and z.armor<armor)
  var x: float=z.pos.x;s._step_sky_wick(z,1)
- check("飞行速度提高50%",is_equal_approx(x-z.pos.x,30))
+ check("飞行与完整护具加速相加",is_equal_approx(x-z.pos.x,20*(1+.5+float(z.def.get("armor_speed",1.0))-1)))
  z.pos=s.cell_pos(2,0);s._step_sky_wick(z,.01)
  check("门神前四格自动陆地降落",z.flight_landing_at>=0 and z.armor==0 and not z.flight_water)
  s=sim_for(11);z=s.spawn_zombie("sky-wick",1,{"x":s.cell_pos(1,1).x});s._step_sky_wick(z,.01)

@@ -9,12 +9,11 @@ static func height(plant, rows: int) -> float:
 
 static func skill_rect(plant, rows: int) -> Rect2:
 	var h := height(plant, rows)
-	return Rect2(foot(plant, rows) + Vector2(h * 0.34, -h * 0.94) - Vector2(15, 15), Vector2(30, 30))
+	return Rect2(foot(plant, rows) + Vector2(0, -h * 0.32) - Vector2(21, 21), Vector2(42, 42))
 
 static func upgrade_rect(plant, rows: int) -> Rect2:
-	var result := skill_rect(plant, rows)
-	if plant.type == "sky-mortar" and plant.tier(3) >= 3: result.position.x -= height(plant, rows) * .68
-	return result
+	var h := height(plant, rows)
+	return Rect2(foot(plant,rows)+Vector2(h*.34,-h*.94)-Vector2(12,12),Vector2(24,24))
 
 static func body_rect(plant, rows: int) -> Rect2:
 	var h := height(plant, rows)
@@ -45,7 +44,7 @@ static func pick(sim: Sim, at: Vector2) -> Dictionary:
 	ordered.reverse()
 	for plant in ordered:
 		if plant.dead or plant.is_lily: continue
-		if plant.type == "sky-mortar" and plant.tier(3) >= 3 and skill_rect(plant, sim.rows).grow(3).has_point(at):
+		if bool(sim.active_skill_status(plant).exists) and skill_rect(plant, sim.rows).grow(3).has_point(at):
 			return {"plant": plant, "layer": "skill"}
 		if not Upgrades.paths_for(plant.type).is_empty() and upgrade_rect(plant, sim.rows).has_point(at):
 			return {"plant": plant, "layer": "upgrade"}

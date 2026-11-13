@@ -75,23 +75,25 @@ func run() -> void:
 	judge.upgrades[3] = 3
 	values.refresh_plant_buffs()
 	var damage_bonus: float = Upgrades.EFFECTS.lantern.buff_damage[3] + Upgrades.EFFECTS.judge.damage_buff[3]
-	var haste_bonus: float = Upgrades.EFFECTS.judge.haste[3]
+	var haste_bonus: float = Upgrades.EFFECTS.judge.haste[judge.tier(2)]
 	check("同源取最高且异源相加", is_equal_approx(target.buff_damage, damage_bonus)
 		and values.plant_bonus_sources[target.uid].size() == 2)
 	values.apply_plant_penalty(target, "damage", 0.2, 3.0, "弱火")
 	values.apply_plant_penalty(target, "damage", 0.1, 20.0, "微寒")
 	values.apply_plant_penalty(target, "haste", 0.25, 4.0, "凝滞")
-	check("攻速与伤害减益分别在加成后相乘", is_equal_approx(target.damage_multiplier(), (1.0 + damage_bonus) * 0.8)
+	check("攻速与伤害减益分别在加成后相乘", is_equal_approx(target.damage_multiplier(), (1.0 + damage_bonus) * 0.8 * 0.9)
 		and is_equal_approx(target.attack_rate(), (1.0 + haste_bonus) * 0.75))
 	target.sleep_until = 6.0
 	check("状态列来源和沉睡", "弱火" in " ".join(values.plant_effect_lines(target))
 		and "沉睡" in " ".join(values.plant_effect_lines(target)))
 	var round_trip := Sim.new()
 	round_trip.restore(JSON.parse_string(JSON.stringify(values.serialize())))
-	check("减益随存档往返", is_equal_approx(round_trip.main_plant_at(3, 0).damage_penalty, 0.2))
+	check("减益随存档往返", is_equal_approx(round_trip.main_plant_at(3, 0).damage_penalty, 0.28))
 	values.time = 4.1
 	values.refresh_plant_buffs()
-	check("到期减益归零", target.damage_penalty == 0.0 and target.haste_penalty == 0.0)
+	check("逐来源到期，较长微寒仍保留", is_equal_approx(target.damage_penalty,0.1) and target.haste_penalty == 0.0)
+	values.time=20.1;values.refresh_plant_buffs()
+	check("全部来源到期归零",target.damage_penalty==0 and target.haste_penalty==0)
 	var armored := values.spawn_zombie("straw", 0)
 	values.damage_zombie(armored, armored.max_armor * 0.36)
 	check("护具缺口触发 60 到 100 毫秒顿帧", values.hit_stop_requested >= 0.06 and values.hit_stop_requested <= 0.10)

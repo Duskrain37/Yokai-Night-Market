@@ -1,0 +1,203 @@
+{
+  "docx_sha256": "4083aa1b206857947a1b06c423c60c534d27631003b26bdcca3f40c7e75e2cab",
+  "source": "Fresh original DOCX; old cached TXT rejected",
+  "matrix": [
+    {
+      "paragraphs": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "requirement": "主动技能、施放方式、唯一、属性公式",
+      "implementation": [
+        "data/active_skills.gd",
+        "data/attribute_rules.gd",
+        "scripts/sim.gd",
+        "ui/skill_art.gd",
+        "ui/upgrade_fan.gd",
+        "ui/screen_settings.gd",
+        "ui/screen_almanac.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_v061_ui"
+      ]
+    },
+    {
+      "paragraphs": [
+        10,
+        11,
+        12
+      ],
+      "requirement": "统一草木类型",
+      "implementation": [
+        "data/content.gd",
+        "data/almanac.gd",
+        "ui/screen_prep.gd",
+        "ui/screen_almanac.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_v052",
+        "qa_v056"
+      ]
+    },
+    {
+      "paragraphs": [
+        14
+      ],
+      "requirement": "五窍灵枢增强",
+      "implementation": [
+        "data/upgrades.gd",
+        "scripts/sim.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_v054_content",
+        "qa_v055"
+      ]
+    },
+    {
+      "paragraphs": [
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "requirement": "醒狮间隔、费用、最高造价鼓舞及专属特效",
+      "implementation": [
+        "data/upgrades.gd",
+        "scripts/sim.gd",
+        "scripts/unit_view.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_logic",
+        "qa_animation"
+      ]
+    },
+    {
+      "paragraphs": [
+        20
+      ],
+      "requirement": "龙首铳450耐久与旧存档迁移",
+      "implementation": [
+        "data/content.gd",
+        "scripts/sim.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_v056"
+      ]
+    },
+    {
+      "paragraphs": [
+        21,
+        22,
+        23
+      ],
+      "requirement": "岁灯榕伤害、弹数、费用",
+      "implementation": [
+        "data/upgrades.gd",
+        "scripts/sim.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_v055"
+      ]
+    },
+    {
+      "paragraphs": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ],
+      "requirement": "钟馗像三路及神威护境",
+      "implementation": [
+        "data/upgrades.gd",
+        "scripts/sim.gd",
+        "scripts/boss_encounter.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_logic",
+        "qa_v061_ui"
+      ]
+    },
+    {
+      "paragraphs": [
+        31,
+        32,
+        33,
+        34,
+        35,
+        36
+      ],
+      "requirement": "签筒费用、取消随机十二支、短间隔及130连发",
+      "implementation": [
+        "data/upgrades.gd",
+        "scripts/sim.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_logic",
+        "qa_boss",
+        "qa_v061_ui"
+      ]
+    },
+    {
+      "paragraphs": [
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45
+      ],
+      "requirement": "炭火盆耐久、溅射、生产及前向穿透",
+      "implementation": [
+        "data/upgrades.gd",
+        "scripts/sim.gd"
+      ],
+      "passed_suites": [
+        "qa_v061",
+        "qa_logic",
+        "qa_v053"
+      ]
+    },
+    {
+      "paragraphs": [
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "requirement": "镇霄炮灰烬、盾牌、看破、弹片与重炮；追加临落地锁定",
+      "implementation": [
+        "scripts/sim.gd",
+        "scripts/unit_view.gd"
+      ],
+      "passed_suites": [
+        "qa_v060",
+        "qa_v061",
+        "qa_pc_todo"
+      ]
+    }
+  ],
+  "all_actionable_paragraphs_covered": true,
+  "failures": 0
+}

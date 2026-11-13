@@ -1,0 +1,16 @@
+{
+  "v0.5.6": {
+    "target_bytes": 918161008,
+    "download_bytes": 37940540,
+    "reuse_bytes": 880220468,
+    "missing_unique_chunks": 101,
+    "download_percent": 4.132
+  },
+  "v0.6.0": {
+    "target_bytes": 918161008,
+    "download_bytes": 5110560,
+    "reuse_bytes": 913050448,
+    "missing_unique_chunks": 38,
+    "download_percent": 0.557
+  }
+}

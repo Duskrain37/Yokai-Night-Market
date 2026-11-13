@@ -456,6 +456,20 @@ const BUFF_CLIPS := {"红灯笼":"lantern","汤圆仔":"lobber","钟馗像":"jud
 
 func _draw_source_buffs(plant: Sim.Plant, foot: Vector2, height: float) -> void:
 	var clips: Array = []
+	if sim.plant_bonus_sources.get(plant.uid,{}).has("喝彩"):
+		for beat in 3:
+			var a:float=sim.time*2.6+beat*TAU/3
+			var p:Vector2=foot+Vector2(cos(a)*height*.38,-height*.5+sin(a)*8)
+			draw_circle(p,5,Color("#bb4d37"));draw_arc(p,5,0,TAU,16,Color("#f2c77b"),1.3,true)
+			draw_line(p+Vector2(-4,-8),p+Vector2(3,7),Color(1,.83,.5,.7),1.5,true)
+	if plant.type=="judge" and plant.skill_effect_until>sim.time:
+		var badge:=preload("res://ui/skill_art.gd").texture("res://assets/ui/skills/judge-sanctuary.svg")
+		var sz:=height*1.5
+		draw_texture_rect(badge,Rect2(foot+Vector2(-sz*.5,-height-sz*.45),Vector2(sz,sz)),false,Color(1,1,1,.22))
+		for i in 8:
+			var a:float=sim.time*.7+i*TAU/8
+			var p:Vector2=foot+Vector2(cos(a)*height*.65,sin(a)*height*.22-height*.3)
+			draw_colored_polygon(PackedVector2Array([p+Vector2(0,-7),p+Vector2(4,0),p+Vector2(0,7),p+Vector2(-4,0)]),Color(.55,1,.81,.6))
 	if sim.plant_bonus_sources.get(plant.uid,{}).has("岁灯榕") or plant.production_reduction>0:
 		for leaf in 3:
 			var a: float=sim.time*.6+leaf*TAU/3
@@ -470,9 +484,7 @@ func _draw_source_buffs(plant: Sim.Plant, foot: Vector2, height: float) -> void:
 		var alpha := 0.44 if clips.size()<3 else 0.3
 		_buff_frames.draw_pose(self,"v053-buff-fx",clips[i],sim.time*2.3+plant.phase+i*0.8,
 			foot+Vector2(0,-height*0.34),height*1.02,false,Color(1,1,1,alpha))
-	if plant.type=="torch" and plant.tier(3)==3 and plant.eaten_until>sim.time:
-		_buff_frames.draw_pose(self,"v053-buff-fx","torch",sim.time*3.2,
-			foot+Vector2(0,-height*0.1),Geo.CELL_W*2.0,false,Color(1,1,1,0.75))
+
 
 
 func _draw_sleep(foot: Vector2, height: float) -> void:
@@ -526,24 +538,17 @@ func _draw_upgrade_dot(plant: Sim.Plant, foot: Vector2, height: float) -> void:
 	draw_polyline(PackedVector2Array([at + Vector2(-4, 2), at + Vector2(0, -3), at + Vector2(4, 2)]), ink, 2, true)
 
 func _draw_active_skill(plant: Sim.Plant) -> void:
-	var status := sim.active_skill_status(plant)
-	if not status.exists: return
-	var rect := PlantRegions.skill_rect(plant, sim.rows)
-	var at := rect.get_center()
-	draw_circle(at, 16, Ui.VERMILION if status.ready else Color("#263936"))
-	draw_arc(at, 16, 0, TAU, 32, Ui.GOLD_BRIGHT, 1.5, true)
-	if status.left > 0: draw_arc(at, 18, -PI/2, -PI/2+TAU*(1-status.left/55.0), 48, Ui.GOLD_BRIGHT, 2, true)
-	var text := "镇" if status.ready else str(ceili(status.left)) if status.left > 0 else "…"
-	var font := Ui.medium_font()
-	var fs := 18 if status.ready else 14
-	var w := font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,fs).x
-	draw_string(font,at+Vector2(-w/2,6),text,HORIZONTAL_ALIGNMENT_LEFT,-1,fs,Ui.GOLD_BRIGHT)
+	var status:=sim.active_skill_status(plant)
+	if not status.exists:return
+	var rect:=PlantRegions.skill_rect(plant,sim.rows)
+	preload("res://ui/skill_art.gd").draw(self,rect,status,_time)
 	if rect.grow(5).has_point(get_local_mouse_position()):
-		var caption := "霄炮镇平安 · 7 枚重炮" if status.ready else String(status.reason)
-		var width := Ui.body_font().get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,15).x+20
-		var box := Rect2(at+Vector2(-width/2,-54),Vector2(width,28))
+		var caption:String=String(status.name)+(" · "+String(status.summary) if status.ready else " · "+String(status.reason))
+		var width:float=minf(620,Ui.body_font().get_string_size(caption,HORIZONTAL_ALIGNMENT_LEFT,-1,15).x+20)
+		var box:=Rect2(rect.get_center()+Vector2(-width/2,-58),Vector2(width,30))
+		box.position.x=clampf(box.position.x,20,Ui.canvas_size.x-width-20)
 		draw_style_box(MarketArt.surface("paper","normal",Vector2.ZERO),box)
-		draw_string(Ui.body_font(),box.position+Vector2(10,20),caption,HORIZONTAL_ALIGNMENT_LEFT,-1,15,Color("#3e3023"))
+		draw_string(Ui.body_font(),box.position+Vector2(10,21),caption,HORIZONTAL_ALIGNMENT_LEFT,width-20,15,Color("#3e3023"))
 
 
 func _draw_halo(foot: Vector2, height: float, color: Color, scale: float) -> void:
@@ -1233,6 +1238,12 @@ func _draw_shots() -> void:
 		if shot.dead:
 			continue
 		var at = Geo.to_screen(shot.pos)
+		if shot.kind=="mortar" and bool(shot.payload.get("locked",false)):
+			var mark:Vector2=Geo.to_screen(Vector2(shot.tx,shot.ty+14))
+			draw_arc(mark,31,0,TAU,40,Color(1,.73,.32,.8),2,true)
+			for i in 4:
+				var d:=Vector2.from_angle(i*PI/2)
+				draw_line(mark+d*24,mark+d*39,Color(1,.84,.54,.9),2,true)
 		var look = String(shot.look)
 		if look in ["kite", "firework"] or (shot.kind == "lob" and shot.src == "lobber"):
 			var clip: String = "dumpling" if shot.src == "lobber" else look
@@ -1240,6 +1251,10 @@ func _draw_shots() -> void:
 			var left := bool(shot.payload.get("bounced", false))
 			_effect_frames.draw_pose(self, "v052-projectiles", clip, sim.time * 7.0,
 				at + Vector2(0, sprite_height * 0.45), sprite_height, left, Color.WHITE)
+			continue
+		if look=="sign-rain":
+			draw_line(at-Vector2(19,0),at+Vector2(7,0),Color("#ffe3a0"),3,true)
+			draw_line(at-Vector2(26,0),at-Vector2(7,0),Color(.5,.92,.68,.5),5,true)
 			continue
 		if look == "mortar-fragment":
 			var direction: Vector2 = (Geo.to_screen(shot.pos + shot.dir * 10) - at).normalized()
@@ -1437,7 +1452,30 @@ func _draw_particles() -> void:
 				_actor_frames.draw_pose(self,"oar-barge","sink",(1.0-k)*3.99,pos+Vector2(0,15),110*Geo.unit_scale(sim.rows),true,Color(1,1,1,minf(1,k*4)))
 			"magic":
 				var effect := String(p.effect)
-				if effect.begins_with("v055-"):
+				if effect in ["judge-sanctuary","judge-cleanse"]:
+					var radius:float=float(p.size)*(.25+(1-k)*.6)
+					draw_arc(pos,radius,0,TAU,64,Color(.55,1,.8,k*.8),3,true)
+					for i in 8:
+						var a:float=i*TAU/8+(1-k)*.7
+						var at:Vector2=pos+Vector2(cos(a),sin(a)*.5)*radius
+						draw_colored_polygon(PackedVector2Array([at+Vector2(0,-12),at+Vector2(6,0),at+Vector2(0,12),at+Vector2(-6,0)]),Color(.7,1,.87,k))
+				elif effect=="lion-cheer":
+					for i in 3:
+						var at:Vector2=pos+Vector2((i-1)*17,-(1-k)*40)
+						draw_circle(at,7,Color(.75,.25,.16,k));draw_arc(at,7,0,TAU,20,Color(1,.8,.4,k),2,true)
+						draw_line(at-Vector2(9,13),at+Vector2(7,-7),Color(1,.92,.68,k),2,true)
+				elif effect in ["sign-quick","sign-rain-muzzle"]:
+					for i in 5:
+						var at:Vector2=pos+Vector2((1-k)*45,(i-2)*7)
+						draw_line(at-Vector2(24,0),at,Color(.63,1,.76,k*.8),3,true)
+						draw_colored_polygon(PackedVector2Array([at+Vector2(8,0),at+Vector2(-2,-3),at+Vector2(-2,3)]),Color(1,.9,.58,k))
+				elif effect=="mortar-lock":
+					var radius:float=30+(1-k)*15
+					draw_arc(pos,radius,0,TAU,48,Color(1,.72,.3,k),2.4,true)
+					for i in 4:
+						var d:=Vector2.from_angle(i*PI/2)
+						draw_line(pos+d*(radius+5),pos+d*(radius+16),Color(1,.88,.56,k),3,true)
+				elif effect.begins_with("v055-"):
 					if effect=="v055-mortar-blast":
 						_new_frames.draw_pose(self,"v055-projectiles","blast",(1.0-k)*3.99,pos,float(p.size),false,Color(1,1,1,minf(1,k*3)))
 					elif effect=="v055-mortar-muzzle":

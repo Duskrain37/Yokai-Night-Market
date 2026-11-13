@@ -18,7 +18,7 @@ var _loading_hold: Dictionary = {}
 var load_timings: Array=[]
 var _loading_busy := false
 
-const VERSION = "0.6.0"
+const VERSION = "0.6.1"
 const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
 var touch_router: Node
 const SAVE_PATH = "user://run.json"
@@ -37,6 +37,7 @@ const RECORDS_PATH = "user://records.json"
 
 const DEFAULT_SETTINGS = {
 	"mobile_target_fps": 60,
+	"active_skill_mode": "both",
 	"news_seen_version": "",
 	"speed": 1.0,
 	"auto_collect": true,
@@ -154,6 +155,7 @@ func _ready() -> void:
 	ui_layer.add_child(ui_root)
 	_load_state()
 	settings["music_style"] = "complete"
+	if String(settings.get("active_skill_mode","both")) not in ["panel","right","both"]:settings.active_skill_mode="both"
 	if mobile:Engine.max_fps=int(settings.get("mobile_target_fps",60))
 	_apply_resolution()
 	if not mobile:
@@ -785,6 +787,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if screen == "battle" and hud != null:
+				if not paused and sim!=null and not hud.blocks_simulation() and active_skill_right_enabled():
+					var at:Vector2=_mobile_world_transform().affine_inverse()*event.position if mobile else event.position
+					var target:Dictionary=preload("res://scripts/plant_regions.gd").pick(sim,at)
+					if not target.is_empty() and target.layer=="skill":
+						sim.activate_skill(target.plant);hud.refresh();get_viewport().set_input_as_handled();return
 				hud.cancel_selection()
 			return
 		if event.button_index != MOUSE_BUTTON_LEFT:
@@ -852,7 +859,7 @@ func _handle_battle_click(pos: Vector2) -> void:
 		# targets use the exact marker/shell/body geometry used by UnitView.
 		var target: Dictionary = preload("res://scripts/plant_regions.gd").pick(sim, pos)
 		if not target.is_empty():
-			if target.layer == "skill": sim.activate_skill(target.plant); hud.refresh()
+			if target.layer == "skill": hud.try_open_menu(target.plant,pos)
 			elif target.layer == "shell": hud.show_shell(target.plant)
 			else: hud.try_open_menu(target.plant, pos)
 			return
@@ -1660,6 +1667,10 @@ func _sfx_for(name: String, detail: Dictionary = {}) -> AudioStream:
 
 func _sfx_recipe(name: String) -> Dictionary:
 	match name:
+		"judge_skill":
+			return {"freq":146.8,"duration":1.05,"wave":"triangle","decay":1.4,"sweep":146.8,"soft":.5,"attack":.08}
+		"sign_rain":
+			return {"freq":1046.5,"duration":.28,"wave":"triangle","decay":3.0,"sweep":-480.0,"noise":.12}
 		"place":
 			return {"freq": 320.0, "duration": 0.22, "wave": "sine", "decay": 3.0}
 		"place_bad", "deny":
@@ -2101,3 +2112,9 @@ func boss_lore_unlocked(id: String) -> bool:
 	if Array(progress.get("bosses_defeated",[])).has(id):return true
 	var old={"earth":5,"paper":10,"river":15,"island":21,"magistrate-bound":26,"magistrate-full":26}
 	return _night_ids(progress.get("cleared",[])).has(int(old.get(id,-1)))
+
+func active_skill_panel_enabled() -> bool:
+	return String(settings.get("active_skill_mode","both")) in ["panel","both"]
+
+func active_skill_right_enabled() -> bool:
+	return String(settings.get("active_skill_mode","both")) in ["right","both"]

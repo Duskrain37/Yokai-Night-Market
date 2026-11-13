@@ -1,485 +1,277 @@
 {
-  "version": "0.6.0",
-  "build": "97d79b5",
-  "build_time": "2026-11-13 20:59",
-  "verified_local": "2026-11-13T21:18:39",
-  "source_files": 759,
-  "source_freeze_verified": true,
-  "exe": "YokaiNightMarket-win64.exe",
-  "bytes": 918030420,
-  "sha256": "fefcbc893b4af1390dd56ff9423a90ca1ceda3c1f2b6ddf6974e4a938df90999",
-  "export_count": 1,
-  "source_regression_suites": [
-    {
-      "suite": "logic",
-      "exit": 0,
-      "seconds": 1.4,
-      "issues": []
-    },
-    {
-      "suite": "battle",
-      "exit": 0,
-      "seconds": 12.2,
-      "issues": []
-    },
-    {
-      "suite": "boss",
-      "exit": 0,
-      "seconds": 0.7,
-      "issues": []
-    },
-    {
-      "suite": "special",
-      "exit": 0,
-      "seconds": 1.4,
-      "issues": []
-    },
-    {
-      "suite": "click",
-      "exit": 0,
-      "seconds": 6.2,
-      "issues": []
-    },
-    {
-      "suite": "player_ui",
-      "exit": 0,
-      "seconds": 6.8,
-      "issues": []
-    },
-    {
-      "suite": "patch",
-      "exit": 0,
-      "seconds": 6.2,
-      "issues": []
-    },
-    {
-      "suite": "animation",
-      "exit": 0,
-      "seconds": 10.4,
-      "issues": []
-    },
-    {
-      "suite": "v050",
-      "exit": 0,
-      "seconds": 0.7,
-      "issues": []
-    },
-    {
-      "suite": "v051_refresh",
-      "exit": 0,
-      "seconds": 3.3,
-      "issues": []
-    },
-    {
-      "suite": "v052",
-      "exit": 0,
-      "seconds": 3.5,
-      "issues": []
-    },
-    {
-      "suite": "v053",
-      "exit": 0,
-      "seconds": 4.9,
-      "issues": []
-    },
-    {
-      "suite": "v054",
-      "exit": 0,
-      "seconds": 4.8,
-      "issues": []
-    },
-    {
-      "suite": "v054_content",
-      "exit": 0,
-      "seconds": 0.6,
-      "issues": []
-    },
-    {
-      "suite": "nightmare",
-      "exit": 0,
-      "seconds": 3.5,
-      "issues": []
-    },
-    {
-      "suite": "dual_soak",
-      "exit": 0,
-      "seconds": 9.2,
-      "issues": []
-    },
-    {
-      "suite": "v055",
-      "exit": 0,
-      "seconds": 0.6,
-      "issues": []
-    },
-    {
-      "suite": "update",
-      "exit": 0,
-      "seconds": 0.3,
-      "issues": []
-    },
-    {
-      "suite": "v056",
-      "exit": 0,
-      "seconds": 0.6,
-      "issues": []
-    },
-    {
-      "suite": "v060",
-      "exit": 0,
-      "seconds": 0.6,
-      "issues": []
-    },
-    {
-      "suite": "pc_todo",
-      "exit": 0,
-      "seconds": 10.6,
-      "issues": []
-    },
-    {
-      "suite": "art_overhaul",
-      "exit": 0,
-      "seconds": 9.1,
-      "issues": []
-    }
-  ],
-  "pc_ui": {
-    "checks": 1457,
-    "failures": 0
-  },
-  "v060_rules": {
-    "checks": 377,
-    "failures": 0
-  },
-  "art_ui": {
-    "checks": 1302,
-    "failures": 0
-  },
-  "fonts": [
-    {
-      "font": "LXGWWenKai-Regular.ttf",
-      "supported_required": 1826,
-      "lost": 0
-    },
-    {
-      "font": "LXGWWenKai-Medium.ttf",
-      "supported_required": 1826,
-      "lost": 0
-    },
-    {
-      "font": "MaShanZheng-Regular.ttf",
-      "supported_required": 1798,
-      "lost": 0
-    }
-  ],
-  "music": {
-    "approved_chapter_tracks": 15,
-    "menu_tracks": 1,
-    "generic_battle_tracks": 0,
-    "sha_verified": true
-  },
-  "source_motion": {
-    "old_motion_actors_unchanged": 156,
-    "old_frames_unchanged": 12672,
-    "new_motion": [
-      {
-        "actor": "incense-thief",
-        "clip": "attack",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "incense-thief",
-        "clip": "death",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "incense-thief",
-        "clip": "steal",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "incense-thief",
-        "clip": "walk",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "incense-thief",
-        "clip": "swim",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "incense-thief",
-        "clip": "swim_bite",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "sky-ferry",
-        "clip": "attack",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "sky-ferry",
-        "clip": "break",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "sky-ferry",
-        "clip": "land",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "sky-ferry",
-        "clip": "pickup",
-        "frames": 32,
-        "unique": 32
-      },
-      {
-        "actor": "sky-ferry",
-        "clip": "walk",
-        "frames": 32,
-        "unique": 32
-      }
+  "version": "0.6.1",
+  "build": "f7bd605",
+  "bytes": 918161008,
+  "sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+  "source_freeze": {
+    "version": "0.6.1",
+    "build": "f7bd605",
+    "files": 769,
+    "frozen_at": "2026-11-14T01:27:34.292856+08:00",
+    "regression_suites": 24,
+    "mechanics": 80,
+    "viewport_interactions": 14,
+    "campaigns": 100,
+    "boss_fixtures": 33,
+    "native_captures": 36,
+    "font_supported_required": [
+      1832,
+      1832,
+      1804
     ],
-    "new_frames": 352,
+    "approved_music_tracks": 15,
+    "requirements_docx_sha256": "4083aa1b206857947a1b06c423c60c534d27631003b26bdcca3f40c7e75e2cab",
+    "source_checks_passed": true,
     "failures": 0
   },
   "package": {
-    "build": "97d79b5",
+    "build": "f7bd605",
     "checks": 13928,
     "failures": 0,
     "frames": 13024,
-    "texture_load_ms": 5927.702,
-    "version": "0.6.0"
+    "texture_load_ms": 5850.448,
+    "version": "0.6.1"
   },
-  "package_resources": {
-    "entries_md5_verified": 1104,
-    "old_motion_actors_retained": 156,
-    "old_motion_atlases_byte_identical": 156,
-    "current_motion_actors": 158,
+  "resource_integrity": {
+    "entries_md5_verified": 1116,
+    "motion_atlases_byte_identical_to_v060": 158,
     "frames": 13024,
+    "final_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
     "failures": 0
   },
-  "native_gpu": [
-    {
-      "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v060\\native-menu-1600x900.png",
-      "name": "native-menu-1600x900",
-      "exit_code": 0
-    },
-    {
-      "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v060\\native-levels-1280x800.png",
-      "name": "native-levels-1280x800",
-      "exit_code": 0
-    },
-    {
-      "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v060\\native-battle-1600x1000.png",
-      "name": "native-battle-1600x1000",
-      "exit_code": 0
-    },
-    {
-      "exit_code": 0,
-      "name": "packed-gallery-1280x800"
-    },
-    {
-      "exit_code": 0,
-      "name": "packed-gallery-2560x1600"
-    }
-  ],
-  "incremental_update": {
-    "formal_v056": {
-      "target_bytes": 918030420,
-      "download_bytes": 37810023,
-      "reuse_bytes": 880220397,
-      "missing_unique_chunks": 89,
-      "download_percent": 4.119
-    },
-    "local_art_v056": {
-      "target_bytes": 918030420,
-      "download_bytes": 31661160,
-      "reuse_bytes": 886369260,
-      "missing_unique_chunks": 73,
-      "download_percent": 3.449
-    },
-    "actual_v056_range_update": {
-      "target_sha256": "fefcbc893b4af1390dd56ff9423a90ca1ceda3c1f2b6ddf6974e4a938df90999",
-      "target_size": 918030420,
-      "old_sha256": "0178b3c83a1ad82976eeebb7a629fc775c3f704267d7891dd027e6f8631124c0",
-      "runs": [
-        {
-          "checks": [
-            {
-              "name": "updater loaded from actual packaged build",
-              "ok": true
-            },
-            {
-              "name": "project version from mounted pack",
-              "ok": true
-            },
-            {
-              "name": "actual v056 to v060 is ready",
-              "ok": true
-            },
-            {
-              "name": "only differences downloaded",
-              "ok": true
-            },
-            {
-              "name": "reused more than ninety percent",
-              "ok": true
-            },
-            {
-              "name": "candidate exact final EXE hash",
-              "ok": true
-            },
-            {
-              "name": "original game unchanged",
-              "ok": true
-            },
-            {
-              "name": "fixture does not install or exit",
-              "ok": true
-            }
-          ],
-          "failures": 0,
-          "message": "更新已准备好。重启后即可进入 v0.6.0。",
-          "phase": "ready",
-          "received": 37812919,
-          "required": 37812919,
-          "reused": 880220397,
-          "target_sha256": "fefcbc893b4af1390dd56ff9423a90ca1ceda3c1f2b6ddf6974e4a938df90999",
-          "updater_build": "2bcd33c",
-          "updater_version": "0.5.6",
-          "wire_exe_bytes": 37812919,
-          "range_requests": 26,
-          "duration_seconds": 13.61
-        },
-        {
-          "checks": [
-            {
-              "name": "updater loaded from actual packaged build",
-              "ok": true
-            },
-            {
-              "name": "project version from mounted pack",
-              "ok": true
-            },
-            {
-              "name": "actual v056 to v060 is ready",
-              "ok": true
-            },
-            {
-              "name": "only differences downloaded",
-              "ok": true
-            },
-            {
-              "name": "reused more than ninety percent",
-              "ok": true
-            },
-            {
-              "name": "candidate exact final EXE hash",
-              "ok": true
-            },
-            {
-              "name": "original game unchanged",
-              "ok": true
-            },
-            {
-              "name": "fixture does not install or exit",
-              "ok": true
-            }
-          ],
-          "failures": 0,
-          "message": "更新已下载并校验完成，即将重启进入 v0.6.0。",
-          "phase": "ready",
-          "received": 37812919,
-          "required": 37812919,
-          "reused": 880220397,
-          "target_sha256": "fefcbc893b4af1390dd56ff9423a90ca1ceda3c1f2b6ddf6974e4a938df90999",
-          "updater_build": "97d79b5",
-          "updater_version": "0.6.0",
-          "wire_exe_bytes": 37812919,
-          "range_requests": 26,
-          "duration_seconds": 13.23
-        }
-      ]
-    },
-    "note": "download_bytes is unique missing chunks; actual wire bytes include small grouped-range padding; release metadata/map are additional. No uploads occurred."
+  "mechanics": {
+    "total": 80,
+    "failures": 0
   },
-  "campaign": {
+  "viewport_ui": {
+    "total": 14,
+    "failures": 0
+  },
+  "regression": {
+    "suites": 24,
+    "failures": 0
+  },
+  "campaigns": {
     "runs": 100,
-    "strategy_unchanged": true,
+    "strategy": "recommended-v2; original role buckets frozen by plant ID, placement/economy unchanged",
+    "strategy_sha256": "20ecd6a6b83f4ada8152a1a930414da8f8fb05dc3b11bc8325dd59a7bfe98393",
+    "taxonomy_migration": {
+      "reason": "Role display tags were unified. The bot now freezes the prior role buckets by plant ID; placement, upgrade routes, timings and normal economy are unchanged.",
+      "previous_roles": {
+        "year-banyan": "产能",
+        "sky-mortar": "抛射",
+        "reed-chime": "范围",
+        "soul-casket": "借弹",
+        "lantern": "产能",
+        "shooter": "射线",
+        "wall": "防御",
+        "bomb": "灰烬",
+        "bell": "辅助",
+        "censer": "范围",
+        "umbrella": "收妖",
+        "lion": "近战",
+        "mushroom": "灰烬",
+        "cat": "追魂",
+        "shell": "护罩",
+        "lobber": "抛射",
+        "torch": "增幅",
+        "star": "五向",
+        "needle": "破甲",
+        "judge": "庇护",
+        "gust": "灰烬",
+        "firework": "抛射",
+        "squash": "灰烬",
+        "dragon": "近攻",
+        "lily": "浮台",
+        "herb-gourd": "扶伤",
+        "ruin-cap": "灰烬",
+        "sky-kite": "抛射",
+        "wish-till": "产能",
+        "cash-pod": "灰烬",
+        "ember-cicada": "追魂",
+        "kelp": "灰烬"
+      },
+      "placement_policy_unchanged": true,
+      "new_active_skills_automated": false
+    },
     "outcome_changes": [
       {
-        "night": "easy:13",
-        "before": "lost",
-        "after": "won"
-      },
-      {
-        "night": "easy:14",
-        "before": "lost",
-        "after": "won"
-      },
-      {
-        "night": "easy:19",
-        "before": "lost",
-        "after": "won"
-      },
-      {
-        "night": "normal:10",
-        "before": "won",
-        "after": "lost"
-      },
-      {
-        "night": "normal:12",
-        "before": "lost",
-        "after": "won"
-      },
-      {
-        "night": "nightmare:8",
-        "before": "lost",
-        "after": "won"
-      },
-      {
         "night": "nightmare:9",
-        "before": "won",
-        "after": "lost"
+        "before": "lost",
+        "after": "won"
       }
     ],
     "wins": {
       "easy": 19,
       "normal": 15,
       "hard": 14,
-      "nightmare": 11
+      "nightmare": 12
     },
+    "failures": 0,
+    "limitations": "Bot does not cast new active skills. This is a fixed-strategy regression, not proof of human full completion."
+  },
+  "boss_fixtures": {
+    "runs": 33,
+    "reference_wins": 15,
     "failures": 0
   },
-  "boss_reference_fixtures": 33,
-  "boss_reference_failures": 0,
-  "limitations": [
-    "100 fixed-policy bot runs and 33 boss fixtures are automated regressions, not human completion certification.",
-    "This round verifies Windows PC only; existing Android builds are unchanged."
-  ],
-  "preserved_original_files": {
-    "v056_sha256": "0178b3c83a1ad82976eeebb7a629fc775c3f704267d7891dd027e6f8631124c0",
-    "old_art_preview_sha256": "6be7438ff18163c28500bdaf576d8b7a914f411f5ba7e273b6da17089f56b083"
+  "incremental_update": {
+    "target_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+    "target_size": 918161008,
+    "old_sha256": "fefcbc893b4af1390dd56ff9423a90ca1ceda3c1f2b6ddf6974e4a938df90999",
+    "runs": [
+      {
+        "checks": [
+          {
+            "name": "updater loaded from actual packaged build",
+            "ok": true
+          },
+          {
+            "name": "project version from mounted pack",
+            "ok": true
+          },
+          {
+            "name": "packaged updater to v061 is ready",
+            "ok": true
+          },
+          {
+            "name": "only differences downloaded",
+            "ok": true
+          },
+          {
+            "name": "reused more than ninety percent",
+            "ok": true
+          },
+          {
+            "name": "candidate exact final EXE hash",
+            "ok": true
+          },
+          {
+            "name": "original game unchanged",
+            "ok": true
+          },
+          {
+            "name": "fixture does not install or exit",
+            "ok": true
+          }
+        ],
+        "failures": 0,
+        "message": "更新已准备好。重启后即可进入 v0.6.1。",
+        "phase": "ready",
+        "received": 37943992,
+        "required": 37943992,
+        "reused": 880220468,
+        "target_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+        "updater_build": "2bcd33c",
+        "updater_version": "0.5.6",
+        "wire_exe_bytes": 37943992,
+        "range_requests": 30,
+        "duration_seconds": 13.31
+      },
+      {
+        "checks": [
+          {
+            "name": "updater loaded from actual packaged build",
+            "ok": true
+          },
+          {
+            "name": "project version from mounted pack",
+            "ok": true
+          },
+          {
+            "name": "packaged updater to v061 is ready",
+            "ok": true
+          },
+          {
+            "name": "only differences downloaded",
+            "ok": true
+          },
+          {
+            "name": "reused more than ninety percent",
+            "ok": true
+          },
+          {
+            "name": "candidate exact final EXE hash",
+            "ok": true
+          },
+          {
+            "name": "original game unchanged",
+            "ok": true
+          },
+          {
+            "name": "fixture does not install or exit",
+            "ok": true
+          }
+        ],
+        "failures": 0,
+        "message": "更新已下载并校验完成，即将重启进入 v0.6.1。",
+        "phase": "ready",
+        "received": 5112086,
+        "required": 5112086,
+        "reused": 913050448,
+        "target_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+        "updater_build": "97d79b5",
+        "updater_version": "0.6.0",
+        "wire_exe_bytes": 5112086,
+        "range_requests": 21,
+        "duration_seconds": 12.67
+      },
+      {
+        "checks": [
+          {
+            "name": "updater loaded from actual packaged build",
+            "ok": true
+          },
+          {
+            "name": "project version from mounted pack",
+            "ok": true
+          },
+          {
+            "name": "packaged updater to v061 is ready",
+            "ok": true
+          },
+          {
+            "name": "only differences downloaded",
+            "ok": true
+          },
+          {
+            "name": "reused more than ninety percent",
+            "ok": true
+          },
+          {
+            "name": "candidate exact final EXE hash",
+            "ok": true
+          },
+          {
+            "name": "original game unchanged",
+            "ok": true
+          },
+          {
+            "name": "fixture does not install or exit",
+            "ok": true
+          }
+        ],
+        "failures": 0,
+        "message": "更新已下载并校验完成，即将重启进入 v0.6.1。",
+        "phase": "ready",
+        "received": 5112086,
+        "required": 5112086,
+        "reused": 913050448,
+        "target_sha256": "418e42a7fff90f03b135ab7d65ef67691f3e94bc5031dfa910f6df5c1b24eebc",
+        "updater_build": "f7bd605",
+        "updater_version": "0.6.1",
+        "wire_exe_bytes": 5112086,
+        "range_requests": 21,
+        "duration_seconds": 12.11
+      }
+    ]
   },
   "delivery_startup": {
     "failures": 0,
     "exit_code": 0,
-    "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\releases\\v0.6.0\\验收画面\\delivery-startup-1600x1000.png",
+    "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\releases\\v0.6.1\\验收画面\\delivery-startup-1600x1000.png",
     "acknowledged": true,
-    "build": "97d79b5"
+    "build": "f7bd605"
   },
-  "local_only_at_validation": true,
-  "uploaded_at_validation": false,
-  "publication_authorized": true,
-  "publication_branch": "v0.6.0"
+  "failures": 0
 }

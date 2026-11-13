@@ -1,0 +1,94 @@
+{
+  "checks": [
+    {
+      "name": "代理地址127.0.0.1:10808",
+      "ok": true
+    },
+    {
+      "name": "代理地址http://proxy.example:8080",
+      "ok": true
+    },
+    {
+      "name": "代理地址proxy.example",
+      "ok": true
+    },
+    {
+      "name": "代理地址http://[::1]:8080/",
+      "ok": true
+    },
+    {
+      "name": "拒绝不支持或越界代理·4",
+      "ok": true
+    },
+    {
+      "name": "拒绝不支持或越界代理·5",
+      "ok": true
+    },
+    {
+      "name": "拒绝不支持或越界代理·6",
+      "ok": true
+    },
+    {
+      "name": "拒绝不支持或越界代理·7",
+      "ok": true
+    },
+    {
+      "name": "拒绝不支持或越界代理·8",
+      "ok": true
+    },
+    {
+      "name": "拒绝不支持或越界代理·9",
+      "ok": true
+    },
+    {
+      "name": "空代理为直连",
+      "ok": true
+    },
+    {
+      "name": "按HTTPS选系统代理",
+      "ok": true
+    },
+    {
+      "name": "HTTP专用代理不影响HTTPS",
+      "ok": true
+    },
+    {
+      "name": "本机测试不经过代理·http://127.0.0.1:1234/x",
+      "ok": true
+    },
+    {
+      "name": "本机测试不经过代理·http://localhost/x",
+      "ok": true
+    },
+    {
+      "name": "本机测试不经过代理·http://[::1]:4567/x",
+      "ok": true
+    },
+    {
+      "name": "NO_PROXY域后缀",
+      "ok": true
+    },
+    {
+      "name": "Windows通配排除",
+      "ok": true
+    },
+    {
+      "name": "其他域不误绕过代理",
+      "ok": true
+    },
+    {
+      "name": "无环境变量时沿用Windows代理",
+      "ok": true
+    },
+    {
+      "name": "HTTPS环境代理优先",
+      "ok": true
+    },
+    {
+      "name": "空数据SHA无错误",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 22
+}

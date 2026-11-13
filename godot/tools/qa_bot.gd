@@ -3,6 +3,7 @@ class_name QaBot
 extends RefCounted
 # Historical fixture retained for isolated evil-leader comparison only.
 const LOADOUT=["lantern","shooter","wall","bell","censer","umbrella","lion","torch","needle","lily"]
+const STRATEGY_ROLES={"year-banyan":"产能","sky-mortar":"抛射","reed-chime":"范围","soul-casket":"借弹","lantern":"产能","shooter":"射线","wall":"防御","bomb":"灰烬","bell":"辅助","censer":"范围","umbrella":"收妖","lion":"近战","mushroom":"灰烬","cat":"追魂","shell":"护罩","lobber":"抛射","torch":"增幅","star":"五向","needle":"破甲","judge":"庇护","gust":"灰烬","firework":"抛射","squash":"灰烬","dragon":"近攻","lily":"浮台","herb-gourd":"扶伤","ruin-cap":"灰烬","sky-kite":"抛射","wish-till":"产能","cash-pod":"灰烬","ember-cicada":"追魂","kelp":"灰烬"}
 const STRATEGY_VERSION="recommended-v2"
 const MAX_SECONDS=1800.0
 const PACE_SECONDS=1200.0
@@ -49,12 +50,12 @@ static func play(level_id: int,seed_value: int=7,difficulty: String="easy",optio
 	return {"sim":sim,"won":won[0],"lost":lost[0],"bad":bad,"max_shots":max_shots,"outcome":outcome,"bot_stalemate":stalls,"pace_ok":sim.time<=PACE_SECONDS,"strategy":STRATEGY_VERSION,"cards":cards,"spawn_trace":trace.finish().hex_encode()}
 
 static func _attack_type(type: String) -> bool:
-	return type=="reed-chime" or String(Content.PLANTS[type].role) in ["射线","抛射","追魂","破甲","五向"]
+	return type=="reed-chime" or String(STRATEGY_ROLES.get(type,Content.PLANTS[type].role)) in ["射线","抛射","追魂","破甲","五向"]
 
 static func _plan(sim: Sim) -> Array:
 	var producers=[];var attackers=[];var blockers=[];var others=[]
 	for card in sim.cards:
-		var type=String(card.id);var role=String(Content.PLANTS[type].role)
+		var type=String(card.id);var role=String(STRATEGY_ROLES.get(type,Content.PLANTS[type].role))
 		if role=="产能":producers.append(type)
 		elif _attack_type(type):attackers.append(type)
 		elif role in ["防御","收妖","近战","近攻"]:blockers.append(type)

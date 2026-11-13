@@ -6,6 +6,7 @@ class_name UpgradeFan
 extends Control
 
 signal picked(path_id: int)
+signal skill_picked
 signal dismissed
 
 const INNER := 47.0
@@ -59,7 +60,8 @@ func _gui_input(event: InputEvent) -> void:
 	var hit := hit_test(event.position)
 	if hit >= 0:
 		accept_event()
-		picked.emit(int(entries[hit]["id"]))
+		if bool(entries[hit].get("has_skill",false)) and skill_rect(hit).grow(3).has_point(event.position):skill_picked.emit()
+		else:picked.emit(int(entries[hit]["id"]))
 		return
 	accept_event()
 	dismissed.emit()
@@ -148,11 +150,19 @@ func _draw_petal(index: int) -> void:
 	var font := Ui.medium_font()
 	var body := Ui.body_font()
 	var anchor := _point((INNER + outer) * 0.56, mid)
+	if bool(entry.get("has_skill",false)):
+		var status:Dictionary=sim.active_skill_status(plant)
+		if not bool(entry.get("panel_enabled",true)):status.ready=false
+		preload("res://ui/skill_art.gd").draw(self,skill_rect(index),status,_time)
+		var tag:String="唯一" if bool(status.unique) else "主动"
+		var label_at:=_point(INNER+10,mid)
+		draw_string(body,label_at+Vector2(-12,6),tag,HORIZONTAL_ALIGNMENT_LEFT,-1,12,Ui.GOLD_BRIGHT)
+		return
 	var name_text := String(entry["name"])
 	var name_w := font.get_string_size(name_text, HORIZONTAL_ALIGNMENT_LEFT, -1,
-		15).x
+		Ui.font_size(15)).x
 	draw_string(font, anchor + Vector2(-name_w * 0.5, -2.0), name_text,
-		HORIZONTAL_ALIGNMENT_LEFT, -1, 15,
+		HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(15),
 		Color(1, 0.96, 0.86, 0.95) if ok else Color(0.8, 0.76, 0.66, 0.8))
 	var sub := ""
 	var sub_color := Color(0.95, 0.85, 0.66, 0.95)
@@ -162,10 +172,14 @@ func _draw_petal(index: int) -> void:
 			sub_color = Color(0.9, 0.5, 0.42, 0.95)
 	else:
 		sub = String(entry["reason"])
+		match String(entry.get("kind","")):
+			"maxed":sub="已到三阶"
+			"locked":sub="两路已选"
+			"locked3":sub="三阶已锁"
 		sub_color = Color(0.72, 0.68, 0.58, 0.8)
-	var sub_w := body.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+	var sub_w := body.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(12)).x
 	draw_string(body, anchor + Vector2(-sub_w * 0.5, 13.0), sub,
-		HORIZONTAL_ALIGNMENT_LEFT, -1, 12, sub_color)
+		HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(12), sub_color)
 	# 级数点：贴在内缘
 	var dots_pos := _point(INNER + 12.0, mid)
 	for t in 3:
@@ -183,6 +197,8 @@ func _draw_tooltip() -> void:
 		return
 	var entry: Dictionary = entries[_hover]
 	var text = String(entry.get("next_desc", ""))
+	if not bool(entry.get("ok",false)) and not bool(entry.get("has_skill",false)):
+		text=String(entry.get("reason",""))+"。"+text
 	if text == "":
 		return
 	var title = "%s · %s" % [String(entry["name"]),
@@ -264,3 +280,6 @@ func _draw_effects() -> void:
 		draw_string(Ui.body_font(), at + Vector2(13 + int(i / row_count) * column_width,
 			31 + float(i % row_count + 1) * row_height), text, HORIZONTAL_ALIGNMENT_LEFT,
 			column_width - 8, Ui.font_size(15), Ui.WARN if harmful else Ui.TEXT)
+
+func skill_rect(index: int) -> Rect2:
+	return Rect2(_point(OUTER-28,_petal_angle(index))-Vector2(20,20),Vector2(40,40))

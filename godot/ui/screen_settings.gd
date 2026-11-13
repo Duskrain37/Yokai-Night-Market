@@ -13,6 +13,7 @@ const PAGES := ["战斗与操作", "显示", "声音", "键位"]
 
 const ROWS := {
 	0: [
+		{"key":"active_skill_mode","label":"草木主动技能释放方式","note":"可开启一种或两种；右键点击模型中下部技能图标直接施放","options":[["panel","进化面板"],["right","右键图标"],["both","两种都开"]]},
 		{"key": "difficulty", "label": "难度",
 			"note": "初次守夜可选初月；噩梦可在备战时另选因子。难度只在局外更改",
 			"options": [["easy", "初月"], ["normal", "常夜"], ["hard", "沉夜"], ["nightmare", "噩梦"]],

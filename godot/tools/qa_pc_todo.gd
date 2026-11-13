@@ -26,11 +26,11 @@ func check(label: String, ok: bool, detail: String = ""):
 	if not ok: failures += 1; printerr("FAIL ", label, " ", detail)
 func settle(n: int = 5):
 	for i in n: await process_frame
-func click(at: Vector2):
+func click(at: Vector2,button: int=MOUSE_BUTTON_LEFT):
 	var move := InputEventMouseMotion.new(); move.position = at; move.global_position = at
 	root.push_input(move, true)
 	for down in [true, false]:
-		var e := InputEventMouseButton.new(); e.button_index = MOUSE_BUTTON_LEFT
+		var e := InputEventMouseButton.new(); e.button_index = button
 		e.pressed = down; e.position = at; e.global_position = at; root.push_input(e, true)
 		await process_frame
 	await settle()
@@ -164,9 +164,9 @@ func run():
 	game.sim.spawn_zombie("ghost",3,{"x":1100})
 	var stamp:=Regions.skill_rect(cannon,game.sim.rows).get_center()
 	check("主动技能区域优先于罩和本体",Regions.pick(game.sim,stamp).layer=="skill")
-	await click(stamp)
+	await click(stamp,MOUSE_BUTTON_RIGHT)
 	check("真实点击主动施放首枚重炮",cannon.mortar_burst_left==6 and game.sim.shots.size()==1 and game.sim.active_skill_status(cannon).left>54)
-	await click(stamp)
+	await click(stamp,MOUSE_BUTTON_RIGHT)
 	check("真实点击冷却中技能不重复发炮",game.sim.shots.size()==1 and cannon.mortar_burst_left==6)
 	game.hud.try_open_menu(cannon,Regions.foot(cannon,game.sim.rows));await settle()
 	var before_shots:int=game.sim.shots.size()

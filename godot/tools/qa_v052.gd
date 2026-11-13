@@ -73,7 +73,7 @@ func run() -> void:
 	armored.armor = 1000
 	armored.max_armor = 1000
 	var dealt := s.damage_zombie(armored, 100, false, false, "ember-cicada", "", false, "homing", cicada.uid)
-	check("满阶看破护甲合计承受175", dealt == 175 and armored.armor == 825 and armored.revealed_tier == 3)
+	check("满阶看破同源护甲易伤取最高50%", dealt == 150 and armored.armor == 850 and armored.revealed_tier == 3)
 	armored.armor = 0
 	dealt = s.damage_zombie(armored, 100, false, false, "shooter")
 	check("满阶看破本体承受125", dealt == 125)

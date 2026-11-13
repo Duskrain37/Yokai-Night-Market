@@ -19,7 +19,7 @@ func create(id: int) -> Sim:
 
 func same(a,b) -> bool:
 	# JSON numeric types are floats; compare through one identical decoding boundary.
-	return JSON.stringify(JSON.parse_string(JSON.stringify(a)))==JSON.stringify(b)
+	return JSON.parse_string(JSON.stringify(a))==JSON.parse_string(JSON.stringify(b))
 
 func tree_rules(paths: Array) -> Array:
 	var copy=paths.duplicate(true)
@@ -89,8 +89,12 @@ func run() -> void:
 		check(id+" 原型数值保持",same(Upgrades.EFFECTS[id],fixtures.prototype_effects[id]))
 	var shooter_expected: Dictionary = fixtures.prototype_effects.shooter.duplicate(true)
 	shooter_expected.erase("crit_slow")
-	shooter_expected.crit_chance = [0.0, 0.1, 0.2, 0.33]
-	check("签筒旧连射数值保留，双倍伤害与减速概率按新版", same(Upgrades.EFFECTS.shooter, shooter_expected))
+	shooter_expected.crit_chance = [0.0, 0.0, 0.0, 0.0]
+	shooter_expected.volley_bonus=[0,0,0,0]
+	shooter_expected.volley_bonus_chance=[0.0,0.0,0.0,0.0]
+	shooter_expected.quick_chance=[0.0,0.1,0.15,0.15]
+	shooter_expected.quick_cooldown=[0.0,7.0,6.0,6.0]
+	check("签筒连射保留，旧暴击改为下次间隔缩短", same(Upgrades.EFFECTS.shooter, shooter_expected))
 	for level in Content.LEVELS.slice(0,15):
 		if int(level.id)%5==0:continue
 		var s=create(int(level.id))

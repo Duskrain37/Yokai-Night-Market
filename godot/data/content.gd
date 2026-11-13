@@ -33,100 +33,410 @@ const TIERS = {
 # ── 草木 ────────────────────────────────────────────────────────────────────
 # cost 香火 / cooldown 冷却秒 / hp 耐久 / sprite_h 立绘高度基准（像素，1600×900 画布）
 const PLANTS = {
-	"year-banyan":{"name": "岁灯榕", "role": "产能", "cost": 125, "cooldown": 9, "hp": 300, "sprite_h": 88, "growth_tree": true, "produce": {"interval": 10.0, "first": 3.0, "value": 50}, "tint": "#b9a05f"},
-	"sky-mortar":{"name": "镇霄炮", "role": "抛射", "cost": 350, "cooldown": 18, "hp": 400, "sprite_h": 110, "sky_mortar": true, "tint": "#ae7951"},
-
-	"reed-chime":{"name":"篁音簇","role":"范围","cost":175,"cooldown":10,"hp":320,"sprite_h":104,"reed_chime":true,"tint":"#9a9b62"},
-	"soul-casket":{"name":"五窍灵枢","role":"借弹","cost":125,"cooldown":12,"hp":400,"sprite_h":92,"collector":true,"tint":"#b59457"},
+	"year-banyan": {
+		"name": "岁灯榕",
+		"role": "产能",
+		"cost": 125,
+		"cooldown": 9,
+		"hp": 300,
+		"sprite_h": 88,
+		"growth_tree": true,
+		"produce": {
+			"interval": 10.0,
+			"first": 3.0,
+			"value": 50
+		},
+		"tint": "#b9a05f"
+	},
+	"sky-mortar": {
+		"name": "镇霄炮",
+		"role": "群攻",
+		"cost": 350,
+		"cooldown": 18,
+		"hp": 400,
+		"sprite_h": 110,
+		"sky_mortar": true,
+		"tint": "#ae7951"
+	},
+	"reed-chime": {
+		"name": "篁音簇",
+		"role": "群攻",
+		"cost": 175,
+		"cooldown": 10,
+		"hp": 320,
+		"sprite_h": 104,
+		"reed_chime": true,
+		"tint": "#9a9b62"
+	},
+	"soul-casket": {
+		"name": "五窍灵枢",
+		"role": "辅助",
+		"cost": 125,
+		"cooldown": 12,
+		"hp": 400,
+		"sprite_h": 92,
+		"collector": true,
+		"tint": "#b59457"
+	},
 	"lantern": {
-		"name": "红灯笼", "role": "产能", "cost": 50, "cooldown": 5, "hp": 300,
-		"sprite_h": 92, "produce": {"interval": 8.0, "first": 5.0, "value": 25},
-		"tint": "#e8563a",
+		"name": "红灯笼",
+		"role": "产能",
+		"cost": 50,
+		"cooldown": 5,
+		"hp": 300,
+		"sprite_h": 92,
+		"produce": {
+			"interval": 8.0,
+			"first": 5.0,
+			"value": 25
+		},
+		"tint": "#e8563a"
 	},
 	"shooter": {
-		"name": "签筒", "role": "射线", "cost": 100, "cooldown": 5, "hp": 300,
-		"sprite_h": 106, "shot": {"interval": 1.4, "damage": 20.0, "speed": 520.0},
-		"tint": "#d8b06a",
+		"name": "签筒",
+		"role": "射弹",
+		"cost": 100,
+		"cooldown": 5,
+		"hp": 300,
+		"sprite_h": 106,
+		"shot": {
+			"interval": 1.4,
+			"damage": 20.0,
+			"speed": 520.0
+		},
+		"tint": "#d8b06a"
 	},
 	"wall": {
-		"name": "石磨", "role": "防御", "cost": 50, "cooldown": 18, "hp": 3000,
-		"sprite_h": 108, "tint": "#a8a294",
+		"name": "石磨",
+		"role": "防御",
+		"cost": 50,
+		"cooldown": 18,
+		"hp": 3000,
+		"sprite_h": 108,
+		"tint": "#a8a294"
 	},
 	"bomb": {
-		"name": "爆竹", "role": "灰烬", "cost": 150, "cooldown": 30, "hp": 300,
-		"sprite_h": 86, "bomb": {"fuse": 1.2, "radius": 150.0, "damage": 1800.0},
-		"tint": "#e04832",
+		"name": "爆竹",
+		"role": "灰烬",
+		"cost": 150,
+		"cooldown": 30,
+		"hp": 300,
+		"sprite_h": 86,
+		"bomb": {
+			"fuse": 1.2,
+			"radius": 150.0,
+			"damage": 1800.0
+		},
+		"tint": "#e04832"
 	},
 	"bell": {
-		"name": "铜铃", "role": "辅助", "cost": 125, "cooldown": 12, "hp": 300,
-		"sprite_h": 96, "pulse": {"interval": 2.5, "slow": 0.25,
-			"slow_duration": 1.5}, "tint": "#d8ab4c",
+		"name": "铜铃",
+		"role": "辅助",
+		"cost": 125,
+		"cooldown": 12,
+		"hp": 300,
+		"sprite_h": 96,
+		"pulse": {
+			"interval": 2.5,
+			"slow": 0.25,
+			"slow_duration": 1.5
+		},
+		"tint": "#d8ab4c"
 	},
-	"censer": {"name": "香炉", "role": "范围", "cost": 150, "cooldown": 8, "hp": 340, "sprite_h": 90, "censer": {"interval": 2.5, "radius": 156.0, "damage": 50.0}, "tint": "#a4845c"},
+	"censer": {
+		"name": "香炉",
+		"role": "群攻",
+		"cost": 150,
+		"cooldown": 8,
+		"hp": 340,
+		"sprite_h": 90,
+		"censer": {
+			"interval": 2.5,
+			"radius": 156.0,
+			"damage": 50.0
+		},
+		"tint": "#a4845c"
+	},
 	"umbrella": {
-		"name": "纸伞", "role": "收妖", "cost": 150, "cooldown": 12, "hp": 900,
-		"sprite_h": 112, "chomp": {"reach": 74.0, "chew": 6.0,
-			"chew_speed": 0.0, "large_damage": 40.0,
-			"large_interval": 2.0}, "tint": "#cc5a4c",
+		"name": "纸伞",
+		"role": "近战",
+		"cost": 150,
+		"cooldown": 12,
+		"hp": 900,
+		"sprite_h": 112,
+		"chomp": {
+			"reach": 74.0,
+			"chew": 6.0,
+			"chew_speed": 0.0,
+			"large_damage": 40.0,
+			"large_interval": 2.0
+		},
+		"tint": "#cc5a4c"
 	},
 	"lion": {
-		"name": "醒狮", "role": "近战", "cost": 200, "cooldown": 10, "hp": 1200,
-		"sprite_h": 104, "melee": {"reach": 110.0, "interval": 1.5,
-			"damage": 50.0, "knock_cells": 0.2}, "tint": "#e0553a",
+		"name": "醒狮",
+		"role": "近战",
+		"cost": 200,
+		"cooldown": 10,
+		"hp": 1200,
+		"sprite_h": 104,
+		"melee": {
+			"reach": 110.0,
+			"interval": 1.5,
+			"damage": 50.0,
+			"knock_cells": 0.2
+		},
+		"tint": "#e0553a"
 	},
 	"mushroom": {
-		"name": "坟头菇", "role": "灰烬", "cost": 25, "cooldown": 20, "hp": 300,
-		"sprite_h": 86, "mine": {"arm": 14.0, "damage": 1800.0}, "tint": "#93a468",
+		"name": "坟头菇",
+		"role": "灰烬",
+		"cost": 25,
+		"cooldown": 20,
+		"hp": 300,
+		"sprite_h": 86,
+		"mine": {
+			"arm": 14.0,
+			"damage": 1800.0
+		},
+		"tint": "#93a468"
 	},
-	"cat": {"name": "狐尾灯", "role": "追魂", "cost": 250, "cooldown": 8, "hp": 300, "sprite_h": 100, "homing": {"interval": 1.6, "damage": 24.0, "speed": 300.0, "count": 1}, "tint": "#e8a24e"},
+	"cat": {
+		"name": "狐尾灯",
+		"role": "射弹",
+		"cost": 250,
+		"cooldown": 8,
+		"hp": 300,
+		"sprite_h": 100,
+		"homing": {
+			"interval": 1.6,
+			"damage": 24.0,
+			"speed": 300.0,
+			"count": 1
+		},
+		"tint": "#e8a24e"
+	},
 	"shell": {
-		"name": "龟甲罩", "role": "护罩", "cost": 100, "cooldown": 18, "hp": 1400,
-		"sprite_h": 104, "attach": true, "tint": "#86966f",
+		"name": "龟甲罩",
+		"role": "防御",
+		"cost": 100,
+		"cooldown": 18,
+		"hp": 1400,
+		"sprite_h": 104,
+		"attach": true,
+		"tint": "#86966f"
 	},
-	"lobber": {"name": "汤圆仔", "role": "抛射", "cost": 100, "cooldown": 7, "hp": 300, "sprite_h": 94, "lob": {"interval": 2.3, "damage": 40.0, "flight": 0.9}, "tint": "#e8d6ac"},
+	"lobber": {
+		"name": "汤圆仔",
+		"role": "射弹",
+		"cost": 100,
+		"cooldown": 7,
+		"hp": 300,
+		"sprite_h": 94,
+		"lob": {
+			"interval": 2.3,
+			"damage": 40.0,
+			"flight": 0.9
+		},
+		"tint": "#e8d6ac"
+	},
 	"torch": {
-		"name": "炭火盆", "role": "增幅", "cost": 150, "cooldown": 12, "hp": 300,
-		"sprite_h": 86, "torch": {"buff": 0.5}, "tint": "#e87440",
+		"name": "炭火盆",
+		"role": "辅助",
+		"cost": 150,
+		"cooldown": 12,
+		"hp": 300,
+		"sprite_h": 86,
+		"torch": {
+			"buff": 0.5
+		},
+		"tint": "#e87440"
 	},
 	"star": {
-		"name": "五路巡灯", "role": "五向", "cost": 175, "cooldown": 9, "hp": 300,
-		"sprite_h": 100, "star": {"interval": 1.4, "damage": 28.0, "dirs": 5}, "tint": "#e8c25c",
+		"name": "五路巡灯",
+		"role": "射弹",
+		"cost": 175,
+		"cooldown": 9,
+		"hp": 300,
+		"sprite_h": 100,
+		"star": {
+			"interval": 1.4,
+			"damage": 28.0,
+			"dirs": 5
+		},
+		"tint": "#e8c25c"
 	},
-	"needle": {"name": "透骨针", "role": "破甲", "cost": 125, "cooldown": 8, "hp": 300, "sprite_h": 92, "needle": {"interval": 1.6, "damage": 24, "speed": 720.0}, "tint": "#e4dcc4"},
+	"needle": {
+		"name": "透骨针",
+		"role": "射弹",
+		"cost": 125,
+		"cooldown": 8,
+		"hp": 300,
+		"sprite_h": 92,
+		"needle": {
+			"interval": 1.6,
+			"damage": 24,
+			"speed": 720.0
+		},
+		"tint": "#e4dcc4"
+	},
 	"judge": {
-		"name": "钟馗像", "role": "庇护", "cost": 125, "cooldown": 10, "hp": 900,
-		"sprite_h": 106, "judge": {"interval": 1.6, "damage": 38.0, "speed": 530.0},
-		"tint": "#c4503a",
+		"name": "钟馗像",
+		"role": "辅助",
+		"cost": 125,
+		"cooldown": 10,
+		"hp": 900,
+		"sprite_h": 106,
+		"judge": {
+			"interval": 1.6,
+			"damage": 38.0,
+			"speed": 530.0
+		},
+		"tint": "#c4503a"
 	},
 	"gust": {
-		"name": "归风扇", "role": "灰烬", "cost": 175, "cooldown": 46, "hp": 320,
-		"sprite_h": 94, "ash": true, "no_upgrade": true, "gust": {"fuse": 0.6}, "tint": "#649f99",
+		"name": "归风扇",
+		"role": "灰烬",
+		"cost": 175,
+		"cooldown": 46,
+		"hp": 320,
+		"sprite_h": 94,
+		"ash": true,
+		"no_upgrade": true,
+		"gust": {
+			"fuse": 0.6
+		},
+		"tint": "#649f99"
 	},
 	"firework": {
-		"name": "烟花童", "role": "抛射", "cost": 275, "cooldown": 10, "hp": 320,
-		"sprite_h": 100, "firework": true, "tint": "#c77941",
+		"name": "烟花童",
+		"role": "群攻",
+		"cost": 275,
+		"cooldown": 10,
+		"hp": 320,
+		"sprite_h": 100,
+		"firework": true,
+		"tint": "#c77941"
 	},
 	"squash": {
-		"name": "镇煞瓜", "role": "灰烬", "cost": 75, "cooldown": 30, "hp": 300,
-		"sprite_h": 88, "ash": true, "no_upgrade": true, "squash": true, "tint": "#91a46b",
+		"name": "镇煞瓜",
+		"role": "灰烬",
+		"cost": 75,
+		"cooldown": 30,
+		"hp": 300,
+		"sprite_h": 88,
+		"ash": true,
+		"no_upgrade": true,
+		"squash": true,
+		"tint": "#91a46b"
 	},
-	"dragon": {"name": "龙首铳", "role": "近攻", "cost": 350, "cooldown": 10, "hp": 300, "sprite_h": 102, "dragon": true, "tint": "#b08d54"},
+	"dragon": {
+		"name": "龙首铳",
+		"role": "群攻",
+		"cost": 350,
+		"cooldown": 10,
+		"hp": 450,
+		"sprite_h": 102,
+		"dragon": true,
+		"tint": "#b08d54"
+	},
 	"lily": {
-		"name": "夜莲", "role": "浮台", "cost": 25, "cooldown": 5, "hp": 260,
-		"sprite_h": 56, "lily": true, "water_only": true, "no_upgrade": true,
-		"tint": "#5fa08c",
+		"name": "夜莲",
+		"role": "辅助",
+		"cost": 25,
+		"cooldown": 5,
+		"hp": 260,
+		"sprite_h": 56,
+		"lily": true,
+		"water_only": true,
+		"no_upgrade": true,
+		"tint": "#5fa08c"
 	},
-	"herb-gourd": {"name":"回春葫","role":"扶伤","cost":175,"cooldown":22,"hp":300,"sprite_h":100,"healer":true,"tint":"#719e85"},
-	"ruin-cap": {"name": "劫火芝", "role": "灰烬", "cost": 275, "cooldown": 56, "hp": 300, "sprite_h": 108, "ash": true, "no_upgrade": true, "ruin": {"fuse": 1.1, "reach": 2, "damage": 1800}, "tint": "#8b638c"},
-	"sky-kite": {"name": "逐云鸢", "role": "抛射", "cost": 225, "cooldown": 8, "hp": 300, "sprite_h": 105, "kite": {"interval": 1.3}, "tint": "#60958c"},
-	"wish-till": {"name": "清账匣", "role": "产能", "cost": 75, "cooldown": 16, "hp": 300, "sprite_h": 92, "till": true, "tint": "#a18452"},
-	"cash-pod": {"name": "铜钱荚", "role": "灰烬", "cost": 0, "cooldown": 26, "hp": 400, "sprite_h": 78, "ash": true, "no_upgrade": true, "cash_pod": true, "tint": "#a35336"},
-	"ember-cicada": {"name": "烬翼蝉", "role": "追魂", "cost": 275, "cooldown": 10, "hp": 320, "sprite_h": 105, "ember": true, "tint": "#b9673e"},
+	"herb-gourd": {
+		"name": "回春葫",
+		"role": "辅助",
+		"cost": 175,
+		"cooldown": 22,
+		"hp": 300,
+		"sprite_h": 100,
+		"healer": true,
+		"tint": "#719e85"
+	},
+	"ruin-cap": {
+		"name": "劫火芝",
+		"role": "灰烬",
+		"cost": 275,
+		"cooldown": 56,
+		"hp": 300,
+		"sprite_h": 108,
+		"ash": true,
+		"no_upgrade": true,
+		"ruin": {
+			"fuse": 1.1,
+			"reach": 2,
+			"damage": 1800
+		},
+		"tint": "#8b638c"
+	},
+	"sky-kite": {
+		"name": "逐云鸢",
+		"role": "射弹",
+		"cost": 225,
+		"cooldown": 8,
+		"hp": 300,
+		"sprite_h": 105,
+		"kite": {
+			"interval": 1.3
+		},
+		"tint": "#60958c"
+	},
+	"wish-till": {
+		"name": "清账匣",
+		"role": "产能",
+		"cost": 75,
+		"cooldown": 16,
+		"hp": 300,
+		"sprite_h": 92,
+		"till": true,
+		"tint": "#a18452"
+	},
+	"cash-pod": {
+		"name": "铜钱荚",
+		"role": "灰烬",
+		"cost": 0,
+		"cooldown": 26,
+		"hp": 400,
+		"sprite_h": 78,
+		"ash": true,
+		"no_upgrade": true,
+		"cash_pod": true,
+		"tint": "#a35336"
+	},
+	"ember-cicada": {
+		"name": "烬翼蝉",
+		"role": "群攻",
+		"cost": 275,
+		"cooldown": 10,
+		"hp": 320,
+		"sprite_h": 105,
+		"ember": true,
+		"tint": "#b9673e"
+	},
 	"kelp": {
-		"name": "缠魂藻", "role": "灰烬", "cost": 50, "cooldown": 20, "hp": 300,
-		"sprite_h": 104, "water_only": true, "no_upgrade": true, "ash": true,
-		"tangle": {"range": 120.0}, "tint": "#4d8570",
-	},
+		"name": "缠魂藻",
+		"role": "灰烬",
+		"cost": 50,
+		"cooldown": 20,
+		"hp": 300,
+		"sprite_h": 104,
+		"water_only": true,
+		"no_upgrade": true,
+		"ash": true,
+		"tangle": {
+			"range": 120.0
+		},
+		"tint": "#4d8570"
+	}
 }
 
 # ── 恶客 ────────────────────────────────────────────────────────────────────
