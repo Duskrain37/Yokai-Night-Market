@@ -36,7 +36,7 @@ static func run_all(harness) -> void:
 static func _check_content(h) -> void:
 	h.check("内容", "32 种草木齐备", Content.PLANTS.size() == 32,
 		"实际 %d" % Content.PLANTS.size())
-	h.check("内容", "27 种恶客齐备", Content.ZOMBIES.size() == 27,
+	h.check("内容", "29 种恶客齐备", Content.ZOMBIES.size() == 29,
 		"实际 %d" % Content.ZOMBIES.size())
 	h.check("内容", "二十五夜与特殊关齐备", Content.LEVELS.size() == 26 and Content.get_level(16).get("special",false),
 		"实际 %d" % Content.LEVELS.size())
@@ -258,7 +258,7 @@ static func _check_status_rules(h) -> void:
 
 static func _check_armor_and_corpse(h) -> void:
 	# 用威胁正好 1.0 的第六夜（第二天第一夜）：护具与本体按 sqrt(1.0)=1 缩放。
-	var sim = h.sim_for(2, ["shooter"], "easy")
+	var sim = h.sim_for(2, ["shooter"], "normal")
 	sim.hp_mul = 1.0
 	var z = sim.spawn_zombie("straw", 0, {"x": 900.0})
 	h.check("护具", "斗笠鬼有 90 点斗笠", is_equal_approx(z.armor, 90.0))
@@ -291,7 +291,7 @@ static func _check_armor_and_corpse(h) -> void:
 	sim4.damage_zombie(sedan, 10000.0)
 	h.check("护具", "轿壳破裂后排出两只饿鬼", sim4.pending_spawns.size() == 2)
 	# 纸扎匠发甲不叠加，只取更厚
-	var sim5 = h.sim_for(6, ["shooter"], "easy")
+	var sim5 = h.sim_for(6, ["shooter"], "normal")
 	sim5.hp_mul = 1.0
 	sim5.spawn_zombie("ghost", 0, {"x": 860.0})
 	var artisan = sim5.spawn_zombie("artisan", 0, {"x": 1000.0})
@@ -369,27 +369,27 @@ static func _check_map_rules(h) -> void:
 
 static func _check_music(h) -> void:
 	# 两份风格：朴素=通用三套；完整=按天取 dayN 三套（缺曲目退回通用）
-	h.check("音乐", "朴素风格始终用通用配乐",
-		h.resolve_track("plain", 1, "battle") == "battle"
-		and h.resolve_track("plain", 3, "final") == "final")
+	h.check("音乐", "旧存档风格也统一完整配乐",
+		h.resolve_track("plain", 1, "battle") == "day1-battle"
+		and h.resolve_track("plain", 3, "final") == "day3-final")
 	h.check("音乐", "完整风格第一天用 day1",
 		h.resolve_track("complete", 1, "battle") == "day1-battle"
 		and h.resolve_track("complete", 1, "final") == "day1-final")
 	h.check("音乐", "完整风格第三天用 day3",
 		h.resolve_track("complete", 3, "hot") == "day3-hot")
-	h.check("音乐", "没有当天曲目时退回通用",
-		h.resolve_track("complete", 1, "battle", false) == "battle")
+	h.check("音乐", "不会解析到已移除通用战曲",
+		h.resolve_track("complete", 1, "battle", false) == "day1-battle")
 	h.check("音乐", "菜单曲两种风格共用",
 		h.music_menu_track() == "menu")
-	h.check("音乐", "十九首配乐都在资源里",
-		h.music_assets_present() == 19, str(h.music_assets_present()))
+	h.check("音乐", "十六首配乐都在资源里",
+		h.music_assets_present() == 16, str(h.music_assets_present()))
 	for day in range(1, Content.DAYS.size() + 1):
 		h.check("音乐", "第 %d 周只保留新篇" % day,
 			not ResourceLoader.exists("res://assets/music/complete/day%d-hot-alt.ogg" % day))
 
 
 static func _check_waves(h) -> void:
-	var sim = h.sim_for(1, [], "easy")
+	var sim = h.sim_for(1, [], "normal")
 	h.check("波次", "开局没有恶客", sim.zombies.is_empty())
 	h.step(sim, 18.0)
 	h.check("波次", "17.5 秒时首波已排队", sim.wave_index >= 1, "wave=%d" % sim.wave_index)
@@ -406,7 +406,7 @@ static func _check_waves(h) -> void:
 	# 暗河按 +0.15 等效威胁出怪（显示值不变），所以缩放基准取等效威胁
 	var eff = Sim.effective_threat(Content.get_level(15))
 	h.check("波次", "血量按 sqrt(等效威胁) 缩放",
-		absf(ze.max_hp - 90.0 * sqrt(eff)) < 1.5, "%.1f" % ze.max_hp)
+		absf(ze.max_hp - 90.0 * sqrt(eff) * .8) < 1.5, "%.1f" % ze.max_hp)
 	h.check("波次", "威胁倍率同时影响出怪数",
 		absf(easy.count_mul - sqrt(eff)) < 0.001)
 	h.check("波次", "新难度区间为实际系数，暗河不另加码",
@@ -442,7 +442,7 @@ static func _check_waves(h) -> void:
 ## 出怪的随机取整：√威胁跨过 1.5 时，旧的逐组 round 会让每一组单只都整组翻倍，
 ## 难度曲线因此出现台阶。现在按期望值随机取整，同一组应当一半 1 只、一半 2 只。
 static func _check_wave_rounding(h) -> void:
-	var sim = h.sim_for(13, [], "easy")
+	var sim = h.sim_for(13, [], "normal")
 	var one = 0
 	var two = 0
 	for i in 200:
@@ -939,6 +939,7 @@ static func _check_new_cards(h) -> void:
 	blocked.hp = 400.0
 	blocked.max_hp = 400.0
 	var direct_hp = blocked.hp
+	impact.hp = 400.0; impact.max_hp = 400.0
 	var splash_hp = impact.hp
 	sim._update_firework(fire, 3.5)
 	var lob = sim.shots.pop_back()

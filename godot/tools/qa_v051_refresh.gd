@@ -31,7 +31,7 @@ func key(code: int) -> InputEventKey:
 
 func run() -> void:
 	var game := IsolatedGame.new()
-	game.test_directory = "user://qa-refresh-%d" % OS.get_process_id()
+	game.test_directory = "res://qa/refresh-%d" % OS.get_process_id()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(game.test_directory))
 	var level := Content.get_level(1)
 	var legacy := Sim.new()

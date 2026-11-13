@@ -13,6 +13,7 @@ class_name Geo
 extends RefCounted
 
 const VIEW = Vector2(1600.0, 900.0)
+static var canvas_size := VIEW
 const COLS = 9
 
 # ── 平面坐标（逻辑）─────────────────────────────────────────────────────────
@@ -23,10 +24,11 @@ const BOARD_H = 480.0
 const BOARD_Y = 232.0
 const TOP_HUD = 104.0
 
-const SPAWN_X = 1330.0
+const SPAWN_BUFFER = CELL_W * 0.5
+const SPAWN_X = BOARD_X + BOARD_W + SPAWN_BUFFER
 const BREACH_X = BOARD_X - 26.0
 const MOWER_X = BOARD_X - 36.0
-const RETREAT_MAX_X = 1400.0
+const RETREAT_MAX_X = SPAWN_X
 
 # ── 舞台投影（只影响画面）──────────────────────────────────────────────────
 ## 三张底图都是「高角度俯瞰、轻微前缩」的画法（台面上下边几乎水平，只有一点近大远小），
@@ -76,14 +78,14 @@ static var HALVES: Array = []
 ## 进关时按当天切换舞台
 static func set_stage(key: String) -> void:
 	var stage: Dictionary = STAGES.get(key, STAGE_DEFAULT)
-	STAGE_CX = float(stage["cx"])
-	STAGE_FAR_Y = float(stage["far_y"])
-	STAGE_NEAR_Y = float(stage["near_y"])
+	STAGE_CX = float(stage["cx"]) + (canvas_size.x - VIEW.x) * .5
+	STAGE_FAR_Y = float(stage["far_y"]) * canvas_size.y / VIEW.y
+	STAGE_NEAR_Y = float(stage["near_y"]) * canvas_size.y / VIEW.y
 	STAGE_FAR_HALF_W = float(stage["far_half"])
 	STAGE_NEAR_HALF_W = float(stage["near_half"])
 	STAGE_FAR_SCALE = float(stage["far_scale"])
 	STAGE_NEAR_SCALE = float(stage["near_scale"])
-	BANDS = Array(stage.get("bands", []))
+	BANDS = Array(stage.get("bands", [])).map(func(y): return float(y) * canvas_size.y / VIEW.y)
 	HALVES = Array(stage.get("halves", []))
 
 

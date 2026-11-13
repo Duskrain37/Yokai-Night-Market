@@ -96,7 +96,7 @@ func player_feedback_regressions() -> void:
   sim.spawn_queue.any(func(entry): return Content.ZOMBIES[entry.type].tier == "h"))
  for mode in ["easy", "normal", "hard"]:
   sim.setup(Content.get_level(1), ["shooter"], mode)
-  var expected: float = {"easy": 1.0, "normal": 1.1, "hard": 1.25}[mode]
+  var expected: float = {"easy": .8, "normal": 1.0, "hard": 1.1}[mode]
   var ghost = sim.spawn_zombie("ghost", 0)
   sim.rng.seed = 521
   var total_enemies := 0
@@ -309,7 +309,7 @@ func run() -> void:
     for entry in base.spawn_queue: before_boss[entry.type] = true
   check("第%d夜来客换班保留数量和耐久预算" % int(level.id), mass_kept)
   if String(level.boss_id) != "":
-   var eligible: Array = Content.ZOMBIE_ORDER.filter(func(type): return type not in ["bride", "wave-herald"] and (not bool(Content.ZOMBIES[type].get("water_only",false)) or level.day == 3))
+   var eligible: Array = Content.ZOMBIE_ORDER.filter(func(type): return type not in ["bride", "wave-herald"] and (type != "incense-thief" or int(level.day) >= 2) and (type != "sky-ferry" or int(level.day) >= 4) and (not bool(Content.ZOMBIES[type].get("water_only",false)) or level.day == 3))
    check("第%d夜恶首前各路合法恶客齐全" % int(level.id), eligible.all(func(type): return before_boss.has(type)))
  var loss = {"called": false}
  sim.on_lose = func(_z): loss.called = true

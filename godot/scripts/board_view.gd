@@ -99,21 +99,12 @@ func _cell_quad(col: int, row: int) -> PackedVector2Array:
 
 # ── 背景 ────────────────────────────────────────────────────────────────────
 func _draw_background() -> void:
-	if not _textures.has(map_key):
-		set_map(map_key)
 	var texture: Texture2D = _textures.get(map_key)
-	if texture == null:
-		draw_rect(Rect2(Vector2.ZERO, Geo.VIEW), Ui.INK)
-		return
-	var size := texture.get_size()
-	var scale := maxf(Geo.VIEW.x / size.x, Geo.VIEW.y / size.y)
-	var drawn := size * scale
-	var offset := (Geo.VIEW - drawn) * 0.5
-	draw_texture_rect(texture, Rect2(offset, drawn), false)
-	draw_rect(Rect2(Vector2.ZERO, Geo.VIEW), Color(0.02, 0.05, 0.07, dim))
+	if texture != null: draw_texture_rect(texture, Rect2(Vector2.ZERO, Geo.canvas_size), false)
+	else: draw_rect(Rect2(Vector2.ZERO, Geo.canvas_size), Ui.INK)
+	draw_rect(Rect2(Vector2.ZERO, Geo.canvas_size), Color(0.02, 0.05, 0.07, dim))
 
 
-# ── 台面 ────────────────────────────────────────────────────────────────────
 func _draw_stage() -> void:
 	# 不再画台面的黑边、护栏和台唇：关掉描格子时，草木与恶客就是直接在背景图里打。
 	# 只保留一层几乎看不见的暖光与轻压暗，让单位有"落地"的感觉。

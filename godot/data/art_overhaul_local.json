@@ -1,0 +1,26 @@
+{
+  "label": "妖怪夜市 · 灯火新装 · 本地美术预览",
+  "base_version": "0.5.6",
+  "created": "2026-11-13",
+  "mode": "built-in imagegen",
+  "scope": "PC only; local only; no upload",
+  "assets": [
+    {
+      "path": "res://assets/ui/nightmarket/menu-ensemble.png",
+      "source": "C:/Users/27402/.codex/generated_images/01a1d38a-2131-7f22-b866-2708ff0cf32c/exec-3be7d5ce-93a6-4e52-b198-3a3be12d005d.png",
+      "prompt": "Use case: stylized-concept. Asset type: shipping PC game main-menu key art, wide 16:9 landscape 2560x1440. Create a beautifully art-directed high-end stylized 3D painted illustration for 妖怪夜市, a Chinese supernatural night-market lane-defense game. The first three attached images are CHARACTER IDENTITY REFERENCES: glowing round golden lantern with red little limbs and tassel; stern green bamboo fortune-stick holder with red sash; grumpy cylindrical stone mill bound by red rope. The fourth image is WORLD AND LIGHTING REFERENCE. Preserve these exact recognizable character designs and material identities, no additional hero characters. Scene: an intimate old Chinese market street at midnight after rain, carved wooden eaves, hanging warm lanterns, blue distant rooftops, handmade stalls and wet stone reflections. Three reference characters form a cohesive small heroic ensemble in the RIGHT 58 percent of the frame: lantern in front approximately x=72%, y=65%, stone mill behind and right, fortune-stick holder left of lantern; whole bodies grounded, feet visible, believable contact shadows, same warm key light and teal moonlit rim. Character ensemble occupies roughly 60% of image height, charismatic but not babyish; painterly cinematic high-end animated-film quality, rich tactile wood, brass, bamboo, red lacquer. Strong composed foreground/midground/background depth. LEFT 38 percent is intentionally quiet, dark blue-green atmospheric architecture with low local contrast and NO bright lantern or subjects, providing menu/logo negative space. Top right has moonlit atmospheric depth. Lower left stays calm for navigation. Keep golden light pools controlled, no bloom washing out edges. No UI, no border, no readable lettering, no logo, no text, no watermark. This is final production background art, not a screenshot or UI mockup."
+    },
+    {
+      "path": "res://assets/ui/nightmarket/materials.png",
+      "source": "C:/Users/27402/.codex/generated_images/01a1d38a-2131-7f22-b866-2708ff0cf32c/exec-1c7351da-151e-4c1d-b097-fa6a2c9d7ea0.png",
+      "prompt": "Use case: stylized-concept. Asset type: production game UI nine-slice material atlas, square 1024x1024. Create exactly FOUR square material panels in a strict TWO BY TWO grid, each quadrant exactly 512 by 512, no gutters, no space between panels, no surrounding background, no drop shadows outside each quadrant. Every panel is seen straight-on orthographic flat, no perspective. TOP LEFT: dark midnight blue-green lacquered wood inset panel, restrained subtle grain, delicate old brass hairline rim close to outer edges and tiny angular Chinese joinery corner fittings, center very dark and calm for pale text. TOP RIGHT: rich oxblood red lacquer plaque, lightly worn satin surface, slim warm brass beveled edge near outer edges and discreet geometric corner fittings, center quiet clear deep red for gold lettering. BOTTOM LEFT: warm ivory handmade mulberry paper mounted in a thin dark bronze frame near edges, delicate natural fibers and softly aged edges, clean light center for dark text. BOTTOM RIGHT: dark jade-black illustrated card surface, subtle linen fiber, thin muted brass double rule near outer edge and restrained geometric corner ornaments, center quiet and very dark. High-end polished handcrafted Chinese night-market game, mature stylized painterly tactile materials matching cinematic stylized 3D characters, precision and restraint, nothing ornate in the centers. Each square must fill its entire exact quadrant. No lettering, no icons, no symbols, no logos, no watermark. This is a functional shipping texture atlas, not a UI screenshot, no labels, no mockup."
+    }
+  ],
+  "references": [
+    "sprites/lantern.png",
+    "sprites/shooter.png",
+    "sprites/wall.png",
+    "bg/menu.jpg"
+  ],
+  "native_assets": "MarketArt: hand-drawn resolution-independent icons, corner joinery, lockup and map/boss medallions. Painted atlas mechanically sampled at runtime for nine-slice use. Existing character and animation originals preserved."
+}

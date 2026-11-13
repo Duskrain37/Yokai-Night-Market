@@ -1,0 +1,134 @@
+[
+  {
+    "suite": "logic",
+    "exit": 0,
+    "seconds": 1.4,
+    "issues": []
+  },
+  {
+    "suite": "battle",
+    "exit": 0,
+    "seconds": 12.2,
+    "issues": []
+  },
+  {
+    "suite": "boss",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "special",
+    "exit": 0,
+    "seconds": 1.4,
+    "issues": []
+  },
+  {
+    "suite": "click",
+    "exit": 0,
+    "seconds": 6.2,
+    "issues": []
+  },
+  {
+    "suite": "player_ui",
+    "exit": 0,
+    "seconds": 6.8,
+    "issues": []
+  },
+  {
+    "suite": "patch",
+    "exit": 0,
+    "seconds": 6.2,
+    "issues": []
+  },
+  {
+    "suite": "animation",
+    "exit": 0,
+    "seconds": 10.4,
+    "issues": []
+  },
+  {
+    "suite": "v050",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "v051_refresh",
+    "exit": 0,
+    "seconds": 3.3,
+    "issues": []
+  },
+  {
+    "suite": "v052",
+    "exit": 0,
+    "seconds": 3.5,
+    "issues": []
+  },
+  {
+    "suite": "v053",
+    "exit": 0,
+    "seconds": 4.9,
+    "issues": []
+  },
+  {
+    "suite": "v054",
+    "exit": 0,
+    "seconds": 4.8,
+    "issues": []
+  },
+  {
+    "suite": "v054_content",
+    "exit": 0,
+    "seconds": 0.6,
+    "issues": []
+  },
+  {
+    "suite": "nightmare",
+    "exit": 0,
+    "seconds": 3.5,
+    "issues": []
+  },
+  {
+    "suite": "dual_soak",
+    "exit": 0,
+    "seconds": 9.2,
+    "issues": []
+  },
+  {
+    "suite": "v055",
+    "exit": 0,
+    "seconds": 0.6,
+    "issues": []
+  },
+  {
+    "suite": "update",
+    "exit": 0,
+    "seconds": 0.3,
+    "issues": []
+  },
+  {
+    "suite": "v056",
+    "exit": 0,
+    "seconds": 0.6,
+    "issues": []
+  },
+  {
+    "suite": "v060",
+    "exit": 0,
+    "seconds": 0.6,
+    "issues": []
+  },
+  {
+    "suite": "pc_todo",
+    "exit": 0,
+    "seconds": 10.6,
+    "issues": []
+  },
+  {
+    "suite": "art_overhaul",
+    "exit": 0,
+    "seconds": 9.1,
+    "issues": []
+  }
+]

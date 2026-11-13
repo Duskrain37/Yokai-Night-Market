@@ -5,6 +5,8 @@
 class_name Ui
 extends RefCounted
 
+const Art = preload("res://ui/market_art.gd")
+
 # ── 配色 ────────────────────────────────────────────────────────────────────
 const INK = Color("#0a1218")
 const INK_SOFT = Color("#111c24")
@@ -21,8 +23,8 @@ const VERMILION_LIGHT = Color("#e8664a")
 const JADE = Color("#5d9c93")
 const JADE_LIGHT = Color("#8fc2b7")
 const TEXT = Color("#efe3c8")
-const TEXT_DIM = Color("#b3a486")
-const TEXT_FAINT = Color("#8a7d64")
+const TEXT_DIM = Color("#c3b69b")
+const TEXT_FAINT = Color("#aa9d83")
 const GOOD = Color("#8fc48a")
 const WARN = Color("#e9a24c")
 const BAD = Color("#e2664c")
@@ -52,6 +54,7 @@ static func medium_font() -> Font:
 static func display_font() -> Font:
 	if _display == null:
 		_display = load(FONT_DISPLAY_PATH)
+		_display.fallbacks = [body_font()]
 	return _display
 
 
@@ -96,7 +99,7 @@ static func flat(color: Color, border: Color = Color(0, 0, 0, 0), radius: int = 
 		border_width: int = 0) -> StyleBoxFlat:
 	var box = StyleBoxFlat.new()
 	box.bg_color = color
-	box.set_corner_radius_all(maxi(10, radius))
+	box.set_corner_radius_all(maxi(0, radius))
 	if border_width > 0:
 		box.border_color = border
 		box.border_width_left = border_width
@@ -109,7 +112,9 @@ static func flat(color: Color, border: Color = Color(0, 0, 0, 0), radius: int = 
 
 ## 半透明夜色面板：界面的通用底。
 static func panel_style(alpha: float = 0.86, border: Color = GOLD_DIM,
-		radius: int = 16, border_width: int = 2) -> StyleBoxFlat:
+		radius: int = 16, border_width: int = 2) -> StyleBox:
+	if not OS.has_feature("mobile"):
+		return Art.surface("panel", "normal", Vector2(22, 18))
 	var box = flat(Color(INK.r, INK.g, INK.b, alpha), border, radius, border_width)
 	box.shadow_color = Color(0, 0, 0, 0.55)
 	box.shadow_size = 14
@@ -121,7 +126,9 @@ static func panel_style(alpha: float = 0.86, border: Color = GOLD_DIM,
 
 
 ## 木牌 / 匾额：暗红漆底、圆角和旧金线。
-static func plaque_style(primary: bool = false, hover: bool = false) -> StyleBoxFlat:
+static func plaque_style(primary: bool = false, hover: bool = false) -> StyleBox:
+	if not OS.has_feature("mobile"):
+		return Art.surface("primary" if primary else "card", "hover" if hover else "normal", Vector2(18, 8))
 	var base = Color("#5b2017") if primary else Color("#1b2530")
 	if hover:
 		base = base.lightened(0.10)
@@ -186,7 +193,7 @@ static func refresh_text_sizes(root: Node) -> void:
 
 
 static func tier_symbol(tier: String) -> String:
-	return {"l": "●", "m": "◆", "h": "▲"}.get(tier, "✦")
+	return {"l": "●", "m": "◆", "h": "▲"}.get(tier, "◇")
 
 
 static func draw_tier_shape(canvas: CanvasItem, tier: String, at: Vector2, color: Color,
@@ -218,12 +225,12 @@ static func make_theme() -> Theme:
 		flat(Color(VERMILION.r, VERMILION.g, VERMILION.b, 0.95), GOLD_BRIGHT, 3, 2))
 	theme.set_stylebox("disabled", "Button",
 		flat(Color(0.30, 0.28, 0.24, 0.55), Color(0.46, 0.42, 0.34, 0.7), 3, 1))
-	theme.set_stylebox("focus", "Button", StyleBoxEmpty.new())
+	theme.set_stylebox("focus", "Button", Art.focus_style())
 	theme.set_color("font_color", "Button", INK)
 	theme.set_color("font_hover_color", "Button", Color("#2b1a12"))
 	theme.set_color("font_pressed_color", "Button", Color("#fff3dc"))
 	theme.set_color("font_disabled_color", "Button", Color(0.72, 0.68, 0.6, 0.75))
-	theme.set_font("font", "Button", display_font())
+	theme.set_font("font", "Button", medium_font())
 	theme.set_font_size("font_size", "Button", 22)
 
 	theme.set_stylebox("panel", "PanelContainer", panel_style(0.9))
@@ -260,6 +267,15 @@ static func make_theme() -> Theme:
 	theme.set_stylebox("panel", "TooltipPanel", panel_style(0.97, GOLD_DIM, 12, 1))
 	theme.set_color("font_color", "TooltipLabel", TEXT)
 	theme.set_color("font_color", "PopupMenu", INK)
+	if not OS.has_feature("mobile"):
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			theme.set_stylebox(state, "Button", Art.surface("card", state, Vector2(16, 8)))
+		theme.set_color("font_color", "Button", TEXT)
+		theme.set_color("font_hover_color", "Button", GOLD_BRIGHT)
+		theme.set_color("font_pressed_color", "Button", Color("#fff4d5"))
+		theme.set_stylebox("slider", "HSlider", flat(Color("#273d3c"), Color("#59706a"), 2, 1))
+		theme.set_stylebox("grabber_area", "HSlider", flat(JADE, Color.TRANSPARENT, 2))
+		theme.set_stylebox("grabber_area_highlight", "HSlider", flat(GOLD, Color.TRANSPARENT, 2))
 	_theme = theme
 	return theme
 
@@ -297,6 +313,20 @@ static func title(text: String, size: int = 44, color: Color = GOLD_BRIGHT) -> L
 ## 也不会退化成一排只有文字的透明块。
 static func apply_button_style(node: Button, base_size: int = 20,
 		plaque: bool = false) -> void:
+	if not OS.has_feature("mobile"):
+		var kind = "primary" if plaque else "card"
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			node.add_theme_stylebox_override(state, Art.surface(kind, state, Vector2(16, 8)))
+		node.add_theme_stylebox_override("focus", Art.focus_style())
+		node.add_theme_color_override("font_color", GOLD_BRIGHT if plaque else TEXT)
+		node.add_theme_color_override("font_hover_color", Color("#fff0c9"))
+		node.add_theme_color_override("font_pressed_color", Color("#fff6e3"))
+		node.add_theme_color_override("font_disabled_color", Color("#929082"))
+		node.add_theme_font_override("font", medium_font())
+		scale_font(node, "font_size", base_size)
+		node.add_theme_constant_override("outline_size", 0)
+		node.focus_mode = Control.FOCUS_ALL
+		return
 	if plaque:
 		# 朱漆匾：主操作才用
 		node.add_theme_stylebox_override("normal", plaque_style(true, false))
@@ -338,6 +368,15 @@ static func apply_button_style(node: Button, base_size: int = 20,
 static func set_button_active(node: Button, active: bool) -> void:
 	if node == null:
 		return
+	if not OS.has_feature("mobile"):
+		var padding = Vector2(8, 6) if node.custom_minimum_size.x > 0 and node.custom_minimum_size.x <= 96 else Vector2(16, 8)
+		padding = node.get_meta("style_padding", padding)
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			node.add_theme_stylebox_override(state, Art.surface("primary" if active else "card", state, padding))
+		node.add_theme_color_override("font_color", GOLD_BRIGHT if active else TEXT)
+		node.add_theme_color_override("font_hover_color", Color("#fff0c9"))
+		node.set_meta("active", active)
+		return
 	if active:
 		node.add_theme_stylebox_override("normal",
 			flat(Color(VERMILION.r, VERMILION.g, VERMILION.b, 0.92), GOLD_BRIGHT, 3, 2))
@@ -359,9 +398,13 @@ static func button(text: String, size: int = 20, min_width: float = 0,
 		min_height: float = 0, plaque: bool = false) -> Button:
 	var node = Button.new()
 	node.text = text
+	node.set_meta("primary", plaque)
 	apply_button_style(node, size, plaque)
 	if min_width > 0.0 or min_height > 0.0:
 		node.custom_minimum_size = Vector2(min_width, min_height)
+	if not OS.has_feature("mobile") and min_width > 0 and min_width <= 96:
+		for state in ["normal", "hover", "pressed", "disabled"]:
+			node.add_theme_stylebox_override(state, Art.surface("primary" if plaque else "card", state, Vector2(8, 6)))
 	node.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	return node
 
@@ -402,24 +445,92 @@ static func hline(color: Color = GOLD_DIM, thickness: float = 1.0) -> ColorRect:
 ## 立绘统一从这里取，并且缓存住：不要在 _draw() 里临时 load 资源，
 ## 那会让贴图在绘制回调里才建立 GPU 资源，画面会先闪出一块白。
 static var _sprite_cache: Dictionary = {}
+static var canvas_size := Vector2(1600, 900)
+static var _capstone_cache: Dictionary = {}
+static var _portrait_frames: Dictionary = {}
+static var _portrait_motion: Dictionary = {}
+static var _portrait_legacy: Dictionary = {}
+
+## Anchor an existing 1600×900 placement without stretching controls or type.
+static func pin(control: Control, vertical: float = 1.0) -> void:
+	control.anchor_top = vertical
+	control.anchor_bottom = vertical
+	control.offset_top -= 900.0 * vertical
+	control.offset_bottom -= 900.0 * vertical
+
+static func extend_to_bottom(control: Control, margin: float = 40) -> void:
+	control.anchor_bottom = 1.0
+	control.offset_bottom = -margin
+
+static func fit_font(font: Font, text: String, width: float, preferred: int = 13) -> int:
+	var result := preferred
+	while result > 1 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, result).x > width:
+		result -= 1
+	return result
+
+## Use the same actor/clip priority as UnitView. Standalone PNGs can be older designs.
+static func capstone_sprite(type: String, path_id: int) -> Texture2D:
+	var actor := "%s-e%d" % [type, path_id]
+	if _capstone_cache.has(actor): return _capstone_cache[actor]
+	if _portrait_frames.is_empty():
+		_portrait_frames = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_frames.json"))
+		_portrait_motion = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json"))
+		_portrait_legacy = JSON.parse_string(FileAccess.get_file_as_string("res://data/evolution_art_v040.json"))
+	var portrait: Texture2D
+	if type == "dragon":
+		var info: Dictionary = _portrait_motion.get("dragon", _portrait_frames["dragon"])
+		var clip: String = ["idle", "far_idle", "dual"][clampi(path_id - 1, 0, 2)]
+		var r: Array = info.clips[clip][0].rect
+		var atlas := AtlasTexture.new()
+		atlas.atlas = load("res://" + String(info.file))
+		atlas.region = Rect2(r[0], r[1], r[2], r[3])
+		atlas.filter_clip = true
+		_capstone_cache[actor] = atlas
+		return atlas
+	if _portrait_frames.has(actor):
+		var info: Dictionary = _portrait_motion.get(actor, _portrait_frames[actor])
+		var sequence: Array = info.clips.get("idle", info.clips.get("action", []))
+		if not sequence.is_empty():
+			var r: Array = sequence[0].rect
+			var atlas := AtlasTexture.new()
+			atlas.atlas = load("res://" + String(info.file))
+			atlas.region = Rect2(r[0], r[1], r[2], r[3])
+			atlas.filter_clip = true
+			portrait = atlas
+	elif _portrait_legacy.has(type):
+		var info: Dictionary = _portrait_legacy[type]
+		for frame in info.frames:
+			if int(frame.path) != path_id: continue
+			var r: Array = frame.region
+			var atlas := AtlasTexture.new()
+			atlas.atlas = load("res://" + String(info.file))
+			atlas.region = Rect2(r[0], r[1], r[2], r[3])
+			atlas.filter_clip = true
+			portrait = atlas
+	if portrait == null:
+		var file := "res://assets/sprites/" + actor + ".png"
+		if ResourceLoader.exists(file): portrait = load(file)
+	_capstone_cache[actor] = portrait
+	return portrait
 
 
 static func sprite(name: String) -> Texture2D:
 	if _sprite_cache.has(name):
 		return _sprite_cache[name]
-	var path = "res://assets/sprites/%s.png" % ("shell-v040" if name=="shell" else name)
+	var path = "res://assets/sprites/%s.png" % ("shell-open" if name=="shell" else name)
 	if name == "sedan" and ResourceLoader.exists("res://assets/sprites/sedan-v041.png"):
 		path = "res://assets/sprites/sedan-v041.png"
 	var texture: Texture2D = null
 	var portrait_actor = "phase-veil" if name == "phaseguard" else name
 	var atlas_path = "res://assets/sprites/animation/%s.png" % portrait_actor
 	var animated_portraits = ["bride", "gust", "firework", "squash", "dragon", "returner",
+		"incense-thief", "sky-ferry",
 		"matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell",
 		"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada",
 		"flinch", "wave-herald", "formless", "reed-shot"]
 	if name in animated_portraits and ResourceLoader.exists(atlas_path):
 		var sheet: Texture2D = load(atlas_path)
-		var rows = {"dragon": 6, "returner": 5, "phaseguard": 4, "shieldguard": 4, "reedboat": 4,
+		var rows = {"incense-thief": 4, "sky-ferry": 5, "dragon": 6, "returner": 5, "phaseguard": 4, "shieldguard": 4, "reedboat": 4,
 			"ember-cicada": 5, "flinch": 4, "wave-herald": 4, "formless": 4, "reed-shot": 4, "tamer": 4}
 		var portrait := AtlasTexture.new()
 		portrait.atlas = sheet
@@ -526,9 +637,9 @@ static func style_dialog(dialog: AcceptDialog) -> void:
 	dialog.theme=make_theme()
 	var button:=dialog.get_ok_button()
 	apply_button_style(button,18)
-	button.add_theme_color_override("font_focus_color",INK)
+	button.add_theme_color_override("font_focus_color", INK if OS.has_feature("mobile") else TEXT)
 	for state in ["normal","hover","pressed","disabled"]:
-		var style: StyleBoxFlat=button.get_theme_stylebox(state).duplicate()
+		var style: StyleBox=button.get_theme_stylebox(state).duplicate()
 		style.content_margin_left=28;style.content_margin_right=28
 		style.content_margin_top=10;style.content_margin_bottom=10
 		button.add_theme_stylebox_override(state,style)

@@ -25,7 +25,7 @@ func settle():
 func _initialize():run.call_deferred()
 func run():
  for tier in 4:
-  var s:=fresh({"swarm":tier});var expected: float=1.35*[1.0,1.1,1.2,1.4][tier]
+  var s:=fresh({"swarm":tier});var expected: float=1.2*[1.0,1.1,1.2,1.4][tier]
   check("噩梦数量血量乘区档%d"%tier,is_equal_approx(s.difficulty_mult().hp,expected) and is_equal_approx(s.difficulty_mult().count,expected))
  check("普通难度忽略因子",fresh({"swarm":3},5,"normal").factor_points()==0)
  check("非恶首关过滤专属因子",Rules.sanitize({"twins":1,"boss_power":2,"rush":1},Content.get_level(1))=={"rush":1})

@@ -1,0 +1,48 @@
+{
+  "runs": 100,
+  "strategy_unchanged": true,
+  "outcome_changes": [
+    {
+      "night": "easy:13",
+      "before": "lost",
+      "after": "won"
+    },
+    {
+      "night": "easy:14",
+      "before": "lost",
+      "after": "won"
+    },
+    {
+      "night": "easy:19",
+      "before": "lost",
+      "after": "won"
+    },
+    {
+      "night": "normal:10",
+      "before": "won",
+      "after": "lost"
+    },
+    {
+      "night": "normal:12",
+      "before": "lost",
+      "after": "won"
+    },
+    {
+      "night": "nightmare:8",
+      "before": "lost",
+      "after": "won"
+    },
+    {
+      "night": "nightmare:9",
+      "before": "won",
+      "after": "lost"
+    }
+  ],
+  "wins": {
+    "easy": 19,
+    "normal": 15,
+    "hard": 14,
+    "nightmare": 11
+  },
+  "failures": 0
+}

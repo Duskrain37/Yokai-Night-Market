@@ -1,8 +1,6 @@
-## 选关：一周一张图，五夜沿着画中的地标前进。
-##
-## 复原 v0.2.4 的意境：左下是当天的题签与底细，右侧是画里的五个夜点。
-## 夜里用繁体数字（第壹夜…第伍夜），比阿拉伯数字更有味道。
+## Five visible chapter tabs, diegetic route tokens and a concise night dossier.
 extends Control
+const Art = preload("res://ui/market_art.gd")
 
 const DAY_KEYS = ["day1", "day2", "day3", "day4", "day5"]
 const NUMERALS = ["壹", "贰", "叁", "肆", "伍"]
@@ -56,37 +54,31 @@ var _special: Button = null
 var _danger: Control = null
 var _week_scroll: ScrollContainer
 var _week_buttons: Array[Button] = []
+var _old_picture: Texture2D
+var _map_tween: Tween
+var _caption_cache: Dictionary = {}
+var _last_canvas := Vector2.ZERO
+var _map_blend = 0.0:
+	set(value):
+		_map_blend = value
+		queue_redraw()
 
 
-func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	selected = clampi(int(game.progress.get("selected", 1)), 1, Content.LEVELS.size())
-	day = int(Content.get_level(selected).get("day", 1))
-	for i in Content.DAYS.size():
-		var path = Content.map_picture(Content.DAYS[i], true)
-		if ResourceLoader.exists(path):
-			_textures[DAY_KEYS[i]] = load(path)
-	_build_actions()
-	_build_week_tabs()
-	_refresh_actions()
-	game.play_music_scene("menu")
-
-
-func _process(delta: float) -> void:
-	_time += delta
-	queue_redraw()
-
-
-# ── 夜点位置 ────────────────────────────────────────────────────────────────
 func _overview_point(point: Vector2) -> Vector2:
-	return point / NEW_OVERVIEW_SIZE * Geo.VIEW
+	var scale := maxf(Ui.canvas_size.x / NEW_OVERVIEW_SIZE.x, Ui.canvas_size.y / NEW_OVERVIEW_SIZE.y)
+	return (point - NEW_OVERVIEW_SIZE * .5) * scale + Ui.canvas_size * .5
 
 
 func _node_pos(index: int) -> Vector2:
 	var key = DAY_KEYS[day - 1]
+	var point: Vector2
 	if NEW_ROUTES.has(key):
-		return _overview_point(NEW_ROUTES[key][index])
-	return PICTURE.position + PICTURE.size * ROUTES[key][index]
+		point = _overview_point(NEW_ROUTES[key][index])
+	else:
+		point = PICTURE.position + PICTURE.size * ROUTES[key][index]
+	if not NEW_ROUTES.has(key): point.y *= Ui.canvas_size.y / 900.0
+	point.y = clampf(point.y, 242, Ui.canvas_size.y - 110)
+	return point
 
 
 ## 越往里（y 越小）越远，点也就越小：看着像往画里走
@@ -99,7 +91,29 @@ func _level_of(index: int) -> Dictionary:
 	return Content.get_level(Content.level_id_for(day, index))
 
 
-# ── 绘制 ────────────────────────────────────────────────────────────────────
+func _ready() -> void:
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	focus_mode = Control.FOCUS_ALL
+	selected = clampi(int(game.progress.get("selected", 1)), 1, Content.LEVELS.size())
+	day = int(Content.get_level(selected).get("day", 1))
+	for i in Content.DAYS.size():
+		var path = Content.map_picture(Content.DAYS[i], true)
+		if ResourceLoader.exists(path): _textures[DAY_KEYS[i]] = load(path)
+	_build_actions()
+	_build_week_tabs()
+	_refresh_actions()
+	game.play_music_scene("menu")
+	Art.enter(self)
+	grab_focus()
+
+func _process(delta: float) -> void:
+	if _last_canvas != Ui.canvas_size:
+		_last_canvas = Ui.canvas_size
+		_caption_cache.clear()
+		_route_segments.clear()
+	_time += delta
+	queue_redraw()
+
 func _draw() -> void:
 	_draw_picture()
 	_draw_route()
@@ -107,75 +121,183 @@ func _draw() -> void:
 	_draw_footer()
 	_draw_header()
 
-
 func _draw_picture() -> void:
-	draw_rect(Rect2(Vector2.ZERO, Geo.VIEW), Ui.INK)
+	draw_rect(Rect2(Vector2.ZERO, Ui.canvas_size), Ui.INK)
 	var texture: Texture2D = _textures.get(DAY_KEYS[day - 1])
 	if texture != null:
-		var size = texture.get_size()
-		var scale = maxf(Geo.VIEW.x / size.x, Geo.VIEW.y / size.y)
-		var drawn = size * scale
-		var offset = (Geo.VIEW - drawn) * 0.5
-		draw_texture_rect(texture, Rect2(offset, drawn), false)
-	# 整体压暗，再让左侧更暗一点好放题签
-	draw_rect(Rect2(Vector2.ZERO, Geo.VIEW), Color(0.02, 0.04, 0.06, 0.42))
-	for i in 8:
-		var k = float(i) / 8.0
-		draw_rect(Rect2(0, 0, 360.0 * (1.0 - k) + 120.0, Geo.VIEW.y),
-			Color(0.02, 0.03, 0.05, 0.06))
-	# 画面下缘压一条暗带，给人物的字留干净底
-	draw_rect(Rect2(0, Geo.VIEW.y - 150, Geo.VIEW.x, 150),
-		Color(0.02, 0.03, 0.05, 0.5))
-
+		var drawn = texture.get_size() * maxf(Ui.canvas_size.x / texture.get_width(), Ui.canvas_size.y / texture.get_height())
+		draw_texture_rect(texture, Rect2((Ui.canvas_size - drawn) / 2, drawn), false)
+	if _old_picture != null and _map_blend > 0.001:
+		var drawn = _old_picture.get_size() * maxf(Ui.canvas_size.x / _old_picture.get_width(), Ui.canvas_size.y / _old_picture.get_height())
+		draw_texture_rect(_old_picture, Rect2((Ui.canvas_size - drawn) / 2, drawn), false, Color(1, 1, 1, _map_blend))
+	draw_rect(Rect2(Vector2.ZERO, Ui.canvas_size), Color(0.02, 0.045, 0.06, 0.20))
+	for i in 12:
+		var width = 410.0 - i * 26
+		draw_rect(Rect2(0, 190, width, Ui.canvas_size.y - 190), Color(0.015, 0.04, 0.05, 0.055))
+	draw_rect(Rect2(0, 0, Ui.canvas_size.x, 190), Color(0.018, 0.045, 0.055, 0.88))
+	draw_line(Vector2(48, 190), Vector2(1552, 190), Color(Art.BRASS, 0.45), 1, true)
 
 func _draw_header() -> void:
-	var level = Content.get_level(selected)
-	draw_string(Ui.display_font(), Vector2(760, 76),
-		"%s · %s" % [level["day_name"], level["day_sub"]],
-		HORIZONTAL_ALIGNMENT_LEFT, -1, 30, Color(0.96, 0.88, 0.7, 0.92))
-
+	draw_string(Ui.display_font(), Vector2(230, 74), "守夜舆图", HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(34), Ui.GOLD_BRIGHT)
+	Art.diamond(self, Vector2(429, 62), 4, Ui.VERMILION, true)
+	var info: Dictionary = Content.DAYS[day - 1]
+	draw_string(Ui.medium_font(), Vector2(451, 69), "%s · %s" % [info.name, info.sub], HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(20), Ui.TEXT_DIM)
+	draw_string(Ui.body_font(), Vector2(820, 68), "← → 选夜 · Enter 入场", HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(14), Ui.TEXT_FAINT)
 
 func _build_week_tabs() -> void:
 	_week_scroll = ScrollContainer.new()
-	_week_scroll.position = Vector2(56, 150)
-	_week_scroll.size = Vector2(236, 86 * 3.8 - 8)
+	_week_scroll.position = Vector2(48, 110)
+	_week_scroll.size = Vector2(1504, 66)
 	_week_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_week_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
+	_week_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	add_child(_week_scroll)
-	var list := Ui.vbox(8)
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_week_scroll.add_child(list)
+	var row = Ui.hbox(12)
+	_week_scroll.add_child(row)
 	for i in Content.DAYS.size():
-		var button := Ui.button("", 18, 214, 78)
-		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		var button = Ui.button("", 18, 291, 66)
 		button.pressed.connect(select_day.bind(i + 1))
-		list.add_child(button)
+		row.add_child(button)
 		_week_buttons.append(button)
-	_week_scroll.ensure_control_visible.call_deferred(_week_buttons[day - 1])
-
 
 func _tab_rect(index: int) -> Rect2:
-	if index < 0 or index >= _week_buttons.size():
-		return Rect2()
-	return _week_buttons[index].get_global_rect()
-
+	return Rect2() if index < 0 or index >= _week_buttons.size() else _week_buttons[index].get_global_rect()
 
 func _refresh_week_tabs() -> void:
 	for i in _week_buttons.size():
 		var info: Dictionary = Content.DAYS[i]
-		_week_buttons[i].text = "%s · %s\n守住 %d / 5 夜" % [info.name, info.sub, _cleared_count(i + 1)]
+		_week_buttons[i].text = "%s · %s    %d/5 夜" % [info.name, info.sub, _cleared_count(i + 1)]
 		Ui.set_button_active(_week_buttons[i], i + 1 == day and selected != Content.SPECIAL_ID)
-
 
 func _draw_route() -> void:
 	var key = DAY_KEYS[day - 1]
-	if not _route_segments.has(key):
-		_route_segments[key] = _build_route_segments(key)
+	if not _route_segments.has(key): _route_segments[key] = _build_route_segments(key)
+	var cleared: Array = game.progress.get("cleared", [])
 	for i in 4:
-		var done = selected >= Content.level_id_for(day, i + 1)
-		var color = Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.73 if done else 0.50)
+		var done = cleared.has(Content.level_id_for(day, i))
+		var color = Color(Ui.JADE if done else Ui.GOLD, 0.9 if done else 0.65)
+		draw_multiline(_route_segments[key][i], Color(0, 0, 0, 0.6), 5.5, true)
 		draw_multiline(_route_segments[key][i], color, 2.0, true)
 
+func _draw_nodes() -> void:
+	var captions = _caption_rects()
+	for i in 5:
+		var level = _level_of(i)
+		var pos = _node_pos(i)
+		var active = int(level.id) == selected
+		var cleared = Array(game.progress.get("cleared", [])).has(int(level.id))
+		var radius = NODE_RADIUS * _node_scale(i) * (1.13 if active else 1.0)
+		var edge = Ui.GOLD_BRIGHT if active else (Ui.JADE_LIGHT if cleared else Art.BRASS)
+		draw_circle(pos + Vector2(0, 5), radius + 7, Color(0, 0, 0, 0.42))
+		if active or _hover == i:
+			var breath = 0.5 + 0.5 * sin(_time * 2)
+			draw_circle(pos, radius + 13 + breath * 3, Color(edge, 0.11))
+			for j in 4: Art.diamond(self, pos + Vector2.from_angle(j * PI / 2) * (radius + 9), 3, edge, true)
+		if i == 4:
+			Art.diamond(self, pos, radius + 7, Color("#172e31"), true)
+			Art.diamond(self, pos, radius + 7, edge)
+			Art.diamond(self, pos, radius + 2, Color(edge, 0.42))
+			Art.icon(self, "boss", pos, radius * 0.57, edge)
+		else:
+			draw_circle(pos, radius, Color("#10232a"))
+			draw_arc(pos, radius, 0, TAU, 56, edge, 2 if active else 1.3, true)
+			draw_arc(pos, radius - 5, 0, TAU, 48, Color(edge, 0.35), 1, true)
+			_draw_centered_glyph(Ui.display_font(), NUMERALS[i], pos, Ui.font_size(31), edge)
+		var label_rect: Rect2 = captions[i]
+		Ui.draw_plate(self, label_rect, Color(0.018, 0.04, 0.05, 0.83), Color(edge, 0.35), 3, 1)
+		_draw_centered_line(Ui.medium_font(), ("恶首 · 第伍夜" if i == 4 else "第%s夜" % NUMERALS[i]), label_rect.get_center().x, label_rect.position.y + 23, Ui.font_size(17), Ui.TEXT)
+		_draw_centered_line(Ui.body_font(), String(level.tag), label_rect.get_center().x, label_rect.position.y + 46, Ui.font_size(14), Ui.TEXT_DIM)
+		if cleared:
+			draw_circle(pos + Vector2(radius * 0.7, -radius * 0.7), 8, Ui.JADE)
+			_draw_centered_line(Ui.medium_font(), "✓", pos.x + radius * 0.7, pos.y - radius * 0.7 + 5, 12, Ui.INK)
+			var flags: Array = preload("res://data/nightmare.gd").flags(game.progress, int(level.id))
+			var badge = int(Dictionary(Dictionary(game.progress.get("nightmare_badges", {})).get(str(int(level.id)), {})).get("best", 0))
+			preload("res://ui/star_rating.gd").paint(self, Vector2(label_rect.get_center().x - 30, label_rect.end.y + 8), flags, badge, 7)
+
+## Captions reserve room for stars and the largest selected medallion.
+## The result is fixed for each chapter, so selecting a night never moves its label.
+func _caption_rects() -> Dictionary:
+	if _caption_cache.has(day): return _caption_cache[day]
+	var placed: Dictionary = {}
+	var blockers: Array[Rect2] = []
+	for i in 5: blockers.append(Rect2(_node_pos(i) - Vector2(50, 50), Vector2(100, 100)))
+	for i in [4, 3, 2, 1, 0]:
+		var point = _node_pos(i)
+		var right = point + Vector2(60, -28)
+		var left = point + Vector2(-206, -28)
+		var candidates = [right, left, point + Vector2(-73, 60), point + Vector2(-73, -134), right + Vector2(0, 42), left + Vector2(0, 42)]
+		for position in candidates:
+			var full = Rect2(position, Vector2(146, 74))
+			if not Rect2(440, 198, 1112, Ui.canvas_size.y - 210).encloses(full): continue
+			if blockers.any(func(rect): return rect.intersects(full)): continue
+			var overlaps = false
+			for previous in placed.values():
+				if Rect2(previous.position, Vector2(146, 74)).grow(8).intersects(full): overlaps = true
+			if overlaps: continue
+			placed[i] = Rect2(position, Vector2(146, 56))
+			break
+		if not placed.has(i): placed[i] = Rect2(Vector2(clampf(right.x, 440, 1406), clampf(right.y, 198, Ui.canvas_size.y - 86)), Vector2(146, 56))
+	_caption_cache[day] = placed
+	return placed
+
+func _draw_footer() -> void:
+	draw_set_transform(Vector2(0, Ui.canvas_size.y - 900))
+	var panel = Rect2(48, 536, 382, 326)
+	draw_style_box(Art.surface("panel"), panel)
+	var level = Content.get_level(selected)
+	var heading = "鬼市深处" if selected == Content.SPECIAL_ID else "第%s夜 · %s" % [NUMERALS[int(level.get("night", 0))], level.tag]
+	draw_string(Ui.display_font(), Vector2(72, 578), heading, HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(27), Ui.GOLD_BRIGHT)
+	draw_line(Vector2(72, 594), Vector2(406, 594), Color(Art.BRASS, 0.4), 1, true)
+	draw_string(Ui.body_font(), Vector2(72, 626), "凶险", HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(16), Ui.TEXT_DIM)
+	draw_string(Ui.medium_font(), Vector2(72, 658), "%d 行 × 9 列 · %d 大波" % [int(level.rows), Content.wave_groups(level)], HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(17), Ui.TEXT)
+	Art.icon(self, "lantern", Vector2(319, 650), 10, Ui.GOLD)
+	draw_string(Ui.medium_font(), Vector2(338, 658), str(int(level.start_sun)), HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(18), Ui.GOLD_BRIGHT)
+	draw_string(Ui.body_font(), Vector2(72, 688), "今夜来客", HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(15), Ui.TEXT_DIM)
+	var seen = Content.plants_in_level(level)
+	for i in mini(5, seen.size()):
+		var rect = Rect2(72 + i * 64, 699, 54, 46)
+		draw_style_box(Art.surface("card", "normal", Vector2.ZERO), rect)
+		Ui.draw_plant_icon(self, String(seen[i]), rect.grow(-4))
+	if seen.size() > 5:
+		draw_string(Ui.body_font(), Vector2(393, 730), "+", HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(18), Ui.TEXT_DIM)
+
+	draw_set_transform(Vector2.ZERO)
+
+func _build_actions() -> void:
+	var back = Ui.button("← 回封面", 17, 142, 42)
+	back.position = Vector2(48, 36)
+	back.pressed.connect(game.show_menu)
+	add_child(back)
+	_special = Ui.button("特殊关 · 鬼市深处", 17, 242, 42)
+	_special.position = Vector2(1310, 36)
+	_special.pressed.connect(func(): switch_to_level(Content.SPECIAL_ID); game.play_sfx("click"))
+	add_child(_special)
+	_danger = preload("res://ui/threat_meter.gd").new()
+	_danger.position = Vector2(136, 614)
+	Ui.pin(_danger)
+	_danger.size = Vector2(266, 14)
+	add_child(_danger)
+	_enter = Ui.button("进入备战", 23, 338, 54, true)
+	_enter.position = Vector2(70, 788)
+	Ui.pin(_enter)
+	_enter.pressed.connect(func(): game.play_sfx("click"); game.show_prep(selected))
+	add_child(_enter)
+	_almanac = Ui.button("看恶客图鉴", 14, 166, 30)
+	_almanac.position = Vector2(72, 751)
+	Ui.pin(_almanac)
+	_almanac.pressed.connect(func(): game.open_almanac("zombie", 0))
+	add_child(_almanac)
+	_badge = Ui.button("噩梦徽章", 14, 158, 30)
+	_badge.position = Vector2(248, 751)
+	Ui.pin(_badge)
+	_badge.pressed.connect(func():
+		var dialog = load("res://ui/nightmare_badges.gd").new()
+		dialog.entry = Dictionary(Dictionary(game.progress.get("nightmare_badges", {})).get(str(selected), {}))
+		dialog.earned = preload("res://data/nightmare.gd").flags(game.progress, selected)
+		add_child(dialog)
+		dialog.popup_centered()
+		dialog.confirmed.connect(dialog.queue_free)
+		dialog.canceled.connect(dialog.queue_free))
+	add_child(_badge)
 
 func _build_route_segments(key: String) -> Array[PackedVector2Array]:
 	var segments: Array[PackedVector2Array] = []
@@ -222,97 +344,19 @@ func _draw_centered_glyph(font: Font, value: String, center: Vector2,
 	draw_char(font, center - offset - ink_size * 0.5, value, font_size, color)
 
 
-func _draw_nodes() -> void:
-	for i in 5:
-		var level = _level_of(i)
-		var pos = _node_pos(i)
-		var is_selected = int(level["id"]) == selected
-		var is_hover = _hover == i
-		var cleared: bool = Array(game.progress.get("cleared", [])).has(
-			int(level["id"]))
-		var depth = _node_scale(i)
-		var radius = NODE_RADIUS * depth * (1.16 if is_selected else (1.06 if is_hover else 1.0))
-		# 光晕
-		if is_selected:
-			var beat = 0.5 + 0.5 * sin(_time * 2.4)
-			draw_circle(pos, radius + 16.0 + beat * 5.0,
-				Color(1.0, 0.78, 0.42, 0.10 + beat * 0.07))
-		draw_circle(pos, radius, Color(0.05, 0.07, 0.09, 0.9))
-		draw_arc(pos, radius, 0.0, TAU, 40,
-			Ui.GOLD_BRIGHT if is_selected else Color(0.72, 0.58, 0.32, 0.75),
-			2.6 if is_selected else 1.8)
-		draw_arc(pos, radius - 5.0, 0.0, TAU, 36,
-			Color(0.9, 0.75, 0.45, 0.25), 1.0)
-		# 夜里的繁体数字
-		var numeral = NUMERALS[i]
-		_draw_centered_glyph(Ui.display_font(), numeral, pos, roundi(30 * depth),
-			Ui.GOLD_BRIGHT if is_selected else Ui.PAPER_DIM)
-		# 名字
-		var label = "第%s夜" % numeral
-		_draw_centered_line(Ui.medium_font(), label, pos.x, pos.y + radius + 24 * depth,
-			roundi(18 * maxf(0.8, depth)),
-			Ui.TEXT if is_selected else Ui.TEXT_DIM)
-		var tag = String(level["tag"])
-		_draw_centered_line(Ui.body_font(), tag, pos.x, pos.y + radius + 42, 13, Ui.TEXT_FAINT)
-		if cleared:
-			var tick = pos + Vector2(radius * 0.72, -radius * 0.72)
-			draw_circle(tick, 8.0, Color(0.36, 0.62, 0.4, 0.95))
-			_draw_centered_line(Ui.body_font(), "✓", tick.x, tick.y + 4.0, 12,
-				Color(0.95, 0.99, 0.93))
-			# 星级挂在夜名下：重打一局是为了把 ☆ 刷成 ★
-			var flags: Array=preload("res://data/nightmare.gd").flags(game.progress,int(level.id))
-			var badge:=int(Dictionary(Dictionary(game.progress.get("nightmare_badges",{})).get(str(int(level.id)),{})).get("best",0))
-			preload("res://ui/star_rating.gd").paint(self,Vector2(pos.x-30,pos.y+radius+54),flags,badge,7.0)
-
-
-func _draw_footer() -> void:
-	var panel = Rect2(56, 596, 610, 268)
-	Ui.draw_plate(self, panel, Color(0.03, 0.05, 0.07, 0.9),
-		Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g, Ui.GOLD_DIM.b, 0.75), 20, 2)
-	var level = Content.get_level(selected)
-	var x = panel.position.x + 24
-	var y = panel.position.y + 40
-	draw_string(Ui.display_font(), Vector2(x, y),
-		("鬼市深处 · 终极挑战" if selected==16 else "第%s夜 · %s" % [NUMERALS[int(level.get("night", 0))],level["tag"]]), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Ui.GOLD_BRIGHT)
-	y += 34
-	var rows = [
-		["凶险", ""],
-		["棋盘", "%d 行 × 9 列 · %d 大波" % [int(level["rows"]),
-			Content.wave_groups(level)]],
-		["起手香火", str(int(level["start_sun"]))],
-	]
-	for row in rows:
-		draw_string(Ui.body_font(), Vector2(x, y), String(row[0]),
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Ui.TEXT_DIM)
-		draw_string(Ui.body_font(), Vector2(x + 84, y), String(row[1]),
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Ui.TEXT)
-
-		y += 26
-	var seen = Content.plants_in_level(level)
-	var names = PackedStringArray()
-	for type in seen:
-		names.append(String(Content.ZOMBIES[type]["name"]))
-	draw_string(Ui.body_font(), Vector2(x, y), "今夜恶客", HORIZONTAL_ALIGNMENT_LEFT,
-		-1, 15, Ui.TEXT_DIM)
-	# 按实际宽度换行，来客较多的关底也能读完。
-	var font = Ui.body_font()
-	var max_width = panel.end.x - x - 108.0
-	var line = ""
-	var line_y = y
-	for name in names:
-		if font.get_string_size(line + name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x > max_width:
-			draw_string(font, Vector2(x + 84, line_y), line,
-				HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Ui.TEXT)
-			line_y += 20
-			line = ""
-		line += name + " "
-	if line != "":
-		draw_string(font, Vector2(x + 84, line_y), line,
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Ui.TEXT)
-
-
-# ── 交互 ────────────────────────────────────────────────────────────────────
 func _gui_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed:
+		if event.keycode in [KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END]:
+			var night = int(Content.get_level(selected).get("night", 0))
+			var next = 0 if event.keycode == KEY_HOME else (4 if event.keycode == KEY_END else clampi(night + (-1 if event.keycode == KEY_LEFT else 1), 0, 4))
+			select_night(next)
+			accept_event()
+			return
+		if event.keycode in [KEY_ENTER, KEY_KP_ENTER]:
+			accept_event()
+			game.play_sfx("click")
+			game.show_prep(selected)
+			return
 	if not (event is InputEventMouseButton) or not event.pressed:
 		return
 	if event.button_index == MOUSE_BUTTON_RIGHT:
@@ -323,8 +367,10 @@ func _gui_input(event: InputEvent) -> void:
 	var pos: Vector2 = event.position
 	# 夜点
 	for i in 5:
-		if pos.distance_to(_node_pos(i)) <= NODE_RADIUS + 12.0:
+		var caption = Rect2(_caption_rects()[i].position, Vector2(146, 74))
+		if pos.distance_to(_node_pos(i)) <= NODE_RADIUS + 12.0 or caption.has_point(pos):
 			select_night(i)
+			grab_focus()
 			accept_event()
 			return
 
@@ -333,16 +379,24 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		var hover = -1
 		for i in 5:
-			if event.position.distance_to(_node_pos(i)) <= NODE_RADIUS + 12.0:
+			var caption = Rect2(_caption_rects()[i].position, Vector2(146, 74))
+			if event.position.distance_to(_node_pos(i)) <= NODE_RADIUS + 12.0 or caption.has_point(event.position):
 				hover = i
 		if hover != _hover:
 			_hover = hover
+			mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if hover >= 0 else Control.CURSOR_ARROW
 			queue_redraw()
 
 
 func select_day(value: int) -> void:
 	if value == day and selected!=16:
 		return
+	if not Art.reduced_motion:
+		_old_picture = _textures.get(DAY_KEYS[day - 1])
+		_map_blend = 1.0
+		if _map_tween != null: _map_tween.kill()
+		_map_tween = create_tween()
+		_map_tween.tween_property(self, "_map_blend", 0.0, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	day = clampi(value, 1, Content.DAYS.size())
 	# 换日时默认选回这一天的第一夜
 	selected = Content.level_id_for(day)
@@ -356,41 +410,6 @@ func select_night(index: int) -> void:
 	_refresh_actions()
 	queue_redraw()
 	game.play_sfx("click")
-
-
-func _build_actions() -> void:
-	var back = Ui.button("← 回封面", 18, 130, 42)
-	back.position = Vector2(56, 40)
-	back.pressed.connect(func(): game.show_menu())
-	add_child(back)
-
-	_danger=preload("res://ui/threat_meter.gd").new()
-	_danger.position=Vector2(164,658);_danger.size=Vector2(270,16)
-	add_child(_danger)
-
-	_enter = Ui.button("进入备战", 20, 240, 52)
-	_enter.position = Vector2(92, 796)
-	_enter.pressed.connect(func(): game.show_prep(selected))
-	add_child(_enter)
-
-	_special=Ui.button("特殊关 · 鬼市深处",16,214,46)
-	_special.position=Vector2(56,88)
-	_special.pressed.connect(func(): switch_to_level(16);game.play_sfx("click"))
-	add_child(_special)
-
-	_almanac = Ui.button("看恶客图鉴", 16, 180, 38)
-	_almanac.position = Vector2(352, 804)
-	_almanac.pressed.connect(func(): game.open_almanac("zombie", 0))
-	add_child(_almanac)
-	_badge=Ui.button("噩梦徽章",15,104,38)
-	_badge.position=Vector2(543,804)
-	_badge.pressed.connect(func():
-		var dialog=load("res://ui/nightmare_badges.gd").new()
-		dialog.entry=Dictionary(Dictionary(game.progress.get("nightmare_badges",{})).get(str(selected),{}))
-		dialog.earned=preload("res://data/nightmare.gd").flags(game.progress,selected)
-		add_child(dialog);dialog.popup_centered()
-		dialog.confirmed.connect(dialog.queue_free);dialog.canceled.connect(dialog.queue_free))
-	add_child(_badge)
 
 
 func _refresh_actions() -> void:

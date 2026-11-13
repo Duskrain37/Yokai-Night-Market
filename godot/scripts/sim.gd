@@ -42,6 +42,10 @@ class Plant:
 	var growth_extra_at := -1.0
 	var tree_bonus_next := -1.0
 	var tree_shot_timer := 0.0
+	var mortar_active_ready_at := 0.0
+	var mortar_burst_left := 0
+	var mortar_burst_at := 0.0
+	var mortar_burst_aim := Vector2.ZERO
 	var mortar_followup_at := -1.0
 	var mortar_followup_aim := Vector2.ZERO
 	var production_reduction := 0.0
@@ -280,6 +284,12 @@ class Zombie:
 	var sedan_has_bride = false
 	var guest_action_at = -10.0
 	var guest_special_at = 0.0
+	var stolen_incense := 0
+	var theft_count := 0
+	var theft_ready_at := 0.0
+	var carrier_uid := ""
+	var passenger_uid := ""
+	var pickup_used := false
 	var revive_at = -1.0
 	var revived = false
 	var phase_form = 0
@@ -395,10 +405,10 @@ class Shot:
 
 
 const DIFFICULTY = {
-	"easy": {"count": 1.0, "hp": 1.0},
-	"normal": {"count": 1.1, "hp": 1.1},
-	"hard": {"count": 1.25, "hp": 1.25},
-	"nightmare": {"count": 1.35, "hp": 1.35},
+	"easy": {"count": 0.8, "hp": 0.8},
+	"normal": {"count": 1.0, "hp": 1.0},
+	"hard": {"count": 1.1, "hp": 1.1},
+	"nightmare": {"count": 1.2, "hp": 1.2},
 }
 
 const MAX_LOADOUT = 12
@@ -1494,7 +1504,7 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 	for index in budget_groups.size():
 		var group: Array = budget_groups[index]
 		var expected = maxf(1.0, float(group[1]) * count_mul) * density
-		var count = maxi(1, int(floor(expected)) + int(rng.randf() < fposmod(expected, 1.0)))
+		var count = maxi(0, int(floor(expected)) + int(rng.randf() < fposmod(expected, 1.0)))
 		var source = String(group[0])
 		var picks: Array = guest_slots[index] if not guest_slots.is_empty() else [source]
 		for i in count:
@@ -1686,7 +1696,7 @@ func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 	if z.row in level.get("water_rows", []) \
 			and String(def.get("tier", "")) == "h" and not bool(def.get("water_only",false)):
 		z.row = choose_spawn_row(type)
-	z.pos = Vector2(float(opts.get("x", Geo.SPAWN_X + rng.randf() * 70.0)),
+	z.pos = Vector2(float(opts.get("x", Geo.BOARD_X + Geo.BOARD_W + rng.randf() * Geo.SPAWN_BUFFER)),
 		row_y(z.row) + 4.0)
 	if def.has("reed_shot"):
 		z.reed_stop_x = z.pos.x - Geo.CELL_W * float(def.reed_shot.steps)
@@ -1697,6 +1707,7 @@ func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 	z.armor_type = String(def.get("armor_type", ""))
 	z.armor_name = String(def.get("armor_name", ""))
 	z.speed = float(def["speed"])
+	if type == "incense-thief": z.theft_ready_at = time + 5.0
 	if def.has("special_period"):
 		z.guest_special_at = time + (5.0 if type=="shield-envoy" else 4.0)
 	if type == "phaseguard":
@@ -4421,11 +4432,11 @@ func update_zombies(dt: float) -> void:
 				z.dead = true
 				z.dying = false
 			continue
-		_tick_guest_special(z)
+		if z.carrier_uid.is_empty(): _tick_guest_special(z)
 		z.hurt = maxf(0.0, z.hurt - dt)
 		if z.pull_row >= 0:
 			_step_lane_pull(z)
-		_update_water_pose(z, dt)
+		if not _guest_airborne(z): _update_water_pose(z, dt)
 		if z.terrain_hop_from != z.terrain_hop_to:
 			z.object_hop = maxf(0.0, z.object_hop - dt)
 			z.pos.x = lerpf(z.terrain_hop_from, z.terrain_hop_to, 1.0 - z.object_hop / 0.34)
@@ -4491,7 +4502,14 @@ func update_zombies(dt: float) -> void:
 			damage_zombie(z, z.bleed_dps * dt, true, false, "bell")
 			if z.bleed_t <= 0.0:
 				z.bleed_dps = 0.0
-		if z.type=="sky-wick" and _step_sky_wick(z,dt):continue
+		if not z.carrier_uid.is_empty():
+			var carrier := guest_uid(z.carrier_uid)
+			if carrier != null and carrier.alive() and _guest_airborne(carrier):
+				z.pos = carrier.pos + Vector2(-18, 0); z.row = carrier.row; z.eating = false
+				continue
+			z.carrier_uid = ""
+		if z.type == "incense-thief" and _step_incense_thief(z): continue
+		if z.type in ["sky-wick", "sky-ferry"] and _step_sky_wick(z,dt):continue
 		if z.type=="oar-barge" and _step_barge(z,dt):continue
 		if z.def.has("aura"):
 			z.aura_t -= dt
@@ -5007,7 +5025,7 @@ func _update_drifting(shot: Shot, dt: float) -> void:
 	var victim: Zombie = null
 	var distance = INF
 	for z in zombies:
-		if not z.alive() or z in shot.hit_ids: continue
+		if not z.alive() or z in shot.hit_ids or (_guest_airborne(z) and not _owner_air(shot.owner_uid)): continue
 		var center = Vector2(z.pos.x, z.pos.y - 24.0)
 		var closest = Geometry2D.get_closest_point_to_segment(center, previous, shot.pos)
 		if center.distance_to(closest) > 23.0: continue
@@ -5280,7 +5298,7 @@ func _star_impact(shot: Shot, victim: Zombie) -> void:
 # ── 伤害与死亡 ──────────────────────────────────────────────────────────────
 func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 		pierce_armor: bool = false, source: String = "", event_key: String = "",
-		parallel_armor: bool = false, delivery: String = "", owner_uid: String = "") -> float:
+		parallel_armor: bool = false, delivery: String = "", owner_uid: String = "", true_sight: bool = false) -> float:
 	if z == null or not z.alive():
 		return 0.0
 	if source=="sky-mortar" and delivery=="homing":event_key="mortar_soul"
@@ -5291,10 +5309,10 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 			if owner.uid == owner_uid:
 				z.revealed_tier = maxi(z.revealed_tier, owner.tier(3))
 				break
-	if amount > 0.0 and z.revealed_tier == 0 and not z.eating and z.def.has("miss_chance") and not _guest_exposed(z) and rng.randf() < float(z.def.miss_chance):
+	if not true_sight and amount > 0.0 and z.revealed_tier == 0 and not z.eating and z.def.has("miss_chance") and not _guest_exposed(z) and rng.randf() < float(z.def.miss_chance):
 		ring(z.pos + Vector2(0, -25), Color("#7dada5"), 22.0, 0.24)
 		return 0.0
-	if z.revealed_tier == 0 and bool(z.def.get("ash_immune", false)) and not _guest_exposed(z) and (source in ["bomb", "mushroom", "kelp", "squash", "ruin-cap"]
+	if not true_sight and z.revealed_tier == 0 and bool(z.def.get("ash_immune", false)) and not _guest_exposed(z) and (source in ["bomb", "mushroom", "kelp", "squash", "ruin-cap"]
 			or event_key.begins_with("ash_")):
 		return 0.0
 	if z.boss_role=="body":
@@ -5304,7 +5322,6 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 		if previous!="" and event_key!="":boss.damage_token=previous+":"+event_key
 		var dealt_boss=float(boss.damage(z,amount,source,silent))
 		if dealt_boss>0:last_guest_damage_at=time
-		if dealt_boss>0 and not z.alive() and source=="sky-mortar":_mortar_reward(owner_uid,z,event_key!="mortar_soul")
 		boss.damage_token=previous
 		return dealt_boss
 	if not silent and amount >= 8.0:
@@ -5319,7 +5336,7 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 		var resisted = delivery != "" if z.phase_form == 0 else delivery == "lob"
 		damage *= 0.5 if resisted else 1.2
 	if bool(z.def.get("projectile_shield", false)) or z.armor_type=="shield":
-		pierce_armor = delivery.is_empty()
+		pierce_armor = delivery not in ["pea", "star", "drift", "homing"]
 	var vulnerability := maxf(z.vuln if z.vuln_t > 0.0 else 0.0, 0.25 if z.revealed_tier >= 3 else 0.0)
 	damage *= 1.0 + vulnerability
 	damage = quantized_damage(z.damage_carry, source + ":" + event_key, damage, silent)
@@ -5356,14 +5373,13 @@ func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 	if z.hp <= 0.0:
 		var ash_damage:=source in ["bomb","mushroom","kelp","squash","ruin-cap"] or event_key.begins_with("ash_")
 		kill_zombie(z, event_key != "incense_primary",ash_damage)
-		if source=="sky-mortar" and z.revive_at<0:_mortar_reward(owner_uid,z,event_key!="mortar_soul")
 		if source == "ember-cicada" and z.revive_at < 0.0:
 			_ember_reclaim(owner_uid)
 	return dealt
 
 
 func break_armor(z: Zombie) -> void:
-	if z.type=="sky-wick":_land_sky_wick(z,true)
+	if z.type in ["sky-wick", "sky-ferry"]:_land_sky_wick(z,true)
 	if z.type=="oar-barge":_sink_barge(z)
 	if z.max_armor > 0.0:
 		request_hit_stop(0.095)
@@ -5410,6 +5426,13 @@ func break_armor(z: Zombie) -> void:
 func kill_zombie(z: Zombie, spread_incense: bool = true, ash_damage: bool = false) -> void:
 	if not z.alive():
 		return
+	if z.type == "sky-ferry": _release_passenger(z, true)
+	if not z.carrier_uid.is_empty():
+		var carrier := guest_uid(z.carrier_uid)
+		if carrier != null: carrier.passenger_uid = ""
+		z.carrier_uid = ""
+	if z.type == "incense-thief" and z.stolen_incense > 0:
+		_spawn_stolen_incense(z)
 	if z.boss_role=="body":
 		# Instant capture/execute cannot remove a shared-health boss.
 		return
@@ -5561,7 +5584,7 @@ func summon_training(type: String, count: int, lane: int) -> void:
 	for i in count:
 		var row = clampi(lane, 0, rows - 1) if lane >= 0 else rng.randi_range(0, rows - 1)
 		spawn_zombie(String(def.get("id", type)), row,
-			{"x": 1250.0 + i * 48.0 + rng.randf() * 24.0})
+			{"x": Geo.BOARD_X + Geo.BOARD_W + rng.randf() * Geo.SPAWN_BUFFER})
 	floaters.append({
 		"x": Geo.VIEW.x * 0.5, "y": 300.0,
 		"text": "召来 %s ×%d" % [String(def["name"]), count],
@@ -5917,6 +5940,7 @@ func restore(data: Dictionary) -> void:
 		z.vaulted = bool(row_data.get("vaulted", false))
 		z.split_done = bool(row_data.get("split_done", false))
 		if row_data.has("state_v040"):unpack_unit(z,Dictionary(row_data.state_v040))
+		z.pos.x = minf(z.pos.x, Geo.SPAWN_X)
 	orbs.clear()
 	for row_data in data.get("orbs", []):
 		orbs.append({
@@ -6385,8 +6409,74 @@ func _relay_impact(shot: Shot,victim: Zombie) -> bool:
 	return false
 
 # ── v0.5.4 guest equipment and watercraft ────────────────────────────────────
+func guest_uid(uid: String) -> Zombie:
+	if uid.is_empty(): return null
+	for guest in zombies:
+		if guest.uid == uid: return guest
+	return null
+
+func _step_incense_thief(z: Zombie) -> bool:
+	if time >= z.theft_ready_at and time >= z.silence_until:
+		var amount := mini(35, maxi(0, sun))
+		sun -= amount
+		z.stolen_incense += amount
+		if z.theft_count > 0: z.stolen_incense = maxi(0, z.stolen_incense - 15)
+		z.theft_count += 1
+		z.theft_ready_at = time + 7.0
+		z.guest_action_at = time
+		float_text(z.pos + Vector2(0, -70), "窃香 −%d" % amount, Color("#d79e65"), 18, 1.2)
+		particles.append({"kind":"theft","x":z.pos.x,"y":z.pos.y-30,"life":.85,"max":.85,"color":Color("#dca65d")})
+		sfx("relay_collect")
+	if time - z.guest_action_at < .85:
+		z.eating = false
+		return true
+	return false
+
+func _spawn_stolen_incense(z: Zombie) -> void:
+	var amount := z.stolen_incense
+	z.stolen_incense = 0
+	orbs.append({"x":z.pos.x,"y":z.pos.y-25,"target_y":z.pos.y-25,"landed":true,
+		"life":15.0,"value":amount,"phase":0.0,"dead":false,"auto_t":0.0})
+	float_text(z.pos + Vector2(0, -65), "追回 %d 香火" % amount, Color("#e6ca80"), 17, 1.3)
+
+func _try_pickup(carrier: Zombie) -> void:
+	for guest in zombies:
+		if guest == carrier or not guest.alive() or guest.boss_role != "" or not guest.carrier_uid.is_empty(): continue
+		if guest.row != carrier.row or _guest_airborne(guest) or guest.vault_t > 0 or guest.pull_row >= 0: continue
+		if absf(guest.pos.x - carrier.pos.x) > 48: continue
+		carrier.pickup_used = true
+		carrier.passenger_uid = guest.uid
+		carrier.guest_action_at = time
+		guest.carrier_uid = carrier.uid
+		guest.eating = false
+		guest.terrain_hop_from = guest.pos.x; guest.terrain_hop_to = guest.pos.x; guest.object_hop = 0
+		guest.pos = carrier.pos + Vector2(-18, 0)
+		float_text(carrier.pos + Vector2(0, -100), "浮灯载客", Color("#afc5b0"), 16, 1)
+		sfx("shell")
+		return
+
+func _release_passenger(carrier: Zombie, broken: bool) -> void:
+	var guest := guest_uid(carrier.passenger_uid)
+	carrier.passenger_uid = ""
+	if guest == null: return
+	guest.carrier_uid = ""
+	if not guest.alive(): return
+	guest.pos = carrier.pos + Vector2(-18, 0); guest.row = carrier.row
+	guest.water_entered = _zombie_over_water(guest)
+	guest.water_entry_t = .68 if guest.water_entered else 0.0
+	guest.guest_action_at = time
+	# A forced landing uses the existing flying-unit rule on impassable scenery.
+	var tile := _guest_tile(guest)
+	if broken and String(tile.kind) in ["obstacle", "object", "blocked", "pit"]:
+		kill_zombie(guest)
+	else:
+		ring(guest.pos, Color("#c5b78c"), 30, .6)
+
 func _guest_airborne(z: Zombie) -> bool:
-	return z.type=="sky-wick" and z.armor>0 and z.flight_landing_at<0
+	if not z.carrier_uid.is_empty():
+		var carrier := guest_uid(z.carrier_uid)
+		return carrier != null and carrier.alive() and carrier.armor > 0 and carrier.flight_landing_at < 0
+	return bool(z.def.get("flying_tool",false)) and z.armor>0 and z.flight_landing_at<0
 
 func _guest_tile(z: Zombie) -> Dictionary:
 	var col:=floori((z.pos.x-Geo.BOARD_X)/Geo.CELL_W)
@@ -6394,6 +6484,7 @@ func _guest_tile(z: Zombie) -> Dictionary:
 
 func _land_sky_wick(z: Zombie,broken:=false) -> void:
 	if z.flight_landing_at>=0:return
+	if z.type == "sky-ferry": _release_passenger(z, broken)
 	var tile:=_guest_tile(z)
 	if broken and String(tile.kind) in ["obstacle","object","blocked","pit"]:
 		z.armor=0;z.flight_landing_at=time;kill_zombie(z);return
@@ -6406,6 +6497,7 @@ func _land_sky_wick(z: Zombie,broken:=false) -> void:
 func _step_sky_wick(z: Zombie,dt: float) -> bool:
 	if z.flight_landing_at>=0:return time-z.flight_landing_at<.7
 	if not _guest_airborne(z):return false
+	if z.type == "sky-ferry" and not z.pickup_used: _try_pickup(z)
 	var tile:=_guest_tile(z)
 	if z.pos.x<=Geo.BREACH_X+4*Geo.CELL_W and String(tile.kind) not in ["obstacle","object","blocked","pit","edge"]:
 		_land_sky_wick(z);return true
@@ -6413,6 +6505,9 @@ func _step_sky_wick(z: Zombie,dt: float) -> bool:
 	var speed: float=z.speed*1.5*(1.0-z.slow_amount if z.slow_t>0 else 1.0)
 	z.pos.x+=speed*dt*(1 if z.reverse_t>0 else -1)
 	z.reverse_t=maxf(0,z.reverse_t-dt);z.anim+=dt
+	if not z.passenger_uid.is_empty():
+		var passenger := guest_uid(z.passenger_uid)
+		if passenger != null: passenger.pos = z.pos + Vector2(-18, 0); passenger.row = z.row
 	if z.pos.x<=Geo.BREACH_X:_land_sky_wick(z)
 	return true
 
@@ -6496,64 +6591,110 @@ func _update_banyan(plant: Plant,dt: float) -> void:
 		_prepare_shot(shot,plant,power);shots.append(shot)
 	sfx("banyan_shot")
 
-func _mortar_aim() -> Zombie:
-	var best: Zombie=null;var score:=-1
+func _mortar_can_target(plant: Plant, target: Zombie) -> bool:
+	return target.alive() and (not _guest_airborne(target) or plant.tier(3) >= 1 or plant.sees_air)
+
+func _mortar_aim(plant: Plant = null) -> Zombie:
+	var best: Zombie = null
+	var score := -1
 	for candidate in zombies:
-		if not candidate.alive():continue
-		var count:=0
+		if not candidate.alive() or (plant != null and not _mortar_can_target(plant, candidate)): continue
+		var count := 0
 		for other in zombies:
-			if other.alive() and candidate.pos.distance_squared_to(other.pos)<=Geo.CELL_W*Geo.CELL_W:count+=1
-		if count>score:best=candidate;score=count
+			if other.alive() and (plant == null or _mortar_can_target(plant, other)) and candidate.pos.distance_squared_to(other.pos) <= Geo.CELL_W * Geo.CELL_W: count += 1
+		if count > score: best = candidate; score = count
 	return best
 
-func _update_mortar(plant: Plant,dt: float) -> void:
-	if plant.mortar_followup_at>=0:
-		if time>=plant.mortar_followup_at:
-			plant.mortar_followup_at=-1;var target:=_mortar_aim()
-			_mortar_launch(plant,target.pos if target!=null else plant.mortar_followup_aim)
-			plant.timer=0
+func active_skill_status(plant: Plant) -> Dictionary:
+	var exists := plant != null and not plant.dead and plant.type == "sky-mortar" and plant.tier(3) >= 3
+	var left := maxf(0, plant.mortar_active_ready_at - time) if exists else 0.0
+	var reason := ""
+	if exists:
+		if plant.sleep_until > time: reason = "炮身沉睡，暂不能施放"
+		elif plant.sealed_until > time: reason = "炮身受封，暂不能施放"
+		elif plant.mortar_burst_left > 0: reason = "重炮正在连发"
+		elif left > 0: reason = "霄炮镇平安 · 还需 %d 秒" % ceili(left)
+	return {"exists": exists, "ready": exists and reason.is_empty(), "left": left, "name": "霄炮镇平安", "reason": reason}
+
+func activate_skill(plant: Plant) -> bool:
+	var status := active_skill_status(plant)
+	if not status.exists: return false
+	if not status.ready:
+		deny(String(status.reason), plant.pos)
+		return false
+	var target := _mortar_aim(plant)
+	if target == null: deny("暂时没有可轰击的恶客", plant.pos); return false
+	plant.mortar_active_ready_at = time + 55.0
+	plant.mortar_burst_left = 7
+	plant.mortar_burst_at = time
+	plant.mortar_burst_aim = target.pos
+	float_text(plant.pos + Vector2(0,-100), "霄炮镇平安", Color("#f2cb7c"), 24, 2.0)
+	_update_mortar(plant, 0)
+	return true
+
+func _update_mortar(plant: Plant, dt: float) -> void:
+	if plant.mortar_burst_left > 0:
+		while plant.mortar_burst_left > 0 and time + .00001 >= plant.mortar_burst_at:
+			var target := _mortar_aim(plant)
+			if target != null: plant.mortar_burst_aim = target.pos
+			_mortar_launch(plant, plant.mortar_burst_aim, 660)
+			plant.mortar_burst_left -= 1
+			plant.mortar_burst_at += .25
 		return
-	var interval: float=[6.3,5.6,4.9,4.2][plant.tier(1)]/plant.attack_rate()
-	plant.timer=minf(interval,plant.timer+dt);plant.charge=plant.timer/interval
-	if plant.timer<interval:return
-	var target:=_mortar_aim()
-	if target==null:return
-	plant.timer=0;_mortar_launch(plant,target.pos)
-	if plant.tier(1)>=3:plant.mortar_followup_at=time+.8;plant.mortar_followup_aim=target.pos
+	if plant.mortar_followup_at >= 0:
+		if time >= plant.mortar_followup_at:
+			plant.mortar_followup_at = -1
+			var target := _mortar_aim(plant)
+			_mortar_launch(plant, target.pos if target != null else plant.mortar_followup_aim)
+			plant.timer = 0
+		return
+	var interval: float = [6.3,5.6,4.9,4.2][plant.tier(1)] / plant.attack_rate()
+	plant.timer = minf(interval, plant.timer + dt); plant.charge = plant.timer / interval
+	if plant.timer < interval: return
+	var target := _mortar_aim(plant)
+	if target == null: return
+	plant.timer = 0; _mortar_launch(plant, target.pos)
+	if plant.tier(1) >= 3: plant.mortar_followup_at = time + .8; plant.mortar_followup_aim = target.pos
 
-func _mortar_launch(plant: Plant,aim: Vector2) -> void:
-	var shot:=Shot.new();shot.kind="mortar";shot.look="mortar-shell";shot.start=plant.pos+Vector2(0,-60);shot.pos=shot.start;shot.row=plant.row;shot.tx=aim.x;shot.ty=aim.y-14;shot.flight=1.5
-	shot.payload={"ash":plant.tier(2)>=3,"mortar":true}
-	_prepare_shot(shot,plant,float([215,305,395,525][plant.tier(2)])*(.75 if plant.tier(1)>=3 else 1.0))
-	shots.append(shot);plant.action_at=time;plant.recoil=1.0
-	magic_effect("v055-mortar-muzzle",plant.pos+Vector2(0,-60),110,.45);sfx("mortar_launch")
+func _mortar_launch(plant: Plant, aim: Vector2, heavy_damage: float = 0) -> void:
+	var shot := Shot.new()
+	shot.kind = "mortar"; shot.look = "mortar-heavy" if heavy_damage > 0 else "mortar-shell"
+	shot.start = plant.pos + Vector2(0,-60); shot.pos = shot.start; shot.row = plant.row
+	shot.tx = aim.x; shot.ty = aim.y - 14; shot.flight = 1.5
+	shot.payload = {"ash": true, "mortar": true, "parallel": plant.tier(2) >= 3,
+		"sight": plant.tier(3) >= 1, "air": plant.tier(3) >= 1 or plant.sees_air,
+		"fragments": plant.tier(3) >= 2, "fragment_damage": 45 * plant.damage_multiplier()}
+	shot.payload.fragment_base = 45 * (1.0 - plant.damage_penalty)
+	var damage: float = heavy_damage if heavy_damage > 0 else float([215,305,395,525][plant.tier(2)]) * (.75 if plant.tier(1) >= 3 else 1.0)
+	_prepare_shot(shot, plant, damage)
+	shots.append(shot); plant.action_at = time; plant.recoil = 1.0
+	magic_effect("v055-mortar-muzzle", plant.pos + Vector2(0,-60), 140 if heavy_damage > 0 else 110, .45)
+	sfx("mortar_launch")
 
-func _update_mortar_shot(shot: Shot,dt: float) -> void:
-	shot.t+=dt
-	var k:=clampf(shot.t/shot.flight,0,1)
-	if k<.3:shot.pos=shot.start.lerp(Vector2(shot.start.x,-100),k/.3)
-	elif k<.55:shot.pos=Vector2(shot.tx,-100)
-	else:shot.pos=Vector2(shot.tx,lerpf(-100,shot.ty,pow((k-.55)/.45,1.3)))
-	if k<1:return
+func _update_mortar_shot(shot: Shot, dt: float) -> void:
+	shot.t += dt
+	var k := clampf(shot.t / shot.flight, 0, 1)
+	if k < .3: shot.pos = shot.start.lerp(Vector2(shot.start.x,-100), k/.3)
+	elif k < .55: shot.pos = Vector2(shot.tx,-100)
+	else: shot.pos = Vector2(shot.tx,lerpf(-100,shot.ty,pow((k-.55)/.45,1.3)))
+	if k < 1: return
 	_mortar_impact(shot)
 
 func _mortar_impact(shot: Shot) -> void:
-	shot.dead=true
-	var ash_damage:=bool(shot.payload.get("ash",false))
-	var token:="ash_mortar" if ash_damage else "mortar"
+	shot.dead = true
+	var center := Vector2(shot.tx, shot.ty + 14)
 	for z in zombies.duplicate():
-		if z.alive() and Vector2(z.pos.x,z.pos.y-14).distance_to(Vector2(shot.tx,shot.ty))<=Geo.CELL_W:
-			damage_zombie(z,shot.damage,false,false,shot.src,token,ash_damage,"lob",shot.owner_uid)
-	magic_effect("v055-mortar-blast",Vector2(shot.tx,shot.ty+14),230,.75)
-	request_hit_stop(.075);shake=maxf(shake,6);sfx("mortar_impact")
-
-func _mortar_reward(owner_uid: String,victim: Zombie,shell: bool) -> void:
-	for plant in plants:
-		if plant.dead or plant.uid!=owner_uid or plant.type!="sky-mortar":continue
-		if plant.tier(3)>=1:_direct_incense(plant,20 if plant.tier(3)==1 else 30)
-		if shell and plant.tier(3)>=3:
-			var target:=nearest_zombies(victim.pos,1,[victim])
-			var shot:=Shot.new();shot.kind="homing";shot.look="mortar-soul";shot.row=victim.row;shot.pos=victim.pos+Vector2(0,-24);shot.speed=360
-			shot.target=target[0] if not target.is_empty() else null;shot.payload={"mortar_soul":true}
-			_prepare_shot(shot,plant,48);shots.append(shot)
-		return
+		if not z.alive() or (_guest_airborne(z) and not bool(shot.payload.get("air",false))): continue
+		if z.pos.distance_to(center) <= Geo.CELL_W:
+			damage_zombie(z, shot.damage, false, false, shot.src, "ash_mortar", bool(shot.payload.get("parallel",false)), "lob", shot.owner_uid, bool(shot.payload.get("sight",false)))
+	if bool(shot.payload.get("fragments",false)):
+		for i in 8:
+			var fragment := Shot.new()
+			fragment.kind = "drift"; fragment.look = "mortar-fragment"; fragment.src = shot.src
+			fragment.pos = center - Vector2(0,24); fragment.row = shot.row
+			fragment.dir = Vector2.from_angle(i * TAU / 8.0); fragment.speed = float(Content.PLANTS.shooter.shot.speed) * 2.0 / 3.0
+			fragment.base_damage = float(shot.payload.get("fragment_base",45)); fragment.damage = float(shot.payload.fragment_damage); fragment.owner_uid = shot.owner_uid
+			fragment.lantern_buff = shot.lantern_buff
+			shots.append(fragment)
+	magic_effect("v055-mortar-blast", center, 285 if shot.look == "mortar-heavy" else 230, .75)
+	request_hit_stop(.075); shake = maxf(shake, 6); sfx("mortar_impact")

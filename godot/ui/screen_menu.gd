@@ -1,148 +1,139 @@
-## 封面：按 v0.2.4 的样子重排——左侧一枚朱印压着标题，下面是题记与一列签条，
-## 主操作做成朱漆匾，战绩卡片挪到右侧像挂在墙上的纸牌。
+## Dedicated ensemble key art and a compact, accessible front-door navigation.
 extends Control
-
+const Art = preload("res://ui/market_art.gd")
 var game = null
-var _petals: Array = []
-var _petal_layer: Control = null
-
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_backdrop()
+	Art.backdrop(self, Art.ROOT + "menu-ensemble.png", 0.02)
+	Art.vignette(self, 0.62, 0.0)
+	var atmosphere = load("res://ui/market_atmosphere.gd").new()
+	add_child(atmosphere)
 	_title_block()
 	_menu_buttons()
 	_information_button()
-	if not game.mobile:
-		var update=Ui.button("检查更新",17,148,40)
-		update.position=Vector2(1328,44);update.name="CheckUpdate"
-		update.pressed.connect(_open_update);add_child(update)
 	_records_card()
-	_decor()
-	_petals_setup()
-	Ui.grain(self, Rect2(), 0.5)
 	game.play_music_scene("menu")
-
-
-func _process(delta: float) -> void:
-	for petal in _petals:
-		petal["t"] += delta
-	if _petal_layer != null:
-		_petal_layer.queue_redraw()
-
-
-func _backdrop() -> void:
-	var texture = load("res://assets/bg/menu.jpg") if ResourceLoader.exists(
-		"res://assets/bg/menu.jpg") else null
-	if texture != null:
-		var rect = TextureRect.new()
-		rect.texture = texture
-		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(rect)
-	else:
-		var fill = ColorRect.new()
-		fill.color = Ui.INK
-		fill.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		add_child(fill)
-	var scrim = ColorRect.new()
-	scrim.color = Color(0.02, 0.05, 0.07, 0.40)
-	scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(scrim)
-	# 左侧压暗，标题与签条读得清
-	var gradient = Gradient.new()
-	gradient.set_color(0, Color(0.02, 0.04, 0.06, 0.86))
-	gradient.set_color(1, Color(0.02, 0.04, 0.06, 0.0))
-	var gradient_texture = GradientTexture2D.new()
-	gradient_texture.gradient = gradient
-	gradient_texture.width = 512
-	gradient_texture.height = 8
-	gradient_texture.fill_from = Vector2(0, 0)
-	gradient_texture.fill_to = Vector2(1, 0)
-	var shade = TextureRect.new()
-	shade.texture = gradient_texture
-	shade.stretch_mode = TextureRect.STRETCH_SCALE
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(shade)
-
+	Art.enter(self)
 
 func _title_block() -> void:
-	var box = VBoxContainer.new()
-	box.position = Vector2(92, 104)
-	box.add_theme_constant_override("separation", 8)
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(box)
-	var top = HBoxContainer.new()
-	top.add_theme_constant_override("separation", 18)
-	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(top)
-	top.add_child(Ui.title("妖怪夜市", 92, Ui.GOLD_BRIGHT))
-	var seal = Ui.seal("夜", 80.0)
-	seal.pivot_offset = Vector2(40, 40)
-	seal.rotation = -0.06
-	top.add_child(seal)
-	box.add_child(Ui.label("YOKAI NIGHT MARKET · 子时开张", 15, Color(Ui.TEXT_DIM, 0.85)))
-	var rule = ColorRect.new()
-	rule.color = Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.55)
-	rule.custom_minimum_size = Vector2(360, 1)
-	box.add_child(rule)
-	box.add_child(Ui.label("香火为钱，草木为兵。守到天亮，摊子才算收。", 19, Ui.TEXT))
-
+	var mark = Control.new()
+	mark.position = Vector2(84, 104)
+	mark.size = Vector2(460, 238)
+	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(mark)
+	mark.draw.connect(func():
+		mark.draw_string(Ui.medium_font(), Vector2(2, 12), "子 时 开 张  ·  旧 物 有 灵", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Ui.TEXT_DIM)
+		mark.draw_line(Vector2(0, 30), Vector2(384, 30), Color(Art.BRASS, 0.65), 1, true)
+		mark.draw_string(Ui.display_font(), Vector2(-3, 129), "妖怪", HORIZONTAL_ALIGNMENT_LEFT, -1, 108, Ui.GOLD_BRIGHT)
+		mark.draw_string(Ui.display_font(), Vector2(97, 229), "夜市", HORIZONTAL_ALIGNMENT_LEFT, -1, 108, Ui.GOLD_BRIGHT)
+		mark.draw_arc(Vector2(340, 109), 46, 0.25, TAU - 0.25, 64, Color(Art.BRASS, 0.7), 1, true)
+		Art.icon(mark, "lantern", Vector2(340, 104), 31, Ui.GOLD_BRIGHT)
+		Art.diamond(mark, Vector2(23, 199), 7, Ui.VERMILION, true)
+		mark.draw_line(Vector2(39, 199), Vector2(80, 199), Art.BRASS, 1, true))
+	var english = Ui.label("Y O K A I   N I G H T   M A R K E T", 13, Ui.TEXT_DIM)
+	english.position = Vector2(88, 365)
+	add_child(english)
+	var line = Ui.label("香火为钱，草木为兵。守到天亮，摊子才算收。", 17, Ui.TEXT)
+	line.position = Vector2(88, 396)
+	add_child(line)
 
 func _menu_buttons() -> void:
-	var box = VBoxContainer.new()
-	box.position = Vector2(92, 336)
-	box.add_theme_constant_override("separation", 12)
-	add_child(box)
-	var save_data: Dictionary = game.save_data
-	var has_save = not save_data.is_empty()
-	# 一夜未守、也没学过教程：主按钮先带人去第一课，而不是把他丢进选关页
-	var fresh = not has_save and Array(game.progress.get("cleared", [])).is_empty() \
-		and not bool(game.progress.get("taught", false))
-
-	# 主操作：朱漆匾
-	var primary_text = "继续守夜" if has_save else ("先学一夜守夜" if fresh else "开始守夜")
-	var primary = Ui.button(primary_text, 26, 348, 68, true)
+	var has_save = not game.save_data.is_empty()
+	var fresh = not has_save and Array(game.progress.get("cleared", [])).is_empty() and not bool(game.progress.get("taught", false))
+	var primary = Ui.button("继续守夜" if has_save else ("先学一夜守夜" if fresh else "开始守夜"), 27, 406, 72, true)
+	primary.name = "PrimaryAction"
+	primary.position = Vector2(84, 453)
+	Ui.pin(primary, .5)
 	primary.pressed.connect(func():
 		game.play_sfx("click")
-		if has_save:
-			game.continue_run()
-		elif fresh:
-			game.start_battle(0, ["shooter"], "tutorial")
-		else:
-			game.show_levels())
-	box.add_child(primary)
-	if has_save:
-		box.add_child(Ui.label(_save_line(save_data), 15, Color(Ui.TEXT_DIM, 0.9)))
-	elif fresh:
-		box.add_child(Ui.label("第一课约两分钟：收香火、种签筒、升一阶、请石磨挡一次。",
-			15, Color(Ui.TEXT_DIM, 0.9)))
-
-	# 次操作：一列宣纸签条
+		if has_save: game.continue_run()
+		elif fresh: game.start_battle(0, ["shooter"], "tutorial")
+		else: game.show_levels())
+	add_child(primary)
+	var note = Ui.label(_save_line(game.save_data) if has_save else ("先跟街坊学会收香火、请草木，再守第一夜。" if fresh else "灯火已备，挑一夜出摊。"), 15, Ui.TEXT_DIM)
+	note.position = Vector2(90, 536)
+	Ui.pin(note, .5)
+	note.size = Vector2(400, 44)
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(note)
 	var entries = [
-		["挑选一夜", func(): game.show_levels()],
-		["草木志 · 恶客录", func(): game.open_almanac("plant", 0)],
-		["训练与教程", func(): game.show_training_menu()],
-		["设置", func(): game.open_settings()],
+		["挑选一夜", "map", func(): game.show_levels()],
+		["草木志·恶客录", "book", func(): game.open_almanac("plant", 0)],
+		["训练与教程", "training", func(): game.show_training_menu()],
+		["设置", "settings", func(): game.open_settings()],
 	]
-	for entry in entries:
-		var button = Ui.button(String(entry[0]), 20, 348, 50)
-		button.pressed.connect(func():
-			game.play_sfx("click")
-			entry[1].call())
-		box.add_child(button)
-	var quit = Ui.button("收摊退出", 17, 160, 40)
+	for i in entries.size():
+		var entry = entries[i]
+		var button = Ui.button(String(entry[0]), 16 if String(entry[0]).length() > 6 else 18, 197, 50)
+		button.position = Vector2(84 + (i % 2) * 209, 602 + (i / 2 as int) * 62)
+		Ui.pin(button, .5)
+		button.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		button.add_theme_constant_override("align_to_largest_stylebox", 1)
+		button.pressed.connect(func(): game.play_sfx("click"); entry[2].call())
+		add_child(button)
+		var emblem = Art.icon_control(String(entry[1]), 26, Ui.GOLD)
+		emblem.position = Vector2(14, 12)
+		button.add_child(emblem)
+	var slot = Ui.button("守夜存档 · %d" % (game.active_slot + 1), 16, 197, 42)
+	slot.position = Vector2(84, 744)
+	Ui.pin(slot)
+	slot.pressed.connect(_show_slots)
+	add_child(slot)
+	var quit = Ui.button("收摊退出", 16, 197, 42)
+	quit.position = Vector2(293, 744)
+	Ui.pin(quit)
 	quit.pressed.connect(func(): get_tree().quit())
-	var footer := Ui.hbox(10)
-	box.add_child(footer)
-	footer.add_child(quit)
-	var slots := Ui.button("守夜存档 · %d" % (game.active_slot + 1), 17, 178, 40)
-	footer.add_child(slots)
-	slots.pressed.connect(_show_slots)
+	add_child(quit)
+	var hint = Ui.label("F11 全屏   ·   Esc 返回", 13, Ui.TEXT_FAINT)
+	hint.position = Vector2(88, 837)
+	Ui.pin(hint)
+	add_child(hint)
 
+func _information_button() -> void:
+	var news = Ui.button("夜市新讯", 16, 132, 42)
+	news.position = Vector2(1418, 34)
+	news.pressed.connect(game.open_news)
+	add_child(news)
+	var update = Ui.button("检查更新", 16, 132, 42)
+	update.position = Vector2(1274, 34)
+	update.name = "CheckUpdate"
+	update.pressed.connect(_open_update)
+	add_child(update)
+
+func _records_card() -> void:
+	var card = Ui.panel()
+	card.position = Vector2(626, 802)
+	Ui.pin(card)
+	card.custom_minimum_size = Vector2(928, 68)
+	add_child(card)
+	var row = Ui.hbox(18)
+	card.add_child(row)
+	row.add_child(Art.icon_control("book", 28, Ui.GOLD))
+	row.add_child(Ui.strong("守夜手札", 20, Ui.GOLD_BRIGHT))
+	var cleared = Array(game.progress.get("cleared", [])).size()
+	var summary = Ui.label("已守住 %d / %d 夜" % [cleared, Content.LEVELS.size()], 17)
+	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(summary)
+	var key = String(game.settings.get("difficulty", "easy"))
+	var book: Dictionary = Dictionary(game.records.get("by_diff", {})).get(key, {})
+	row.add_child(Ui.label("%s · 天亮 %d 次 · 最多击退 %d 波" % [game.DIFFICULTY_LABEL[key], int(book.get("wins", 0)), int(book.get("best_groups", int(book.get("best_wave", 0)) / Content.WAVES_PER_GROUP))], 15, Ui.TEXT_DIM))
+	var open = Ui.button("翻阅", 16, 76, 34)
+	open.pressed.connect(_show_records)
+	row.add_child(open)
+
+func _show_records() -> void:
+	var list = _open_save_panel("守夜手札", false)
+	list.add_child(Ui.label("已守住 %d / %d 夜" % [Array(game.progress.get("cleared", [])).size(), Content.LEVELS.size()], 21, Ui.GOLD_BRIGHT))
+	var books: Dictionary = game.records.get("by_diff", {})
+	for key in ["easy", "normal", "hard", "nightmare"]:
+		var record: Dictionary = books.get(key, {})
+		list.add_child(Ui.strong(String(game.DIFFICULTY_LABEL[key]), 20, Ui.GOLD))
+		var seconds = record.get("best_time", null)
+		var fastest = "暂无" if seconds == null else "%d:%02d" % [int(seconds) / 60, int(seconds) % 60]
+		list.add_child(Ui.label("天亮 %d 次 · 最多击退 %d 波 · 最快天亮 %s" % [int(record.get("wins", 0)), int(record.get("best_groups", int(record.get("best_wave", 0)) / Content.WAVES_PER_GROUP)), fastest], 18))
+		list.add_child(Ui.label("最多击退 %d 位恶客" % int(record.get("best_kills", 0)), 16, Ui.TEXT_DIM))
+		list.add_child(Ui.hline(Color(Ui.GOLD_DIM, 0.35)))
 
 func _show_slots() -> void:
 	var list := _open_save_panel("守夜存档", false)
@@ -250,136 +241,6 @@ func _save_line(save_data: Dictionary) -> String:
 	var wave = int(sim_data.get("wave_index", 0))
 	return "上次停在 %s·%s %s %s" % [level["day_name"], level["day_sub"],
 		level["name"], Content.wave_text(level, maxi(0,wave-1))]
-
-
-## 右侧的「守夜记录」纸牌：一张斜挂的宣纸，用金线压边
-func _records_card() -> void:
-	var card = PanelContainer.new()
-	card.position = Vector2(1132, 486)
-	card.custom_minimum_size = Vector2(404, 248)
-	card.add_theme_stylebox_override("panel",
-		Ui.flat(Color(Ui.PAPER.r, Ui.PAPER.g, Ui.PAPER.b, 0.94),
-			Color(Ui.VERMILION.r, Ui.VERMILION.g, Ui.VERMILION.b, 0.55), 4, 2))
-	card.rotation = -0.012
-	add_child(card)
-	var box = Ui.vbox(6)
-	card.add_child(box)
-	var head = Ui.hbox(8)
-	box.add_child(head)
-	var record_title = Ui.label("守夜记录", 30, Color("#3a2418"))
-	record_title.add_theme_font_override("font", Ui.display_font())
-	head.add_child(record_title)
-	var stamp = Ui.seal("录", 34.0)
-	stamp.pivot_offset = Vector2(17, 17)
-	stamp.rotation = 0.08
-	head.add_child(stamp)
-	var cleared: Array = game.progress.get("cleared", [])
-	var stars_got = 0
-	for level in Content.LEVELS:
-		for flag in preload("res://data/nightmare.gd").flags(game.progress,int(level.id)):
-			stars_got+=int(bool(flag))
-	var lines = [
-		"通关 %d / %d 夜" % [cleared.size(), Content.LEVELS.size()],
-		"守夜评级 %d / %d ★" % [stars_got, Content.LEVELS.size() * 4],
-	]
-	var books: Dictionary = Dictionary(game.records.get("by_diff", {}))
-	for key in ["easy", "normal", "hard", "nightmare"]:
-		var book: Dictionary = Dictionary(books.get(key, {}))
-		if book.is_empty():
-			continue
-		lines.append("%s：天亮 %d 次 · 最多击退 %d 波" % [
-			String(game.DIFFICULTY_LABEL[key]), int(book.get("wins", 0)),
-			int(book.get("best_groups", int(book.get("best_wave", 0)) / Content.WAVES_PER_GROUP))])
-	var legacy: Dictionary = Dictionary(game.records.get("legacy", {}))
-	if books.is_empty() and not legacy.is_empty():
-		# v0.3.1 及更早不分难度，旧数字整册摆在这一行，等正经分档的账记上就退场
-		lines.append("旧版累计：天亮 %d 次 · 最多击退 %d 波" % [
-			int(legacy.get("wins", 0)),
-			int(ceil(float(legacy.get("best_wave", 0)) / Content.WAVES_PER_GROUP))])
-	if lines.size() == 2:
-		lines.append("还没守过夜：从第壹夜开始")
-	var chosen:Dictionary=books.get(String(game.settings.get("difficulty","easy")),{})
-	var time=chosen.get("best_time",null)
-	var fastest="暂无" if time==null else "%d:%02d" % [int(time)/60,int(time)%60]
-	lines.append("%s · 最快天亮 %s · 最多击退 %d 位" % [game.DIFFICULTY_LABEL[String(game.settings.get("difficulty","easy"))],fastest,int(chosen.get("best_kills",0))])
-	for line in lines:
-		box.add_child(Ui.label(String(line), 17, Color("#4a3520")))
-
-
-func _decor() -> void:
-	var holder = Control.new()
-	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	holder.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	holder.offset_left = -700.0
-	holder.offset_right = -60.0
-	holder.offset_top = -400.0
-	holder.offset_bottom = -20.0
-	add_child(holder)
-	var ids = ["lantern", "shooter", "wall", "cat"]
-	var positions = [Vector2(80, 380), Vector2(250, 400), Vector2(430, 385),
-		Vector2(590, 404)]
-	var heights = [160.0, 172.0, 164.0, 158.0]
-	for i in ids.size():
-		var texture = Ui.sprite(String(ids[i]))
-		if texture == null:
-			continue
-		var rect = TextureRect.new()
-		rect.texture = texture
-		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		rect.size = Vector2(heights[i] * 0.7, heights[i])
-		rect.position = positions[i] - Vector2(rect.size.x * 0.5, rect.size.y)
-		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		rect.modulate = Color(1, 1, 1, 0.22)
-		holder.add_child(rect)
-	var hint = Ui.label("F11 全屏 · Esc 返回", 15, Color(1, 1, 1, 0.35))
-	hint.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	hint.offset_left = -220.0
-	hint.offset_top = -34.0
-	hint.offset_right = -24.0
-	add_child(hint)
-
-
-## 飘落的花瓣：v0.2.4 封面的那点活气
-func _petals_setup() -> void:
-	_petal_layer = Control.new()
-	_petal_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_petal_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_petal_layer.draw.connect(_draw_petals)
-	add_child(_petal_layer)
-	var rng = RandomNumberGenerator.new()
-	rng.seed = 20261101
-	for i in 22:
-		_petals.append({
-			"x": rng.randf() * 1600.0, "y": rng.randf() * 900.0,
-			"t": rng.randf() * 10.0, "speed": 26.0 + rng.randf() * 34.0,
-			"size": 3.0 + rng.randf() * 2.6, "spin": rng.randf() * TAU,
-		})
-
-
-func _draw_petals() -> void:
-	for petal in _petals:
-		var t = float(petal["t"])
-		var x = fmod(float(petal["x"]) + t * 18.0 + sin(t * 0.7) * 26.0, 1640.0) - 20.0
-		var y = fmod(float(petal["y"]) + t * float(petal["speed"]), 960.0) - 20.0
-		var s = float(petal["size"])
-		_petal_layer.draw_set_transform(Vector2(x, y),
-			float(petal["spin"]) + t * 0.9, Vector2(1.0, 0.55))
-		_petal_layer.draw_circle(Vector2.ZERO, s,
-			Color(1.0, 0.72, 0.78, 0.34))
-		_petal_layer.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
-
-func _information_button() -> void:
-	var button := Ui.button("i", 26, 48, 48)
-	button.position = Vector2(1496, 40)
-	button.tooltip_text = "查看本版更新公告"
-	button.add_theme_font_override("font", Ui.medium_font())
-	button.add_theme_stylebox_override("normal", Ui.flat(Color("#18252a"), Ui.GOLD_DIM, 24, 2))
-	button.add_theme_stylebox_override("hover", Ui.flat(Color("#34413b"), Ui.GOLD_BRIGHT, 24, 2))
-	button.add_theme_color_override("font_color", Ui.GOLD_BRIGHT)
-	button.pressed.connect(game.open_news)
-	add_child(button)
 
 
 func _open_update():

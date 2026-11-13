@@ -75,9 +75,9 @@ func run():
 	good.t=220;check("更换策略不能跨基线比较",not sweep.compare_run(baseline,"easy:1",good,"other-strategy").is_empty())
 	var game=load("res://scenes/main.tscn").instantiate();root.add_child(game);await settle()
 	game.progress={"cleared":[],"stars":{}};game.records={"by_diff":{"easy":{"wins":2,"best_time":125.2,"best_kills":123,"best_groups":4}}};game.settings.difficulty="easy"
-	game.show_menu();await settle();var text=scene_text(game.screen_node)
+	game.show_menu();await settle();game.screen_node._show_records();await settle();var text=scene_text(game.screen_node)
 	check("封面显示存档最快时间与击退",text.contains("最快天亮 2:05") and text.contains("123 位"))
-	game.records={};game.show_menu();await settle();check("旧档缺成绩正常显示暂无",scene_text(game.screen_node).contains("最快天亮 暂无"))
+	game.records={};game.show_menu();await settle();game.screen_node._show_records();await settle();check("旧档缺成绩正常显示暂无",scene_text(game.screen_node).contains("最快天亮 暂无"))
 	game.open_almanac("boss",0);await settle();text=scene_text(game.screen_node)
 	check("未击退仍可看全部技能数值对策",text.contains("双穴裂街") and text.contains("恶首底细") and text.contains("留意出招"))
 	check("未击退只遮独立来历",text.contains("击退这位恶首后") and not text.contains("旧街铺石"))

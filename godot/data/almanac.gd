@@ -37,8 +37,8 @@ static func boss_skills(id: String) -> Array:
 	var hp := float(data.max_hp) * BossRules.HEALTH_SCALE * BossRules.EASY_HP_SCALE
 	var force := BossRules.SKILL_FORCE
 	var rows := [
-		["恶首底细", "生命　简单 %d · 普通 %d · 困难 %d · 噩梦 %d。身躯占相邻两行，每施放一至两次小招便随机换行。" % [
-			roundi(hp), roundi(hp * Sim.DIFFICULTY.normal.hp), roundi(hp * Sim.DIFFICULTY.hard.hp), roundi(hp * Sim.DIFFICULTY.nightmare.hp)]],
+		["恶首底细", "生命　初月 %d · 常夜 %d · 沉夜 %d · 噩梦 %d。身躯占相邻两行，每施放一至两次小招便随机换行。" % [
+			roundi(hp * Sim.DIFFICULTY.easy.hp), roundi(hp * Sim.DIFFICULTY.normal.hp), roundi(hp * Sim.DIFFICULTY.hard.hp), roundi(hp * Sim.DIFFICULTY.nightmare.hp)]],
 		["出招节奏", "现身后准备3秒。首次小招在%.2f秒后到来，之后每%.2f秒再次施放。闪影换行用时%.2f秒。" % [
 			float(data.small_first_s) / BossRules.SKILL_RATE, float(data.small_period_s) / BossRules.SKILL_RATE, BossRules.BLINK_TIME]]]
 	match id:
@@ -227,6 +227,8 @@ const PLANTS = {
 }
 
 const ZOMBIES = {
+	"incense-thief":{"epithet":"把灯灰藏进旧罐","story":"摊主总在盘账时少了一把香火。长街尽头的破罐轻轻一响，盗烬客便把最后一缕灯灰吞进肚里。","counter":"初次入场5秒后停步窃取，此后每7秒最多偷35香火，余额不足则扣至0。第二次起每次炼化15，击退时掉落尚未炼化的部分。沉默可阻止窃取，尽早击退可取回更多。","quote":"这缕烟，你方才数过吗？"},
+	"sky-ferry":{"epithet":"两盏浮灯，顺路载客","story":"轿架只容一位客，浮灯轿夫却从不问来人的身量。它掀起篓沿，把同路的恶客送到摊后，才肯收起两盏青灯。","counter":"携带1500耐久的浮灯轿架，飞行时速度提高50%。遇到的第一位可搭载恶客会随轿升空，大型也可搭乘。拆毁轿架或进入门神前四格后落地。追魂、抛射、灰烬可对空；在障碍上坠落会退场。","quote":"上轿吧，前头不必走。"},
 	"sky-wick":{"epithet": "借纸作翅", "story": "纸铺剩下的旧鸢，驮着一个不肯落地的饿鬼。飞到灯火近旁，纸翅就撑不住了。", "counter": "飞行时忽略障碍，移动速度提高50%，不受普通射弹与范围攻击命中；追魂、抛物线与灰烬可打中。门神前四格内遇到可落脚处便降落；障碍上破翅会坠亡。", "quote": "脚下的路，我先借过。"},
 	"shield-envoy":{"epithet": "旧牌分给后来人", "story": "它背着一摞无人认领的护身牌，沿街把牌塞给饿鬼。牌上名字已经磨平，它仍记得授牌的手势。", "counter": "入场5秒后首次授牌，此后每11秒，把2.2格内尚无护具的低阶恶客全部加上1080耐久的护身牌。抛射、范围等非普通射弹攻击可绕过护牌。沉默能阻止授牌。", "quote": "牌拿稳，莫掉了。"},
 	"oar-barge":{"epithet": "五桨一齐，阴舟不歇", "story": "暗河里五个饿鬼合坐一条旧舟，橹声总在同一拍。它们不认渡钱，只认挡在船头的摊位。", "counter": "仅从水路来。每2.4秒同步划桨，前0.75秒冲进；遇到攻击范围内的草木则改为撞击，造成300。船壳击沉后，五名饿鬼落水并继续游来。", "quote": "一、二——划。"},
@@ -387,7 +389,7 @@ static func plant_rows(type: String) -> Array:
 		"sky-mortar":
 			rows.append(_row("炮弹伤害","215；一格范围内全额溅射","atk"))
 			rows.append(_row("攻击间隔","6.3秒；炮弹升空后1.5秒落下","time"))
-			rows.append(_row("目标","自动轰击最密集的一群恶客，炮弹落点锁定","desc"))
+			rows.append(_row("目标","自动轰击最密集的地面目标（含水中恶客），炮弹落点锁定；基础不能对空。炮弹属于灰烬伤害，绕过只能挡射弹的盾牌。","desc"))
 		"reed-chime":
 			rows.append(_row("竹声伤害", str(Upgrades.EFFECTS["reed-chime"].damage[0]), "atk"));rows.append(_row("攻击间隔", "1.6 秒", "time"));rows.append(_row("范围", "正前方三格的窄束范围攻击", "desc"))
 		"soul-casket":
@@ -547,7 +549,7 @@ static func plant_pitch(type: String) -> String:
 static func plant_ability(type: String) -> String:
 	const GUIDE = {
 	"year-banyan":"种下3秒产出50香火，之后每10秒产出。30秒和60秒时成长，每次产出增加15；任一路升至三级后，仍可每30秒再成长一次，最多四次。三路分别侧重产能、榕籽连射、守护与全队协作。",
-	"sky-mortar":"向天空发射重炮，瞄准恶客最密集处，1.5秒后轰击锁定位置，对一格内来客造成215全额范围伤害。三路分别侧重连炮、灰烬破甲、击退返香与追魂余弹。",
+	"sky-mortar":"向天空发射重炮，瞄准恶客最密集处，1.5秒后轰击锁定位置，对一格内来客造成215全额范围伤害。基础炮弹属于灰烬伤害，能打陆上与水中目标，不能对空。三路分别侧重连炮、同时破甲、看破与八方弹片，并可解锁主动技能“霄炮镇平安”。",
 	"reed-chime":"竹声穿过前方三格，打中束内的全部恶客。进化可拓宽为七向扇面、附带减速，或强化竹声与出手节奏。",
 	"soul-casket":"收集路过的己方射弹，保留其全部效果；收满后按0.09秒间隔逐发追魂放出。冷却期间不挡弹。能承受伤害加成，收弹和放弹节奏不受攻速加成影响；原弹与灵枢的增伤分别乘算。进化可持续收弹、增强或复制放出的射弹，以及纳入抛射与范围攻击。",
 	"herb-gourd": "照料自身和前方三格内生命最低的受伤草木。进化可扩大范围、提高治疗，并在同伴满血时鼓舞。",

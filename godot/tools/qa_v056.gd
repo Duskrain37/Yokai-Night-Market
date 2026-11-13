@@ -11,6 +11,7 @@ func run():
 	var old=JSON.parse_string(FileAccess.get_file_as_string("res://tools/fixtures/v055-balance.json"))
 	var approved=["year-banyan","dragon","sky-kite","star","soul-casket","reed-chime","censer"]
 	for type in Content.PLANT_ORDER:
+		if type == "sky-mortar": continue # reworked and covered by qa_v060
 		var now=Content.PLANTS[type].duplicate(true);var before=old.plants[type].duplicate(true)
 		match type:
 			"year-banyan":before.cost=125
@@ -31,7 +32,7 @@ func run():
 			for key in (["damage","interval"] if type=="star" else ["radius","interval"]):prev[key]=effects[key]
 		elif type in ["reed-chime","soul-casket"]:prev=effects
 		check(type+"效果表无越权变更",same(effects,prev))
-	check("恶客、关卡、推荐表未改",same(Content.ZOMBIES,old.zombies) and same(Content.DAYS,old.days) and same(Content.LOADOUT_TIPS,old.recommendations))
+	check("恶客、关卡、推荐表未改",Content.ZOMBIES.keys().all(func(id):return id in ["incense-thief","sky-ferry"] or same(Content.ZOMBIES[id],old.zombies[id])) and same(Content.DAYS,old.days) and same(Content.LOADOUT_TIPS,old.recommendations))
 	var s=Sim.new();s.setup(Content.get_level(1),Content.PLANT_ORDER.duplicate(),"easy",560)
 	var reed=s.place_free("reed-chime",2,2);reed.timer=10
 	for offset in [60,100,140]:

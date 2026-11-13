@@ -1,0 +1,7291 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "name": "四档名称与乘数/easy",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "实际血量及护具/easy",
+      "ok": true
+    },
+    {
+      "detail": "4000",
+      "name": "实际出怪数量/easy",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "四档名称与乘数/normal",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "实际血量及护具/normal",
+      "ok": true
+    },
+    {
+      "detail": "5000",
+      "name": "实际出怪数量/normal",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "四档名称与乘数/hard",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "实际血量及护具/hard",
+      "ok": true
+    },
+    {
+      "detail": "5500",
+      "name": "实际出怪数量/hard",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "四档名称与乘数/nightmare",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "实际血量及护具/nightmare",
+      "ok": true
+    },
+    {
+      "detail": "6000",
+      "name": "实际出怪数量/nightmare",
+      "ok": true
+    },
+    {
+      "detail": "12",
+      "name": "完整血量适配/459+1458",
+      "ok": true
+    },
+    {
+      "detail": "7",
+      "name": "完整血量适配/123456+123456",
+      "ok": true
+    },
+    {
+      "detail": "5",
+      "name": "完整血量适配/99999999+99999999",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lantern/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lantern-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lantern/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lantern-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lantern/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lantern-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/shooter/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/shooter-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/shooter/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/shooter-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/shooter/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/shooter-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/wall/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/wall-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/wall/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/wall-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/wall/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/wall-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/bell/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/bell-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/bell/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/bell-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/bell/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/bell-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/censer/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/censer-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/censer/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/censer-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/censer/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/censer-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/umbrella/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/umbrella-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/umbrella/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/umbrella-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/umbrella/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/umbrella-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lion/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lion-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lion/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lion-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lion/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lion-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/cat/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/cat-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/cat/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/cat-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/cat/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/cat-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lobber/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lobber-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lobber/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lobber-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/lobber/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/lobber-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/torch/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/torch-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/torch/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/torch-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/torch/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/torch-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/star/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/star-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/star/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/star-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/star/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/star-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/needle/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/needle-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/needle/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/needle-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/needle/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/needle-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/judge/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/judge-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/judge/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/judge-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/judge/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/judge-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/firework/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/firework-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/firework/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/firework-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/firework/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/firework-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/dragon/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/dragon/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/dragon/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/sky-kite/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/sky-kite-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/sky-kite/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/sky-kite-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/sky-kite/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/sky-kite-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/wish-till/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/wish-till-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/wish-till/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/wish-till-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/wish-till/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/wish-till-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/ember-cicada/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/ember-cicada-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/ember-cicada/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/ember-cicada-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/ember-cicada/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/ember-cicada-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/herb-gourd/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/herb-gourd-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/herb-gourd/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/herb-gourd-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/herb-gourd/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/herb-gourd-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/reed-chime/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/reed-chime-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/reed-chime/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/reed-chime-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/reed-chime/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/reed-chime-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/soul-casket/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/soul-casket-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/soul-casket/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/soul-casket-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/soul-casket/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/soul-casket-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/year-banyan/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/year-banyan-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/year-banyan/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/year-banyan-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/year-banyan/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/year-banyan-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/sky-mortar/1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/sky-mortar-e1",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/sky-mortar/2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/sky-mortar-e2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶立绘存在/sky-mortar/3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "三阶使用战斗动画资源/sky-mortar-e3",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "设置移除音乐风格/sound",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "设置移除音乐风格/music_volume",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "设置移除音乐风格/sfx_volume",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "旧音乐设置强制迁移",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/1/battle",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/1/hot",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/1/final",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/2/battle",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/2/hot",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/2/final",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/3/battle",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/3/hot",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/3/final",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/4/battle",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/4/hot",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/4/final",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/5/battle",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/5/hot",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完整曲目/5/final",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "旧通用曲移除/battle",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "旧通用曲移除/hot",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "旧通用曲移除/final",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "龟甲开口真实透明",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "公告分类与顺序",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "草木公告前后对照/调整 · 龟甲罩",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "草木公告前后对照/调整 · 镇霄炮本体",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "草木公告前后对照/调整 · 镇霄炮第三路",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "说明不含十二株冗文",
+      "ok": true
+    },
+    {
+      "detail": "[P: (84.0, 503.0), S: (406.0, 72.0)]",
+      "name": "16:10首页/先学一夜守夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (84.0, 652.0), S: (197.0, 50.0)]",
+      "name": "16:10首页/挑选一夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (293.0, 652.0), S: (197.0, 50.0)]",
+      "name": "16:10首页/草木志·恶客录",
+      "ok": true
+    },
+    {
+      "detail": "[P: (84.0, 714.0), S: (197.0, 50.0)]",
+      "name": "16:10首页/训练与教程",
+      "ok": true
+    },
+    {
+      "detail": "[P: (293.0, 714.0), S: (197.0, 50.0)]",
+      "name": "16:10首页/设置",
+      "ok": true
+    },
+    {
+      "detail": "[P: (84.0, 844.0), S: (197.0, 42.0)]",
+      "name": "16:10首页/守夜存档 · 1",
+      "ok": true
+    },
+    {
+      "detail": "[P: (293.0, 844.0), S: (197.0, 42.0)]",
+      "name": "16:10首页/收摊退出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1418.0, 34.0), S: (132.0, 42.0)]",
+      "name": "16:10首页/夜市新讯",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1274.0, 34.0), S: (132.0, 42.0)]",
+      "name": "16:10首页/检查更新",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1456.0, 920.0), S: (76.0, 34.0)]",
+      "name": "16:10首页/翻阅",
+      "ok": true
+    },
+    {
+      "detail": "[P: (0.0, 0.0), S: (1600.0, 1000.0)]",
+      "name": "16:10扩展画布",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/1/1.0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/2/1.0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/3/1.0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/4/1.0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/5/1.0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 36.0), S: (142.0, 42.0)]",
+      "name": "16:10选关/← 回封面",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1310.0, 36.0), S: (242.0, 42.0)]",
+      "name": "16:10选关/特殊关 · 鬼市深处",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 888.0), S: (338.0, 54.0)]",
+      "name": "16:10选关/进入第壹夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (72.0, 851.0), S: (166.0, 33.0)]",
+      "name": "16:10选关/看恶客图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战1/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战1/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战1/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战1/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战1/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战1/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战1/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战1/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战1/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战1/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战2/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战2/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战2/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战2/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战2/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战2/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战2/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战2/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战2/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战2/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战3/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战3/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战3/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战3/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战3/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战3/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战3/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战3/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战3/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战3/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战4/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战4/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战4/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战4/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战4/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战4/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战4/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战4/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战4/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战4/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战5/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战5/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战5/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战5/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战5/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战5/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战5/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战5/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战5/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战5/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战6/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战6/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战6/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战6/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战6/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战6/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战6/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战6/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战6/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战6/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战7/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战7/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战7/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战7/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战7/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战7/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战7/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战7/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战7/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战7/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战8/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战8/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战8/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战8/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战8/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战8/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战8/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战8/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战8/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战8/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战9/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战9/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战9/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战9/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战9/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战9/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战9/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战9/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战9/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战9/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战10/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战10/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战10/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战10/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战10/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战10/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战10/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战10/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战10/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战10/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战11/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战11/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战11/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战11/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战11/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战11/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战11/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战11/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战11/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战11/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战12/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战12/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战12/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战12/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战12/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战12/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战12/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战12/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战12/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战12/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战13/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战13/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战13/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战13/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战13/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战13/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战13/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战13/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战13/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战13/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战14/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战14/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战14/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战14/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战14/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战14/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战14/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战14/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战14/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战14/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战15/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战15/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战15/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战15/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战15/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战15/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战15/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战15/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战15/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战15/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战16/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战16/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战16/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战16/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战16/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战16/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战16/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战16/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战16/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战16/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战17/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战17/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战17/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战17/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战17/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战17/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战17/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战17/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战17/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战17/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战18/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战18/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战18/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战18/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战18/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战18/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战18/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战18/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战18/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战18/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战19/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战19/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战19/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战19/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战19/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战19/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战19/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战19/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战19/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战19/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战20/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战20/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战20/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战20/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战20/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战20/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战20/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战20/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战20/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战20/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战21/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战21/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战21/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战21/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战21/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战21/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战21/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战21/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战21/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战21/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战22/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战22/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战22/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战22/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战22/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战22/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战22/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战22/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战22/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战22/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战23/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战23/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战23/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战23/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战23/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战23/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战23/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战23/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战23/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战23/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战24/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战24/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战24/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战24/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战24/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战24/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战24/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战24/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战24/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战24/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战25/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战25/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战25/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战25/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战25/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战25/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战25/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战25/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战25/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战25/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "16:10备战26/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战26/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战26/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战26/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战26/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "16:10备战26/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "16:10备战26/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战26/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "16:10备战26/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战26/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (288.0, 50.0), S: (104.0, 41.0)]",
+      "name": "16:10图鉴/草木志",
+      "ok": true
+    },
+    {
+      "detail": "[P: (398.0, 50.0), S: (104.0, 41.0)]",
+      "name": "16:10图鉴/恶客录",
+      "ok": true
+    },
+    {
+      "detail": "[P: (508.0, 50.0), S: (104.0, 41.0)]",
+      "name": "16:10图鉴/恶首录",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1390.0, 50.0), S: (140.0, 41.0)]",
+      "name": "16:10图鉴/合上 (Esc)",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 505.0), S: (344.0, 36.0)]",
+      "name": "16:10图鉴/按发布顺序",
+      "ok": true
+    },
+    {
+      "detail": "[P: (432.0, 112.0), S: (120.0, 36.0)]",
+      "name": "16:10图鉴/本事",
+      "ok": true
+    },
+    {
+      "detail": "[P: (560.0, 112.0), S: (120.0, 36.0)]",
+      "name": "16:10图鉴/进化",
+      "ok": true
+    },
+    {
+      "detail": "[P: (688.0, 112.0), S: (120.0, 36.0)]",
+      "name": "16:10图鉴/来历",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴按行排列/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴按行排列/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴按行排列/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/boss",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1178.0, 78.0), S: (140.0, 49.0)]",
+      "name": "16:10设置/返回 (Esc)",
+      "ok": true
+    },
+    {
+      "detail": "[P: (282.0, 152.0), S: (168.0, 46.0)]",
+      "name": "16:10设置/战斗与操作",
+      "ok": true
+    },
+    {
+      "detail": "[P: (282.0, 208.0), S: (168.0, 46.0)]",
+      "name": "16:10设置/显示",
+      "ok": true
+    },
+    {
+      "detail": "[P: (282.0, 264.0), S: (168.0, 46.0)]",
+      "name": "16:10设置/声音",
+      "ok": true
+    },
+    {
+      "detail": "[P: (282.0, 320.0), S: (168.0, 46.0)]",
+      "name": "16:10设置/键位",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "难度说明弹窗在屏内",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 36.0), S: (142.0, 42.0)]",
+      "name": "16:10训练/← 回封面",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 876.0), S: (476.0, 60.0)]",
+      "name": "16:10训练/开始教程",
+      "ok": true
+    },
+    {
+      "detail": "[P: (610.0, 482.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第一周·夜市街",
+      "ok": true
+    },
+    {
+      "detail": "[P: (918.0, 482.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第二周·河埠口",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1226.0, 482.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第三周·暗河",
+      "ok": true
+    },
+    {
+      "detail": "[P: (610.0, 700.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第四周·孤灯屿",
+      "ok": true
+    },
+    {
+      "detail": "[P: (918.0, 700.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第五周·冥判窟",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1338.0, 63.0), S: (170.0, 56.0)]",
+      "name": "16:10公告/合上",
+      "ok": true
+    },
+    {
+      "detail": "[P: (92.0, 144.0), S: (230.0, 68.0)]",
+      "name": "16:10公告/更新公告",
+      "ok": true
+    },
+    {
+      "detail": "[P: (92.0, 226.0), S: (230.0, 68.0)]",
+      "name": "16:10公告/下载与反馈",
+      "ok": true
+    },
+    {
+      "detail": "[P: (84.0, 503.0), S: (406.0, 72.0)]",
+      "name": "16:10首页/先学一夜守夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (84.0, 652.0), S: (197.0, 50.0)]",
+      "name": "16:10首页/挑选一夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (293.0, 652.0), S: (197.0, 50.0)]",
+      "name": "16:10首页/草木志·恶客录",
+      "ok": true
+    },
+    {
+      "detail": "[P: (84.0, 714.0), S: (197.0, 50.0)]",
+      "name": "16:10首页/训练与教程",
+      "ok": true
+    },
+    {
+      "detail": "[P: (293.0, 714.0), S: (197.0, 50.0)]",
+      "name": "16:10首页/设置",
+      "ok": true
+    },
+    {
+      "detail": "[P: (84.0, 844.0), S: (197.0, 42.0)]",
+      "name": "16:10首页/守夜存档 · 1",
+      "ok": true
+    },
+    {
+      "detail": "[P: (293.0, 844.0), S: (197.0, 42.0)]",
+      "name": "16:10首页/收摊退出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1418.0, 34.0), S: (132.0, 42.0)]",
+      "name": "16:10首页/夜市新讯",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1274.0, 34.0), S: (132.0, 42.0)]",
+      "name": "16:10首页/检查更新",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1456.0, 920.0), S: (76.0, 35.0)]",
+      "name": "16:10首页/翻阅",
+      "ok": true
+    },
+    {
+      "detail": "[P: (0.0, 0.0), S: (1600.0, 1000.0)]",
+      "name": "16:10扩展画布",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/1/1.2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/2/1.2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/3/1.2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/4/1.2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10章节点击/5/1.2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签在屏内",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10题签不压节点",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 36.0), S: (142.0, 42.0)]",
+      "name": "16:10选关/← 回封面",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1310.0, 36.0), S: (242.0, 42.0)]",
+      "name": "16:10选关/特殊关 · 鬼市深处",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 888.0), S: (338.0, 54.0)]",
+      "name": "16:10选关/进入第壹夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (72.0, 851.0), S: (166.0, 37.0)]",
+      "name": "16:10选关/看恶客图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战1/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战1/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战1/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战1/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战1/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战1/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战1/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战1/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战1/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战1/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战2/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战2/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战2/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战2/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战2/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战2/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战2/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战2/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战2/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战2/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战3/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战3/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战3/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战3/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战3/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战3/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战3/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战3/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战3/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战3/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战4/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战4/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战4/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战4/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战4/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战4/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战4/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战4/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战4/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战4/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战5/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战5/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战5/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战5/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战5/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战5/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战5/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战5/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战5/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战5/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战6/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战6/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战6/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战6/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战6/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战6/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战6/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战6/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战6/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战6/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战7/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战7/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战7/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战7/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战7/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战7/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战7/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战7/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战7/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战7/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战8/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战8/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战8/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战8/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战8/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战8/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战8/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战8/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战8/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战8/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战9/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战9/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战9/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战9/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战9/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战9/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战9/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战9/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战9/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战9/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战10/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战10/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战10/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战10/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战10/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战10/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战10/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战10/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战10/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战10/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战11/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战11/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战11/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战11/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战11/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战11/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战11/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战11/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战11/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战11/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战12/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战12/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战12/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战12/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战12/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战12/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战12/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战12/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战12/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战12/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战13/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战13/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战13/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战13/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战13/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战13/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战13/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战13/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战13/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战13/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战14/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战14/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战14/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战14/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战14/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战14/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战14/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战14/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战14/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战14/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战15/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战15/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战15/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战15/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战15/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战15/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战15/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战15/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战15/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战15/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战16/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战16/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战16/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战16/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战16/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战16/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战16/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战16/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战16/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战16/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战17/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战17/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战17/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战17/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战17/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战17/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战17/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战17/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战17/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战17/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战18/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战18/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战18/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战18/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战18/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战18/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战18/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战18/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战18/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战18/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战19/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战19/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战19/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战19/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战19/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战19/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战19/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战19/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战19/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战19/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战20/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战20/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战20/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战20/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战20/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战20/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战20/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战20/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战20/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战20/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战21/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战21/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战21/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战21/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战21/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战21/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战21/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战21/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战21/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战21/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战22/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战22/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战22/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战22/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战22/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战22/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战22/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战22/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战22/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战22/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战23/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战23/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战23/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战23/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战23/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战23/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战23/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战23/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战23/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战23/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战24/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战24/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战24/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战24/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战24/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战24/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战24/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战24/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战24/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战24/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战25/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战25/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战25/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战25/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战25/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战25/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战25/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战25/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战25/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战25/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 43.0)]",
+      "name": "16:10备战26/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战26/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战26/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战26/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战26/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 34.0)]",
+      "name": "16:10备战26/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (165.0, 40.0)]",
+      "name": "16:10备战26/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1251.0, 836.0), S: (134.0, 40.0)]",
+      "name": "16:10备战26/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1395.0, 836.0), S: (135.0, 40.0)]",
+      "name": "16:10备战26/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "16:10备战26/开战",
+      "ok": true
+    },
+    {
+      "detail": "[P: (330.0, 50.0), S: (104.0, 50.0)]",
+      "name": "16:10图鉴/草木志",
+      "ok": true
+    },
+    {
+      "detail": "[P: (440.0, 50.0), S: (104.0, 50.0)]",
+      "name": "16:10图鉴/恶客录",
+      "ok": true
+    },
+    {
+      "detail": "[P: (550.0, 50.0), S: (104.0, 50.0)]",
+      "name": "16:10图鉴/恶首录",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1390.0, 50.0), S: (140.0, 50.0)]",
+      "name": "16:10图鉴/合上 (Esc)",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 529.0), S: (344.0, 39.0)]",
+      "name": "16:10图鉴/按发布顺序",
+      "ok": true
+    },
+    {
+      "detail": "[P: (432.0, 121.0), S: (120.0, 39.0)]",
+      "name": "16:10图鉴/本事",
+      "ok": true
+    },
+    {
+      "detail": "[P: (560.0, 121.0), S: (120.0, 39.0)]",
+      "name": "16:10图鉴/进化",
+      "ok": true
+    },
+    {
+      "detail": "[P: (688.0, 121.0), S: (120.0, 39.0)]",
+      "name": "16:10图鉴/来历",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴按行排列/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/plant",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴按行排列/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/zombie",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴按行排列/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴换排向下/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴发布序元数据/boss",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "图鉴同排先左后右/boss",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1178.0, 78.0), S: (140.0, 58.0)]",
+      "name": "16:10设置/返回 (Esc)",
+      "ok": true
+    },
+    {
+      "detail": "[P: (282.0, 161.0), S: (168.0, 46.0)]",
+      "name": "16:10设置/战斗与操作",
+      "ok": true
+    },
+    {
+      "detail": "[P: (282.0, 217.0), S: (168.0, 46.0)]",
+      "name": "16:10设置/显示",
+      "ok": true
+    },
+    {
+      "detail": "[P: (282.0, 273.0), S: (168.0, 46.0)]",
+      "name": "16:10设置/声音",
+      "ok": true
+    },
+    {
+      "detail": "[P: (282.0, 329.0), S: (168.0, 46.0)]",
+      "name": "16:10设置/键位",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "难度说明弹窗在屏内",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 36.0), S: (142.0, 42.0)]",
+      "name": "16:10训练/← 回封面",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 876.0), S: (476.0, 60.0)]",
+      "name": "16:10训练/开始教程",
+      "ok": true
+    },
+    {
+      "detail": "[P: (610.0, 495.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第一周·夜市街",
+      "ok": true
+    },
+    {
+      "detail": "[P: (918.0, 495.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第二周·河埠口",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1226.0, 495.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第三周·暗河",
+      "ok": true
+    },
+    {
+      "detail": "[P: (610.0, 713.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第四周·孤灯屿",
+      "ok": true
+    },
+    {
+      "detail": "[P: (918.0, 713.0), S: (294.0, 48.0)]",
+      "name": "16:10训练/第五周·冥判窟",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1338.0, 63.0), S: (170.0, 56.0)]",
+      "name": "16:10公告/合上",
+      "ok": true
+    },
+    {
+      "detail": "[P: (92.0, 144.0), S: (230.0, 68.0)]",
+      "name": "16:10公告/更新公告",
+      "ok": true
+    },
+    {
+      "detail": "[P: (92.0, 226.0), S: (230.0, 68.0)]",
+      "name": "16:10公告/下载与反馈",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "五位香火数字不溢出印章",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "真实点击技能区域优先",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "真实扇叶点击优先于草木和罩",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "真实点击罩体打开独立面板",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "点击罩窗口外只关闭并消费点击",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "真实点击上部本体打开进化",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "16:10棋盘投影点选一致",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "主动技能区域优先于罩和本体",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "真实点击主动施放首枚重炮",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "真实点击冷却中技能不重复发炮",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "点扇形窗口外关闭且不点穿",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "点调整窗口外关闭且不点穿",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "点暂停窗口外恢复战斗",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "点战斗设置窗外关闭",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "点战斗图鉴窗外关闭",
+      "ok": true
+    },
+    {
+      "detail": "[P: (522.0, 410.0), S: (556.0, 72.0)]",
+      "name": "16:10暂停/重返游戏",
+      "ok": true
+    },
+    {
+      "detail": "[P: (522.0, 494.0), S: (262.0, 49.0)]",
+      "name": "16:10暂停/查看图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (796.0, 494.0), S: (262.0, 49.0)]",
+      "name": "16:10暂停/设置",
+      "ok": true
+    },
+    {
+      "detail": "[P: (522.0, 555.0), S: (556.0, 42.0)]",
+      "name": "16:10暂停/重新开始这一夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (522.0, 609.0), S: (120.0, 34.0)]",
+      "name": "16:10暂停/静音切换",
+      "ok": true
+    },
+    {
+      "detail": "[P: (652.0, 609.0), S: (110.0, 34.0)]",
+      "name": "16:10暂停/回到封面",
+      "ok": true
+    },
+    {
+      "detail": "[P: (412.0, 703.0), S: (227.0, 56.0)]",
+      "name": "16:10结算/再来一次",
+      "ok": true
+    },
+    {
+      "detail": "[P: (651.0, 703.0), S: (297.0, 56.0)]",
+      "name": "16:10结算/下一夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (960.0, 703.0), S: (228.0, 56.0)]",
+      "name": "16:10结算/换一夜",
+      "ok": true
+    },
+    {
+      "detail": "[P: (412.0, 769.0), S: (382.0, 38.0)]",
+      "name": "16:10结算/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (806.0, 769.0), S: (382.0, 38.0)]",
+      "name": "16:10结算/回到封面",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "现有备战页随16:9缩回并保留卡组",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "动态缩回16:9/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态缩回16:9/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态缩回16:9/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态缩回16:9/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态缩回16:9/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态缩回16:9/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 736.0), S: (144.0, 40.0)]",
+      "name": "动态缩回16:9/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 736.0), S: (145.0, 40.0)]",
+      "name": "动态缩回16:9/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 736.0), S: (145.0, 40.0)]",
+      "name": "动态缩回16:9/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 784.0), S: (454.0, 58.0)]",
+      "name": "动态缩回16:9/开战",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "现有备战页扩为16:10并保留卡组",
+      "ok": true
+    },
+    {
+      "detail": "[P: (48.0, 34.0), S: (120.0, 40.0)]",
+      "name": "动态扩至16:10/← 返回",
+      "ok": true
+    },
+    {
+      "detail": "[P: (70.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态扩至16:10/全部",
+      "ok": true
+    },
+    {
+      "detail": "[P: (154.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态扩至16:10/产能",
+      "ok": true
+    },
+    {
+      "detail": "[P: (238.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态扩至16:10/输出",
+      "ok": true
+    },
+    {
+      "detail": "[P: (322.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态扩至16:10/守护",
+      "ok": true
+    },
+    {
+      "detail": "[P: (406.0, 270.0), S: (76.0, 32.0)]",
+      "name": "动态扩至16:10/奇术",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 836.0), S: (144.0, 40.0)]",
+      "name": "动态扩至16:10/按今夜推荐配卡",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1230.0, 836.0), S: (145.0, 40.0)]",
+      "name": "动态扩至16:10/清空",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1385.0, 836.0), S: (145.0, 40.0)]",
+      "name": "动态扩至16:10/图鉴",
+      "ok": true
+    },
+    {
+      "detail": "[P: (1076.0, 884.0), S: (454.0, 58.0)]",
+      "name": "动态扩至16:10/开战",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "进度阶段可见/checking",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "进度阶段可见/scanning",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "进度阶段可见/downloading",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "下载标明文件与分组",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "进度阶段可见/assembling",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "完成后强制重启提示",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "返回不能绕过重启",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "关闭窗口不能绕过重启",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "Esc不能绕过重启",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "倒计时自动重启且只执行一次",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "重启助手启动失败可恢复",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 1457
+}

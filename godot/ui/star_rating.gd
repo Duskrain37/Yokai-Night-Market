@@ -1,25 +1,34 @@
 extends Control
 var flags: Array=[false,false,false,false]
 var factor_count:=0
+var _elapsed = 0.0
 func _ready() -> void:
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
 	custom_minimum_size=Vector2(190,35)
 	tooltip_text="金星：通关／至多惊动一次门神／不惊动门神。红星：噩梦通关。朱印：最佳因子数。"
-func _draw() -> void:paint(self,Vector2(15,17),flags,factor_count,13.0)
-static func paint(canvas: CanvasItem,at: Vector2,earned: Array,badge: int,radius: float=8.0) -> void:
+func _process(delta: float) -> void:
+	_elapsed += delta
+	queue_redraw()
+	if _elapsed > 0.65: set_process(false)
+func _draw() -> void:paint(self,Vector2(15,17),flags,factor_count,13.0,1.0 if MarketArt.reduced_motion else clampf(_elapsed / 0.5, 0, 1))
+static func paint(canvas: CanvasItem,at: Vector2,earned: Array,badge: int,radius: float=8.0,reveal: float=1.0) -> void:
 	for index in 4:
 		var center:=at+Vector2(index*radius*2.35,0)
 		var color:=Color("#da6656") if index==3 else Ui.GOLD_BRIGHT
 		var vertices:=PackedVector2Array()
+		var pop = 1.0
+		if bool(earned[index]) and reveal < 1:
+			var t = clampf((reveal - index * 0.13) / 0.35, 0, 1)
+			pop = 1.0 - pow(1.0 - t, 3)
 		for vertex in 10:
 			var angle:=-PI/2+vertex*PI/5
-			vertices.append(center+Vector2(cos(angle),sin(angle))*radius*(1.0 if vertex%2==0 else 0.44))
-		if bool(earned[index]):
+			vertices.append(center+Vector2(cos(angle),sin(angle))*radius*pop*(1.0 if vertex%2==0 else 0.44))
+		if bool(earned[index]) and pop > 0.01:
 			if index==3:
 				canvas.draw_circle(center,radius*1.3,Color(0.7,0.13,0.1,0.15))
 				canvas.draw_arc(center,radius*1.22,0,TAU,32,Color(0.86,0.37,0.25,0.65),1.0,true)
 			canvas.draw_colored_polygon(vertices,color)
-		else:
+		elif not bool(earned[index]):
 			vertices.append(vertices[0]);canvas.draw_polyline(vertices,Color(0.5,0.41,0.29,0.7),1.1,true)
 	if badge>0 and bool(earned[3]):
 		var point:=at+Vector2(radius*10.1,0)

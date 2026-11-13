@@ -1,0 +1,366 @@
+[
+  {
+    "run": "legacy-v056",
+    "start": 0,
+    "length": 1048576,
+    "range": "bytes=0-1048575",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 108003328,
+    "length": 3230110,
+    "range": "bytes=108003328-111233437",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 420048704,
+    "length": 3708784,
+    "range": "bytes=420048704-423757487",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 423757488,
+    "length": 4194304,
+    "range": "bytes=423757488-427951791",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 427951792,
+    "length": 2876796,
+    "range": "bytes=427951792-430828587",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 515612672,
+    "length": 3637788,
+    "range": "bytes=515612672-519250459",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 647033056,
+    "length": 1392096,
+    "range": "bytes=647033056-648425151",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 673424816,
+    "length": 3936464,
+    "range": "bytes=673424816-677361279",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 677361280,
+    "length": 4194304,
+    "range": "bytes=677361280-681555583",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 681555584,
+    "length": 4194304,
+    "range": "bytes=681555584-685749887",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 685749888,
+    "length": 1355022,
+    "range": "bytes=685749888-687104909",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 913682864,
+    "length": 34447,
+    "range": "bytes=913682864-913717310",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 913784272,
+    "length": 202,
+    "range": "bytes=913784272-913784473",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 913786352,
+    "length": 197,
+    "range": "bytes=913786352-913786548",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 913818400,
+    "length": 203,
+    "range": "bytes=913818400-913818602",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 913828800,
+    "length": 199,
+    "range": "bytes=913828800-913828998",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 913848144,
+    "length": 198,
+    "range": "bytes=913848144-913848341",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 913859216,
+    "length": 2493753,
+    "range": "bytes=913859216-916352968",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 916361744,
+    "length": 771675,
+    "range": "bytes=916361744-917133418",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 917164720,
+    "length": 33560,
+    "range": "bytes=917164720-917198279",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 917206656,
+    "length": 45845,
+    "range": "bytes=917206656-917252500",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 917302880,
+    "length": 40868,
+    "range": "bytes=917302880-917343747",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 917357712,
+    "length": 73300,
+    "range": "bytes=917357712-917431011",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 917433904,
+    "length": 285328,
+    "range": "bytes=917433904-917719231",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 917725776,
+    "length": 12624,
+    "range": "bytes=917725776-917738399",
+    "status": 206
+  },
+  {
+    "run": "legacy-v056",
+    "start": 917778448,
+    "length": 251972,
+    "range": "bytes=917778448-918030419",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 0,
+    "length": 1048576,
+    "range": "bytes=0-1048575",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 108003328,
+    "length": 3230110,
+    "range": "bytes=108003328-111233437",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 420048704,
+    "length": 3708784,
+    "range": "bytes=420048704-423757487",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 423757488,
+    "length": 4194304,
+    "range": "bytes=423757488-427951791",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 427951792,
+    "length": 2876796,
+    "range": "bytes=427951792-430828587",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 515612672,
+    "length": 3637788,
+    "range": "bytes=515612672-519250459",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 647033056,
+    "length": 1392096,
+    "range": "bytes=647033056-648425151",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 673424816,
+    "length": 3936464,
+    "range": "bytes=673424816-677361279",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 677361280,
+    "length": 4194304,
+    "range": "bytes=677361280-681555583",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 681555584,
+    "length": 4194304,
+    "range": "bytes=681555584-685749887",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 685749888,
+    "length": 1355022,
+    "range": "bytes=685749888-687104909",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 913682864,
+    "length": 34447,
+    "range": "bytes=913682864-913717310",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 913784272,
+    "length": 202,
+    "range": "bytes=913784272-913784473",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 913786352,
+    "length": 197,
+    "range": "bytes=913786352-913786548",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 913818400,
+    "length": 203,
+    "range": "bytes=913818400-913818602",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 913828800,
+    "length": 199,
+    "range": "bytes=913828800-913828998",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 913848144,
+    "length": 198,
+    "range": "bytes=913848144-913848341",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 913859216,
+    "length": 2493753,
+    "range": "bytes=913859216-916352968",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 916361744,
+    "length": 771675,
+    "range": "bytes=916361744-917133418",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 917164720,
+    "length": 33560,
+    "range": "bytes=917164720-917198279",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 917206656,
+    "length": 45845,
+    "range": "bytes=917206656-917252500",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 917302880,
+    "length": 40868,
+    "range": "bytes=917302880-917343747",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 917357712,
+    "length": 73300,
+    "range": "bytes=917357712-917431011",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 917433904,
+    "length": 285328,
+    "range": "bytes=917433904-917719231",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 917725776,
+    "length": 12624,
+    "range": "bytes=917725776-917738399",
+    "status": 206
+  },
+  {
+    "run": "new-v060",
+    "start": 917778448,
+    "length": 251972,
+    "range": "bytes=917778448-918030419",
+    "status": 206
+  }
+]

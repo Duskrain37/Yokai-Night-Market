@@ -32,6 +32,11 @@ var _mutex=Mutex.new()
 var _fixture=false
 var fixture_cache=""
 var _download_url=""
+var download_part := 0
+var download_parts := 0
+var checked_bytes := 0
+var total_bytes := 0
+var checking_task := "读取正式版本消息"
 var _network: Dictionary={}
 
 static func sha(bytes: PackedByteArray) -> String:
@@ -82,7 +87,10 @@ static func bytes_text(value: int) -> String:
 func _ready():
 	http=HTTPRequest.new();http.use_threads=true;http.accept_gzip=false;http.timeout=30;http.max_redirects=8;add_child(http)
 func state(next: String,text: String):
-	phase=next;message=text;changed.emit()
+	phase=next;message=text
+	if next in ["checking","scanning","downloading","assembling"]: progress=0
+	elif next in ["ready","current"]: progress=1
+	changed.emit()
 func cancelled() -> bool:
 	_mutex.lock();var result=_cancelled;_mutex.unlock();return result
 func cancel():
@@ -101,13 +109,27 @@ func _process(_dt):
 			state("failed",String(result.error));return
 		if _job=="scan":
 			local_chunks=result.index;_download_missing()
-		else:progress=1;state("ready","更新已准备好。重启后即可进入 v%s。"%latest_version)
+		else:progress=1;state("ready","更新已下载并校验完成，即将重启进入 v%s。"%latest_version)
 func _exit_tree():
 	_mutex.lock();_cancelled=true;_mutex.unlock()
 	if thread!=null and thread.is_started():thread.wait_to_finish()
 	if not _installing and not candidate.is_empty() and FileAccess.file_exists(candidate):DirAccess.remove_absolute(candidate)
-func _worker_progress(done: int,total: int):
+func _worker_progress(job: String,done: int,total: int):
+	if phase != job: return
+	checked_bytes=done;total_bytes=total
 	progress=clampf(float(done)/maxi(1,total),0,1);changed.emit()
+
+func work_detail() -> String:
+	match phase:
+		"checking": return "检查更新 %d%% · %s" % [roundi(progress * 100), checking_task]
+		"scanning": return "核对本地内容 %d%% · %s / %s" % [roundi(progress * 100), bytes_text(checked_bytes), bytes_text(total_bytes)]
+		"downloading":
+			var active := mini(maxi(0, http.get_downloaded_bytes()), maxi(0, required - received)) if http != null else 0
+			return "下载 %s · 第 %d / %d 组 · %s / %s · %d%%" % [EXE, download_part, download_parts, bytes_text(received + active), bytes_text(required), roundi(progress * 100)]
+		"assembling": return "组装并校验新版本 %d%% · %s / %s" % [roundi(progress * 100), bytes_text(checked_bytes), bytes_text(total_bytes)]
+		"ready": return "下载与完整性校验 100%"
+		_: return message
+
 func _request(url: String,headers: PackedStringArray,limit: int) -> Array:
 	if cancelled():return []
 	Network.apply(http,url,_network)
@@ -125,7 +147,7 @@ func start(version: String,path: String,endpoint: String=API,fixture: bool=false
 	_network={} if _fixture else Network.detect()
 	if _network.get("error",false):state("failed","当前代理格式暂不支持。请使用系统 HTTP 代理，或从发布页手动下载游戏。");return
 	_mutex.lock();_cancelled=false;_mutex.unlock()
-	current_version=version;executable=path;progress=0;received=0;required=0
+	current_version=version;executable=path;progress=0;received=0;required=0;checked_bytes=0;total_bytes=0;checking_task="读取正式版本消息"
 	state("checking","正在查看夜市的新消息……")
 	var response=await _request(endpoint,["Accept: application/vnd.github+json","User-Agent: YokaiNightMarket/"+version],2097152)
 	if response.size()!=4 or response[0]!=HTTPRequest.RESULT_SUCCESS or response[1]!=200:
@@ -133,6 +155,7 @@ func start(version: String,path: String,endpoint: String=API,fixture: bool=false
 		return
 	var release=JSON.parse_string(response[3].get_string_from_utf8())
 	if not release is Dictionary:state("failed","收到的更新消息不完整，请稍后重试。");return
+	progress=.5;checking_task="读取并校验更新清单 "+MAP;changed.emit()
 	var tag=String(release.get("tag_name",""));latest_version=tag.trim_prefix("v")
 	if semver(tag).is_empty() or bool(release.get("prerelease",false)) or bool(release.get("draft",false)):
 		state("failed","没有可用的正式更新。");return
@@ -150,6 +173,7 @@ func start(version: String,path: String,endpoint: String=API,fixture: bool=false
 		var data=JSON.parse_string(response[3].get_string_from_utf8())
 		if not data is Dictionary or not valid_manifest(data,assets[EXE],latest_version):state("failed","更新资料校验未通过，当前版本未更改。");return
 		if semver(tag)==semver(version) and String(data.build)==Build.BUILD_HASH:state("current","已经是最新版本，今夜安心守夜。");return
+		progress=1;changed.emit()
 		manifest=data;candidate=executable+".update-"+String(manifest.sha256).left(12)+".part"
 		cache=fixture_cache if _fixture and not fixture_cache.is_empty() else ProjectSettings.globalize_path("user://updates/"+String(manifest.sha256))
 		if DirAccess.make_dir_recursive_absolute(cache)!=OK:state("failed","无法保存更新内容，请检查可用空间。");return
@@ -158,6 +182,7 @@ func start(version: String,path: String,endpoint: String=API,fixture: bool=false
 		var test=FileAccess.open(candidate,FileAccess.WRITE)
 		if test==null:state("failed","游戏所在目录不能写入，请把游戏移到可写入的位置后重试。");return
 		test.close();DirAccess.remove_absolute(candidate)
+		checked_bytes=0;total_bytes=FileAccess.open(executable,FileAccess.READ).get_length()
 		state("scanning","正在核对本地已有内容……");_job="scan";thread=Thread.new();thread.start(_scan.bind(executable))
 
 func _fixture_assets(release: Dictionary,endpoint: String) -> Dictionary:
@@ -201,7 +226,7 @@ func _scan(path: String) -> Dictionary:
 		f.seek(int(block[0]));var bytes=f.get_buffer(int(block[1]))
 		if bytes.size()!=int(block[1]):return {"error":"读取本地游戏失败，当前版本未更改。"}
 		index[sha(bytes)]=block;processed+=bytes.size()
-		if bytes.size()>65536:_worker_progress.call_deferred(processed,total)
+		if bytes.size()>65536:_worker_progress.call_deferred("scanning",processed,total)
 	f.close();return {"index":index}
 func _download_missing():
 	var missing=[];var seen={};reused=0;required=0;received=0
@@ -223,7 +248,9 @@ func _download_missing():
 	if destination==null or storage==null or destination.get_space_left()<int(manifest.size)+8388608 or storage.get_space_left()<required+8388608:
 		state("failed","磁盘空间不足，请清理后重试。当前版本未更改。");return
 	state("downloading","已复用%s，本次约需下载%s。"%[bytes_text(reused),bytes_text(required)])
+	download_parts=groups.size();download_part=0
 	for group in groups:
+		download_part+=1;changed.emit()
 		if cancelled():state("cancelled","已停止更新，当前版本未更改。");return
 		var start=int(group.start);var length=int(group.end)-start;var good=false
 		for attempt in 3:
@@ -246,7 +273,8 @@ func _download_missing():
 			if cancelled():state("cancelled","已停止更新，已校验部分会保留。");return
 			await get_tree().create_timer(.7+attempt).timeout
 		if not good:state("failed","下载暂时中断或校验未通过。已校验内容会保留，下次检查可接着更新。");return
-	state("assembling","下载完成，正在合拢新的夜市……");_job="assemble";thread=Thread.new();thread.start(_assemble)
+	checked_bytes=0;total_bytes=int(manifest.size)
+	state("assembling","下载完成，正在组装并校验新版本……");_job="assemble";thread=Thread.new();thread.start(_assemble)
 func _assemble() -> Dictionary:
 	var source=FileAccess.open(executable,FileAccess.READ);var target=FileAccess.open(candidate,FileAccess.WRITE)
 	if source==null or target==null:return {"error":"无法准备新版本，当前游戏未更改。"}
@@ -258,7 +286,7 @@ func _assemble() -> Dictionary:
 		else:bytes=FileAccess.get_file_as_bytes(cache.path_join(key+".bin"))
 		if (done==0 and bytes.slice(0,2).get_string_from_ascii()!="MZ") or bytes.size()!=int(segment.size) or sha(bytes)!=key:source.close();target.close();return {"error":"本地内容校验未通过，当前游戏未更改。"}
 		target.store_buffer(bytes);done+=bytes.size()
-		if bytes.size()>65536:_worker_progress.call_deferred(done,int(manifest.size))
+		if bytes.size()>65536:_worker_progress.call_deferred("assembling",done,int(manifest.size))
 	source.close();target.close()
 	if FileAccess.get_sha256(candidate)!=String(manifest.sha256):return {"error":"新版本完整校验未通过，当前游戏未更改。"}
 	return {"ok":true}

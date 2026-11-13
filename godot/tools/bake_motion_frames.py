@@ -105,7 +105,7 @@ def bake_actor(item):
     for clip, (w, h, y, anchor, motions) in baked.items():
         frames = []
         for sample in range(FRAME_COUNT):
-            if clip in {"reload_enter", "reload_exit", "land", "splash", "break", "sink", "collect", "release"}:
+            if clip in {"reload_enter", "reload_exit", "land", "splash", "break", "sink", "collect", "release", "death", "steal", "pickup"}:
                 position = min(len(motions) - 1.000001, sample * (len(motions) - 1) / (FRAME_COUNT - 1))
             else:
                 position = sample * len(motions) / FRAME_COUNT

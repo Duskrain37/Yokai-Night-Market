@@ -4,6 +4,7 @@
 ## 正文可以用满整行；名录改成两列小按钮，十八篇也不占地方。
 ## 书页里的数值仍全部来自数据表（底细=基础值，本事=按升阶表推导）。
 extends Control
+const Art = preload("res://ui/market_art.gd")
 
 const TIER_WORDS = ["一阶", "二阶", "三阶"]
 
@@ -20,6 +21,9 @@ var _name_label: Label = null
 var _epithet_label: Label = null
 var _tag_row: HBoxContainer = null
 var _sort_picker: OptionButton
+var _section_anchors: Dictionary = {}
+var _bookmark_row: HBoxContainer
+var _tabs: Dictionary = {}
 
 
 func _ready() -> void:
@@ -29,21 +33,7 @@ func _ready() -> void:
 
 
 func _backdrop() -> void:
-	var texture := load("res://assets/bg/menu.jpg") \
-		if ResourceLoader.exists("res://assets/bg/menu.jpg") else null
-	if texture != null:
-		var rect := TextureRect.new()
-		rect.texture = texture
-		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		rect.modulate = Color(0.45, 0.5, 0.55, 1.0)
-		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(rect)
-	var fill := ColorRect.new()
-	fill.color = Color(0.02, 0.04, 0.06, 0.88)
-	fill.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	fill.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(fill)
+	Art.backdrop(self, Art.ROOT + "menu-ensemble.png", 0.78)
 
 
 func _build_book() -> void:
@@ -51,11 +41,15 @@ func _build_book() -> void:
 	book.set_anchors_preset(Control.PRESET_CENTER)
 	book.anchor_left = 0.5
 	book.anchor_right = 0.5
-	book.offset_left = -720.0
-	book.offset_right = 720.0
-	book.offset_top = -410.0
-	book.offset_bottom = 410.0
+	book.offset_left = -752.0
+	book.offset_right = 752.0
+	book.anchor_top = 0
+	book.anchor_bottom = 1
+	book.offset_top = 32
+	book.offset_bottom = -32
 	add_child(book)
+	if game.overlay_from in ["battle", "paused"]:
+		preload("res://ui/click_away.gd").attach(self, book, game.close_overlay)
 	var outer := Ui.vbox(10)
 	book.add_child(outer)
 
@@ -68,6 +62,7 @@ func _build_book() -> void:
 		var button := Ui.button(String(pair[1]), 17, 104, 38)
 		button.pressed.connect(_select_tab.bind(String(pair[0])))
 		tabs.add_child(button)
+		_tabs[String(pair[0])] = button
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(spacer)
@@ -87,16 +82,14 @@ func _build_book() -> void:
 
 	# ── 左栏：立绘 + 名字 + 名录 ──
 	var left := Ui.vbox(6)
-	left.custom_minimum_size = Vector2(372, 0)
+	left.custom_minimum_size = Vector2(344, 0)
 	body.add_child(left)
 
 	var portrait_panel := PanelContainer.new()
-	portrait_panel.add_theme_stylebox_override("panel",
-		Ui.flat(Color(0.05, 0.07, 0.09, 0.92), Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g,
-			Ui.GOLD_DIM.b, 0.7), 10, 1))
+	portrait_panel.add_theme_stylebox_override("panel", Art.surface("card", "normal", Vector2(8, 8)))
 	left.add_child(portrait_panel)
 	_portrait = Control.new()
-	_portrait.custom_minimum_size = Vector2(352, 336)
+	_portrait.custom_minimum_size = Vector2(320, 270)
 	_portrait.draw.connect(_draw_portrait)
 	portrait_panel.add_child(_portrait)
 
@@ -122,21 +115,27 @@ func _build_book() -> void:
 	_list_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list_scroll.add_child(_list_box)
 
-	# ── 右栏：书页 ──
-	var page_panel := PanelContainer.new()
-	page_panel.add_theme_stylebox_override("panel",
-		Ui.flat(Color(0.05, 0.07, 0.09, 0.55), Color(Ui.GOLD_DIM.r, Ui.GOLD_DIM.g,
-			Ui.GOLD_DIM.b, 0.45), 10, 1))
+	# Reading paper and persistent section bookmarks keep the full text accessible.
+	var right = Ui.vbox(10)
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_child(right)
+	_bookmark_row = Ui.hbox(8)
+	right.add_child(_bookmark_row)
+	var page_panel = PanelContainer.new()
+	page_panel.add_theme_stylebox_override("panel", Art.surface("paper", "normal", Vector2(24, 22)))
 	page_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_child(page_panel)
+	page_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right.add_child(page_panel)
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
 	page_panel.add_child(_scroll)
-	_page = Ui.vbox(12)
+	_page = Ui.vbox(14)
 	_page.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.add_child(_page)
 
 	_refresh()
+	Art.enter(self)
 
 
 # ── 数据 ────────────────────────────────────────────────────────────────────
@@ -154,23 +153,23 @@ func _current_type() -> String:
 
 func _refresh() -> void:
 	for child in _list_box.get_children():
+		_list_box.remove_child(child)
 		child.queue_free()
 	var entries := _entries()
 	index = clampi(index, 0, entries.size() - 1)
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 4)
-	_list_box.add_child(columns)
+	var grid := GridContainer.new()
+	grid.name = "AlmanacEntryGrid"
+	grid.columns = 2
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation",4)
+	grid.add_theme_constant_override("v_separation",2)
+	_list_box.add_child(grid)
 	_sync_sort_picker()
-	var sorted_indices := _sorted_indices()
-	var half := int(ceil(entries.size() / 2.0))
-	for col in 2:
-		var column := Ui.vbox(2)
-		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		columns.add_child(column)
-		for i in range(col * half, mini((col + 1) * half, entries.size())):
-			var original: int = sorted_indices[i]
-			var type := String(entries[original])
-			column.add_child(_entry_row(type, original, original == index))
+	for original in _sorted_indices():
+		var type := String(entries[original])
+		var entry := _entry_row(type, original, original == index)
+		entry.set_meta("entry_index",original)
+		grid.add_child(entry)
 	_update_header()
 	_render_page()
 
@@ -181,18 +180,8 @@ func _entry_row(type: String, entry_index: int, active: bool) -> Control:
 	row.custom_minimum_size = Vector2(0, 52)
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.toggle_mode = false
-	if active:
-		row.add_theme_stylebox_override("normal",
-			Ui.flat(Color(Ui.PAPER.r, Ui.PAPER.g, Ui.PAPER.b, 0.95),
-				Ui.VERMILION, 4, 2))
-		row.add_theme_stylebox_override("hover",
-			Ui.flat(Color(0.99, 0.95, 0.85, 1.0), Ui.VERMILION, 4, 2))
-	else:
-		row.add_theme_stylebox_override("normal",
-			Ui.flat(Color(0.07, 0.10, 0.12, 0.72), Color(Ui.GOLD_DIM.r,
-				Ui.GOLD_DIM.g, Ui.GOLD_DIM.b, 0.35), 4, 1))
-		row.add_theme_stylebox_override("hover",
-			Ui.flat(Color(0.13, 0.17, 0.20, 0.9), Ui.GOLD_DIM, 4, 1))
+	Ui.apply_button_style(row, 16)
+	Ui.set_button_active(row, active)
 	row.pressed.connect(_select_entry.bind(entry_index))
 	var inner := HBoxContainer.new()
 	inner.add_theme_constant_override("separation", 8)
@@ -213,11 +202,11 @@ func _entry_row(type: String, entry_index: int, active: bool) -> Control:
 	texts.alignment = BoxContainer.ALIGNMENT_CENTER
 	inner.add_child(texts)
 	var name_label := Ui.strong(_entry_short(type), 17,
-		Ui.INK if active else Ui.TEXT)
+		Ui.GOLD_BRIGHT if active else Ui.TEXT)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(name_label)
 	var role_label := Ui.label(_entry_role(type), 12,
-		Color(0.42, 0.30, 0.2) if active else Ui.TEXT_FAINT)
+		Ui.TEXT_DIM if active else Ui.TEXT_FAINT)
 	role_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(role_label)
 	return row
@@ -281,7 +270,11 @@ func _update_header() -> void:
 
 func _draw_portrait() -> void:
 	var type := _current_type()
-	var box := Rect2(Vector2(10, 8), _portrait.size - Vector2(20, 16))
+	var box := Rect2(Vector2(16, 8), _portrait.size - Vector2(32, 20))
+	var ring_center = box.get_center() + Vector2(0, 4)
+	_portrait.draw_arc(ring_center, 110, 0.3, TAU - 0.3, 80, Color(Art.BRASS, 0.22), 1, true)
+	_portrait.draw_arc(ring_center, 104, 0.5, TAU - 0.5, 80, Color(Art.BRASS, 0.12), 1, true)
+	Art.corners(_portrait, Rect2(Vector2(7, 7), _portrait.size - Vector2(14, 14)), Color(Art.BRASS, 0.5), 16)
 	var center := box.get_center() + Vector2(0, box.size.y * 0.12)
 	for i in 4:
 		var k := 1.0 - i * 0.22
@@ -320,16 +313,31 @@ func _select_entry(entry_index: int) -> void:
 func _render_page() -> void:
 	for child in _page.get_children():
 		child.queue_free()
+	_section_anchors.clear()
+	for key in _tabs: Ui.set_button_active(_tabs[key], key == tab)
+	for child in _bookmark_row.get_children():
+		_bookmark_row.remove_child(child)
+		child.queue_free()
+	var bookmarks = ["本事", "进化", "来历"] if tab == "plant" else ["本事", "对策", "来历"]
+	for key in bookmarks:
+		var button = Ui.button(key, 16, 120, 36)
+		button.pressed.connect(_jump_to_section.bind(key))
+		_bookmark_row.add_child(button)
+	var guide = Ui.label("点题签翻到对应书页", 14, Ui.TEXT_DIM)
+	guide.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	guide.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_bookmark_row.add_child(guide)
 	var type := _current_type()
 	if tab == "plant":
 		_render_plant(type)
 	elif tab == "boss":
 		var page: Array = Almanac.BOSS_PAGES[type]
-		_page.add_child(Ui.title(Almanac.boss_name(type), 32, Ui.GOLD_BRIGHT))
+		_page.add_child(_section(Almanac.boss_name(type), "本事"))
 		_page.add_child(_paragraph("初遇 · %s" % page[1]))
+		_page.add_child(_section("迎敌之策", "对策"))
 		_page.add_child(_paragraph(String(page[2])))
 		_page.add_child(_paragraph("恶首占据相邻两行，两行的射弹都能打中它。留意出招前的红纹和号令，后者会唤来一整大波援军。"))
-		_page.add_child(Ui.strong("来历",19,Ui.GOLD))
+		_page.add_child(_section("来历", "来历"))
 		_page.add_child(_paragraph(Almanac.BOSS_LORE[type] if game.boss_lore_unlocked(type) else "击退这位恶首后，街坊才会向你讲起它的往事。"))
 		for skill in Almanac.boss_skills(type):
 			_page.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
@@ -337,6 +345,7 @@ func _render_page() -> void:
 			_page.add_child(_paragraph(String(skill[1])))
 	else:
 		_render_zombie(type)
+	_ink_page(_page)
 
 
 func _render_plant(type: String) -> void:
@@ -345,7 +354,7 @@ func _render_plant(type: String) -> void:
 	pitch.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	pitch.custom_minimum_size = Vector2(940, 0)
 	_page.add_child(pitch)
-	_page.add_child(Ui.strong("底细", 19, Ui.GOLD))
+	_page.add_child(_section("底细", "本事"))
 	_page.add_child(_stat_grid(Almanac.plant_rows(type)))
 	_page.add_child(Ui.strong("本事", 19, Ui.GOLD))
 	_page.add_child(_paragraph(Almanac.plant_ability(type)))
@@ -354,7 +363,7 @@ func _render_plant(type: String) -> void:
 		_page.add_child(_evolve_head())
 		for path in paths:
 			_page.add_child(_path_block(type, path))
-	_page.add_child(Ui.strong("来历", 19, Ui.GOLD))
+	_page.add_child(_section("来历", "来历"))
 	_page.add_child(_paragraph(String(text["story"])))
 	var quote := Ui.label("「%s」" % String(text["quote"]), 18, Ui.GOLD_BRIGHT)
 	quote.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -364,7 +373,7 @@ func _render_plant(type: String) -> void:
 ## 进化区标题：默认只给「白板 → 下一级」，全表收起来按需展开
 func _evolve_head() -> Control:
 	var row := Ui.hbox(10)
-	row.add_child(Ui.strong("进化 · 三路三级，只能走两条，只有一条能到三级", 19, Ui.GOLD))
+	row.add_child(_section("进化 · 三路三级，开启两路，一路至三阶", "进化"))
 	var toggle := Ui.button("展开全表" if not _expanded else "收起全表", 15, 112, 32)
 	toggle.pressed.connect(func():
 		_expanded = not _expanded
@@ -376,13 +385,13 @@ func _evolve_head() -> Control:
 
 func _render_zombie(type: String) -> void:
 	var text: Dictionary = Almanac.ZOMBIES[type]
-	_page.add_child(Ui.strong("底细", 19, Ui.GOLD))
+	_page.add_child(_section("底细", "本事"))
 	_page.add_child(_stat_grid(Almanac.zombie_rows(type)))
 	_page.add_child(Ui.strong("本事", 19, Ui.GOLD))
 	_page.add_child(_paragraph(Almanac.zombie_ability(type)))
-	_page.add_child(Ui.strong("来历", 19, Ui.GOLD))
+	_page.add_child(_section("来历", "来历"))
 	_page.add_child(_paragraph(String(text["story"])))
-	_page.add_child(Ui.strong("对策", 19, Ui.GOLD))
+	_page.add_child(_section("对策", "对策"))
 	_page.add_child(_paragraph(String(text["counter"])))
 	_page.add_child(_paragraph("若有恶客绕到攻击草木身后，可用追魂或范围攻击解围；也可铲开它面前的草木，让尚未出手的门神收住这一路。"))
 	var quote := Ui.label("「%s」" % String(text["quote"]), 18, Ui.GOLD_BRIGHT)
@@ -425,36 +434,72 @@ func _paragraph(text: String) -> Control:
 
 
 func _path_block(type: String, path: Dictionary) -> Control:
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 2)
-	var tiers: Array = path["tiers"]
-	var shown := tiers.size() if _expanded else mini(1, tiers.size())
+	var panel = PanelContainer.new()
+	panel.set_meta("paper_dark", true)
+	panel.add_theme_stylebox_override("panel", Art.surface("card", "normal", Vector2(18, 14)))
+	var box = Ui.vbox(9)
+	panel.add_child(box)
+	var header = Ui.hbox(14)
+	box.add_child(header)
+	var route = Ui.vbox(4)
+	route.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(route)
+	route.add_child(Ui.strong(String(path.name), 22, Ui.GOLD_BRIGHT))
+	var progress = Control.new()
+	progress.custom_minimum_size = Vector2(200, 22)
+	progress.draw.connect(func():
+		progress.draw_line(Vector2(12, 11), Vector2(156, 11), Color(Ui.GOLD_DIM, 0.6), 1, true)
+		for i in 3:
+			Art.diamond(progress, Vector2(12 + i * 72, 11), 5, Ui.GOLD, i == 0)
+			progress.draw_string(Ui.body_font(), Vector2(24 + i * 72, 16), str(i + 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.TEXT_DIM))
+	route.add_child(progress)
+	var portrait = TextureRect.new()
+	portrait.texture = Ui.capstone_sprite(type, int(path.id))
+	portrait.set_meta("capstone_actor", "%s-e%d" % [type, int(path.id)])
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.custom_minimum_size = Vector2(110, 100)
+	portrait.tooltip_text = "三阶形态"
+	header.add_child(portrait)
+	var tiers: Array = path.tiers
+	var shown = tiers.size() if _expanded else mini(1, tiers.size())
 	for i in shown:
-		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 8)
+		var row = Ui.hbox(12)
 		box.add_child(row)
-		var step := Ui.strong("%s · %s" % [String(path["name"]), TIER_WORDS[i]], 15,
-			Color(String(path["color"])))
-		step.custom_minimum_size = Vector2(126, 0)
+		var step = Ui.strong("%s · %s" % [TIER_WORDS[i], String(tiers[i].name)], 17, Ui.TEXT)
+		step.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(step)
-		var body := Ui.label("%s · %d 香火" % [String(tiers[i]["name"]),
-			Upgrades.tier_cost(type, int(path["id"]), i + 1)], 15,
-			Ui.TEXT if i == 0 else Ui.TEXT_DIM)
-		body.custom_minimum_size = Vector2(220, 0)
-		row.add_child(body)
-		var desc := Ui.label(String(tiers[i]["desc"]), 14,
-			Ui.TEXT if i == 0 else Ui.TEXT_FAINT)
+		row.add_child(Ui.label("%d 香火" % Upgrades.tier_cost(type, int(path.id), i + 1), 17, Ui.GOLD_BRIGHT))
+		var desc = Ui.label(String(tiers[i].desc), 16, Ui.TEXT_DIM)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc.custom_minimum_size = Vector2(600, 0)
-		row.add_child(desc)
+		box.add_child(desc)
 	if not _expanded and tiers.size() > 1:
-		var names := PackedStringArray()
-		for i in range(1, tiers.size()):
-			names.append(String(tiers[i]["name"]))
-		var more := Ui.label("再往下还有 %d 级：%s" % [names.size(), "、".join(names)],
-			13, Ui.TEXT_FAINT)
-		box.add_child(more)
-	return box
+		var names = PackedStringArray()
+		for i in range(1, tiers.size()): names.append(String(tiers[i].name))
+		box.add_child(Ui.label("后续：" + " → ".join(names), 14, Ui.TEXT_FAINT))
+	return panel
+
+func _section(caption: String, key: String) -> Label:
+	var label = Ui.strong(caption, 21, Ui.GOLD)
+	if not _section_anchors.has(key): _section_anchors[key] = label
+	return label
+
+func _jump_to_section(key: String) -> void:
+	if not _section_anchors.has(key): return
+	var target: Control = _section_anchors[key]
+	var y = target.get_global_rect().position.y - _page.get_global_rect().position.y
+	if Art.reduced_motion: _scroll.scroll_vertical = maxi(0, int(y) - 6)
+	else: create_tween().tween_property(_scroll, "scroll_vertical", maxi(0, int(y) - 6), 0.24).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	game.play_sfx("click")
+
+func _ink_page(node: Node) -> void:
+	if node.has_meta("paper_dark"): return
+	if node is Label:
+		var color = Color("#3e3024")
+		if node.get_theme_font_size("font_size") >= 20: color = Color("#713d28")
+		elif node.get_theme_font_size("font_size") <= 15: color = Color("#6e5a40")
+		node.add_theme_color_override("font_color", color)
+	for child in node.get_children(): _ink_page(child)
 
 func _sort_key() -> String:
 	return "almanac_plant_order" if tab == "plant" else "almanac_guest_order"

@@ -83,13 +83,12 @@ func run():
 	s.time=.8;s._update_mortar(p,.01);check("0.8秒补炮后开始冷却",s.shots.size()==2 and p.timer==0 and p.mortar_followup_at<0)
 	s=setup();p=s.place_free("sky-mortar",2,2);p.upgrades={1:0,2:3,3:2};a=guest(s,2,1050,"bucket");a.armor=1000;a.max_armor=1000
 	s._mortar_launch(p,a.pos);s._mortar_impact(s.shots[0]);check("灰烬炮同时伤本体护甲525",a.hp==9475 and a.armor==475)
-	a.hp=1;s._mortar_launch(p,a.pos);s._mortar_impact(s.shots[-1]);check("灰烬击退不留尸并返30",a.dead and not a.dying and s.sun==130)
+	a.hp=1;s._mortar_launch(p,a.pos);s._mortar_impact(s.shots[-1]);check("灰烬击退不留尸且旧返香已移除",a.dead and not a.dying and s.sun==100)
 	s=setup();a=guest(s,2,1000);s.damage_zombie(a,20000,false,false,"shooter");check("普通击退仍有尸体",a.dying and not a.dead)
 	a=guest(s,2,1000,"returner");s.damage_zombie(a,20000,false,false,"bomb");check("灰烬不留下可复生尸体",a.dead and a.revive_at<0)
-	s=setup();p=s.place_free("sky-mortar",2,2);p.upgrades={1:0,2:0,3:3};a=guest(s,2,1000);a.hp=1;b=guest(s,2,1200)
-	s._mortar_launch(p,a.pos);s._mortar_impact(s.shots[0]);check("炮弹击退发48独立追魂",s.shots.size()==2 and s.shots[1].look=="mortar-soul" and s.shots[1].damage==48)
-	b.hp=1;var soul: Sim.Shot=s.shots[1];soul.pos=b.pos+Vector2(0,-24);s._update_homing(soul,0)
-	check("追魂余弹不递归产生余弹",s.shots.size()==2 and s.sun==160)
+	# v0.6.0 replaces the former income/homing route; its skill, shards and immunity
+	# precedence are covered by qa_v060.gd. No legacy reward is retained.
+
 	s=setup();p=s.place_free("star",2,2);p.upgrades={1:0,2:1,3:0};a=guest(s,2,300)
 	s.breach(a);check("巡灯2-1已获得门神激励",p.star_guardian_until==10)
 	p.upgrades={1:0,2:3,3:0};s.time=11
@@ -115,7 +114,7 @@ func run():
 	s._mortar_launch(p,center);s.shots[0].t=1.5;s.update_shots(.01)
 	check("炮弹覆盖双行同一恶首只结算一次",is_equal_approx(before-chief.hp,215) and peer.hp==peer_hp)
 	chief.hp=1;chief._sync_hp();s._mortar_launch(p,center);s.shots[-1].t=1.5;var incense: int=s.sun;s.update_shots(.01)
-	check("炮弹击退恶首也返香且另一位独立存活",not chief.alive() and peer.alive() and s.sun==incense+20)
+	check("炮弹击退恶首不再返香且另一位独立存活",not chief.alive() and peer.alive() and s.sun==incense)
 	var f=FileAccess.open("res://qa/v055-tests.json",FileAccess.WRITE);f.store_string(JSON.stringify({"total":checks.size(),"failures":failures,"checks":checks},"  "));f.close()
 	print("V055 TOTAL ",checks.size()," FAILURES ",failures);quit(0 if failures==0 else 1)
 

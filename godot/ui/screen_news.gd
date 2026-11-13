@@ -7,6 +7,8 @@ var _tabs: Array[Button] = []
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if not game.mobile:
+		MarketArt.backdrop(self, MarketArt.ROOT + "menu-ensemble.png", 0.83)
 	var shade := ColorRect.new()
 	shade.color = Color(0.025,0.04,0.05,0.94)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -14,6 +16,7 @@ func _ready() -> void:
 	var frame := Ui.panel(0.98,Ui.GOLD,18,2)
 	frame.position=Vector2(70,45)
 	frame.size=Vector2(1460,810)
+	Ui.extend_to_bottom(frame,45)
 	add_child(frame)
 	var outer := Ui.vbox(12)
 	frame.add_child(outer)
@@ -46,13 +49,14 @@ func _ready() -> void:
 	_content.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	scroll.add_child(_content)
 	select_page(0)
+	if not game.mobile: MarketArt.enter(self)
 
 func select_page(value: int) -> void:
 	page=value
 	for child in _content.get_children():
 		_content.remove_child(child)
 		child.queue_free()
-	for i in _tabs.size(): _tabs[i].modulate=Color.WHITE if i==page else Color(0.7,0.7,0.7)
+	for i in _tabs.size(): Ui.set_button_active(_tabs[i], i == page)
 	if page==1:
 		_content.add_child(Ui.title("下载正式版本",36))
 		_add_text("电脑下载Windows可执行文件，双击即可开始；安卓手机下载APK并安装后，就能随时守夜。请从本项目的GitHub发布页获取成品。电脑版也可在封面点击“检查更新”，准备好后重启游戏完成更新。")
@@ -62,7 +66,7 @@ func select_page(value: int) -> void:
 		_add_text("无论是游玩感受、平衡建议，还是遇到的异常，都欢迎在GitHub提出Issue。遇到异常时，带上游戏版本、设备型号、截图和出现问题前的操作，会更方便查清缘由。")
 		_add_link("在GitHub反馈建议","https://github.com/Duskrain37/Yokai-Night-Market/issues/new")
 		return
-	var data: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/news_v056.json"))
+	var data: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/news_v060.json"))
 	for section in data.sections:
 		_content.add_child(Ui.title(String(section.title),36 if game.mobile else 28))
 		for item in section.items:

@@ -1,76 +1,75 @@
 extends Control
-
-var fraction := 0.0
-var displayed := 0.0
-var elapsed := 0.0
-var caption := "灯火将明"
+var fraction = 0.0
+var displayed = 0.0
+var elapsed = 0.0
+var caption = "灯火将明"
 var backdrop: Texture2D
 var _status: Label
 var _panel: Control
 var _gauge: Control
 
-
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	var picture := TextureRect.new()
+	var picture = TextureRect.new()
 	picture.texture = backdrop
 	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(picture)
 	picture.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var veil := ColorRect.new()
-	veil.color = Color(0.03, 0.07, 0.09, 0.18)
+	var veil = ColorRect.new()
+	veil.color = Color(0.02, 0.05, 0.06, 0.24)
 	veil.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(veil)
 	veil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-
-	_panel = Ui.panel(0.67, Ui.GOLD_DIM, 26, 1)
+	var brand = Ui.title("妖怪夜市", 52)
+	brand.position = Vector2(72, 64)
+	add_child(brand)
+	var signature = Ui.label("子 时 开 张  ·  旧 物 有 灵", 16, Ui.TEXT_DIM)
+	signature.position = Vector2(78, 132)
+	add_child(signature)
+	_panel = Ui.panel()
 	add_child(_panel)
-	_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_panel.offset_left = -292
-	_panel.offset_right = 292
-	_panel.offset_top = 78
-	_panel.offset_bottom = 312
-	var box = Ui.vbox(10)
-	_panel.add_child(box)
-	var title = Ui.title("加载中", 62, Ui.GOLD_BRIGHT)
-	title.add_theme_color_override("font_outline_color", Color("#402519"))
-	title.add_theme_constant_override("outline_size", 5)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(title)
-	var subtitle = Ui.label(caption, 21, Ui.TEXT_DIM)
-	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(subtitle)
-	box.add_child(Ui.spacer(12))
-	var gauge := Control.new()
-	_gauge = gauge
-	gauge.custom_minimum_size = Vector2(520, 29)
-	gauge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	gauge.draw.connect(func(): _draw_gauge(gauge))
-	box.add_child(gauge)
-	_status = Ui.label("0%", 18, Ui.GOLD_BRIGHT)
-	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(_status)
-
+	_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	_panel.offset_left = 48
+	_panel.offset_right = -48
+	_panel.offset_top = -155
+	_panel.offset_bottom = -48
+	var row = Ui.hbox(30)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_panel.add_child(row)
+	row.add_child(MarketArt.icon_control("lantern", 48, Ui.GOLD_BRIGHT))
+	var titles = Ui.vbox(3)
+	titles.custom_minimum_size.x = 340
+	row.add_child(titles)
+	titles.add_child(Ui.title("灯火将明", 30))
+	var subtitle = Ui.label(caption, 16, Ui.TEXT_DIM)
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subtitle.custom_minimum_size.x = 340
+	titles.add_child(subtitle)
+	_gauge = Control.new()
+	_gauge.custom_minimum_size = Vector2(640, 32)
+	_gauge.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_gauge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_gauge.draw.connect(func(): _draw_gauge(_gauge))
+	row.add_child(_gauge)
+	_status = Ui.strong("0%", 24, Ui.GOLD_BRIGHT)
+	_status.custom_minimum_size.x = 80
+	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(_status)
 
 func _process(delta: float) -> void:
 	elapsed += delta
 	displayed = move_toward(displayed, fraction, delta * 2.8)
 	if _status != null:
-		_status.text = "%d%%" % mini(100, floori(displayed * 100.0 + 0.01))
-	_gauge.queue_redraw()
-
+		_status.text = "%d%%" % mini(100, floori(displayed * 100 + 0.01))
+		_gauge.queue_redraw()
 
 func _draw_gauge(canvas: Control) -> void:
-	var bar := Rect2(12.0, 10.0, canvas.size.x - 24.0, 11.0)
-	Ui.draw_gauge(canvas, bar, displayed, Color("#a85537"))
-	var x = bar.position.x + displayed * bar.size.x
-	var glow = 0.62 + 0.22 * sin(elapsed * 5.0)
-	canvas.draw_circle(Vector2(x, 15.5), 11, Color(1, 0.58, 0.26, glow * 0.19))
-	canvas.draw_circle(Vector2(x, 15.5), 4, Color("#ffe1a2"))
-	for i in 3:
-		var drift = fposmod(elapsed * (13.0 + i * 3.0) + i * 4.0, 25.0)
-		canvas.draw_circle(Vector2(x - drift, 12.5 - drift * 0.45), 1.4,
-			Color(1, 0.69, 0.34, 0.8 * (1.0 - drift / 25.0)))
+	var bar = Rect2(0, 11, canvas.size.x, 10)
+	Ui.draw_gauge(canvas, bar, displayed, Ui.JADE)
+	var x = displayed * bar.size.x
+	var glow = 0.7 if MarketArt.reduced_motion else 0.62 + 0.22 * sin(elapsed * 5)
+	canvas.draw_circle(Vector2(x, 16), 9, Color(1, 0.68, 0.3, glow * 0.13))
+	MarketArt.diamond(canvas, Vector2(x, 16), 4, Ui.GOLD_BRIGHT, true)

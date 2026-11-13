@@ -1,0 +1,2 @@
+fefcbc893b4af1390dd56ff9423a90ca1ceda3c1f2b6ddf6974e4a938df90999  YokaiNightMarket-win64.exe
+b6000e6bfe431847a2972ab9225879aa466b4ea9c0c255ed6798aba84fd7cd4d  YokaiNightMarket-update-map.json

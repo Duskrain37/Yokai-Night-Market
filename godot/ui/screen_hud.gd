@@ -5,6 +5,7 @@
 ##  * 升阶从扇形菜单改为贴着草木的信息卡，三路状态、费用、锁定原因一屏读完；
 ##  * 所有数值（含教学文案里的升阶费用）都从数据表取，不再写死。
 extends Control
+const Art = preload("res://ui/market_art.gd")
 
 var game = null
 var result_mode = false
@@ -36,6 +37,9 @@ var _tool_shovel: Button = null
 var _shovel_cursor: Image = null
 var _tool_cheat: Button = null
 var _fan: UpgradeFan = null
+var _shell_panel: PanelContainer
+var _shell_host = null
+var _shell_value: Label
 var _fan_sig = ""
 var _fan_rows: Array = []
 var _cheat_panel: PanelContainer = null
@@ -80,21 +84,7 @@ func step_speed(direction: int) -> void:
 
 func _refresh_speed_pills() -> void:
 	for pill in _speed_pills:
-		var value: float = float(pill.get_meta("speed_value"))
-		var active: bool = is_equal_approx(game.speed, value)
-		if active:
-			pill.add_theme_color_override("font_color", Ui.INK)
-			pill.add_theme_stylebox_override("normal",
-				Ui.flat(Color(0.86, 0.72, 0.42, 0.95), Ui.GOLD_BRIGHT, 8, 2))
-			pill.add_theme_stylebox_override("hover",
-				Ui.flat(Color(0.92, 0.8, 0.5, 1.0), Ui.GOLD_BRIGHT, 8, 2))
-		else:
-			pill.add_theme_color_override("font_color", Ui.TEXT_DIM)
-			pill.add_theme_stylebox_override("normal",
-				Ui.flat(Color(0.06, 0.09, 0.11, 0.9), Color(0.34, 0.31, 0.25, 0.9),
-					8, 1))
-			pill.add_theme_stylebox_override("hover",
-				Ui.flat(Color(0.14, 0.19, 0.23, 0.95), Ui.GOLD_DIM, 8, 1))
+		Ui.set_button_active(pill, is_equal_approx(game.speed, float(pill.get_meta("speed_value"))))
 		pill.disabled = false
 
 
@@ -114,6 +104,16 @@ func _ready() -> void:
 # ── 主 HUD ──────────────────────────────────────────────────────────────────
 func _build_hud() -> void:
 	var sim: Sim = game.sim
+	if not game.mobile:
+		var furniture = Control.new()
+		furniture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		furniture.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		furniture.draw.connect(func():
+			furniture.draw_style_box(Art.surface("panel", "normal", Vector2.ZERO), Rect2(14, 12, 270, 190))
+			var tray_width = minf(986, sim.cards.size() * 79 + 15)
+			furniture.draw_style_box(Art.surface("panel", "normal", Vector2.ZERO), Rect2(294 + (986 - tray_width) / 2, 12, tray_width, 132))
+			furniture.draw_style_box(Art.surface("panel", "normal", Vector2.ZERO), Rect2(1290, 12, 196, 78)))
+		add_child(furniture)
 	# 左侧经济栏
 	var left = VBoxContainer.new()
 	left.position = Vector2(26, 22)
@@ -184,7 +184,7 @@ func _build_hud() -> void:
 	cards.offset_left = 292.0
 	cards.offset_right = -300.0
 	cards.offset_top = 18.0
-	cards.offset_bottom = 130.0
+	cards.offset_bottom = 138.0
 	cards.alignment = BoxContainer.ALIGNMENT_CENTER
 	cards.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(cards)
@@ -194,7 +194,7 @@ func _build_hud() -> void:
 		card.index = i
 		card.card_id = String(sim.cards[i]["id"])
 		card.hud = self
-		card.custom_minimum_size = Vector2(74, 108)
+		card.custom_minimum_size = Vector2(74, 116)
 		cards.add_child(card)
 		_card_nodes.append(card)
 
@@ -214,6 +214,7 @@ func _build_hud() -> void:
 	for value in SPEEDS:
 		var pill := Ui.button(_speed_text(value), 14, 36, 34)
 		pill.set_meta("speed_value", value)
+		pill.set_meta("style_padding", Vector2(5, 6))
 		pill.pressed.connect(func(): _set_speed(value))
 		speed_row.add_child(pill)
 		_speed_pills.append(pill)
@@ -416,6 +417,7 @@ func refresh() -> void:
 		_factor_label.text="\n".join(info)
 	if _sun_label != null:
 		_sun_label.text = str(sim.sun)
+		_sun_label.add_theme_font_size_override("font_size", Ui.fit_font(Ui.medium_font(), _sun_label.text, 68, Ui.font_size(26)))
 	var total = int(sim.level.get("waves", []).size())
 	if _wave_label != null:
 		if sim.boss!=null:
@@ -433,6 +435,8 @@ func refresh() -> void:
 			var group_now = Content.current_major_wave(sim.level,sim.displayed_wave_count())
 			_wave_label.text = "第 %d / %d 大波 · 第 %d 拨" % [group_now, groups,
 				Content.wave_sub(maxi(0,sim.wave_index-1))]
+		if not game.mobile:
+			_wave_label.text = _wave_label.text.replace(" · ", "\n")
 	if _danger!=null:
 		_danger.values=[Content.checkpoint_threat(sim.level, sim.special_bosses_completed)] if bool(sim.level.get("special",false)) else [float(sim.level.get("threat",0))]
 		_danger.queue_redraw()
@@ -444,7 +448,8 @@ func refresh() -> void:
 		_placement_signature = placement
 		_refresh_card_placement(sim)
 	for card in _card_nodes:
-		card.tooltip_text = String(_placement_warnings.get(card.card_id, ""))
+		card.tooltip_text = String(_placement_warnings.get(card.card_id, Almanac.plant_pitch(card.card_id)))
+		if not game.mobile: card.tooltip_text = "快捷键 %s\n%s" % [card._key_caption(), card.tooltip_text]
 		card.state = _card_state(card.index)
 		card.queue_redraw()
 	if _tool_shovel != null:
@@ -486,6 +491,11 @@ func refresh() -> void:
 		var signature = _fan_signature()
 		if signature != _fan_sig:
 			_sync_fan()
+	if _shell_panel != null and is_instance_valid(_shell_panel):
+		if _shell_host == null or _shell_host.dead or _shell_host.shell <= 0:
+			close_fan()
+		else:
+			_shell_value.text = "耐久 %d / %d" % [ceili(_shell_host.shell), ceili(_shell_host.shell_max)]
 
 
 ## 失败建议要对着这一夜真实发生过的事说。按"最该先改的那一件"排：
@@ -719,12 +729,43 @@ func try_open_menu(plant, at: Vector2) -> void:
 
 
 func close_fan() -> void:
+	if _shell_panel != null and is_instance_valid(_shell_panel):
+		_shell_panel.hide()
+		_shell_panel.queue_free()
+	_shell_panel = null
+	_shell_host = null
 	focus_plant = null
 	if _fan != null and is_instance_valid(_fan):
 		_fan.hide()
 		_fan.queue_free()
 	_fan = null
 	_fan_rows.clear()
+
+func show_shell(plant) -> void:
+	close_fan()
+	_shell_host = plant
+	_shell_panel = Ui.panel()
+	_shell_panel.name = "ShellDetails"
+	_shell_panel.z_index = 2
+	_shell_panel.size = Vector2(270, 180)
+	var at: Vector2 = preload("res://scripts/plant_regions.gd").shell_rect(plant, game.sim.rows).end
+	_shell_panel.position = Vector2(clampf(at.x + 12, 12, size.x - 282), clampf(at.y - 180, 160, size.y - 192))
+	add_child(_shell_panel)
+	preload("res://ui/click_away.gd").attach(self, _shell_panel, close_fan)
+	var box := Ui.vbox(8)
+	_shell_panel.add_child(box)
+	box.add_child(Ui.strong("龟甲罩", 23, Ui.GOLD_BRIGHT))
+	_shell_value = Ui.label("耐久 %d / %d" % [ceili(plant.shell), ceili(plant.shell_max)], 17)
+	box.add_child(_shell_value)
+	box.add_child(Ui.label("点草木上部可查看本体进化", 14, Ui.TEXT_DIM))
+	var row := Ui.hbox(8)
+	box.add_child(row)
+	var remove := Ui.button("拆下龟甲罩", 16, 150, 36)
+	remove.pressed.connect(func(): game.sim.remove_shell(plant); close_fan(); refresh())
+	row.add_child(remove)
+	var close := Ui.button("收起", 15, 70, 36)
+	close.pressed.connect(close_fan)
+	row.add_child(close)
 
 
 func _build_fan(plant, at: Vector2) -> void:
@@ -852,6 +893,7 @@ func _build_cheat() -> void:
 	_cheat_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_cheat_panel.z_index = 100
 	add_child(_cheat_panel)
+	preload("res://ui/click_away.gd").attach(self, _cheat_panel, _toggle_cheat)
 	var box = Ui.vbox(8)
 	_cheat_panel.add_child(box)
 	var head = Ui.hbox(8)
@@ -1008,11 +1050,12 @@ func _build_pause() -> void:
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.anchor_left = 0.5
 	panel.anchor_right = 0.5
-	panel.offset_left = -230.0
-	panel.offset_right = 230.0
-	panel.offset_top = -188.0
-	panel.offset_bottom = 188.0
+	panel.offset_left = -300.0
+	panel.offset_right = 300.0
+	panel.offset_top = -215.0
+	panel.offset_bottom = 215.0
 	add_child(panel)
+	preload("res://ui/click_away.gd").attach(self, panel, resume)
 	var box = Ui.vbox(12)
 	panel.add_child(box)
 	var head = Ui.hbox(10)
@@ -1021,15 +1064,15 @@ func _build_pause() -> void:
 	head.add_child(Ui.title("暂停", 40, Ui.GOLD_BRIGHT))
 	box.add_child(Ui.label("这一夜还长，喘口气再守。", 17, Ui.TEXT_DIM))
 	box.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
-	var resume_button = Ui.button("重返游戏", 28, 380, 72, true)
+	var resume_button = Ui.button("重返游戏", 28, 536, 72, true)
 	resume_button.pressed.connect(resume)
 	box.add_child(resume_button)
 	var tools = Ui.hbox(12)
 	box.add_child(tools)
-	var almanac = Ui.button("查看图鉴", 19, 180, 49)
+	var almanac = Ui.button("查看图鉴", 19, 262, 49)
 	almanac.pressed.connect(func(): game.open_almanac("plant", 0))
 	tools.add_child(almanac)
-	var settings = Ui.button("设置", 19, 180, 49)
+	var settings = Ui.button("设置", 19, 262, 49)
 	settings.pressed.connect(func(): game.open_settings())
 	tools.add_child(settings)
 	var restart = Ui.button("重新开始这一夜", 17, 300, 42)
@@ -1061,19 +1104,27 @@ func _build_result() -> void:
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.anchor_left = 0.5
 	panel.anchor_right = 0.5
-	panel.offset_left = -320.0
-	panel.offset_right = 320.0
-	panel.offset_top = -230.0
-	panel.offset_bottom = 230.0
+	panel.offset_left = -410.0
+	panel.offset_right = 410.0
+	panel.offset_top = -325.0
+	panel.offset_bottom = 325.0
 	add_child(panel)
 	var box = Ui.vbox(10)
 	panel.add_child(box)
+	Art.enter(panel, 0.32)
 	var head = Ui.hbox(14)
 	box.add_child(head)
-	head.add_child(Ui.seal("胜" if won else "败"))
+	var emblem = Control.new()
+	emblem.custom_minimum_size = Vector2(88, 88)
+	emblem.draw.connect(func():
+		var color = Ui.GOLD_BRIGHT if won else Ui.BAD
+		Art.diamond(emblem, Vector2(44, 44), 39, color)
+		Art.diamond(emblem, Vector2(44, 44), 32, Color(color, 0.35))
+		Art.icon(emblem, "lantern" if won else "boss", Vector2(44, 44), 23, color))
+	head.add_child(emblem)
 	var titles = Ui.vbox(0)
 	head.add_child(titles)
-	titles.add_child(Ui.title("守住了" if won else "失守", 44,
+	titles.add_child(Ui.title("守至天亮" if won else "此夜失守", 48,
 		Ui.GOLD_BRIGHT if won else Ui.BAD))
 	var level = Content.get_level(int(result.get("level_id", 1)))
 	var subtitle = "%s·%s · %s" % [level["day_name"], level["day_sub"], level["name"]]
@@ -1084,18 +1135,43 @@ func _build_result() -> void:
 	titles.add_child(Ui.label(subtitle, 18, Ui.TEXT_DIM))
 	box.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
 
+	var detail_scroll = ScrollContainer.new()
+	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	detail_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(detail_scroll)
+	var detail_box = Ui.vbox(10)
+	detail_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_scroll.add_child(detail_box)
 	var stats = GridContainer.new()
 	stats.columns = 2
 	stats.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stats.add_theme_constant_override("h_separation", 24)
 	stats.add_theme_constant_override("v_separation", 10)
-	box.add_child(stats)
+	detail_box.add_child(stats)
 	var seconds = float(result.get("time", 0.0))
-	var stat_rows = [
+	var main_stats = [
 		["用时", "%d:%02d" % [int(seconds) / 60, int(seconds) % 60]],
 		["击退", str(int(result.get("kills", 0)))],
 		["余香", str(int(result.get("sun", 0)))],
 	]
+	var highlights = Ui.hbox(14)
+	detail_box.add_child(highlights)
+	detail_box.move_child(highlights, 0)
+	for metric in main_stats:
+		var tile = PanelContainer.new()
+		tile.add_theme_stylebox_override("panel", Art.surface("card", "normal", Vector2(18, 12)))
+		tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tile.custom_minimum_size = Vector2(224, 94)
+		highlights.add_child(tile)
+		var value_box = Ui.vbox(2)
+		tile.add_child(value_box)
+		var caption = Ui.label(String(metric[0]), 15, Ui.TEXT_DIM)
+		caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		value_box.add_child(caption)
+		var value = Ui.strong(String(metric[1]), 31, Ui.GOLD_BRIGHT)
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		value_box.add_child(value)
+	var stat_rows: Array = []
 	var summary: Dictionary = result.get("summary", {})
 	var breached_rows: Array = summary.get("breached_rows", [])
 	var mowers_used = int(summary.get("mowers_used", 0))
@@ -1131,13 +1207,15 @@ func _build_result() -> void:
 			rating.flags=Array(summary.star_flags);rating.factor_count=int(summary.get("factor_points",0)) if not game.sim.cheated else 0
 			stats.add_child(rating)
 			continue
-		var value = Ui.strong(String(row[1]), 24, Ui.GOLD_BRIGHT)
+		var value = Ui.strong(String(row[1]), 21, Ui.GOLD_BRIGHT)
+		value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		value.custom_minimum_size.x = 480
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		stats.add_child(value)
-	box.add_child(Ui.spacer(6))
+	detail_box.add_child(Ui.spacer(6))
 	var comment = ""
 	if bool(result.get("tutorial", false)):
-		comment = "灯、签、磨都齐了。十五夜还长，慢慢守。"
+		comment = "灯、签、磨都齐了。夜市的路还长，慢慢守。"
 	elif won:
 		comment = "灯还亮着，今夜收摊。"
 		if game.sim.difficulty=="nightmare":
@@ -1146,8 +1224,8 @@ func _build_result() -> void:
 		comment = _loss_advice(summary, breached_rows)
 	var comment_label = Ui.label(comment, 18, Ui.TEXT)
 	comment_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(comment_label)
-	box.add_child(Ui.spacer(8))
+	detail_box.add_child(comment_label)
+	detail_box.add_child(Ui.spacer(8))
 
 	var row1 = Ui.hbox(12)
 	row1.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -1174,6 +1252,9 @@ func _build_result() -> void:
 		select.pressed.connect(func(): game.show_levels())
 		row1.add_child(select)
 	var row2 = Ui.hbox(12)
+	for action in row1.get_children():
+		action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		action.size_flags_stretch_ratio = 1.3 if action.get_meta("primary", false) else 1.0
 	row2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_child(row2)
 	var almanac = Ui.button("图鉴", 17, 0, 38)
@@ -1193,88 +1274,70 @@ class CardButton extends Control:
 	var card_id = ""
 	var state: Dictionary = {}
 	var hovered = false
-	var icon: Texture2D = null
+	var icon: Texture2D
+	var _binding_physical = -1
+	var _binding_caption = ""
+
+	func _key_caption() -> String:
+		var physical = hud.game.bound_key("card_%d" % (index + 1))
+		if physical != _binding_physical:
+			_binding_physical = physical
+			var code = physical if DisplayServer.get_name() == "headless" else DisplayServer.keyboard_get_keycode_from_physical(physical)
+			_binding_caption = String({KEY_BRACKETLEFT: "[", KEY_BRACKETRIGHT: "]", KEY_MINUS: "-", KEY_EQUAL: "="}.get(code, OS.get_keycode_string(code)))
+		return _binding_caption
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
-		# 贴图在 _ready 里取一次；在 _draw() 里临时 load 会画出白块。
+		focus_mode = Control.FOCUS_ALL
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		icon = Ui.sprite(card_id)
-		mouse_entered.connect(func():
-			hovered = true
-			queue_redraw())
-		mouse_exited.connect(func():
-			hovered = false
-			queue_redraw())
+		tooltip_text = Almanac.plant_pitch(card_id)
+		mouse_entered.connect(func(): hovered = true; queue_redraw())
+		mouse_exited.connect(func(): hovered = false; queue_redraw())
+		focus_entered.connect(queue_redraw)
+		focus_exited.connect(queue_redraw)
 
 	func _gui_input(event: InputEvent) -> void:
-		if event is InputEventMouseButton and event.pressed \
-				and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.is_action_pressed("ui_accept") or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 			accept_event()
 			hud._on_card(index)
 
 	func _draw() -> void:
 		var rect = Rect2(Vector2.ZERO, size)
-		var sim: Sim = hud.game.sim
 		var def: Dictionary = Content.PLANTS[card_id]
-		var base = Color(0.06, 0.10, 0.12, 0.92)
-		if bool(state.get("selected", false)):
-			base = Color(0.22, 0.16, 0.08, 0.96)
-		elif hovered:
-			base = Color(0.12, 0.18, 0.21, 0.95)
-		var border = Ui.GOLD if bool(state.get("selected", false)) else (
-			Ui.GOLD_DIM if hovered else Color(0.32, 0.29, 0.23, 0.9))
-		Ui.draw_plate(self, rect, base, border, 14, 2)
 		if hud.game.mobile:
-			Ui.draw_plant_icon(self,card_id,Rect2(6,4,rect.size.x-12,78),Color.WHITE if bool(state.get("affordable",true)) else Color(0.55,0.55,0.55))
-			var text:=str(int(def.cost))
-			draw_string(Ui.body_font(),Vector2(0,rect.size.y-9),text,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x,34,Ui.GOLD_BRIGHT)
-			var cd:=float(state.get("cooldown",0.0))
-			if cd>0:
-				Ui.draw_plate(self,Rect2(0,0,rect.size.x,rect.size.y*clampf(cd/float(state.get("cooldown_max",1.0)),0,1)),Color(0,0,0,0.6),Color.TRANSPARENT,14,0)
-			if bool(state.get("no_placement",false)):draw_string(Ui.body_font(),Vector2(0,32),"无落点",HORIZONTAL_ALIGNMENT_CENTER,rect.size.x,26,Ui.WARN)
+			Ui.draw_plate(self, rect, Color("#11222b"), Ui.GOLD if state.get("selected", false) else Ui.GOLD_DIM, 14, 2)
+			Ui.draw_plant_icon(self, card_id, Rect2(6, 4, size.x - 12, 78), Color.WHITE if state.get("affordable", true) else Color(0.55, 0.55, 0.55))
+			draw_string(Ui.body_font(), Vector2(0, size.y - 9), str(int(def.cost)), HORIZONTAL_ALIGNMENT_CENTER, size.x, 34, Ui.GOLD_BRIGHT)
+			var cooldown = float(state.get("cooldown", 0.0))
+			if cooldown > 0:
+				Ui.draw_plate(self, Rect2(0, 0, size.x, size.y * clampf(cooldown / float(state.get("cooldown_max", 1.0)), 0, 1)), Color(0, 0, 0, 0.6), Color.TRANSPARENT, 14, 0)
+			if state.get("no_placement", false): draw_string(Ui.body_font(), Vector2(0, 32), "无落点", HORIZONTAL_ALIGNMENT_CENTER, size.x, 26, Ui.WARN)
 			return
-
+		draw_style_box(MarketArt.surface("card", "hover" if hovered else "normal", Vector2.ZERO), rect)
+		var selected = bool(state.get("selected", false))
+		if selected:
+			Ui.draw_plate(self, rect.grow(-2), Color(Ui.JADE, 0.13), Ui.JADE_LIGHT, 2, 2)
+		if has_focus(): MarketArt.corners(self, rect.grow(-2), Ui.GOLD_BRIGHT, 10)
 		if bool(state.get("taught", false)):
-			# 这一步该点哪张牌：金框呼吸 + 牌底一个向上的箭头
 			var beat = 0.5 + 0.5 * sin(Time.get_ticks_msec() / 260.0)
-			Ui.draw_plate(self, rect.grow(2.0), Color.TRANSPARENT,
-				Color(1.0, 0.85, 0.42, 0.45 + beat * 0.5), 16, 3)
-			var cx = rect.size.x * 0.5
-			var lift = 6.0 + beat * 5.0
-			draw_colored_polygon(PackedVector2Array([
-				Vector2(cx, rect.size.y + 4.0 - lift),
-				Vector2(cx - 8.0, rect.size.y + 16.0 - lift),
-				Vector2(cx + 8.0, rect.size.y + 16.0 - lift)]),
-				Color(1.0, 0.85, 0.42, 0.55 + beat * 0.45))
-		# 立绘
-		var tint = Color(1, 1, 1, 1.0 if bool(state.get("affordable", true)) else 0.45)
-		Ui.draw_plant_icon(self, card_id, Rect2(6, 8, rect.size.x - 12,
-			rect.size.y - 40), tint)
-		# 名称与费用
-		var font = Ui.body_font()
-		var name_text = String(def["name"])
-		var name_size := mini(Ui.font_size(15),int((rect.size.x-6)/maxi(1,name_text.length())))
-		var width = font.get_string_size(name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x
-		draw_string(font, Vector2((rect.size.x - width) * 0.5, rect.size.y - 22),
-			name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size, Ui.TEXT)
-		var cost_text = str(int(def["cost"]))
-		var cost_width = font.get_string_size(cost_text, HORIZONTAL_ALIGNMENT_LEFT,
-			-1, 16).x
-		var cost_color = Ui.GOLD_BRIGHT if bool(state.get("affordable", true)) \
-			else Ui.BAD
-		draw_string(font, Vector2((rect.size.x - cost_width) * 0.5, rect.size.y - 6),
-			cost_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, cost_color)
-		# 冷却遮罩
-		var cd = float(state.get("cooldown", 0.0))
-		if cd > 0.05:
-			var ratio = clampf(cd / float(state.get("cooldown_max", 1.0)), 0.0, 1.0)
-			Ui.draw_plate(self, Rect2(0, 0, rect.size.x, rect.size.y * ratio),
-				Color(0.02, 0.03, 0.05, 0.68), Color.TRANSPARENT, 14, 0)
-		if not bool(state.get("affordable", true)):
-			Ui.draw_plate(self, rect, Color(0.02, 0.03, 0.05, 0.22), Color.TRANSPARENT, 14, 0)
-
+			Ui.draw_plate(self, rect.grow(2), Color.TRANSPARENT, Color(1, 0.85, 0.42, 0.45 + beat * 0.5), 3, 3)
+		var affordable = bool(state.get("affordable", true))
+		Ui.draw_plant_icon(self, card_id, Rect2(7, 13, size.x - 14, size.y - 53), Color.WHITE if affordable else Color(1, 1, 1, 0.44))
+		var name_text = String(def.name)
+		var name_size = mini(Ui.font_size(14), int((size.x - 8) / maxi(1, name_text.length())))
+		draw_string(Ui.body_font(), Vector2(0, size.y - 27), name_text, HORIZONTAL_ALIGNMENT_CENTER, size.x, name_size, Ui.TEXT)
+		draw_line(Vector2(10, size.y - 21), Vector2(size.x - 10, size.y - 21), Color(Ui.GOLD_DIM, 0.35), 1, true)
+		draw_string(Ui.medium_font(), Vector2(0, size.y - 7), str(int(def.cost)), HORIZONTAL_ALIGNMENT_CENTER, size.x, 16, Ui.GOLD_BRIGHT if affordable else Ui.BAD)
+		var key_text = _key_caption()
+		var key_width = Ui.body_font().get_string_size(key_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
+		var key_size = mini(10, floori(10 * minf(1.0, (size.x - 14) / maxf(1, key_width))))
+		draw_string(Ui.body_font(), Vector2(7, 14), key_text, HORIZONTAL_ALIGNMENT_LEFT, -1, key_size, Ui.TEXT_DIM)
+		var cooldown = float(state.get("cooldown", 0.0))
+		if cooldown > 0.05:
+			var ratio = clampf(cooldown / float(state.get("cooldown_max", 1.0)), 0, 1)
+			draw_rect(Rect2(4, 4, size.x - 8, (size.y - 26) * ratio), Color(0.015, 0.035, 0.04, 0.7))
+			draw_string(Ui.medium_font(), Vector2(0, size.y * 0.5), str(ceili(cooldown)), HORIZONTAL_ALIGNMENT_CENTER, size.x, 19, Ui.GOLD_BRIGHT)
 		if bool(state.get("no_placement", false)):
-			Ui.draw_plate(self, Rect2(5, 6, rect.size.x - 10, 21),
-				Color(0.21, 0.10, 0.075, 0.94), Ui.GOLD_DIM, 7, 1)
-			draw_string(font, Vector2(5, 21), "暂无落点", HORIZONTAL_ALIGNMENT_CENTER,
-				rect.size.x - 10, Ui.font_size(12), Ui.WARN)
+			Ui.draw_plate(self, Rect2(4, 4, size.x - 8, 20), Color("#3c251c"), Ui.GOLD_DIM, 2, 1)
+			draw_string(Ui.body_font(), Vector2(0, 19), "暂无落点", HORIZONTAL_ALIGNMENT_CENTER, size.x, 12, Ui.WARN)

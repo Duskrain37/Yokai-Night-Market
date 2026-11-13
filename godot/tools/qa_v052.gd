@@ -214,7 +214,7 @@ func run() -> void:
 	check("切回发布顺序恢复完整原序", book._sorted_indices() == range(Content.PLANT_ORDER.size()))
 	game.show_levels()
 	await process_frame
-	check("选关列表为3.8个周题签高度", is_equal_approx(game.screen_node._week_scroll.size.y, 86 * 3.8 - 8))
+	check("选关五周题签同排完整展示", is_equal_approx(game.screen_node._week_scroll.size.y, 66) and game.screen_node._week_buttons.size() == 5)
 	game.show_menu()
 	game.open_news()
 	check("封面可以打开自然语言更新公告", game.screen == "news")

@@ -1,0 +1,74 @@
+{
+  "old_motion_actors_unchanged": 156,
+  "old_frames_unchanged": 12672,
+  "new_motion": [
+    {
+      "actor": "incense-thief",
+      "clip": "attack",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "incense-thief",
+      "clip": "death",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "incense-thief",
+      "clip": "steal",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "incense-thief",
+      "clip": "walk",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "incense-thief",
+      "clip": "swim",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "incense-thief",
+      "clip": "swim_bite",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "sky-ferry",
+      "clip": "attack",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "sky-ferry",
+      "clip": "break",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "sky-ferry",
+      "clip": "land",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "sky-ferry",
+      "clip": "pickup",
+      "frames": 32,
+      "unique": 32
+    },
+    {
+      "actor": "sky-ferry",
+      "clip": "walk",
+      "frames": 32,
+      "unique": 32
+    }
+  ],
+  "new_frames": 352,
+  "failures": 0
+}

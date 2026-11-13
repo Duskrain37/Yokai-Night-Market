@@ -24,6 +24,7 @@ func buttons(node: Node) -> Array:
 	return result
 func _init() -> void:call_deferred("run")
 func run() -> void:
+	root.mode=Window.MODE_WINDOWED;root.size=Vector2i(1600,900)
 	root.content_scale_size=Vector2i(1600,900)
 	game=load("res://scenes/main.tscn").instantiate();root.add_child(game)
 	await process_frame

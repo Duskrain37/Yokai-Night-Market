@@ -41,13 +41,11 @@ func _run() -> void:
 
 
 ## 逻辑检查里只需要「解析」这一步，不起音频播放器。
-func resolve_track(style: String, day: int, phase: String, has_day_track: bool = true) -> String:
-	if style == "plain":
-		return phase
-	if not has_day_track:
-		return phase
-	var lane = clampi(day, 1, Content.DAYS.size())
-	return "day%d-%s" % [lane, phase]
+func resolve_track(_style: String, day: int, phase: String, _has_day_track: bool = true) -> String:
+	var game=load("res://scripts/game.gd").new()
+	var result:String=game.resolve_battle_track(day,phase)
+	game.free()
+	return result
 
 
 func music_menu_track() -> String:
@@ -56,7 +54,7 @@ func music_menu_track() -> String:
 
 func music_assets_present() -> int:
 	var count = 0
-	for name in ["menu", "battle", "hot", "final"]:
+	for name in ["menu"]:
 		if ResourceLoader.exists("res://assets/music/%s.ogg" % name):
 			count += 1
 	for day in range(1, Content.DAYS.size() + 1):

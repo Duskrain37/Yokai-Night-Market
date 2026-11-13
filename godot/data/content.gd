@@ -21,6 +21,7 @@ const ZOMBIE_ORDER: Array[String] = [
 	"vault", "mourner", "sedan", "artisan", "ironjudge", "mountain", "bride",
 	"returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell",
 	"flinch", "wave-herald", "formless", "reed-shot", "sky-wick", "shield-envoy", "oar-barge",
+	"incense-thief", "sky-ferry",
 ]
 
 const TIERS = {
@@ -131,6 +132,8 @@ const PLANTS = {
 # ── 恶客 ────────────────────────────────────────────────────────────────────
 # hp 本体 / armor 护具 / speed 像素每秒 / dps 啃食每秒 / reach 啃食距离（缺省 38）
 const ZOMBIES = {
+	"incense-thief":{"name":"盗烬客","kind":"窃香","tier":"m","hp":380,"armor":0,"speed":13,"dps":55,"sprite_h":111,"death":"ghost","incense_thief":true},
+	"sky-ferry":{"name":"浮灯轿夫","kind":"空运","tier":"h","hp":480,"armor":1500,"armor_type":"sky-basket","armor_name":"浮灯轿架","speed":23,"armor_speed":1.5,"dps":70,"sprite_h":128,"death":"ghost","flying_tool":true,"air_ferry":true},
 	"sky-wick":{"name":"纸鸢鬼","kind":"飞行","tier":"m","hp":280,"armor":260,"armor_type":"kite-wing","armor_name":"纸鸢翼","speed":20,"armor_speed":1.5,"dps":60,"sprite_h":116,"death":"ghost","flying_tool":true},
 	"shield-envoy":{"name":"授牌使","kind":"授盾","tier":"h","hp":820,"armor":0,"speed":13,"dps":75,"sprite_h":120,"death":"mourner","special_period":11.0},
 	"oar-barge":{"name":"五桨阴舟","kind":"撞舟","tier":"h","hp":450,"armor":1600,"armor_type":"barge","armor_name":"阴木舟","water_only":true,"large":true,"speed":18,"dps":0,"reach":62,"sprite_h":110,"death":"ghost","barge":true},
@@ -505,7 +508,7 @@ const NIGHT_LESSONS = [
 	],
 	[
 		["木栈和岸道隔得更开。先看清每一行从哪里来客，再落子。", ""],
-		["哭丧鬼会拖慢近处的草木。用更远的射程先打它。", "mourner"],
+		["盗烬客会停步偷走香火，再慢慢炼化。尽早击退它，取回尚未炼化的部分。", "incense-thief"],
 		["持牌鬼专挡射弹。让近身草木或爆竹绕开这块牌。", "shieldguard"],
 		["授牌使会把护身牌分给低阶恶客。先压住它，再用抛射或范围处理持牌的客人。", "shield-envoy"],
 		["今夜各路恶客都会来，缚愿纸官也会带来援军。", ""],
@@ -519,7 +522,7 @@ const NIGHT_LESSONS = [
 	],
 	[["今夜先熟悉海岛的摊位。中间两行最宽，外侧两行的边角无法种植，先从中间排起防线。", ""],
 	 ["落石和碎木会占住摊位，恶客却能翻过去。布不下直射草木时，把逐云鸢种在障碍后方。", "stonehat"],
-	 ["今夜练补刀。回灯鬼倒下还会再起，在它那一行留一株持续出手的草木。", "returner"],
+	 ["浮灯轿夫能载着恶客越过前排。先用追魂或抛射拆轿架，再拦住落地的乘客。", "sky-ferry"],
 	 ["今夜练打断召唤。巡相师会唤来双相傀，逐云鸢升到缄音第三阶，可以暂时封住它的特殊能力。", "tamer"],
 	 ["潮灯夜叉会换行并引潮冲击摊位。给多行留火力，手里留些香火应对潮涌。", ""]],
 	[["今夜先辨水面与石台。水道沿各行弯折，青色水面先放夜莲，黑色坑洞不能种植。", ""],
@@ -531,14 +534,14 @@ const NIGHT_LESSONS = [
 
 const NIGHT_INTRODUCTIONS = [
 	[["ghost", "tongue", "paper"], ["straw", "stonehat", "flinch"], ["vault", "bucket", "formless"], ["returner", "mourner", "reed-shot", "sky-wick"]],
-	[["ghost", "tongue", "straw", "paper", "mountain"], ["mourner", "stonehat", "bucket", "flinch"],
+	[["ghost", "tongue", "straw", "paper", "mountain"], ["mourner", "stonehat", "bucket", "flinch", "incense-thief"],
 		["shieldguard", "vault", "returner", "formless"], ["artisan", "sedan", "ironjudge", "reed-shot", "shield-envoy"]],
 	[["ghost", "tongue", "straw", "paper", "mountain"], ["reedboat", "stonehat", "bucket"],
 		["phaseguard", "returner", "vault", "shieldguard", "tamer"], ["dreambell", "mourner", "sedan", "matchmaker", "oar-barge"]],
-	[["ghost", "tongue", "straw", "paper", "mountain"], ["stonehat", "bucket", "vault"],
-		["returner", "phaseguard", "mourner"], ["tamer", "shieldguard", "artisan", "sky-wick", "shield-envoy"]],
+	[["ghost", "tongue", "straw", "paper", "mountain"], ["stonehat", "bucket", "vault", "incense-thief"],
+		["returner", "phaseguard", "mourner", "sky-ferry"], ["tamer", "shieldguard", "artisan", "sky-wick", "shield-envoy"]],
 	[["ghost", "tongue", "straw", "paper", "mountain"], ["vault", "stonehat", "bucket"],
-		["reedboat", "returner", "phaseguard", "shieldguard"], ["dreambell", "tamer", "artisan", "sedan", "oar-barge", "shield-envoy"]],
+		["reedboat", "returner", "phaseguard", "shieldguard", "incense-thief"], ["dreambell", "tamer", "artisan", "sedan", "oar-barge", "shield-envoy", "sky-ferry"]],
 ]
 
 
@@ -594,6 +597,7 @@ static func _build_levels() -> Array:
 				wave["groups"] = wave["budget_groups"].map(func(group):
 					return [wave_guest_type(group[0], special_waves.size()), group[1]])
 			special_waves.append(wave)
+	special_waves = _night_roster(special_waves, 4, 4)
 	out.insert(SPECIAL_ID - 1, {"id":SPECIAL_ID,"special":true,"day":5,"night":0,"day_name":"特殊关","day_sub":"鬼市深处",
 		"map":"cavern","rows":6,"name":"鬼市深处","tag":"终极守夜","threat":SPECIAL_THREATS[0],"band":"late",
 		"water_rows":CAVERN_WATER_ROWS,"lane_weights":[10,20,20,20,15,15],"object_cells":[],"start_sun":100,"wave_groups":20,"boss_id":"",
@@ -608,6 +612,8 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 	var allowed: Array = []
 	if night == 4:
 		for type in ZOMBIE_ORDER:
+			if type == "incense-thief" and week < 1: continue
+			if type == "sky-ferry" and week < 3: continue
 			if not bool(ZOMBIES[type].get("sedan_only", false)) and not bool(ZOMBIES[type].get("flag_only", false)) and (week in [2, 4] or not bool(ZOMBIES[type].get("water_only", false))):
 				allowed.append(type)
 	else:
@@ -618,7 +624,7 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 	var slots: Array = []
 	for index in waves.size():
 		var wave: Dictionary = waves[index]
-		wave["budget_groups"] = wave["groups"]
+		wave["budget_groups"] = wave.get("budget_groups", wave["groups"])
 		wave["guest_slots"] = []
 		for group in wave["budget_groups"]:
 			var original: String = group[0]

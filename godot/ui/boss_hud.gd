@@ -21,10 +21,9 @@ func _draw() -> void:
 		_draw_mobile(boss)
 		return
 	var left = 400.0
-	var top = 132.0
+	var top = 148.0
 	var width = 820.0
-	Ui.draw_plate(self, Rect2(left, top, width, 61.0), Color("#151c23"),
-		Color("#a78353"), 20, 2)
+	draw_style_box(MarketArt.surface("panel", "normal", Vector2.ZERO), Rect2(left, top, width, 61.0))
 	var ratio = clampf(float(boss.hp) / maxf(1.0, float(boss.max_hp)), 0.0, 1.0)
 	var trough = Rect2(left + 24.0, top + 33.0, width - 48.0, 16.0)
 	Ui.draw_gauge(self, trough, ratio, Color("#a94c36"))
@@ -51,11 +50,11 @@ func _draw_mobile(boss) -> void:
 func member_rect(index: int,count: int) -> Rect2:
 	var columns:=mini(2,count)
 	var width:=1110.0/columns-10.0
-	return Rect2(350.0+(index%columns)*(width+10.0),132.0+int(index/columns)*64.0,width,60)
+	return Rect2(350.0+(index%columns)*(width+10.0),148.0+int(index/columns)*64.0,width,60)
 
 func _draw_member(boss,index: int,count: int) -> void:
 	var rect:=member_rect(index,count)
-	Ui.draw_plate(self,rect,Color("#151c23"),Color("#a78353"),18,2)
+	draw_style_box(MarketArt.surface("panel", "normal", Vector2.ZERO), rect)
 	var trough:=Rect2(rect.position+Vector2(18,37),Vector2(rect.size.x-36,13))
 	Ui.draw_gauge(self,trough,clampf(boss.hp/maxf(1.0,boss.max_hp),0,1),Color("#ae493d") if index%2==0 else Color("#965b94"))
 	var status: String="退散" if not boss.alive() else ("蓄势" if boss.state in ["small_warning","major_warning","major_hits"] else "")

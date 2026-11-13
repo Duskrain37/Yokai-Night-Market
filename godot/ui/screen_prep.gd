@@ -3,6 +3,7 @@
 ## 与 v0.2.4 的差异：名册与卡组分栏，不再与提示文字共用一块区域（旧版训练备战
 ## 的文字交叠正是这么来的）；卡组上限十二张，超出时给出明确提示。
 extends Control
+const Art = preload("res://ui/market_art.gd")
 
 var game = null
 var _picked: Array = []
@@ -12,6 +13,10 @@ var _warning: Label = null
 var _count_label: Label = null
 var _fix_row: HBoxContainer = null
 var _producer_warning: ConfirmationDialog = null
+var _filter = "全部"
+var _query = ""
+var _filter_buttons: Dictionary = {}
+var _empty_label: Label
 
 
 func _ready() -> void:
@@ -30,6 +35,8 @@ func _ready() -> void:
 
 ## v0.2.4 的备战镜头：推镜 → 报幕 → 恶客列队 → 淡入备战页。
 func _play_cinema() -> void:
+	if Art.reduced_motion:
+		return
 	var level: Dictionary = _level()
 	var cinema := PrepCinema.new()
 	cinema.level = level
@@ -56,7 +63,8 @@ func _reveal_after_cinema() -> void:
 			continue
 		child.visible = true
 		child.modulate.a = 0.0
-		create_tween().tween_property(child, "modulate:a", 1.0, 0.45)
+		if game._qa: child.modulate.a = 1.0
+		else: create_tween().tween_property(child, "modulate:a", 1.0, 0.24)
 
 
 func _capacity() -> int:
@@ -68,32 +76,15 @@ func _level() -> Dictionary:
 
 
 func _backdrop() -> void:
-	var fill = ColorRect.new()
-	fill.color = Ui.INK
-	fill.set_anchors_preset(Control.PRESET_FULL_RECT)
-	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(fill)
-	var file := Content.map_picture(_level(), true)
-	if ResourceLoader.exists(file):
-		var rect = TextureRect.new()
-		rect.texture = load(file)
-		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		rect.modulate = Color(0.55, 0.6, 0.65, 1.0)
-		add_child(rect)
-	var scrim = ColorRect.new()
-	scrim.color = Color(0.02, 0.05, 0.07, 0.8)
-	scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(scrim)
+	Art.backdrop(self, Content.map_picture(_level(), true), 0.58)
+	Art.vignette(self, 0.45, 0.2)
 
 
 func _header() -> void:
 	var level = _level()
 	var training = bool(game.prep.get("training", false))
 	var back = Ui.button("← 返回", 18, 120, 40)
-	back.position = Vector2(56, 34)
+	back.position = Vector2(48, 34)
 	back.pressed.connect(func():
 		if training:
 			game.show_training_menu()
@@ -101,7 +92,7 @@ func _header() -> void:
 			game.show_levels())
 	add_child(back)
 	var title = Ui.title("备战 · %s" % String(level["name"]), 44, Ui.GOLD_BRIGHT)
-	title.position = Vector2(96, 84)
+	title.position = Vector2(84, 88)
 	add_child(title)
 	var detail = "%s·%s · %s · %d 大波 · 三星：一夜不动用门神" % [
 		level["day_name"],level["day_sub"],level["tag"],Content.wave_groups(level)]
@@ -117,14 +108,14 @@ func _header() -> void:
 		detail = "训练场 · %s·%s · 不刷波次、不判负、起手 1000 香火" % [
 			level["day_name"], level["day_sub"]]
 	var sub = Ui.label(detail, 18, Ui.TEXT_DIM)
-	sub.position = Vector2(100, 148)
+	sub.position = Vector2(88, 151)
 	add_child(sub)
 	# 三夜样板：这一夜只练一件事，写在右上角的暗底题签上
 	var theme := String(level.get("theme", ""))
 	if theme != "":
 		var plate := PanelContainer.new()
-		plate.position = Vector2(742, 20)
-		plate.custom_minimum_size = Vector2(800, 0)
+		plate.position = Vector2(510, 32)
+		plate.custom_minimum_size = Vector2(1042, 0)
 		plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		plate.add_theme_stylebox_override("panel", Ui.flat(
 			Color(0.05, 0.06, 0.08, 0.8), Color(Ui.VERMILION.r, Ui.VERMILION.g,
@@ -134,7 +125,7 @@ func _header() -> void:
 		row.add_child(Ui.seal("题", 30.0))
 		var line := Ui.strong(theme, 17, Color(0.96, 0.9, 0.78))
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		line.custom_minimum_size = Vector2(720, 0)
+		line.custom_minimum_size = Vector2(950, 0)
 		row.add_child(line)
 		add_child(plate)
 	var rule = ColorRect.new()
@@ -145,40 +136,83 @@ func _header() -> void:
 
 
 func _roster() -> void:
-	var panel = Ui.panel(0.88)
-	panel.position = Vector2(56, 200)
-	panel.size = Vector2(1010, 660)
+	var panel = Ui.panel()
+	panel.position = Vector2(48, 206)
+	panel.size = Vector2(986, 654)
+	Ui.extend_to_bottom(panel)
 	add_child(panel)
-	var box = Ui.vbox(8)
+	var box = Ui.vbox(10)
 	panel.add_child(box)
-	var head = Ui.hbox(12)
+	var head = Ui.hbox(14)
 	box.add_child(head)
-	head.add_child(Ui.strong("草木名册", 22, Ui.GOLD))
-	head.add_child(Ui.label("滚动翻阅，点选或取下，一局最多十二张，因子可限制携带数量。", 15, Ui.TEXT_DIM))
-	var scroll := ScrollContainer.new()
+	head.add_child(Art.icon_control("book", 28, Ui.GOLD))
+	var title = Ui.strong("草木名册", 23, Ui.GOLD_BRIGHT)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title)
+	var search = LineEdit.new()
+	search.name = "RosterSearch"
+	search.placeholder_text = "查找草木或本事…"
+	search.custom_minimum_size = Vector2(242, 36)
+	search.add_theme_font_size_override("font_size", 16)
+	search.text_changed.connect(func(value): _query = value.strip_edges(); _apply_filter())
+	head.add_child(search)
+	var filters = Ui.hbox(8)
+	box.add_child(filters)
+	for category in ["全部", "产能", "输出", "守护", "奇术"]:
+		var button = Ui.button(category, 15, 76, 32)
+		button.pressed.connect(func(): _filter = category; _apply_filter(); game.play_sfx("click"))
+		filters.add_child(button)
+		_filter_buttons[category] = button
+	var note = Ui.label("左键入组 · 右键翻阅图鉴", 14, Ui.TEXT_DIM)
+	note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	filters.add_child(note)
+	var scroll = ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(scroll)
 	var grid = GridContainer.new()
 	grid.columns = 6
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 8)
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 10)
 	scroll.add_child(grid)
 	_roster_nodes.clear()
 	for type in Content.PLANT_ORDER:
 		var card = PlantPickCard.new()
 		card.plant_id = String(type)
 		card.screen = self
-		card.custom_minimum_size = Vector2(151, 174)
+		card.custom_minimum_size = Vector2(144, 174)
 		grid.add_child(card)
 		_roster_nodes.append(card)
+	_empty_label = Ui.label("没有找到相应草木。试试名字或本事，也可以切回“全部”。", 18, Ui.TEXT_DIM)
+	_empty_label.custom_minimum_size = Vector2(880, 80)
+	_empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	grid.add_child(_empty_label)
+	_apply_filter()
+
+func _category(type: String) -> String:
+	var def: Dictionary = Content.PLANTS[type]
+	if def.has("produce") or def.has("till"): return "产能"
+	if String(def.role) in ["防御", "护甲", "浮台", "扶伤"]: return "守护"
+	if bool(def.get("ash", false)) or String(def.role) == "收妖": return "奇术"
+	return "输出"
+
+func _apply_filter() -> void:
+	for key in _filter_buttons: Ui.set_button_active(_filter_buttons[key], key == _filter)
+	for card in _roster_nodes:
+		var def: Dictionary = Content.PLANTS[card.plant_id]
+		var matches = _query.is_empty() or (String(def.name) + String(def.role) + Almanac.plant_pitch(card.plant_id)).contains(_query)
+		card.visible = matches and (_filter == "全部" or _category(card.plant_id) == _filter)
+	if _empty_label != null:
+		_empty_label.visible = _roster_nodes.all(func(card): return not card.visible)
 
 
 func _slots() -> void:
 	var panel = Ui.panel(0.9)
-	panel.position = Vector2(1090, 200)
-	panel.custom_minimum_size = Vector2(452, 660)
+	panel.position = Vector2(1054, 206)
+	panel.custom_minimum_size = Vector2(498, 654)
+	Ui.extend_to_bottom(panel)
 	add_child(panel)
 	var box = Ui.vbox(8)
 	panel.add_child(box)
@@ -189,7 +223,7 @@ func _slots() -> void:
 	head.add_child(_count_label)
 	var grid = GridContainer.new()
 	grid.columns = 6
-	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("h_separation", 8)
 	grid.add_theme_constant_override("v_separation", 6)
 	box.add_child(grid)
 	_slot_nodes.clear()
@@ -197,7 +231,7 @@ func _slots() -> void:
 		var slot = SlotCard.new()
 		slot.index = i
 		slot.screen = self
-		slot.custom_minimum_size = Vector2(65, 90)
+		slot.custom_minimum_size = Vector2(68, 90)
 		grid.add_child(slot)
 		_slot_nodes.append(slot)
 	# Keep the launch controls inside the viewport even with all enemy types + water warning.
@@ -222,7 +256,7 @@ func _slots() -> void:
 	fix.pressed.connect(_swap_in_lily)
 	_fix_row.add_child(fix)
 	details.add_child(Ui.hline(Ui.GOLD_DIM, 1.0))
-	details.add_child(Ui.label("今夜恶客 · 滚动翻阅", 17, Ui.GOLD))
+	details.add_child(Ui.strong("今夜恶客 · 点选查看对策", 17, Ui.GOLD))
 	var enemies = Ui.vbox(2)
 	details.add_child(enemies)
 	var seen = Content.plants_in_level(_level())
@@ -442,97 +476,103 @@ class PlantPickCard extends Control:
 	var screen = null
 	var chosen = false
 	var hovered = false
-	var icon: Texture2D = null
+	var icon: Texture2D
+	var lift = 0.0:
+		set(value):
+			lift = value
+			queue_redraw()
+	var hover_tween: Tween
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
+		focus_mode = Control.FOCUS_ALL
 		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		icon = Ui.sprite(plant_id)  # 贴图只在 _draw 之外取一次
-		mouse_entered.connect(func():
-			hovered = true
-			queue_redraw())
-		mouse_exited.connect(func():
-			hovered = false
-			queue_redraw())
+		icon = Ui.sprite(plant_id)
+		tooltip_text = Almanac.plant_pitch(plant_id)
+		mouse_entered.connect(func(): _hover(true))
+		mouse_exited.connect(func(): _hover(false))
+		focus_entered.connect(queue_redraw)
+		focus_exited.connect(queue_redraw)
+
+	func _hover(value: bool) -> void:
+		hovered = value
+		if MarketArt.reduced_motion:
+			queue_redraw()
+			return
+		if hover_tween != null: hover_tween.kill()
+		hover_tween = create_tween()
+		hover_tween.tween_property(self, "lift", 4.0 if value else 0.0, 0.13)
 
 	func _gui_input(event: InputEvent) -> void:
-		if event is InputEventMouseButton and event.pressed \
-				and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.is_action_pressed("ui_accept"):
 			accept_event()
 			screen.toggle_plant(plant_id)
-		elif event is InputEventMouseButton and event.pressed \
-				and event.button_index == MOUSE_BUTTON_RIGHT:
-			accept_event()
-			var index = Content.PLANT_ORDER.find(plant_id)
-			screen.game.open_almanac("plant", index)
+		elif event is InputEventMouseButton and event.pressed:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				accept_event()
+				screen.toggle_plant(plant_id)
+			elif event.button_index == MOUSE_BUTTON_RIGHT:
+				accept_event()
+				screen.game.open_almanac("plant", Content.PLANT_ORDER.find(plant_id))
 
 	func _draw() -> void:
 		var def: Dictionary = Content.PLANTS[plant_id]
 		var rect = Rect2(Vector2.ZERO, size)
-		var base = Color(0.07, 0.11, 0.14, 0.9)
+		draw_style_box(MarketArt.surface("card", "hover" if hovered else "normal"), rect)
 		if chosen:
-			base = Color(0.24, 0.19, 0.09, 0.96)
-		elif hovered:
-			base = Color(0.13, 0.2, 0.23, 0.94)
-		Ui.draw_plate(self, rect, base, Ui.GOLD if chosen else Color(0.32, 0.29, 0.24, 0.9),
-			14, 2 if chosen else 1)
-		Ui.draw_plant_icon(self, plant_id, Rect2(8, 6, rect.size.x - 16,
-			rect.size.y - 62))
-		var font = Ui.body_font()
-		var strong = Ui.medium_font()
-		var name_text = String(def["name"])
-		var width = strong.get_string_size(name_text, HORIZONTAL_ALIGNMENT_LEFT, -1,
-			19).x
-		draw_string(strong, Vector2((rect.size.x - width) * 0.5, rect.size.y - 38),
-			name_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 19, Ui.TEXT)
-		var role = String(def["role"])
-		var role_width = font.get_string_size(role, HORIZONTAL_ALIGNMENT_LEFT, -1,
-			14).x
-		draw_string(font, Vector2((rect.size.x - role_width) * 0.5, rect.size.y - 18),
-			role, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Ui.TEXT_DIM)
-		var cost = "%d 香火 · 冷却 %d 秒" % [int(def["cost"]), int(def["cooldown"])]
-		var cost_width = font.get_string_size(cost, HORIZONTAL_ALIGNMENT_LEFT, -1,
-			13).x
-		draw_string(font, Vector2((rect.size.x - cost_width) * 0.5, rect.size.y - 4),
-			cost, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Ui.GOLD_DIM)
-
+			Ui.draw_plate(self, rect.grow(-3), Color(Ui.JADE, 0.10), Ui.JADE_LIGHT, 2, 2)
+			draw_circle(Vector2(size.x - 17, 17), 10, Ui.JADE)
+			draw_string(Ui.medium_font(), Vector2(size.x - 23, 22), "✓", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Ui.INK)
+		if has_focus(): MarketArt.corners(self, rect.grow(-2), Ui.GOLD_BRIGHT)
+		Ui.draw_plant_icon(self, plant_id, Rect2(12, 10 - lift, size.x - 24, size.y - 84))
+		var name_size = mini(Ui.font_size(18), int((size.x - 16) / maxi(1, String(def.name).length())))
+		draw_string(Ui.medium_font(), Vector2(0, size.y - 49), String(def.name), HORIZONTAL_ALIGNMENT_CENTER, size.x, name_size, Ui.TEXT)
+		draw_string(Ui.body_font(), Vector2(0, size.y - 29), String(def.role), HORIZONTAL_ALIGNMENT_CENTER, size.x, Ui.font_size(13), Ui.TEXT_DIM)
+		draw_line(Vector2(12, size.y - 23), Vector2(size.x - 12, size.y - 23), Color(Ui.GOLD_DIM, 0.3), 1, true)
+		draw_string(Ui.medium_font(), Vector2(12, size.y - 8), "%d 香火" % int(def.cost), HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(14), Ui.GOLD_BRIGHT)
+		var cooldown = "%d 秒" % int(def.cooldown)
+		var width = Ui.body_font().get_string_size(cooldown, HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(12)).x
+		draw_string(Ui.body_font(), Vector2(size.x - 12 - width, size.y - 8), cooldown, HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(12), Ui.TEXT_DIM)
 
 class SlotCard extends Control:
 	var index = 0
 	var plant_id = ""
 	var screen = null
-	var icon: Texture2D = null
+	var icon: Texture2D
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
+		focus_mode = Control.FOCUS_ALL
 		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		focus_entered.connect(queue_redraw)
+		focus_exited.connect(queue_redraw)
 
 	func set_plant(id: String) -> void:
+		if id != plant_id and id != "" and not MarketArt.reduced_motion:
+			modulate = Color(1.16, 1.13, 0.95)
+			create_tween().tween_property(self, "modulate", Color.WHITE, 0.18)
 		plant_id = id
 		icon = Ui.sprite(id) if id != "" else null
+		tooltip_text = "位置 %d · %s" % [index + 1, "等待草木入组" if id == "" else Content.PLANTS[id].name]
 		queue_redraw()
 
 	func _gui_input(event: InputEvent) -> void:
-		if event is InputEventMouseButton and event.pressed \
-				and event.button_index == MOUSE_BUTTON_LEFT and plant_id != "":
+		if plant_id == "": return
+		if event.is_action_pressed("ui_accept") or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
 			accept_event()
 			screen.toggle_plant(plant_id)
 
 	func _draw() -> void:
 		var rect = Rect2(Vector2.ZERO, size)
+		draw_style_box(MarketArt.surface("card", "normal", Vector2.ZERO), rect)
+		if has_focus(): MarketArt.corners(self, rect.grow(-2), Ui.GOLD_BRIGHT, 10)
 		if plant_id == "":
-			Ui.draw_plate(self, rect, Color(1, 1, 1, 0.04), Color(0.3, 0.28, 0.23, 0.6), 12, 1)
+			draw_string(Ui.body_font(), Vector2(0, size.y * 0.58), "%02d" % (index + 1), HORIZONTAL_ALIGNMENT_CENTER, size.x, 20, Color(Ui.GOLD_DIM, 0.6))
 			return
-		Ui.draw_plate(self, rect, Color(0.1, 0.15, 0.18, 0.95), Ui.GOLD_DIM, 12, 1)
-		Ui.draw_plant_icon(self, plant_id, Rect2(5, 5, rect.size.x - 10,
-			rect.size.y - 24))
-		var def: Dictionary = Content.PLANTS[plant_id]
-		var font = Ui.body_font()
-		var text = String(def["name"])
-		var text_size:=mini(14,int((rect.size.x-6)/maxi(1,text.length())))
-		var width = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, text_size).x
-		draw_string(font, Vector2((rect.size.x - width) * 0.5, rect.size.y - 8), text,
-			HORIZONTAL_ALIGNMENT_LEFT, -1, text_size, Ui.TEXT)
+		Ui.draw_plant_icon(self, plant_id, Rect2(7, 7, size.x - 14, size.y - 30))
+		var text = String(Content.PLANTS[plant_id].name)
+		var text_size = mini(13, int((size.x - 10) / maxi(1, text.length())))
+		draw_string(Ui.body_font(), Vector2(0, size.y - 10), text, HORIZONTAL_ALIGNMENT_CENTER, size.x, text_size, Ui.TEXT)
 
 
 ## 今夜恶客的一枚头像牌：立绘、名字、阶级色点；首遇的挂「新」，点开进图鉴。

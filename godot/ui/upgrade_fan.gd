@@ -61,10 +61,12 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 		picked.emit(int(entries[hit]["id"]))
 		return
+	accept_event()
+	dismissed.emit()
 
 
 func _has_point(pos: Vector2) -> bool:
-	return hit_test(pos) >= 0
+	return Rect2(Vector2.ZERO, size).has_point(pos)
 
 
 func hit_test(pos: Vector2) -> int:
@@ -200,8 +202,7 @@ func _draw_tooltip() -> void:
 		position_on_screen.y = anchor.y - h * 0.5
 	var rect := Rect2(Vector2(clampf(position_on_screen.x, 12.0, size.x - w - 12.0),
 		clampf(position_on_screen.y, 12.0, size.y - h - 16.0)), Vector2(w, h))
-	Ui.draw_plate(self, rect, Color(0.96, 0.92, 0.82, 0.97),
-		Color(Ui.VERMILION.r, Ui.VERMILION.g, Ui.VERMILION.b, 0.8), 14, 2)
+	draw_style_box(MarketArt.surface("paper", "normal", Vector2.ZERO), rect)
 	var tw := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
 	draw_string(font, rect.position + Vector2(w * 0.5 - tw * 0.5, 20.0), title,
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.22, 0.13, 0.09))

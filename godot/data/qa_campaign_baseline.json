@@ -1,7 +1,7 @@
 {
   "strategy": "recommended-v2",
   "strategy_sha256": "c81ad0f48aad7508d9ae1d0457777614c78c3bce376b64865949a806d550625f",
-  "content_sha256": "cc44f144bc070cdb51c8816cff819ed7c8e6798f9e98109ef4d239eaff27f69a",
+  "content_sha256": "d1699670bdf5c563c546a4cbcc72597544e110c56a8d8e95516371f168a4c0ff",
   "seed": 7,
   "dt": 0.03333333333333333,
   "scope": "Recommended-loadout bot baseline. Defeats are not proof a night is impossible for players.",
@@ -10,601 +10,601 @@
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "135e1427e658246b47588242231ac75e90025353034e016be09f4253c32f87ac"
+      "spawn_trace": "edfb35cc42e5062312e52c4f0dc3171bbd2cf88b125964607b0f91fd53a7c3b1"
     },
     "easy:2": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "31e9bf8d2448dc1c5601762614c20803002f8c76e89f6a5b68509d620c27b091"
+      "spawn_trace": "f8d45b2663da10829b1f070029e7f6f3a4ff250352ac3fd6b60f30882eeaf8c6"
     },
     "easy:3": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "19b7dc0c47e3294dc1525bb370c61d1f234356655d9b14fc68c4997327186911"
+      "spawn_trace": "0f3af29a717f58332c66b33a76012743ee6df670db71d2983bcadaa8283daecf"
     },
     "easy:4": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "ad134f36415a674074f3dc98b11ca13c323589d339d4814f594ae0d12546ea41"
+      "spawn_trace": "40c959b526acf600c5c4a5600c361ae8e1f3797d5568a44fc5ceb270afbd05a7"
     },
     "easy:5": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "c851818b333a49f5c9e7577e9bbdbb61c88d598b756953e6417eafea710d136f"
+      "spawn_trace": "6070cb4dd0692b1d8c6441b3d8133fb2bb689343dd5ab62fd1fabcc3be1bc13b"
     },
     "easy:6": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "400319e05715daf9a6f79b86b7fdc9460fc4ecb6fe636d096e5dfe454fb3a84d"
+      "spawn_trace": "2d4ea1779adfad8a6986553be0714c4848088ace18047be1cbc1f2138aa71d79"
     },
     "easy:7": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "9f22e0aeec6e494c406969c4dd15900e8779153df5a6a2bcf344325175728ff3"
+      "spawn_trace": "fce0e37beb54a0b52c218192c126049fc39c3746984e9e4d1d920df693c5ea4a"
     },
     "easy:8": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "6bd660884b0914b43ef613b5fa9b1b9555ce7c1eda3abad795f1916f80bf412a"
+      "spawn_trace": "281840e754ce3993a7f92efe416b0c858e4b21cfde2472e27181ae2c3bab44a4"
     },
     "easy:9": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "f269672bd6b76b8c690e4214d70e138f26118868e3b864e530ed4a772d4137f6"
+      "spawn_trace": "336d9b03c072a31f976c340225894c247e8ae66f22fae9f3e6e42db2db07cb39"
     },
     "easy:10": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "9aa84bf5594af7e005026c369795f4a400fdfec13a1eab55fcfab11f2706f674"
+      "spawn_trace": "2ef815ae1ab0127534045f189fea469a7fbdbf3805dadcf20e433101b27213c6"
     },
     "easy:11": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "51ff5aecff9b6003a64aa054c29a4b4af665d96cc24c1c25de58ee2d3fb7936c"
+      "spawn_trace": "78785d72656eeaa592f59cbb68d2a896a982b257d36513f508496c2a8b8d1fda"
     },
     "easy:12": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "81ff82aa30e0ec6343840999863b39c538999c9adc71af6ad60497ddef08d8d1"
+      "spawn_trace": "3bacad81ee76eaa046fd27edfd8473c57fb92fc64d51c551d1ef7028c654fa22"
     },
     "easy:13": {
-      "outcome": "lost",
-      "won": false,
+      "outcome": "won",
+      "won": true,
       "max_seconds": 600,
-      "spawn_trace": "8110ffcb009da9cd1d989c48f77ff1a38d5e986baf7bc2ecf99bab33fb5c2b51"
+      "spawn_trace": "80684df97773551030cbecdc62dcf1893b5a80ba1a5938b58b2d6d885954b153"
     },
     "easy:14": {
-      "outcome": "lost",
-      "won": false,
+      "outcome": "won",
+      "won": true,
       "max_seconds": 600,
-      "spawn_trace": "aa3dd67c915bc5e0d364b6cf81882e5419c1247140aeb62300d69dacbf2a35eb"
+      "spawn_trace": "a2af2d1e5366204e1b4f8b45d56210ac4f13231c92ec7d08e8242ac778193d81"
     },
     "easy:15": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "18ac0ed5549bd37e189c495e99764280f5e5c0c79cdef510791883b9e65ad901"
+      "spawn_trace": "1d0671768ef9042d2d56321201945e1b382e6c05648da615223a036d5bec8d7b"
     },
     "easy:17": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "1403e7533912a07fca2d8b68b693d5d53d1e8b9adab902bb47e242bdc2ce6e6e"
+      "spawn_trace": "65df1d2bfc8a6a5af9f13a704c2c40e6c344c6c0a30d077dc50e1dc4ae027065"
     },
     "easy:18": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "28f96f0bc9f52e47dbbd94155634ae077f5bfa9eb7e256ab26c0bf59a129fe8c"
+      "spawn_trace": "2b75e8cd4a9b269b2277758c0735a16a664622324566ac8904f32b12d653afff"
     },
     "easy:19": {
-      "outcome": "lost",
-      "won": false,
+      "outcome": "won",
+      "won": true,
       "max_seconds": 600,
-      "spawn_trace": "a7961542398bc41a76597cd385b5871feec7ed85e6e3ab1d500de925cf3814b8"
+      "spawn_trace": "bf75d7874e9d19c929f004bd5f85e046df067205f50fbdfa98d8e2657f2a4a31"
     },
     "easy:20": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "e7fe8cd4fd29795154856d313e9aa951112c9e15498461ae164f1a91935e3817"
+      "spawn_trace": "79a562ed23cd7d737117541551d6c36f36e49ec6665dd3d7d0726419fada9977"
     },
     "easy:21": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "ffa8bc9586ef1b07a1b412ee4fd3146289957bf81f202462a9e6b0c787e3ce29"
+      "spawn_trace": "7948dcc1c571252ce9dd5d92b5370bc42fe26c73caacc37b244552253b9a7fdf"
     },
     "easy:22": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "a3293dd2cc999e909d93c8c1278eaddbfdbdbcb72adf3e0285c82b5053d67703"
+      "spawn_trace": "03ecfadc7a7e050c9e1ae177238dbc6102fd1f89380fa0480a3cd8659a4f252b"
     },
     "easy:23": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "942758db31a4197d58602dbb7e1b712507280d343cb11ad763850dbf21e4d31c"
+      "spawn_trace": "01ea896fc8786d09ba5446a68d5fccc8ab230c8807bf2c38aba4faf9650c15a1"
     },
     "easy:24": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "bb939c49f96d3a82f265d55cdc00dd33ee1fe67c87c09206138b3823d3e98a45"
+      "spawn_trace": "8f326e792f289c5ed06532c821d2768391a4bc4e27378b058513b87197e89dac"
     },
     "easy:25": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "2aab691144d0dc00e8a8c64d05c8a0a48a2c4ac8f45ff3155214c44063ed1cbb"
+      "spawn_trace": "1cfcec2caafe808190c2d4ed14f56fbad7bc5d4202b80c3d68293c3e988be820"
     },
     "easy:26": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "13d8b1e4acdd1e4a2cab4598a58e442e57df0a89a77b943aede2fc037739e298"
+      "spawn_trace": "0f10229376ec4b783c24d707ff48e9c63d46fcbada1ac243497faef418c42803"
     },
     "normal:1": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "dbb6eaf5d4c982bc73a9dc2dc875058b110e3a3ba002bf2630dc03ee55047eb6"
+      "spawn_trace": "4ae9a2450f4233dc8210c840b29570383486786e19ef6911eeffd57e5f563cea"
     },
     "normal:2": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "19c8f0e67071a96cc2e3fcd6c0b1ab7ba2f0700cce16dfbf61fc1a35ed0cee7a"
+      "spawn_trace": "2e2c1f74468839d8e7f6fa85bc840565d9533b2171a3a13af43f4754bea3e2dd"
     },
     "normal:3": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "1812bc0aab392957fff8946e0398aed8cb0033b64a548f51b7059b3bce68679f"
+      "spawn_trace": "6993fa35f3e11408ee8e07c351131270f58d36bf0d993d48865e119c62b47d89"
     },
     "normal:4": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "9db2be505dfc6be74515b585fdbf320d9860a1a5964c168938a9d58ac1c27a9c"
+      "spawn_trace": "a6986918629a3fd59c9f88ff219d6ebe1a4972f417ce7baf72a286a6c165827c"
     },
     "normal:5": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "16f4567a9fd53c0186ac31bc58ba7e8f170925135a68021a906db0e2a817f9a0"
+      "spawn_trace": "a449c1f6098003b5f872259d1c7928b69ccdf25ef183ac331ff2b6e44bcbbe80"
     },
     "normal:6": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "fdc763fcb41939e48fcfe27dc54e3ecb43350cf2fb7983d3f1a50ecdb9684494"
+      "spawn_trace": "15956fdc1589cc914e2cecc61c7f1d3586cadba845255fddd4546d0fce00ddb3"
     },
     "normal:7": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "a1a5932a2fb670706979eac9ecdb5543c1c560b3cc0ecf735841f9eb1834ee06"
+      "spawn_trace": "041f759c64a0670f9beef646243ed9a60c963acf8a2731764f0ddcb9fd335bc8"
     },
     "normal:8": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "72616e7bece861f7df4c0340991c61ca91b72afa2622d59ee5ddecb6426adab5"
+      "spawn_trace": "cbfce00163a7a0a95b49c5d159e72dbd2e44dd115e82f0ad0fe24a8e8519b843"
     },
     "normal:9": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "f5582bb8ec9a19a3b0d5556d12ec9ecb6830f440c880e017b9d607b2d18ee4ab"
+      "spawn_trace": "69599d00dd1a8904bce4d152b7b8fc616a1615556b2b9ce9f587b4badb7262b4"
     },
     "normal:10": {
-      "outcome": "won",
-      "won": true,
+      "outcome": "lost",
+      "won": false,
       "max_seconds": 600,
-      "spawn_trace": "796811a07d29cf0af638c42ae144cde980449e1ad013a970d99392ea5442c703"
+      "spawn_trace": "a5d0e6e3e2f6d7649c946343a9c1cdfc19f4153618886aaeade9a46e223e0aa2"
     },
     "normal:11": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "64a691f2886720222fc1f55d7f78da5e6ca30bd2ff42524741c6945ac6e9e0b9"
+      "spawn_trace": "e57a66d718f9a04690ec1f5770b410f9aaf2f6b1e1950f52eb9cf9997017ac50"
     },
     "normal:12": {
-      "outcome": "lost",
-      "won": false,
+      "outcome": "won",
+      "won": true,
       "max_seconds": 600,
-      "spawn_trace": "a23c368b496789d8a6f94a66ac130880f96efe2a1804d60b02cc135f87c0b3f6"
+      "spawn_trace": "d8ada7fedd97f023dd83a0730ef4780b2f7a09b95164b90002664281d312d607"
     },
     "normal:13": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "727ccb0eef3bd17a69c284894414e6ca08695038e1f6bbe89ba1aeec02c0d2d7"
+      "spawn_trace": "96c0355d284bcff9aae8345af1708e5dd50acde83ebf969451217efce8e5cb13"
     },
     "normal:14": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "462a42ed03f884359a6855f6cc25620918b1e581cabf270a7707fabed5e70cb9"
+      "spawn_trace": "a2d7ffb466ad620c82b208dfbfebd71647894a3b11e22a6658eb1dd0b5837ad0"
     },
     "normal:15": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "b71e62ae079d9d98ff6a3ebb869505ac27144c8a31b0f79e7fdf9a5f6b14f4ab"
+      "spawn_trace": "3d2397e12045bbe71dcee692bc80a39b0544cb67c581cb693d9c458025bae412"
     },
     "normal:17": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "29ec3b89fcc5260afeb881d7372f62e4711dc1ea922dbae4afd5bf309bbf60f6"
+      "spawn_trace": "686be259ace48fe770c95c4a296910f9ea1fefc61e65f010e3124514e590f5c8"
     },
     "normal:18": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "6de180427a3b5cbd54237fd051c0d81515b6e054bb75cf3628033b6dff894954"
+      "spawn_trace": "7fac9252d72feaa97757cecb0f591c8b01f069b7ada7cdbd64b288345a9397c9"
     },
     "normal:19": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "c6939276e61937d80d6a2e96b0f37b464ab6c6da76ef6df1a135ed2bfa19a04b"
+      "spawn_trace": "07e3821203d2a7d31459df7cc89f284b03b705a716f6f6f0fa758b0aa2230792"
     },
     "normal:20": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "5dd6929819b76211ed53a808088a2341c4343303a1b47385082e32fe6e9bb9d9"
+      "spawn_trace": "4d60bdbeaf9fe7c3936b2484fa0d7984ce7f54dc5c30c4bf8d03f1fbcbf3dff6"
     },
     "normal:21": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "4a54f1c70ed01f8fbd4751824d422b88509fa9b4e8d4669e14d4edae30720d68"
+      "spawn_trace": "3b01d8574cec4a3b448fc04949b63a9af7187c93e9ff0b08ad54109d4b02e428"
     },
     "normal:22": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "900626b89e81a48c631db3af3430f2bf15580a8c4cfa0f04a23abd6454496d89"
+      "spawn_trace": "a628b35891730de670708b8fe1f673027a6324ef3ea2b635d18d8982d1222a3e"
     },
     "normal:23": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "a5e3bcb309f3645e45f7b4d0baa5f6c82e681dbfdbcbb6167f8468b76df66472"
+      "spawn_trace": "c0b07df381513752fc962b654a1fe74f32da0753a21a489721e1e227ee15b947"
     },
     "normal:24": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "f8498968fa1672b1b227bce983d7323863e17cd211f40e313dd862718ec4b08f"
+      "spawn_trace": "0846f2efb0cc49eb79ccb198272de6434851913a98fb915078428b34c63be626"
     },
     "normal:25": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "cca4a8234ca2ed7836c3def0745b1256f31be1a9ad9a1bcc5987ad7274cd2f0f"
+      "spawn_trace": "a1c245bae8f8482c3e45b68f079e82cbf71bdb66d351f5ad8a152087ba2b5b84"
     },
     "normal:26": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "4fb1ac802923d06642e3b59ea916a2c319202e1a36d1aeb1e4bd570666e5b3f9"
+      "spawn_trace": "bf4507c5da8e7e5b2134159cc60c417972b4bc72c8aedc1c77c3ef6c58526a77"
     },
     "hard:1": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "a73ff6c960d12762a9f559a380fd1dcb71b851f46994afd0a5d4432aadaf9422"
+      "spawn_trace": "ed5c7396e49aaf631daacd272bddc0a49557464dad0b533e54eb223a876d01cb"
     },
     "hard:2": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "1d18c72f234ea83df28b51d38bbd9b65d2d977a6dcd2b82389a1eaa4ee600841"
+      "spawn_trace": "b7445b5e368d5f08215df7da241ac15079a03e8d9236951df0c20a73e94d3c23"
     },
     "hard:3": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "6d160e43dcd48c1a583325d4e524c1b5d72d5bdc6cccac7a07d675428de40200"
+      "spawn_trace": "495a39c86cad0276c0cc8d697001c711ecd7cd0d0e0cf3530b7f7b39ce1cd886"
     },
     "hard:4": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "50069c7bd4a755aad2e1eca69551d722815b9b4961d428df620858f100d4cc8b"
+      "spawn_trace": "4e4920f5eb0881f642ccdc0fc9131b6b6abea168826f30635aa80b939987b915"
     },
     "hard:5": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "3570586d931a252354455fe5d86fd39415244328b1ce54adb8b7c8134913b481"
+      "spawn_trace": "abb33b4a6cb27f5695c128463d44a296b6ee25a1948be98dd7c2aedc4b17e37f"
     },
     "hard:6": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "a34931c8a9fccbc148b75dc32270acf251bccd070f9a14a561f93d41797db199"
+      "spawn_trace": "b65a0af3f4d972bc6cc727e94dfc3eb6b03099340a17a94836d400bc10b37cec"
     },
     "hard:7": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "b808a1d4da4adad6195407ac36d656719966c77c3d8bc4cf6cfe148c0d46ae76"
+      "spawn_trace": "83c9d2157ddbe3125b34ae242d1d9fa19a74c9b5c1bc58413d8cdf000e2ff594"
     },
     "hard:8": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "0d2ca60426275633e880dfde5c680c9bce702d3b26584e5394539c339a63e0e2"
+      "spawn_trace": "f5bec009f002b6403cfa507f2505c02edeb5c42aca4d8aabb8638bc1137ee3c2"
     },
     "hard:9": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "c7d4c40cdfee93e406d9f7909e2be3a7c15398cc7b4df32f821f0b4ffc44827c"
+      "spawn_trace": "96f36a5e3f6ed392c0dba1cbb560e49613b8ec736ca66f9f83661e3c9dcec6c5"
     },
     "hard:10": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "89e88649cd2ffdbf0eb5d614fdbd9a60996b82a2a3e765ac6861fc87b03a1aed"
+      "spawn_trace": "0a777b0b14005a4c71521054a6325f770b4e69708bbbba3eff72604a08755a64"
     },
     "hard:11": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "7df1639bf224941c1575b50e7f80c6e2027d5af79e2066afe5e8cf2a57b0fe24"
+      "spawn_trace": "6eed1468aaf997fe42b1f4fb37988734a7b339e502f48b7fc45dce4408a61061"
     },
     "hard:12": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "dcb7b7fae552be86b3ea206691ad26c241672c8b17e8625d18a6e73c42e4fdf7"
+      "spawn_trace": "123358625756a29210b9c9e34b01871739f3c0a72738d4a9ddba1572ce64ddd5"
     },
     "hard:13": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "4e8f9a2924c31b887f8fb22e4e1398b2574350368d58f1a31cb6066af8a4ec54"
+      "spawn_trace": "22a5044afd5156f2ad5d46134cced087fdc1a1dac710447fc1216a6a4858edb8"
     },
     "hard:14": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "5daa55c309cc0a747929d35667ca3224c7e470095be83437e09f98161559c58c"
+      "spawn_trace": "c4ed356ab5fe76e4e01229242d9e398b10f9529bd5745581acd8afa5b9aa08aa"
     },
     "hard:15": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "132f7a98c32a908a3125ad1ae0654f537ad2aaa3981466a5022735218f624d26"
+      "spawn_trace": "e5a89cb6d07ec60e6f2d476a5d1abad2e06f5d0a57a30ec5e3cd1240055ac298"
     },
     "hard:17": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "77045629f9615a25a5c6588adbeb8374158f5c0c0de714a4c3bcbe9b1fb0389a"
+      "spawn_trace": "731ad1af569cac954e58e8f0d508f1a8aa9f5c503f7aa72b798e781d2da81156"
     },
     "hard:18": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "8935cc2e5e835539df07840122030b5ce14d30e9dba984a01edbb176bfb683a1"
+      "spawn_trace": "cfa992fd84f674628dc872c2b107f0a9fc3af41490f424a85b74e06d36852900"
     },
     "hard:19": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "d7cdb171ee34a6c7a12d6bbb6487fd62ca33349df31d6a324eb27ff27a8ad104"
+      "spawn_trace": "36b396701882783ea511385a49432d1014da4893930c13629c6570f1df749f7c"
     },
     "hard:20": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "cc1c7b07d1174baaed5e5275656a26f2a0f2161ade16b788be944a3a82689b0f"
+      "spawn_trace": "69e697735debee354232ac7e9264f9ce44a16479d493e99655d428de88bcb54b"
     },
     "hard:21": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "fdc514669fdbc8909193476f67a41c3ff48e22275e70bd699d12e7a67e79ebe0"
+      "spawn_trace": "87655f5a0207d2d6ccbc11fa721cbf52d1f052d7803c0c34dcbc4d2e71bd16e6"
     },
     "hard:22": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "be2735a4b4c897e607f632ade06ab2abc2828cc35db226b2a351378a07eff247"
+      "spawn_trace": "289e32449d7e4d169935f576558f3f3fa7912932913c99f05b2d57ad583c455e"
     },
     "hard:23": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "6c9b6889b2c536eba22b90532c34191c6a24ede7f8a1808b928b86fdd2e068f3"
+      "spawn_trace": "8804722e795995745f3458ca55f93d895265d22bb69e255d82834c8e8c8e434a"
     },
     "hard:24": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "59766b97d8c0dbd16ae8523492e5ffb607f316602dea944c7987becde6fd9380"
+      "spawn_trace": "d9f8cb5afb0b50a75b7e9a0bae8eea30345d1ef93e2f7e501fbf4ddb8b379cfc"
     },
     "hard:25": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "137a4854fc706b3c96365aa31a8860869cd0db35cebdd51802630185d7796a06"
+      "spawn_trace": "a6c516875f785ab57c1dcf935edca33e3a206b16cd827d999b93edbfb5a1b8c9"
     },
     "hard:26": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "b0743a65b5bf893657be475299f39c22ba868364d8addb46b56722891ba65afb"
+      "spawn_trace": "89cf99770b5ec694203def1baccba05b782cb5da70a8af5054b49d67b2ee2588"
     },
     "nightmare:1": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "cf5887ae62d8f5956dc9b380826f5f3934b6cfe70660b298e99c1f94e7edee2a"
+      "spawn_trace": "8a8fe02351c76a08a614733745d8f3f1e017edbebf7881a288dea0db2c868c71"
     },
     "nightmare:2": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "4db85d72c955ed2ef8293afffdec3330a3da0ddce73cbfebb9fe9ed122436cdb"
+      "spawn_trace": "6d9966a61291b3dee2d3db169c0129cb55ec9c11c2b8d26ebb10411ea328b083"
     },
     "nightmare:3": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "ba6ade363be5a278a257ad601cfb321b605585ff1a05294ea87d6eb717b19cff"
+      "spawn_trace": "c7bc1038ec369947741bee2017a93467836234a092bca36a9a6a48482e256eb4"
     },
     "nightmare:4": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "2e3daeddbc3b6e9b1b1957bcf8ef6cc9712f8145b48671bdca6fd6aaaccd3604"
+      "spawn_trace": "8c284f9dc3e7f563069bc58196ecc8f50d9036cf42bad76cd8355da4017c934d"
     },
     "nightmare:5": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "5c4c334d6abec19623e4859a0f2166107d85747f8598be8f4db9fc50847bb639"
+      "spawn_trace": "d07a4067beb977804928648ba784ca4a8dd24e8c62662e0c11e4021818cc4c06"
     },
     "nightmare:6": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "5d6dab80160e2e9bad1d93e30dbe0332ace6207fc2c97cf1a107c7fd57f5bd5e"
+      "spawn_trace": "b767798d59bdbb0fcbe45d7ebd8a8548d69b8111e3cbfc165a4157b694adfe2a"
     },
     "nightmare:7": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "fcab8bba79f73e62caf1f64944b04daf1caed5c1b117fd9333b89118df3ca2fe"
+      "spawn_trace": "c6b4a08571cdbce347568e7449644f2632ef8eb32c3a142c30b3936f69031301"
     },
     "nightmare:8": {
-      "outcome": "lost",
-      "won": false,
-      "max_seconds": 600,
-      "spawn_trace": "952aa05fd6226c5cdf8ee7da6cc1c63c6a2db48b3db9ffdd967ab24323a5bd09"
-    },
-    "nightmare:9": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "7afd59d12031cc208b10240397032956bff3d75558b5470f0cac6f57500b8acf"
+      "spawn_trace": "726e764a996a0a63c61ece9cd4633c9fd6d6caa57c0f67e59b084bb1e9937a28"
+    },
+    "nightmare:9": {
+      "outcome": "lost",
+      "won": false,
+      "max_seconds": 600,
+      "spawn_trace": "521dbb249fbbeb58bd88419f1dbbadeb9cfb51e0885d9bb149d04d55c3dbc069"
     },
     "nightmare:10": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "13ed0ad8a160f866d80a23918b7874d4c1797a98ee40c7ff4f0422b5927da557"
+      "spawn_trace": "de1c3232cc6401e8bc0e1256693d710d9dea646aa0ef2b7be17658299064e5d9"
     },
     "nightmare:11": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "8f67e255180507c4681c33a78392ce11c26b12c0c4669f427710822db3177cf6"
+      "spawn_trace": "9ec39a0304d375720b529db136e89d155f3555bc2c85857ba033da17653ac105"
     },
     "nightmare:12": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "764be4e3c9e39959be4f512113abc063da98a33e0627c93b8d2078052df1aac9"
+      "spawn_trace": "269eb087ba72ba91614b0661c84b3646345bf6b57f5bb5c98a60a81a9c32a244"
     },
     "nightmare:13": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "458d82ea27e477c8ccb70619b746fd821031402f330a0829bb3ebb3cf4652b77"
+      "spawn_trace": "dd87734c82e6de9741eeb1b8658f89a9c39e0d0b8a6438c423d9c0c47ee0d457"
     },
     "nightmare:14": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "4a60c54fc4ab09757e652892695cb3a346318b0865d8002a8e9cca593a2f933d"
+      "spawn_trace": "81e2f4ca098c1a54707812e6fb51db7fbc38db4243677072548eb6056c938902"
     },
     "nightmare:15": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "b724ad8bffd3950674a1489c12b45186e15fbfb553509243ee95487a373b004c"
+      "spawn_trace": "8a0eef4bc83cbd7013cb82b230b624e45aff652ae490e97021632260fd9dea58"
     },
     "nightmare:17": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "f7c75ba299280c27a0f23fc1b486209c843baf34c225419d3e31ba6182414ae8"
+      "spawn_trace": "cb8fd879258fff7b802e57f251ad183f10bcfe76aafd70b4489241727542a098"
     },
     "nightmare:18": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "9c7b5165c4c0aee19b3e05a547935dbbb20729d228500a8c2b2d0d04ac370415"
+      "spawn_trace": "1a46f4376b7c7d97cbfb994f012a7d21169c3f38d73204b54908d7cd3d4b3f85"
     },
     "nightmare:19": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "4826d45834ede44ca6405c40824b6a5ab410c5fc134b6f2591d99133433dae0e"
+      "spawn_trace": "97d2c844ee19df4798fca5861848ae7606e68c6189757e65272d35d5b56f8159"
     },
     "nightmare:20": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "ee6dfd95b5fc2f2a441ef9448fa2130864897bd9ed0e680d68212feebf27af01"
+      "spawn_trace": "47c322248221f3950c676c84d541c2e95ae578b922e1c5c5a47dd7c769fb5958"
     },
     "nightmare:21": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "9eb1cb4cc778350288d54d13643a87210792575c91421eb22d277667c481d638"
+      "spawn_trace": "d9d28db1950ebd3b7dab4fdd433f81e6fddf0dd41f81be653cbab3bbd7a8c422"
     },
     "nightmare:22": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "c480bf9b00ae5c15edd12c5e9b90128f0632ad6e16ff0312ea98b5e7194d244e"
+      "spawn_trace": "aca65e8e4108ea0f32e9bcb649901bc9f884e5c4a9969fa08daacc06fd4b7839"
     },
     "nightmare:23": {
       "outcome": "won",
       "won": true,
       "max_seconds": 600,
-      "spawn_trace": "68db52fc511738f6ed3bfbac64f99575ae8db04d72fd56494867ec9180d9dd94"
+      "spawn_trace": "49eca2c718b3f2521551b6eef3cd9cdeef9572be5d9d4160b2d14e6174db01a0"
     },
     "nightmare:24": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "3e2f599d11d345baa21040034430936990798196e408b19567d57e3c006b23b7"
+      "spawn_trace": "3a08f2960ae4d3dae675109fd1e7923e46d765d9536178b8993f7001ee516076"
     },
     "nightmare:25": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "4ad66c40e8faad0ceba23a740d690e5c0e3035376fc3a94519f2ca4f80af02eb"
+      "spawn_trace": "fb4462518c7a58e14276d1285efc9b19ba45949ec946e684475903516cd3fecd"
     },
     "nightmare:26": {
       "outcome": "lost",
       "won": false,
       "max_seconds": 600,
-      "spawn_trace": "045e96cb58527327c9010f6ef119770a4df78a6cc15673ac4ba0ea171022a8dd"
+      "spawn_trace": "ebdf11fa396ef3f56775821398825965592fdb3d91b8993aa2d9cace6e3f9392"
     }
   }
 }

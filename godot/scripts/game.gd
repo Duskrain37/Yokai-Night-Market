@@ -18,7 +18,7 @@ var _loading_hold: Dictionary = {}
 var load_timings: Array=[]
 var _loading_busy := false
 
-const VERSION = "0.5.6"
+const VERSION = "0.6.0"
 const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
 var touch_router: Node
 const SAVE_PATH = "user://run.json"
@@ -54,6 +54,7 @@ const DEFAULT_SETTINGS = {
 	"show_text_hints": true,
 	"tier_shapes": false,
 	"ui_text_size": "normal",
+	"reduced_motion": false,
 	"key_bindings": {},
 	"active_slot": 0,
 	"almanac_plant_order": "release",
@@ -62,7 +63,7 @@ const DEFAULT_SETTINGS = {
 	"window_height": 720,
 }
 
-const DIFFICULTY_LABEL = {"easy": "简单", "normal": "普通", "hard": "困难", "nightmare":"噩梦"}
+const DIFFICULTY_LABEL = {"easy": "初月", "normal": "常夜", "hard": "沉夜", "nightmare":"噩梦"}
 
 ## 首次进游戏时的默认十张卡：能产香火、有本行输出、有肉盾、有控制。
 const DEFAULT_LOADOUT = [
@@ -125,6 +126,8 @@ const MUSIC_SCENES = ["menu", "battle", "hot", "final"]
 
 func _ready() -> void:
 	if mobile:
+		get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+		Geo.canvas_size = Geo.VIEW
 		get_tree().quit_on_go_back=false
 		Ui.mobile_font_factor=1.1
 		Engine.max_fps=60
@@ -150,8 +153,12 @@ func _ready() -> void:
 	ui_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_layer.add_child(ui_root)
 	_load_state()
+	settings["music_style"] = "complete"
 	if mobile:Engine.max_fps=int(settings.get("mobile_target_fps",60))
 	_apply_resolution()
+	if not mobile:
+		get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+		_sync_canvas()
 	if mobile:
 		touch_router=load("res://scripts/mobile_input.gd").new()
 		touch_router.game=self
@@ -164,7 +171,7 @@ func _ready() -> void:
 			paths.append(_music_path(track))
 		for actor in Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"]:
 			paths.append("res://assets/sprites/%s.png" % actor)
-		await _load_transition(paths, "灯火将明", "res://assets/bg/loading-night.png", true)
+		await _load_transition(paths, "灯火将明", "res://assets/ui/nightmarket/menu-ensemble.png", true)
 	Ui.warm_sprites(Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"])
 	_setup_audio()
 	loadout = _clean_loadout(Array(progress.get("loadout", [])))
@@ -371,7 +378,7 @@ func start_battle(level_id: int, cards: Array, mode = "normal", restore_data: Di
 		var background = "res://assets/bg/map-%s.png" % map
 		if not ResourceLoader.exists(background):
 			background = "res://assets/bg/map-%s.jpg" % map
-		await _load_transition(_battle_resources(level_id, cards, background, map), "守夜将启", "res://assets/bg/loading-night.png")
+		await _load_transition(_battle_resources(level_id, cards, background, map), "守夜将启", "res://assets/ui/nightmarket/menu-ensemble.png")
 	_start_battle_now(level_id, cards, mode, restore_data.is_empty())
 	if not restore_data.is_empty():
 		sim.restore(restore_data)
@@ -840,12 +847,20 @@ func _handle_battle_click(pos: Vector2) -> void:
 				hud.card_selected = -1
 				hud.refresh()
 		return
+	if not mobile:
+		# UpgradeFan consumes its visible petals first through GUI input. The remaining
+		# targets use the exact marker/shell/body geometry used by UnitView.
+		var target: Dictionary = preload("res://scripts/plant_regions.gd").pick(sim, pos)
+		if not target.is_empty():
+			if target.layer == "skill": sim.activate_skill(target.plant); hud.refresh()
+			elif target.layer == "shell": hud.show_shell(target.plant)
+			else: hud.try_open_menu(target.plant, pos)
+			return
 	if cell.x < 0:
 		hud.close_fan()
 		return
 	# 之前开着别人的升阶面板就收起，再按这次的命中重新判定
-	if hud.focus_plant != null:
-		hud.close_fan()
+	hud.close_fan()
 	var plant = sim.main_plant_at(cell.x, cell.y)
 	if plant == null:
 		plant = sim.lily_at(cell.x, cell.y)
@@ -861,6 +876,7 @@ func battle_settings_locked() -> bool:
 
 func set_setting(key: String, value) -> void:
 	if key=="difficulty" and battle_settings_locked():return
+	if key == "music_style": value = "complete"
 	settings[key] = value
 	if key == "mobile_target_fps" and mobile:
 		Engine.max_fps=int(value)
@@ -882,6 +898,8 @@ func set_setting(key: String, value) -> void:
 		apply_speed(float(value))
 	elif key == "ui_text_size":
 		_apply_ui_text_size()
+	elif key == "reduced_motion":
+		MarketArt.reduced_motion = bool(value)
 	elif key == "tier_shapes" and units != null:
 		units.tier_shapes = bool(value)
 	elif key == "resolution":
@@ -923,6 +941,7 @@ func rebind_key(action: String, key: int) -> void:
 
 
 func _apply_ui_text_size() -> void:
+	MarketArt.reduced_motion = bool(settings.get("reduced_motion", false))
 	Ui.text_scale = float({"normal": 1.0, "medium": 1.1, "large": 1.2}.get(settings["ui_text_size"], 1.0))
 	var theme := Ui.make_theme()
 	theme.default_font_size = Ui.font_size(20)
@@ -937,7 +956,19 @@ func _remember_window_size() -> void:
 		settings["window_height"] = actual.y
 
 
+func _sync_canvas() -> void:
+	if mobile: return
+	var actual := Vector2(get_window().size)
+	if actual.x <= 0 or actual.y <= 0: return
+	var scale := minf(actual.x / 1600.0, actual.y / 900.0)
+	Ui.canvas_size = actual / scale
+	Geo.canvas_size = Ui.canvas_size
+	if board != null:
+		Geo.set_stage(board.map_key)
+		board.queue_redraw()
+
 func _on_window_size_changed() -> void:
+	_sync_canvas()
 	if mobile:
 		_apply_mobile_safe_area()
 		return
@@ -960,7 +991,7 @@ func _toggle_fullscreen() -> void:
 
 
 ## 分辨率：自适应全屏按显示器走；固定档开窗并按所选像素、居中摆放。
-## 画面本身是 16:9 设计（stretch aspect=keep），非 16:9 窗口会有细窄留边。
+## 以 1600×900 为最小设计画布，16:10 扩展纵向空间并重新分配布局。
 func _apply_resolution() -> void:
 	if mobile:
 		if OS.has_feature("android"):DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_LANDSCAPE)
@@ -1158,6 +1189,7 @@ func _load_state() -> void:
 			elif default is float:
 				settings[key] = float(value)
 			else:
+				if key == "music_style": value = "complete"
 				settings[key] = value
 	progress = _read_json(PROGRESS_PATH, {"cleared": [], "selected": 1, "loadout": []})
 	# JSON 读回来的整数全是浮点，而 Array.has(1) 认不出 1.0——不收敛的话
@@ -1174,7 +1206,7 @@ func _load_state() -> void:
 
 func _data_path(path: String) -> String:
 	if not _qa:return path
-	var directory="user://qa-v040"
+	var directory="res://qa/runtime" if OS.has_feature("editor") else "user://qa-v040"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(directory))
 	return directory+"/"+path.get_file()
 
@@ -1217,11 +1249,8 @@ func _clean_loadout(ids: Array) -> Array:
 
 
 # ── 音频 ────────────────────────────────────────────────────────────────────
-## 两条音乐风格：
-##   朴素：所有关卡都用 v0.2.4 那三套通用配乐（先锋/白热化/最终）；
-##   完整：每周各有先锋、白热化、最终三首。
-## 两种风格共用同一首菜单曲。
-const MUSIC_BASE = ["menu", "battle", "hot", "final"]
+## 菜单曲与五周各三首战曲。旧存档的风格值统一迁移为完整配乐。
+const MUSIC_BASE = ["menu"]
 const MUSIC_DAY_TRACKS = [
 	"day1-battle", "day1-hot", "day1-final",
 	"day2-battle", "day2-hot", "day2-final",
@@ -1229,7 +1258,6 @@ const MUSIC_DAY_TRACKS = [
 	"day4-battle", "day4-hot", "day4-final",
 	"day5-battle", "day5-hot", "day5-final",
 ]
-const MUSIC_STYLE_LABEL = {"plain": "朴素", "complete": "完整"}
 
 
 func _music_path(name: String) -> String:
@@ -1262,8 +1290,7 @@ func _setup_audio() -> void:
 
 
 func music_style() -> String:
-	var style = String(settings.get("music_style", "complete"))
-	return style if MUSIC_STYLE_LABEL.has(style) else "complete"
+	return "complete"
 
 
 ## 波次 → 段落：前六波「先锋」，第七波起「白热化」，最后两波「最终」。
@@ -1285,15 +1312,11 @@ func _has_track(name: String) -> bool:
 	return player != null and player.stream != null
 
 
-## 解析当前该放哪一首：朴素=通用三套；完整=当天那一套。
+## 每周固定使用自己的先锋、白热化与最终战曲。
 func resolve_battle_track(day: int, phase: String) -> String:
-	if music_style() == "plain":
-		return phase
 	var lane = clampi(day, 1, Content.DAYS.size())
 	var name = "day%d-%s" % [lane, phase]
-	if _has_track(name):
-		return name
-	return phase
+	return name
 
 
 func play_music_scene(scene: String, force: bool = false) -> void:
@@ -1997,6 +2020,14 @@ func _qa_show_boss(id: int,checkpoint: int=0, bound := false) -> void:
 	else:
 		sim.wave_index=9 if bound else sim.level.waves.size()-3
 		sim.queue_wave(sim.level.waves[sim.wave_index],sim.wave_index)
+		# Later campaign lengths need not put the boss on this preview wave.
+		# Keep this CLI-only art stage deterministic as wave schedules evolve.
+		if sim.boss == null:
+			var preview_id = String(sim.level.get("mid_boss", "")) if bound else String(sim.level.get("boss_id", ""))
+			if not preview_id.is_empty(): sim.begin_boss(preview_id)
+	if sim.boss == null:
+		push_error("This preview level has no boss")
+		return
 	sim.time+=3.1
 	sim.boss.state="idle"
 	if bound:

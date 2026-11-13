@@ -55,8 +55,9 @@ func _stage_menu() -> void:
 	# 一夜未守、也没学过教程：主按钮该把人带去第一课，而不是丢进选关页
 	check("封面", "新玩家主按钮导向教程", _has_text(_button_texts(buttons), "先学一夜守夜"),
 		str(_button_texts(buttons)))
+	game.screen_node._show_records()
 	var texts := _label_texts(game.screen_node)
-	check("封面", "守夜记录按难度分档", _has_text(texts, "普通"), str(texts))
+	check("封面", "守夜记录按难度分档", _has_text(texts, "常夜"), str(texts))
 	check("封面", "只显示天亮次数与击退波数，不列开过调整的夜",
 		_has_text(texts, "天亮 1 次") and _has_text(texts, "击退 2 波")
 		and not _has_text(texts, "另册"), str(texts))
@@ -267,8 +268,8 @@ func _stage_music() -> void:
 	# 切到朴素：立刻回到通用三套
 	game.set_setting("music_style", "plain")
 	game._music_for_wave()
-	check("音乐", "切朴素后立刻改用通用配乐",
-		String(game._music_current) == "hot", str(game._music_current))
+	check("音乐", "旧风格值也使用完整配乐",
+		String(game._music_current) == "day1-hot", str(game._music_current))
 	# 第二天第一夜：完整风格应是 day2
 	game.set_setting("music_style", "complete")
 	game.show_prep(6)
@@ -277,7 +278,7 @@ func _stage_music() -> void:
 	await game.get_tree().process_frame
 	check("音乐", "完整风格：第二天用 day2 曲子",
 		String(game._music_current).begins_with("day2-"), str(game._music_current))
-	check("音乐", "十九首配乐都已装载", game._music_players.size() == 19,
+	check("音乐", "十六首配乐都已装载", game._music_players.size() == 16,
 		str(game._music_players.size()))
 	game.sim.wave_index = 9
 	game._music_for_wave()

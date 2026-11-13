@@ -12,6 +12,7 @@ var failures := 0
 
 func _init() -> void:
 	await process_frame
+	root.mode=Window.MODE_WINDOWED;root.size=Vector2i(1600,900)
 	var packed: PackedScene = load("res://scenes/main.tscn")
 	game = packed.instantiate()
 	root.add_child(game)
@@ -176,7 +177,9 @@ func _run() -> void:
 			"%d -> %d" % [tier_before, game.sim.main_plant_at(1, 2).tier(1)])
 		var other = game.sim.place_free("shooter", 2, 2)
 		await click(Geo.screen_cell_center(2, 2, game.sim.rows))
-		check("升阶：直接点相邻草木切换扇面", hud.focus_plant == other)
+		check("升阶：首次点外部只收起窗口", hud._fan == null and hud.focus_plant == null)
+		await click(Geo.screen_cell_center(2, 2, game.sim.rows))
+		check("升阶：再次点相邻草木打开扇面", hud.focus_plant == other)
 		# 点空地应关掉扇形
 		await click(Vector2(200, 760))
 		check("升阶：点别处关掉扇形", hud._fan == null)
@@ -250,4 +253,4 @@ func _run() -> void:
 		event.global_position = event.position
 		root.push_input(event, true)
 		await process_frame
-		check("备战：第%d列名册响应滚轮" % (i + 1), scroll.scroll_vertical > 0)
+		check("备战：第%d列名册响应滚轮" % (i + 1), scroll.scroll_vertical > 0 or scroll.get_v_scroll_bar().max_value <= scroll.size.y + 1)

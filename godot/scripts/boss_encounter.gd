@@ -170,6 +170,7 @@ func damage(proxy, amount: float, source: String = "", continuous := false) -> f
 	if state=="recovery": damage_value*=1.25
 	if damage_token.begins_with("percent:"):damage_value=minf(damage_value,max_hp*0.01)
 	damage_value = Sim.quantized_damage(damage_carry, source, damage_value, continuous)
+	if damage_token.begins_with("percent:"): damage_value = minf(damage_value, max_hp * .01)
 	var before=hp
 	var dealt=minf(hp,damage_value)
 	hp=maxf(0,hp-dealt)

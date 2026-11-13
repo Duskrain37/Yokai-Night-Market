@@ -116,7 +116,7 @@ func run() -> void:
 		tick_clean(s,36)
 		check("恶首%d 阈值各只释放一次" % id,b.major_count==b.config.major_thresholds.size())
 		check("恶首%d 在大招期间仍有常驻增援" % id, b.reinforcement_index >= 2 and b.add_count > 0)
-		check("恶首%d 普通耐久比简单高10%%" % id, is_equal_approx(b.max_hp, float(b.config.max_hp) * 2.1 * 0.85 * 1.1))
+		check("恶首%d 常夜耐久按常态倍率" % id, is_equal_approx(b.max_hp, float(b.config.max_hp) * 2.1 * 0.85))
 		var snapshot: Dictionary=JSON.parse_string(JSON.stringify(s.serialize()))
 		var r=Sim.new();r.restore(snapshot)
 		check("恶首%d 快照共享生命与阈值" % id,is_equal_approx(r.boss.hp,b.hp) and r.boss.fired==b.fired)
@@ -243,7 +243,7 @@ func run() -> void:
 	var tunnel=portal.boss.props[0]
 	portal.boss._spawn_add("light",tunnel)
 	var traveller=portal.zombies.filter(func(z):return z.boss_role=="")[0]
-	check("地洞先在边界出兵",traveller.pos.x>=Geo.SPAWN_X and traveller.boss_meta.has("portal_at"))
+	check("地洞先在边界出兵",traveller.pos.x>=Geo.BOARD_X+Geo.BOARD_W and traveller.pos.x<=Geo.SPAWN_X and traveller.boss_meta.has("portal_at"))
 	portal.time+=.5;portal.boss.tick(.5)
 	check("地洞延迟借道且不偷袭经济区",is_equal_approx(traveller.pos.x,tunnel.pos.x+Geo.CELL_W*.48) and traveller.pos.x>portal.cell_pos(5,0).x)
 	var marks=create(5);var target=marks.boss.body_targets[0]
