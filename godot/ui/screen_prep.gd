@@ -158,7 +158,7 @@ func _roster() -> void:
 	head.add_child(search)
 	var filters = Ui.hbox(8)
 	box.add_child(filters)
-	for category in ["全部", "产能", "输出", "守护", "奇术"]:
+	for category in ["全部", "产能", "输出", "功能"]:
 		var button = Ui.button(category, 15, 76, 32)
 		button.pressed.connect(func(): _filter = category; _apply_filter(); game.play_sfx("click"))
 		filters.add_child(button)
@@ -192,11 +192,17 @@ func _roster() -> void:
 	_apply_filter()
 
 func _category(type: String) -> String:
-	var def: Dictionary = Content.PLANTS[type]
-	if String(def.role)=="产能": return "产能"
-	if String(def.role) in ["防御", "辅助"]: return "守护"
-	if bool(def.get("ash", false)) or String(def.role) == "收妖": return "奇术"
+	var def:Dictionary=Content.PLANTS[type]
+	if String(def.role)=="产能":return "产能"
+	if type=="ruin-cap":return "输出"
+	if String(def.role) in ["防御","辅助","灰烬"]:return "功能"
 	return "输出"
+
+func _allowed(type: String) -> bool:
+	return bool(game.prep.get("training",false)) or String(game.settings.difficulty)!="nightmare" or preload("res://data/nightmare.gd").allows_plant(type,Dictionary(game.settings.get("nightmare_factors",{})))
+
+func _forbidden() -> Array:
+	return _picked.filter(func(type):return not _allowed(type))
 
 func _apply_filter() -> void:
 	for key in _filter_buttons: Ui.set_button_active(_filter_buttons[key], key == _filter)
@@ -303,7 +309,7 @@ func _slots() -> void:
 	almanac.pressed.connect(func(): game.open_almanac("plant", 0))
 	actions.add_child(almanac)
 	if String(game.settings.difficulty)=="nightmare" and not bool(game.prep.get("training",false)):
-		var factors:=Ui.button("",18,0,42)
+		var factors:=Ui.button("",18,0,52,true)
 		factors.name="NightmareFactors"
 		factors.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 		var update:=func():
@@ -374,6 +380,9 @@ func toggle_plant(type: String) -> void:
 	if not Content.PLANTS.has(type):return
 	if _picked.has(type):
 		_picked.erase(type)
+	elif not _allowed(type):
+		_warning.text="灰契封炉：先取消该因子，才能携带灰烬类草木。"
+		game.play_sfx("deny");return
 	elif _picked.size() >= _capacity():
 		_warning.text = "卡组已满%d张，先取下一张再选。" % _capacity()
 		game.play_sfx("deny")
@@ -396,7 +405,9 @@ func _refresh() -> void:
 	if _count_label != null:
 		_count_label.text = "%d / %d" % [_picked.size(),_capacity()]
 	if _warning != null:
-		if _picked.is_empty():
+		if not _forbidden().is_empty():
+			_warning.text="灰契封炉：已选有灰烬类草木，请先取下。"
+		elif _picked.is_empty():
 			_warning.text = "空手上阵会被恶客直接推平；至少带一株能产香火的草木。"
 		elif not _has_producer():
 			_warning.text = "没有产能草木，香火只靠天上掉的，会很难撑住。"
@@ -434,6 +445,9 @@ func _has_producer() -> bool:
 
 
 func _start() -> void:
+	if not _forbidden().is_empty():
+		_warning.text="灰契封炉：请先取下已选中的灰烬类草木。"
+		game.play_sfx("deny");return
 	if _picked.size()>_capacity():
 		_warning.text="行囊装不下了，请先取下多余草木。"
 		game.play_sfx("deny");return

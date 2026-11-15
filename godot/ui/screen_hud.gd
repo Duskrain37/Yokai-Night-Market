@@ -16,9 +16,11 @@ var result: Dictionary = {}
 var card_selected = -1
 var shovel_mode = false
 var focus_plant = null
+var transplant_source = null
 var cheat_open = false
 var cheat_tab = "misc"
 var spawn_type = "ghost"
+var spawn_tier := "l"
 var spawn_count = 1
 var spawn_lane = -1
 var _hover_card = -1
@@ -168,12 +170,13 @@ func _build_hud() -> void:
 	hint_plate.add_child(_hint_label)
 
 	if sim.difficulty=="nightmare" and sim.factor_points()>0:
-		var factor_plate:=Ui.panel(.88)
-		factor_plate.position=Vector2(18,340);factor_plate.custom_minimum_size=Vector2(175,0)
+		var factor_plate:=preload("res://ui/danger_art.gd").new()
+		factor_plate.set_risk(preload("res://data/nightmare.gd").danger_band(sim.factor_points()),3,true)
+		factor_plate.position=Vector2(18,340);factor_plate.custom_minimum_size=Vector2(220,0)
 		factor_plate.mouse_filter=Control.MOUSE_FILTER_IGNORE;add_child(factor_plate)
 		_factor_label=Ui.label("",14,Ui.GOLD_BRIGHT)
 		_factor_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-		_factor_label.custom_minimum_size=Vector2(148,0)
+		_factor_label.custom_minimum_size=Vector2(184,0)
 		factor_plate.add_child(_factor_label)
 	# 卡槽
 	var cards = HBoxContainer.new()
@@ -239,9 +242,14 @@ func _build_hud() -> void:
 		_shovel_cursor = tool_art.get_image()
 		_shovel_cursor.resize(48, 48, Image.INTERPOLATE_LANCZOS)
 	tools.add_child(_tool_shovel)
-	_tool_cheat = _tool_button("作弊", "杂项与召唤", func(): _toggle_cheat())
+	_tool_cheat = _tool_button("作弊", "功能与召唤", func(): _toggle_cheat())
 	_tool_cheat.visible = bool(game.settings.get("cheats", false)) or sim.training
-	tools.add_child(_tool_cheat)
+	if sim.training:
+		_tool_cheat.free()
+		_tool_cheat=Ui.button("作弊",22,184,54,true);_tool_cheat.name="TrainingCheat"
+		_tool_cheat.tooltip_text="训练功能与分阶召唤";_tool_cheat.pressed.connect(_toggle_cheat)
+		_tool_cheat.position=Vector2(1292,99);add_child(_tool_cheat)
+	else:tools.add_child(_tool_cheat)
 	var pause_button = _tool_button("暂停", "Esc 暂停", func(): game.toggle_pause())
 	tools.add_child(pause_button)
 
@@ -410,9 +418,9 @@ func refresh() -> void:
 		return
 	if _factor_label!=null:
 		var info: Array[String]=["噩梦 · 因子 %d" % sim.factor_points()]
-		if sim.factor("dim")>0:info.append("十秒香火\n%d / %d" % [sim.incense_received(),[0,750,500][sim.factor("dim")]])
-		if sim.factor("loss")>0:info.append("草木损失 %d / %d" % [sim.nightmare_losses,[0,20,10][sim.factor("loss")]])
-		if sim.factor("seeds")>0:info.append("场上草木 %d / %d" % [sim.plant_population(),[0,25,15][sim.factor("seeds")]])
+		if sim.factor("dim")>0:info.append("十秒香火\n%d / %d" % [sim.incense_received(),[0,1000,750][sim.factor("dim")]])
+		if sim.factor("loss")>0:info.append("草木损失 %d / %d" % [sim.nightmare_losses,[0,30,20][sim.factor("loss")]])
+		if sim.factor("seeds")>0:info.append("场上草木 %d / %d" % [sim.plant_population(),[0,30,25,20][sim.factor("seeds")]])
 		if sim.time<sim.curfew_until:info.append("宵禁还剩 %d 秒" % ceili(sim.curfew_until-sim.time))
 		_factor_label.text="\n".join(info)
 	if _sun_label != null:
@@ -572,9 +580,12 @@ func _card_state(index: int) -> Dictionary:
 	var card: Dictionary = sim.cards[index]
 	var def: Dictionary = card["def"]
 	var cooldown = float(card["cd"])
-	var affordable = sim.sun >= int(def["cost"])
+	var price: int=sim.card_cost(index)
+	var affordable = sim.sun >= price
 	return {
 		"cooldown": cooldown,
+		"price":price,
+		"discount":int(card.get("discount",0)),
 		"cooldown_max": maxf(0.1, float(def["cooldown"])),
 		"affordable": affordable,
 		"selected": card_selected == index,
@@ -651,6 +662,9 @@ func _on_card(index: int) -> void:
 			sim.deny("这一步请石磨出摊", _mouse())
 			return
 	card_selected = -1 if card_selected == index else index
+	transplant_source=null
+	if card_selected>=0 and String(sim.cards[card_selected].id)=="root-palanquin":
+		sim.banner={"text":"迁根轿候着 · 先点要搬迁的草木，再点新位置","t":4.0,"max":4.0}
 	set_shovel_mode(false)
 	close_fan()
 	game.play_sfx("click")
@@ -658,6 +672,7 @@ func _on_card(index: int) -> void:
 
 
 func _on_shovel() -> void:
+	transplant_source=null
 	set_shovel_mode(not shovel_mode)
 	card_selected = -1
 	close_fan()
@@ -687,6 +702,7 @@ func _on_quick_wave() -> void:
 
 
 func cancel_selection() -> void:
+	transplant_source=null
 	card_selected = -1
 	set_shovel_mode(false)
 	close_fan()
@@ -892,10 +908,10 @@ func _build_cheat() -> void:
 	_cheat_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_cheat_panel.anchor_left = 0.5
 	_cheat_panel.anchor_right = 0.5
-	_cheat_panel.offset_left = -220.0
-	_cheat_panel.offset_right = 220.0
-	_cheat_panel.offset_top = -250.0
-	_cheat_panel.offset_bottom = 250.0
+	_cheat_panel.offset_left = -320.0
+	_cheat_panel.offset_right = 320.0
+	var modal_height:=minf(680 if cheat_tab=="spawn" else 640,get_viewport_rect().size.y-128)
+	_cheat_panel.offset_top=-modal_height*.5;_cheat_panel.offset_bottom=modal_height*.5
 	_cheat_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	_cheat_panel.z_index = 100
 	add_child(_cheat_panel)
@@ -909,7 +925,7 @@ func _build_cheat() -> void:
 	if sim.training:
 		var tabs = Ui.hbox(6)
 		box.add_child(tabs)
-		for pair in [["misc", "杂项"], ["spawn", "召唤"]]:
+		for pair in [["misc", "功能"], ["spawn", "召唤"]]:
 			var tab = Ui.button(String(pair[1]), 17, 90, 34)
 			tab.pressed.connect(func():
 				cheat_tab = String(pair[0])
@@ -917,10 +933,20 @@ func _build_cheat() -> void:
 			if cheat_tab == String(pair[0]):
 				Ui.set_button_active(tab, true)
 			tabs.add_child(tab)
-	if sim.training and cheat_tab == "spawn":
-		_build_spawn_tab(box)
-	else:
-		_build_misc_tab(box)
+	var scroll:=ScrollContainer.new();scroll.size_flags_vertical=Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;box.add_child(scroll)
+	var body:=Ui.vbox(10);body.size_flags_horizontal=Control.SIZE_EXPAND_FILL;scroll.add_child(body)
+	if sim.training and cheat_tab == "spawn":_build_spawn_tab(body)
+	else:_build_misc_tab(body)
+	for child in body.get_children():
+		if child is Button:child.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		elif child is HBoxContainer:
+			for button in child.get_children():
+				if button is Button:button.size_flags_horizontal=Control.SIZE_EXPAND_FILL;button.custom_minimum_size.x=0
+	for tab in box.get_children():
+		if tab is HBoxContainer:
+			for button in tab.get_children():
+				if button is Button:button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 
 
 func _set_spawn_type(type: String) -> void:
@@ -941,9 +967,9 @@ func _set_spawn_lane(lane: int) -> void:
 func _build_misc_tab(box: VBoxContainer) -> void:
 	var sim: Sim = game.sim
 	var rows = [
-		["香火 +500", func():
-			sim.sun += 500
-			sim.float_text(Vector2(800, 300), "+500 香火", Ui.GOLD_BRIGHT, 20)],
+		["香火 +2000", func():
+			sim.sun += 2000
+			sim.float_text(Vector2(800, 300), "+2000 香火", Ui.GOLD_BRIGHT, 20)],
 		["秒杀全场恶客", func():
 			sim.kill_all_zombies()
 			sim.shake = 8.0],
@@ -961,15 +987,14 @@ func _build_misc_tab(box: VBoxContainer) -> void:
 			sim.no_cooldown = not sim.no_cooldown
 			game.training["cooldown_locked"] = not sim.no_cooldown
 			_build_cheat()])
+		rows.append(["主动技能无冷却 %s" % ("已开" if sim.no_skill_cooldown else "已关"), func():
+			sim.no_skill_cooldown=not sim.no_skill_cooldown
+			game.training["skill_cooldown_unlocked"]=sim.no_skill_cooldown
+			_build_cheat()])
 		rows.append(["清空草木", func():
 			sim.clear_plants()
 			_toggle_cheat()])
-		rows.append(["切换地图", func():
-			var day = (int(game.training.get("day", 1)) % Content.DAYS.size()) + 1
-			game.training["day"] = day
-			var level_id = Content.level_id_for(day)
-			game.start_battle(level_id, game.loadout, "training")
-			])
+		rows.append(["切换地图", func(): game.show_training_menu()])
 		rows.append(["退回选草", func():
 			game.show_prep(Content.level_id_for(int(game.training.get("day", 1))), true,
 				int(game.training.get("day", 1)))])
@@ -997,22 +1022,25 @@ func _cheat(action: Callable) -> Callable:
 
 func _build_spawn_tab(box: VBoxContainer) -> void:
 	var sim: Sim = game.sim
-	box.add_child(Ui.label("选恶客", 16, Ui.TEXT_DIM))
-	var grid = GridContainer.new()
-	grid.columns = 4
-	grid.add_theme_constant_override("h_separation", 6)
-	grid.add_theme_constant_override("v_separation", 6)
-	box.add_child(grid)
-	for type in Content.ZOMBIE_ORDER:
-		if bool(Content.ZOMBIES[type].get("sedan_only", false)):
-			continue
-		if bool(Content.ZOMBIES[type].get("water_only", false)) and sim.level.get("water_rows", []).is_empty():
-			continue
-		var button = Ui.button(String(Content.ZOMBIES[type]["name"]), 15, 84, 34)
-		if type == spawn_type:
-			Ui.set_button_active(button, true)
-		button.pressed.connect(_set_spawn_type.bind(type))
-		grid.add_child(button)
+	box.add_child(Ui.label("按等阶选择恶客",16,Ui.TEXT_DIM))
+	var tiers:=Ui.hbox(8);box.add_child(tiers)
+	for pair in [["l","低阶"],["m","中阶"],["h","高阶"]]:
+		var tab:=Ui.button(pair[1],17,0,40);Ui.set_button_active(tab,spawn_tier==pair[0])
+		tab.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		tab.pressed.connect(func():spawn_tier=pair[0];_build_cheat());tiers.add_child(tab)
+	var available:Array=Content.ZOMBIE_ORDER.filter(func(type):
+		var info:Dictionary=Content.ZOMBIES[type]
+		return info.tier==spawn_tier and not bool(info.get("sedan_only",false)) and (not bool(info.get("water_only",false)) or not sim.level.get("water_rows",[]).is_empty()))
+	if not available.has(spawn_type) and not available.is_empty():spawn_type=available[0]
+	var grid:=Ui.vbox(8);box.add_child(grid)
+	var columns:=3 if available.size()%3==0 else 4
+	var line:HBoxContainer
+	for index in available.size():
+		var type:String=available[index]
+		if index%columns==0:line=Ui.hbox(8);grid.add_child(line)
+		var button:=Ui.button(Content.ZOMBIES[type].name,16,0,40)
+		button.size_flags_horizontal=Control.SIZE_EXPAND_FILL;button.set_meta("guest_id",type)
+		Ui.set_button_active(button,type==spawn_type);button.pressed.connect(_set_spawn_type.bind(type));line.add_child(button)
 	box.add_child(Ui.label("数量", 16, Ui.TEXT_DIM))
 	var counts = Ui.hbox(6)
 	box.add_child(counts)
@@ -1081,18 +1109,20 @@ func _build_pause() -> void:
 	var settings = Ui.button("设置", 19, 262, 49)
 	settings.pressed.connect(func(): game.open_settings())
 	tools.add_child(settings)
+	for button in [almanac,settings]:button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 	var restart = Ui.button("重新开始这一夜", 17, 300, 42)
 	restart.pressed.connect(func(): game.restart_run())
 	box.add_child(restart)
 	var footer = Ui.hbox(10)
 	box.add_child(footer)
-	var mute = Ui.button("静音切换", 15, 120, 34)
+	var mute = Ui.button("静音切换", 17, 0, 44)
 	mute.pressed.connect(func():
 		game.set_setting("sound", not bool(game.settings["sound"])))
 	footer.add_child(mute)
-	var back = Ui.button("回到封面", 15, 110, 34)
+	var back = Ui.button("回到封面", 17, 0, 44,true)
 	back.pressed.connect(func(): game.back_to_menu())
 	footer.add_child(back)
+	for button in [mute,back]:button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
 
 
 func resume() -> void:
@@ -1314,7 +1344,7 @@ class CardButton extends Control:
 		if hud.game.mobile:
 			Ui.draw_plate(self, rect, Color("#11222b"), Ui.GOLD if state.get("selected", false) else Ui.GOLD_DIM, 14, 2)
 			Ui.draw_plant_icon(self, card_id, Rect2(6, 4, size.x - 12, 78), Color.WHITE if state.get("affordable", true) else Color(0.55, 0.55, 0.55))
-			draw_string(Ui.body_font(), Vector2(0, size.y - 9), str(int(def.cost)), HORIZONTAL_ALIGNMENT_CENTER, size.x, 34, Ui.GOLD_BRIGHT)
+			draw_string(Ui.body_font(), Vector2(0, size.y - 9), str(int(state.get("price",def.cost))), HORIZONTAL_ALIGNMENT_CENTER, size.x, 34, Ui.GOLD_BRIGHT)
 			var cooldown = float(state.get("cooldown", 0.0))
 			if cooldown > 0:
 				Ui.draw_plate(self, Rect2(0, 0, size.x, size.y * clampf(cooldown / float(state.get("cooldown_max", 1.0)), 0, 1)), Color(0, 0, 0, 0.6), Color.TRANSPARENT, 14, 0)
@@ -1334,7 +1364,7 @@ class CardButton extends Control:
 		var name_size = mini(Ui.font_size(14), int((size.x - 8) / maxi(1, name_text.length())))
 		draw_string(Ui.body_font(), Vector2(0, size.y - 27), name_text, HORIZONTAL_ALIGNMENT_CENTER, size.x, name_size, Ui.TEXT)
 		draw_line(Vector2(10, size.y - 21), Vector2(size.x - 10, size.y - 21), Color(Ui.GOLD_DIM, 0.35), 1, true)
-		draw_string(Ui.medium_font(), Vector2(0, size.y - 7), str(int(def.cost)), HORIZONTAL_ALIGNMENT_CENTER, size.x, 16, Ui.GOLD_BRIGHT if affordable else Ui.BAD)
+		draw_string(Ui.medium_font(), Vector2(0, size.y - 7), str(int(state.get("price",def.cost))), HORIZONTAL_ALIGNMENT_CENTER, size.x, 16, Ui.JADE_LIGHT if int(state.get("discount",0))>0 else (Ui.GOLD_BRIGHT if affordable else Ui.BAD))
 		var key_text = _key_caption()
 		var key_width = Ui.body_font().get_string_size(key_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
 		var key_size = mini(10, floori(10 * minf(1.0, (size.x - 14) / maxf(1, key_width))))

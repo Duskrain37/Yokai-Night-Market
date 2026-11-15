@@ -1,0 +1,62 @@
+[
+  {
+    "suite": "logic",
+    "exit": 0,
+    "seconds": 1.6,
+    "issues": []
+  },
+  {
+    "suite": "animation",
+    "exit": 0,
+    "seconds": 14.3,
+    "issues": []
+  },
+  {
+    "suite": "v070",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "v070_plants",
+    "exit": 0,
+    "seconds": 0.8,
+    "issues": []
+  },
+  {
+    "suite": "v070_boss",
+    "exit": 0,
+    "seconds": 0.9,
+    "issues": []
+  },
+  {
+    "suite": "v070_ui",
+    "exit": 0,
+    "seconds": 14.8,
+    "issues": []
+  },
+  {
+    "suite": "v061",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "v061_ui",
+    "exit": 0,
+    "seconds": 4.4,
+    "issues": []
+  },
+  {
+    "suite": "todo_20261115",
+    "exit": 0,
+    "seconds": 0.9,
+    "issues": []
+  },
+  {
+    "suite": "todo_ui_20261115",
+    "exit": 0,
+    "seconds": 5.9,
+    "issues": []
+  }
+]

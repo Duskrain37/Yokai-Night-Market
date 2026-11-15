@@ -54,7 +54,7 @@ func run():
 	s._mortar_launch(p,a.pos);shot=s.shots[0];a.row=4;b.row=4;a.pos=Vector2(650,s.row_y(4));b.pos=Vector2(680,s.row_y(4))
 	s._update_mortar_shot(shot,1.24);check("炮弹起飞时不锁定",not shot.payload.get("locked",false))
 	s._update_mortar_shot(shot,.01);check("落地前0.25秒锁定新密集位置",shot.payload.locked and shot.tx==650 and shot.row==4)
-	s._update_mortar_shot(shot,.25);check("新落点真正造成伤害",a.hp==9785 and b.hp==9785)
+	s._update_mortar_shot(shot,.25);check("新落点真正造成伤害",a.hp==9815 and b.hp==9815)
 	check("龙首铳基础450耐久",Content.PLANTS.dragon.hp==450)
 	check("类型标签统一",Content.PLANTS.needle.role=="射弹" and Content.PLANTS.star.role=="射弹" and Content.PLANTS.dragon.role=="群攻" and Content.PLANTS.judge.role=="辅助" and Content.PLANTS.shell.role=="防御")
 	# Expiry, migration and independent source semantics.

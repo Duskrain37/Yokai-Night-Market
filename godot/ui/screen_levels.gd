@@ -2,7 +2,7 @@
 extends Control
 const Art = preload("res://ui/market_art.gd")
 
-const DAY_KEYS = ["day1", "day2", "day3", "day4", "day5"]
+const DAY_KEYS = ["day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8"]
 const NUMERALS = ["壹", "贰", "叁", "肆", "伍"]
 ## 五个夜点在画面里的相对位置（0—1），从近处往远处的门楼走
 ## 每晚在画里的落点：三天各沿着自己那张图的路走，从近处一路走到画深处。
@@ -25,8 +25,23 @@ const NEW_ROUTES = {
 	# 冥判窟：洞口、吊桥、石龛、钟廊、判官门。
 	"day5": [Vector2(1475, 686), Vector2(985, 611), Vector2(747, 439),
 		Vector2(1039, 315), Vector2(1458, 221)],
+	"day6": [Vector2(770,755),Vector2(1195,590),Vector2(1440,410),Vector2(1030,285),Vector2(550,250)],
+	"day7": [Vector2(1230,815),Vector2(1030,555),Vector2(1440,380),Vector2(1010,300),Vector2(590,250)],
+	"day8": [Vector2(1370,760),Vector2(1390,530),Vector2(1060,345),Vector2(760,585),Vector2(680,275)],
 }
 const ROUTE_BENDS = {
+	"day6": [[Vector2(940,720),Vector2(1030,670),Vector2(1140,620)],
+		[Vector2(1320,560),Vector2(1430,490)],
+		[Vector2(1410,360),Vector2(1280,330),Vector2(1160,300)],
+		[Vector2(880,260),Vector2(760,250),Vector2(650,255)]],
+	"day7": [[Vector2(1210,740),Vector2(1160,670),Vector2(1090,620)],
+		[Vector2(840,525),Vector2(800,470),Vector2(780,410),Vector2(800,360),Vector2(875,325),Vector2(1100,335),Vector2(1320,355)],
+		[Vector2(1300,335),Vector2(1150,320)],
+		[Vector2(860,320),Vector2(750,310),Vector2(650,280)]],
+	"day8": [[Vector2(1450,670),Vector2(1450,585)],
+		[Vector2(1330,470),Vector2(1250,405),Vector2(1180,375)],
+		[Vector2(950,365),Vector2(880,410),Vector2(820,480)],
+		[Vector2(670,520),Vector2(620,430),Vector2(620,350)]],
 	"day4": [[Vector2(1095, 790), Vector2(1315, 757), Vector2(1427, 669)],
 		[Vector2(1431, 606), Vector2(1593, 534), Vector2(1549, 463)],
 		[Vector2(1352, 427), Vector2(1207, 409)],
@@ -147,10 +162,16 @@ func _draw_header() -> void:
 func _build_week_tabs() -> void:
 	_week_scroll = ScrollContainer.new()
 	_week_scroll.position = Vector2(48, 110)
-	_week_scroll.size = Vector2(1504, 66)
-	_week_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_week_scroll.size = Vector2(1504, 77)
+	_week_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
 	_week_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	add_child(_week_scroll)
+	var bar := _week_scroll.get_h_scroll_bar()
+	bar.custom_minimum_size.y=10
+	bar.add_theme_stylebox_override("scroll",Ui.flat(Color("#10262b"),Color("#6c5937"),6,1))
+	bar.add_theme_stylebox_override("grabber",Ui.flat(Color("#907146"),Color("#d1af70"),6,1))
+	bar.add_theme_stylebox_override("grabber_highlight",Ui.flat(Color("#c5a76c"),Ui.GOLD_BRIGHT,6,1))
+	bar.add_theme_stylebox_override("grabber_pressed",Ui.flat(Color("#b89254"),Ui.GOLD_BRIGHT,6,1))
 	var row = Ui.hbox(12)
 	_week_scroll.add_child(row)
 	for i in Content.DAYS.size():
@@ -158,6 +179,10 @@ func _build_week_tabs() -> void:
 		button.pressed.connect(select_day.bind(i + 1))
 		row.add_child(button)
 		_week_buttons.append(button)
+	_ensure_week_visible.call_deferred()
+
+func _ensure_week_visible() -> void:
+	if day>=1 and day<=_week_buttons.size():_week_scroll.ensure_control_visible(_week_buttons[day-1])
 
 func _tab_rect(index: int) -> Rect2:
 	return Rect2() if index < 0 or index >= _week_buttons.size() else _week_buttons[index].get_global_rect()
@@ -398,6 +423,7 @@ func select_day(value: int) -> void:
 		_map_tween = create_tween()
 		_map_tween.tween_property(self, "_map_blend", 0.0, 0.28).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	day = clampi(value, 1, Content.DAYS.size())
+	_ensure_week_visible.call_deferred()
 	# 换日时默认选回这一天的第一夜
 	selected = Content.level_id_for(day)
 	_refresh_actions()

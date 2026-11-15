@@ -66,21 +66,21 @@ func _build() -> void:
 	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(info)
 	var grid = GridContainer.new()
-	grid.columns = 3
+	grid.columns = 4
 	grid.add_theme_constant_override("h_separation", 14)
 	grid.add_theme_constant_override("v_separation", 16)
 	content.add_child(grid)
 	for i in Content.DAYS.size():
 		var card = Ui.vbox(0)
-		card.custom_minimum_size = Vector2(294, 202)
+		card.custom_minimum_size = Vector2(216, 202)
 		grid.add_child(card)
 		var picture = TextureRect.new()
 		picture.texture = load(Content.map_picture(Content.DAYS[i], true))
 		picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		picture.custom_minimum_size = Vector2(294, 148)
+		picture.custom_minimum_size = Vector2(216, 148)
 		picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(picture)
-		var button = Ui.button("%s·%s" % [Content.DAYS[i].name, Content.DAYS[i].sub], 17, 294, 48)
+		var button = Ui.button("%s·%s" % [Content.DAYS[i].name, Content.DAYS[i].sub], 17, 216, 48)
 		button.pressed.connect(_start_training_day.bind(i + 1))
 		card.add_child(button)

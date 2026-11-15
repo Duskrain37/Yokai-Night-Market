@@ -14,6 +14,7 @@ const PLANT_ORDER: Array[String] = [
 	"mushroom", "cat", "shell", "lobber", "torch", "star", "needle", "judge",
 	"lily", "kelp", "gust", "firework", "squash", "dragon",
 	"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada", "herb-gourd", "reed-chime", "soul-casket", "year-banyan", "sky-mortar",
+	"root-palanquin", "watch-bloom", "vow-toad",
 ]
 
 const ZOMBIE_ORDER: Array[String] = [
@@ -33,6 +34,9 @@ const TIERS = {
 # ── 草木 ────────────────────────────────────────────────────────────────────
 # cost 香火 / cooldown 冷却秒 / hp 耐久 / sprite_h 立绘高度基准（像素，1600×900 画布）
 const PLANTS = {
+	"root-palanquin": {"name":"迁根轿","role":"灰烬","cost":75,"cooldown":35,"hp":1,"sprite_h":92,"ash":true,"no_upgrade":true,"transplant":true,"tint":"#8b9d68"},
+	"watch-bloom": {"name":"更筹花","role":"辅助","cost":175,"cooldown":20,"hp":300,"sprite_h":96,"watch_bloom":true,"tint":"#c0a56e"},
+	"vow-toad": {"name":"愿契金蟾","role":"射弹","cost":200,"cooldown":12,"hp":300,"sprite_h":92,"vow_toad":true,"tint":"#b19b59"},
 	"year-banyan": {
 		"name": "岁灯榕",
 		"role": "产能",
@@ -203,7 +207,7 @@ const PLANTS = {
 	},
 	"cat": {
 		"name": "狐尾灯",
-		"role": "射弹",
+		"role": "追魂",
 		"cost": 250,
 		"cooldown": 8,
 		"hp": 300,
@@ -228,7 +232,7 @@ const PLANTS = {
 	},
 	"lobber": {
 		"name": "汤圆仔",
-		"role": "射弹",
+		"role": "抛弹",
 		"cost": 100,
 		"cooldown": 7,
 		"hp": 300,
@@ -310,7 +314,7 @@ const PLANTS = {
 	},
 	"firework": {
 		"name": "烟花童",
-		"role": "群攻",
+		"role": "抛弹",
 		"cost": 275,
 		"cooldown": 10,
 		"hp": 320,
@@ -380,7 +384,7 @@ const PLANTS = {
 	},
 	"sky-kite": {
 		"name": "逐云鸢",
-		"role": "射弹",
+		"role": "抛弹",
 		"cost": 225,
 		"cooldown": 8,
 		"hp": 300,
@@ -402,7 +406,7 @@ const PLANTS = {
 	},
 	"cash-pod": {
 		"name": "铜钱荚",
-		"role": "灰烬",
+		"role": "产能",
 		"cost": 0,
 		"cooldown": 26,
 		"hp": 400,
@@ -414,7 +418,7 @@ const PLANTS = {
 	},
 	"ember-cicada": {
 		"name": "烬翼蝉",
-		"role": "群攻",
+		"role": "追魂",
 		"cost": 275,
 		"cooldown": 10,
 		"hp": 320,
@@ -439,8 +443,6 @@ const PLANTS = {
 	}
 }
 
-# ── 恶客 ────────────────────────────────────────────────────────────────────
-# hp 本体 / armor 护具 / speed 像素每秒 / dps 啃食每秒 / reach 啃食距离（缺省 38）
 const ZOMBIES = {
 	"incense-thief":{"name":"盗烬客","kind":"窃香","tier":"m","hp":380,"armor":0,"speed":13,"dps":55,"sprite_h":111,"death":"ghost","incense_thief":true},
 	"sky-ferry":{"name":"浮灯轿夫","kind":"空运","tier":"h","hp":480,"armor":1500,"armor_type":"sky-basket","armor_name":"浮灯轿架","speed":23,"armor_speed":1.5,"dps":70,"sprite_h":128,"death":"ghost","flying_tool":true,"air_ferry":true},
@@ -569,6 +571,12 @@ const DAYS = [
 		"blurb": "潮落才显露的海岛夜市。摊面两端收窄，落石每次换位置。"},
 	{"id": 5, "name": "第五周", "sub": "冥判窟", "map": "cavern", "rows": 6,
 		"blurb": "地下府衙前的暗河蜿蜒穿过石道，石台有数处断裂。"},
+	{"id": 6, "name": "第六周", "sub": "云灯渡", "map": "sky", "rows": 6,
+		"blurb": "两座云台轮番升降、前后错位，右侧三列石台始终稳固。"},
+	{"id": 7, "name": "第七周", "sub": "回声巷", "map": "theatre", "rows": 6,
+		"blurb": "旧戏台后巷锣声未歇，借道的戏班会引客换行、催步。"},
+	{"id": 8, "name": "第八周", "sub": "万灯鬼市", "map": "ghostmarket", "rows": 6,
+		"blurb": "三盏市灯轮流开市，循光而来的客潮各有去处。"},
 ]
 
 const WATER_ROWS = [1, 3]
@@ -586,11 +594,12 @@ static func level_id_for(week: int, night: int = 0) -> int:
 
 
 static func map_key(level: Dictionary) -> String:
-	return String({"street": "day1", "market": "day2", "water": "day3", "island": "day4", "cavern": "day5"}.get(level.get("map", "street"), "day1"))
+	return String({"street": "day1", "market": "day2", "water": "day3", "island": "day4", "cavern": "day5", "sky": "day6", "theatre": "day7", "ghostmarket": "day8"}.get(level.get("map", "street"), "day1"))
 
 
 static func map_picture(level: Dictionary, overview := false) -> String:
 	var key := map_key(level)
+	if overview and key in ["day6","day7","day8"]:return "res://assets/bg/map-%s-overview.png" % key
 	return "res://assets/bg/map-%s.%s" % [key, "jpg" if overview else "png"]
 
 # 五种地图均为全部草木提供明确的推荐顺序。
@@ -604,7 +613,24 @@ const LOADOUT_TIPS = {
 
 
 static func loadout_tips(map: String) -> Array:
-	return LOADOUT_TIPS.get(map, LOADOUT_TIPS["street"])
+	var result: Array
+	if map in ["sky", "theatre", "ghostmarket"]:
+		var first: Array = {
+			"sky": ["lantern","cat","sky-kite","wall","cash-pod","star","firework","year-banyan","sky-mortar","gust"],
+			"theatre": ["lantern","shooter","wall","cat","star","bell","lobber","sky-kite","bomb","gust"],
+			"ghostmarket": ["lantern","shooter","wall","year-banyan","star","cash-pod","sky-mortar","firework","herb-gourd","gust"]}[map].duplicate()
+		for type in LOADOUT_TIPS.street:
+			if type not in first: first.append(type)
+		result=first
+	else:result=LOADOUT_TIPS.get(map,LOADOUT_TIPS.street).duplicate()
+	for type in ["watch-bloom","vow-toad","root-palanquin"]:
+		result.erase(type)
+		var position: int = {"watch-bloom":8,"vow-toad":11,"root-palanquin":18}[type]
+		if map not in ["sky","theatre","ghostmarket"] and type=="watch-bloom":position=14
+		if map=="sky" and type=="root-palanquin":position=7
+		if map=="ghostmarket" and type=="vow-toad":position=7
+		result.insert(mini(position,result.size()),type)
+	return result
 
 
 ## 前四夜的推荐会把这一夜练习所需的草木带到卡组前面。
@@ -614,6 +640,9 @@ static func night_loadout_tips(level: Dictionary) -> Array:
 		"street": ["shooter","wall","needle","cat","cat"],
 		"island": ["wall", "sky-kite", "ember-cicada", "reed-chime", "ruin-cap"],
 		"cavern": ["lily", "wall", "kelp", "soul-casket", "firework"],
+		"sky": ["cat", "cash-pod", "sky-kite", "gust", "star"],
+		"theatre": ["wall", "cat", "bell", "star", "firework"],
+		"ghostmarket": ["shooter", "star", "cash-pod", "sky-mortar", "ruin-cap"],
 	}
 	var map := String(level["map"])
 	if not drills.has(map) or bool(level.get("special", false)):
@@ -731,6 +760,16 @@ static func checkpoint_threat(level: Dictionary, checkpoint: int) -> float:
 ## Convert weighted terrain loss to combat pressure. Water remains usable after planting a float.
 static func terrain_factor(level: Dictionary) -> float:
 	var map := String(level.get("map", ""))
+	# Capacity-time pressure, paired-lane diversion and concentrated arrivals are
+	# paid from the same encounter budget, rather than added on top of week five.
+	if map == "sky":
+		# Both decks are initially up for 70s; thereafter 18 fixed + one 12-cell
+		# deck, accounting for 2.4s changeover per 40s. In-cloud planting stays open.
+		var duration: float = wave_groups(level)*54.0+16.0
+		var opening_share := minf(1.0,70.0/duration)
+		return 54.0/lerpf(18.0+12.0*(1.0-2.4/40.0),42.0,opening_share)
+	if map == "theatre": return 54.0 / 48.0 * 1.10 # six transit-only cells + diversion.
+	if map == "ghostmarket": return 1.15 # one pair receives half of an unchanged roster.
 	if map not in ["island", "cavern"]:
 		return 1.0
 	var weights: Array = level["lane_weights"]
@@ -761,6 +800,9 @@ const DAY_THREAT_RANGE = [
 	[0.6, 1.6],
 	[0.8, 2.1],
 	[1.0, 3.0],
+	[1.4, 3.6],
+	[1.4, 3.6],
+	[1.4, 3.6],
 	[1.4, 3.6],
 ]
 
@@ -862,12 +904,29 @@ static func _static_init() -> void:
 	LEVELS = _build_levels()
 
 
+const NEW_NIGHTS = [
+	["观云", "候风", "接舷", "连灯", "云上更"],
+	["听锣", "借巷", "催场", "合班", "压轴"],
+	["点市", "引客", "守市", "易市", "万灯"],
+]
+const NEW_LESSONS = [
+	["先在右侧三列扎稳阵脚。铜铃响起时，两座云台就快换位了。", "把香火分散留在常驻石台，别让整条防线随同一座云台歇下。", "借助追魂和抛射支援暂时失去火力的街道。", "落台上的草木会暂歇，归位后接着出手；留一手应急的草木。", "听风巡使会卷起风带、牵动云索。留心预警，给六条石梁都留火力。"],
+	["第七列是戏班通行的斜巷，不能种植。先在巷子两边各留一道防线。", "巷灯转向时，恶客会沿斜巷走到邻行；途中仍能打中，但不易打伤。", "催场锣会让脚步变急。用石磨拦住，铜铃放慢它们的步子。", "相邻两行互相照应，别把全部火力堆在引路前的那一行。", "百面班主登场后，留心幕布和锣点，把应急草木留给压轴。"],
+	["看清三盏市灯的位置。每次开市会随机亮起一盏，客人循光而来。", "亮灯的两路来客更密，另四路仍有客人，不能空守。", "开市只改变客流方向。分散布阵，手里留些香火补最吃紧的两路。", "市灯转亮前会先摇晃报信，趁这几息把薄弱的一路补齐。", "鬼市掌灯人会封灯、招客。留意它所在两行，也别放过另外四条街。"],
+]
+const NEW_INTRODUCTIONS = [
+	[["ghost","tongue","straw","paper","mountain"],["stonehat","bucket","incense-thief"],["vault","sky-wick","mourner","returner"],["sky-ferry","artisan","shield-envoy","tamer"]],
+	[["ghost","tongue","straw","paper","mountain"],["vault","stonehat","returner"],["bucket","mourner","reed-shot","formless"],["sedan","dreambell","artisan","shield-envoy"]],
+	[["ghost","tongue","straw","paper","mountain"],["stonehat","bucket","incense-thief"],["vault","shieldguard","mourner","phaseguard"],["sedan","artisan","tamer","shield-envoy","sky-ferry"]],
+]
+
+
 static func _build_levels() -> Array:
 	var out: Array = []
 	for day_index in DAYS.size():
 		var day: Dictionary = DAYS[day_index]
 		for night in 5:
-			var info: Dictionary = DAY_LEVELS[day_index][night]
+			var info: Dictionary = DAY_LEVELS[day_index][night] if day_index < 5 else {"name": ["第一夜","第二夜","第三夜","第四夜","第五夜"][night], "tag": NEW_NIGHTS[day_index-5][night], "band": ["mid","mid_late","late","late","late"][night]}
 			var id := level_id_for(day_index + 1, night)
 			var span: Array = DAY_THREAT_RANGE[day_index]
 			var threat := snappedf(lerpf(float(span[0]), float(span[1]), night / 4.0) + 0.000001, 0.01)
@@ -883,14 +942,14 @@ static func _build_levels() -> Array:
 				"tag": info["tag"],
 				"threat": threat,
 				"band": info["band"],
-				"theme": NIGHT_LESSONS[day_index][night][0],
-				"theme_zombie": NIGHT_LESSONS[day_index][night][1],
+				"theme": NIGHT_LESSONS[day_index][night][0] if day_index < 5 else NEW_LESSONS[day_index-5][night],
+				"theme_zombie": NIGHT_LESSONS[day_index][night][1] if day_index < 5 else "",
 				"water_rows": CAVERN_WATER_ROWS if day_index == 4 else (WATER_ROWS if day_index == 2 else []),
 				"lane_weights": [10, 16, 24, 24, 16, 10] if day_index == 3 else ([10, 20, 20, 20, 15, 15] if day_index == 4 else []),
 				"object_cells": WATER_OBJECTS if day["map"] == "water" else [],
 				"start_sun": 100,
 				"wave_groups": [4, 4, 6, 6, 8][night],
-				"boss_id": ["earth", "paper", "river", "island", "magistrate-full"][day_index] if night == 4 else "",
+				"boss_id": ["earth", "paper", "river", "island", "magistrate-full", "wind-warden", "mask-master", "market-lamplord"][day_index] if night == 4 else "",
 				"mid_boss": "magistrate-bound" if day_index == 4 and night == 4 else "",
 				"waves": _night_roster(_with_guest_variants(build_waves(info["band"], [4, 4, 6, 6, 8][night]),
 					day_index + 1, night), day_index, night),
@@ -928,7 +987,7 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 				allowed.append(type)
 	else:
 		for i in range(night + 1):
-			allowed.append_array(NIGHT_INTRODUCTIONS[week][i])
+			allowed.append_array(NIGHT_INTRODUCTIONS[week][i] if week < 5 else NEW_INTRODUCTIONS[week-5][i])
 	var substitutes := {"l": "ghost", "m": "paper", "h": "mountain"}
 	var previous := {}
 	var slots: Array = []

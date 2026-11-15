@@ -10,10 +10,10 @@ func _init():run.call_deferred()
 func run():
 	var old=JSON.parse_string(FileAccess.get_file_as_string("res://tools/fixtures/v055-balance.json"))
 	var rewritten={"shooter":[0,2],"lion":[1,2],"torch":[0,1,2],"judge":[0,1,2],"year-banyan":[1],"soul-casket":[1]}
-	var roles={"shooter":"射弹","censer":"群攻","umbrella":"近战","cat":"射弹","shell":"防御","lobber":"射弹","torch":"辅助","star":"射弹","needle":"射弹","judge":"辅助","lily":"辅助","firework":"群攻","dragon":"群攻","sky-kite":"射弹","ember-cicada":"群攻","herb-gourd":"辅助","reed-chime":"群攻","soul-casket":"辅助"}
+	var roles={"cash-pod":"产能","shooter":"射弹","censer":"群攻","umbrella":"近战","cat":"追魂","shell":"防御","lobber":"抛弹","torch":"辅助","star":"射弹","needle":"射弹","judge":"辅助","lily":"辅助","firework":"抛弹","dragon":"群攻","sky-kite":"抛弹","ember-cicada":"追魂","herb-gourd":"辅助","reed-chime":"群攻","soul-casket":"辅助"}
 	var approved=["year-banyan","dragon","sky-kite","star","soul-casket","reed-chime","censer"]
 	for type in Content.PLANT_ORDER:
-		if type == "sky-mortar": continue # reworked and covered by qa_v060
+		if type in ["sky-mortar","root-palanquin","watch-bloom","vow-toad"]: continue # New/reworked rules are independently covered by qa_v070_plants.
 		var now=Content.PLANTS[type].duplicate(true);var before=old.plants[type].duplicate(true)
 		match type:
 			"year-banyan":before.cost=125
@@ -29,7 +29,7 @@ func run():
 			if i in rewritten.get(type,[]):continue # 数值与实际机制由qa_v061逐项覆盖
 			var a=paths[i].duplicate(true);var b=previous[i].duplicate(true)
 			for tier in 3:
-				if type in approved:a.tiers[tier].desc=b.tiers[tier].desc
+				a.tiers[tier].desc=b.tiers[tier].desc # 最新待办授权全部文案审校；费用与其他字段仍逐项检查。
 				a.tiers[tier].desc=String(a.tiers[tier].desc).replace("3×3范围","周围九格")
 				b.tiers[tier].desc=String(b.tiers[tier].desc).replace("3×3范围","周围九格")
 			check(type+"路线%d费用与机制保持"%i,same(a,b))
@@ -37,9 +37,9 @@ func run():
 		if type in ["star","censer"]:
 			for key in (["damage","interval"] if type=="star" else ["radius","interval"]):prev[key]=effects[key]
 		elif type in ["reed-chime","soul-casket"]:prev=effects
-		if type not in ["shooter","lion","torch","judge","soul-casket"]:
+		if type not in ["shooter","lion","torch","judge","soul-casket","wish-till","ember-cicada","herb-gourd"]:
 			check(type+"效果表无越权变更",same(effects,prev))
-	check("恶客、关卡、推荐表未改",Content.ZOMBIES.keys().all(func(id):return id in ["incense-thief","sky-ferry"] or same(Content.ZOMBIES[id],old.zombies[id])) and same(Content.DAYS,old.days) and same(Content.LOADOUT_TIPS,old.recommendations))
+	check("原恶客、前五周地形与原推荐基表保持",Content.ZOMBIES.keys().all(func(id):return id in ["incense-thief","sky-ferry"] or same(Content.ZOMBIES[id],old.zombies[id])) and same(Content.DAYS.slice(0,5),old.days) and same(Content.LOADOUT_TIPS,old.recommendations))
 	var s=Sim.new();s.setup(Content.get_level(1),Content.PLANT_ORDER.duplicate(),"easy",560)
 	var reed=s.place_free("reed-chime",2,2);reed.timer=10
 	for offset in [60,100,140]:

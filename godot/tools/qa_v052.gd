@@ -31,20 +31,20 @@ func run() -> void:
 	behind.hp = 20
 	elsewhere.hp = 10
 	s._update_healer(healer, 1.6)
-	check("基础治疗只照料前方三格和自身，挑生命最低的一株", near.hp == 140 and healer.hp == 120 and behind.hp == 20 and elsewhere.hp == 10)
+	check("基础治疗只照料前方三格和自身，挑生命最低的一株", near.hp == 150 and healer.hp == 120 and behind.hp == 20 and elsewhere.hp == 10)
 	healer.upgrades[1] = 1
 	healer.timer = 99
 	s._update_healer(healer, 0.01)
-	check("行医一阶可治疗同行后方", behind.hp == 70)
+	check("行医一阶可治疗同行后方", behind.hp == 80)
 	healer.upgrades[1] = 2
 	healer.timer = 99
 	s._update_healer(healer, 0.01)
-	check("行医二阶覆盖本列", elsewhere.hp == 60)
+	check("行医二阶覆盖本列", elsewhere.hp == 70)
 	healer.upgrades[1] = 2
 	healer.upgrades[2] = 3
 	healer.timer = 99
 	s._update_healer(healer, 0.01)
-	check("十字范围的最高良方每次同时恢复两株96", elsewhere.hp == 156 and behind.hp == 166)
+	check("十字范围的最高良方每次同时恢复两株120", elsewhere.hp == 190 and behind.hp == 200)
 	healer.upgrades = {1: 0, 2: 0, 3: 3}
 	for plant in s.plants:
 		plant.hp = plant.max_hp
@@ -53,7 +53,7 @@ func run() -> void:
 	healer.timer = 99
 	s._update_healer(healer, 0.01)
 	s.refresh_plant_buffs()
-	check("满血鼓舞追魂40%、普通攻击20%、无攻击石磨不受益", is_equal_approx(cat.haste, 0.4) and is_equal_approx(attack.haste, 0.2) and near.haste==0)
+	check("满血鼓舞追魂40%、普通攻击30%、无攻击石磨不受益", is_equal_approx(cat.haste, 0.4) and is_equal_approx(attack.haste, 0.3) and near.haste==0)
 	s.time += 3.6
 	s.refresh_plant_buffs()
 	check("鼓舞在3.5秒后结束", cat.haste == 0.0)
@@ -66,7 +66,7 @@ func run() -> void:
 	var dummy := s.spawn_zombie("ghost", 0)
 	dummy.hp = 10
 	s.damage_zombie(dummy, 30.0, false, false, "ember-cicada", "", false, "homing", cicada.uid)
-	check("烬翼蝉击杀按射手返还一发并提前0.4秒", cicada.ember_ammo == 3 and is_equal_approx(cicada.timer, 0.4))
+	check("烬翼蝉击杀按射手返还一发并激励下一轮缩短0.6秒", cicada.ember_ammo == 3 and cicada.ember_quick_pending and is_zero_approx(cicada.timer))
 	cicada.upgrades = {1: 0, 2: 2, 3: 3}
 	var armored := s.spawn_zombie("straw", 0)
 	armored.hp = 1000
@@ -132,7 +132,7 @@ func run() -> void:
 	var outside := s.spawn_zombie("ghost", 1, {"x": till.pos.x + 0.6 * Geo.CELL_W})
 	s._update_wish_till(till, 0.01)
 	check("满阶招客同时牵引半格内同伴", close.pull_row == 2 and companion.pull_row == 2 and outside.pull_row == -1)
-	check("招客冷却保持五秒", is_equal_approx(till.lane_pull_at - s.time, 5.0))
+	check("招客冷却2.5秒", is_equal_approx(till.lane_pull_at - s.time, 2.5))
 
 	s = battle()
 	s._create_crater(3, 2)
@@ -214,7 +214,7 @@ func run() -> void:
 	check("切回发布顺序恢复完整原序", book._sorted_indices() == range(Content.PLANT_ORDER.size()))
 	game.show_levels()
 	await process_frame
-	check("选关五周题签同排完整展示", is_equal_approx(game.screen_node._week_scroll.size.y, 66) and game.screen_node._week_buttons.size() == 5)
+	check("选关八周题签可横向滚动", is_equal_approx(game.screen_node._week_scroll.size.y, 77) and game.screen_node._week_buttons.size() == 8)
 	game.show_menu()
 	game.open_news()
 	check("封面可以打开自然语言更新公告", game.screen == "news")

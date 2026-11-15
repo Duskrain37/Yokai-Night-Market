@@ -1,0 +1,35 @@
+{
+  "actual_exe": "0.7.0",
+  "build": "2a70f5b",
+  "original_90s_timeout_retained": true,
+  "qa_visibility_and_storage_isolation_only": true,
+  "runs": [
+    {
+      "helper": "original-helper",
+      "replacement_and_ack": true,
+      "result": {
+        "detail": null,
+        "ok": true,
+        "message": "更新完成。",
+        "version": "0.7.0",
+        "time": "2026-11-15T20:42:59.3534124Z"
+      },
+      "survived_100s": true,
+      "pid": 25944
+    },
+    {
+      "helper": "fixed-helper",
+      "replacement_and_ack": true,
+      "result": {
+        "detail": null,
+        "ok": true,
+        "message": "更新完成。",
+        "version": "0.7.0",
+        "time": "2026-11-15T20:42:59.5837929Z"
+      },
+      "survived_100s": true,
+      "pid": 41872
+    }
+  ],
+  "failures": 0
+}

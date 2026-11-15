@@ -1,0 +1,24 @@
+{
+  "version": "0.7.0",
+  "build": "2a70f5b",
+  "files": 845,
+  "frozen_at": "2026-11-16T04:31:25.390372+08:00",
+  "regression_suites": 28,
+  "affected_rechecks": 10,
+  "new_mechanics": 186,
+  "viewport_interactions_per_resolution": 31,
+  "native_captures": 96,
+  "resolutions": [
+    "1600x900",
+    "1280x720",
+    "1600x1000"
+  ],
+  "campaign_runs": 160,
+  "final_boss_campaigns": 12,
+  "mature_boss_fixtures": 9,
+  "new_motion_clips": 49,
+  "total_motion_frames": 14592,
+  "approved_music": 24,
+  "source_checks_passed": true,
+  "failures": 0
+}

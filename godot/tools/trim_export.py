@@ -12,7 +12,7 @@ PORTRAITS = {"incense-thief", "sky-ferry", "bride", "gust", "firework", "squash"
              "ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada",
              "flinch", "wave-herald", "formless", "reed-shot"}
 DESTRUCTION = {"sedan-loaded", "sedan-empty"}
-BOSS_PORTRAITS = {"boss-island", "boss-magistrate-bound", "boss-magistrate-full"}
+BOSS_PORTRAITS = {"boss-island", "boss-magistrate-bound", "boss-magistrate-full", "boss-wind-warden", "boss-mask-master", "boss-market-lamplord"}
 
 
 class Pack:

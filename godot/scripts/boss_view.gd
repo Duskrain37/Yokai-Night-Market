@@ -3,6 +3,7 @@ extends Node2D
 const ActorFrames = preload("res://scripts/actor_frames.gd")
 var actor_frames = ActorFrames.new()
 var skill_frames = ActorFrames.new()
+var chapter_frames = ActorFrames.new()
 var encounter_override = null
 var is_member_view := false
 var member_views: Array=[]
@@ -22,6 +23,7 @@ func _ready() -> void:
 	z_index=20
 	actor_frames.load_sheets("boss-")
 	skill_frames.load_sheets("v052-")
+	chapter_frames.load_sheets("v070-")
 	font=Ui.body_font()
 	var manifest: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/boss_art_manifest.json"))
 	for sheet in manifest.atlases:
@@ -105,7 +107,7 @@ func _draw() -> void:
 	var upper_edge := _point(Vector2(boss.body_x(), sim.row_y(boss.body_row) - Geo.cell_h(sim.rows) * 0.5))
 	var body_height := maxf(120.0, body_foot.y - upper_edge.y)
 	draw_texture_rect(textures.ground_shadow,Rect2(body_foot-Vector2(105,40),Vector2(210,80)),false,Color(1,1,1,alpha))
-	if _previous != _pose and mix < 1.0 and pose != "blink":
+	if _previous != _pose and mix < 1.0 and pose != "blink" and boss.id in ["earth","paper","river"]:
 		_frame(sheet,_previous,body_foot,body_height,alpha*(1-mix),true)
 	var impact=0.0
 	for event in boss.effects:
@@ -120,6 +122,16 @@ func _draw() -> void:
 	var clip := "action" if action_pose else "idle"
 	if combined:
 		clip = "major" if pose == "major" and boss.id != "magistrate-bound" else ("small" if action_pose else "idle")
+		if pose=="defeat" and actor_frames.catalog.get(actor,{}).get("clips",{}).has("death"):clip="death"
+	if boss.id in ["wind-warden","mask-master","market-lamplord"]:
+		var age:float=sim.time-_pose_at
+		if pose=="anticipation":
+			clip="major" if boss.state=="major_warning" else "small"
+			index=clampf((sim.time-float(boss.action.warning_start))/maxf(.01,float(boss.action.warning_end)-float(boss.action.warning_start)),0,1)*1.45
+		elif pose=="small":index=1.45+clampf(age/.5,0,1)*2.54
+		elif pose=="major":index=1.45+clampf(age/2.8,0,1)*2.54
+		elif pose=="defeat":index=clampf((sim.time-float(boss.died_at))/1.5,0,1)*3.99
+		elif pose=="hurt":clip="idle";index=sim.time*5.0
 	if pose == "blink":
 		_draw_blink(boss, body_foot, body_height)
 	elif not actor_frames.draw_pose(self, actor, clip, index,
@@ -129,6 +141,10 @@ func _draw() -> void:
 		if not z.alive():continue
 		var at=_point(z.pos)
 		var name=String(z.boss_meta.kind)
+		if name=="cloud_knot":
+			chapter_frames.draw_pose(self,"v070-fx-wind-warden","warning",sim.time*4,at,90,true,Color(.8,.93,1,.85))
+			Ui.draw_gauge(self,Rect2(at+Vector2(-26,4),Vector2(52,7)),z.hp/maxf(1,z.max_hp),Ui.JADE_LIGHT)
+			continue
 		if name=="crab":name="crab_charge"
 		elif name=="paper_seal":
 			at.y-=34
@@ -147,6 +163,9 @@ func _draw() -> void:
 	for fx in boss.effects:
 		var at=_point(Vector2(float(fx.x),float(fx.y)))
 		var age=sim.time-float(fx.at)
+		if String(fx.kind) in ["cloud","curtain","lamps"]:
+			var fx_actor: String={"cloud":"wind-warden","curtain":"mask-master","lamps":"market-lamplord"}[String(fx.kind)]
+			if age>=0 and age<1.0:chapter_frames.draw_pose(self,"v070-fx-"+fx_actor,"impact",minf(3.99,age*4),at+Vector2(0,22),220,true,Color(1,1,1,1-smoothstep(.72,1.0,age)))
 		if age >= 0.0 and age < 1.15 and String(fx.kind) in ["earth", "paper", "water"]:
 			var fx_clip := String({"magistrate-bound":"bound", "magistrate-full":"full"}.get(boss.id, boss.id))
 			var opacity := minf(1.0, (1.15 - age) * 3.0)
@@ -206,12 +225,14 @@ func _warning(boss) -> void:
 	skill_frames.draw_pose(self, "v052-boss-fx", fx_clip, power * 1.4,
 		_body_foot(boss.body_row,boss) + Vector2(-38, -18), 185.0 + 65.0 * power,
 		false, Color(1, 1, 1, 0.45 + power * 0.35))
+	if boss.id in ["wind-warden","mask-master","market-lamplord"]:
+		chapter_frames.draw_pose(self,"v070-fx-"+boss.id,"warning",power*3.99,_body_foot(boss.body_row,boss)+Vector2(-35,-15),190+50*power,true,Color(1,1,1,.65))
 	for i in Array(action.targets).size():
 		var cell: Dictionary=action.targets[i]
 		var impact=float(action.warning_end)+(i*float(boss.config.major.hit_spacing_s) if major else 0.0)
 		if sim.time>impact+0.18:continue
-		var corners: PackedVector2Array=Geo.screen_cell_polygon(int(cell.c),int(cell.r),sim.rows)
-		var at=_point(sim.cell_pos(int(cell.c),int(cell.r)))
+		var at=_point(boss.target_position(cell))
+		var corners: PackedVector2Array=sim.chapter.cell_polygon(int(cell.c),int(cell.r)) if String(sim.level.map)=="sky" else Geo.screen_cell_polygon(int(cell.c),int(cell.r),sim.rows)
 		var rect=Rect2(corners[0],Vector2.ZERO)
 		for p in corners:rect=rect.expand(p)
 		draw_texture_rect(textures.telegraph_tile,rect,false)
@@ -240,6 +261,9 @@ func _effect(kind: String, at: Vector2,age: float,size_px: float=140) -> void:
 			Rect2(r[0],r[1],r[2],r[3]),Color(1,1,1,weight*(1-smoothstep(0.55,0.75,age))),false,true)
 
 func _break(kind: String, at: Vector2,age: float) -> void:
+	if kind=="cloud_knot":
+		if age<.8:chapter_frames.draw_pose(self,"v070-fx-wind-warden","impact",minf(3.99,age*5),at,110,true,Color(1,1,1,1-age/.8))
+		return
 	var paper=kind in ["paper_ferry","paper_seal"]
 	var duration=0.9 if paper else 0.65
 	if age>duration:return

@@ -1,5 +1,6 @@
 ## Deterministic encounter model. All clocks use Sim.time; View never deals damage.
 extends RefCounted
+const Attributes=preload("res://data/attribute_rules.gd")
 
 var _owner: WeakRef
 var sim:
@@ -175,6 +176,9 @@ func damage(proxy, amount: float, source: String = "", continuous := false) -> f
 	var dealt=minf(hp,damage_value)
 	hp=maxf(0,hp-dealt)
 	total_damage+=dealt
+	var number_target=proxy if proxy!=null else body_targets[0] if not body_targets.is_empty() else null
+	if number_target!=null:
+		sim.vital_numbers.record(number_target.uid,number_target.pos,dealt,false,continuous,220)
 	if source!="": sim.damage_by_type[source]=float(sim.damage_by_type.get(source,0.0))+dealt
 	_sync_hp()
 	if hp<=0:
@@ -351,13 +355,28 @@ func _spawn_add(role: String,source=null) -> bool:
 
 func _cell_ok(col: int,row: int,require_empty: bool=false) -> bool:
 	if col<2 or col>=Geo.COLS or row<0 or row>=sim.rows:return false
+	if not sim.chapter.placement(col,row).is_empty():return false
 	if String(sim.tile_at(col,row).kind) in ["blocked","object"]:return false
 	if require_empty and (sim.main_plant_at(col,row)!=null or sim.lily_at(col,row)!=null):return false
 	return sim.time>=float(cell_cooldowns.get("%d:%d" % [row,col],0.0))
 
 func _target(col: int,row: int) -> Dictionary:
 	cell_cooldowns["%d:%d" % [row,col]]=sim.time+6.0
-	return {"c":col,"r":row}
+	var plant=sim.main_plant_at(col,row)
+	return {"c":col,"r":row,"host_uid":plant.uid if plant!=null else ""}
+
+func target_plant(cell: Dictionary):
+	var uid: String=String(cell.get("host_uid",""))
+	if uid.is_empty():return sim.main_plant_at(int(cell.c),int(cell.r))
+	for plant in sim.plants:
+		if plant.uid==uid and not plant.dead:
+			cell.c=plant.col;cell.r=plant.row
+			return plant
+	return null
+
+func target_position(cell: Dictionary) -> Vector2:
+	var plant=target_plant(cell)
+	return plant.pos if plant!=null else sim.cell_pos(int(cell.c),int(cell.r))
 
 func _random_cell(first: int,last: int,empty: bool=false) -> Dictionary:
 	var pool: Array=[];var occupied: Array=[]
@@ -389,6 +408,7 @@ func _start_small() -> void:
 	var skill: Dictionary = config.get("small_skill", {})
 	if not skill.is_empty():
 		kind = String(skill.kind)
+		if alternate%2==1 and skill.has("secondary_kind"):kind=String(skill.secondary_kind)
 	alternate+=1
 	var targets: Array=[]
 	var warning=2.2
@@ -402,7 +422,7 @@ func _start_small() -> void:
 		warning=float(skill.get("warning", 1.8 if kind=="seal" else 2.0))
 		var candidates: Array=[]
 		for p in sim.plants:
-			if not p.dead and not p.is_lily and not p.ash and p.col >= int(skill.get("first_column", 2)) and _cell_ok(p.col,p.row):candidates.append(p)
+			if sim.plant_on_stage(p) and not p.is_lily and not p.ash and p.col >= int(skill.get("first_column", 2)) and _cell_ok(p.col,p.row):candidates.append(p)
 		var picked_rows: Array=[]
 		var economy_chosen=false
 		for i in int(skill.get("targets", 3 if kind=="seal" else 2)):
@@ -411,13 +431,16 @@ func _start_small() -> void:
 			var p=valid[sim.rng.randi_range(0,valid.size()-1)]
 			targets.append(_target(p.col,p.row));picked_rows.append(p.row)
 			if p.def.has("produce"):economy_chosen=true
+	if kind in ["mask_drum","market_call"]:targets=[]
 	action={"kind":kind,"targets":targets,"warning_start":sim.time,"warning_end":sim.time+warning,"hit":0,"kills":0}
 	state="small_warning";state_end=sim.time+warning
 	sim.sfx("boss_warning")
 
 func _start_major() -> void:
 	var targets: Array=[]
-	if id == "earth":
+	if id in ["wind-warden","mask-master","market-lamplord"]:
+		targets=_chapter_major_targets()
+	elif id == "earth":
 		var row: int = sim.rng.randi_range(0, sim.rows - 1)
 		if row == last_major_row:
 			row = (row + 1) % sim.rows
@@ -447,6 +470,19 @@ func _start_major() -> void:
 	sim.sfx("boss_warning")
 
 func _resolve_small() -> void:
+	if String(action.kind)=="mask_drum":
+		var affected:=0
+		for guest in sim.zombies:
+			if not guest.alive() or guest.boss_role!="" or affected>=6:continue
+			Attributes.put(guest.attribute_bonuses,"speed","百面鼓点",.35,6.0,sim.time)
+			guest.support_pulse=1.0;affected+=1
+			emit("curtain",guest.pos)
+		sim.sfx("boss_impact");return
+	if String(action.kind)=="market_call":
+		sim.chapter.market_pair=sim.rng.randi_range(0,2)
+		sim.chapter.event_start=sim.time;sim.chapter.market_last_at=sim.time
+		sim.banner={"text":"契灯摇曳 · 下一市客潮将至","t":3.0,"max":3.0}
+		emit("lamps",Vector2(body_x(),sim.row_y(body_row)));sim.sfx("bell");return
 	if String(action.kind) == "summon_wave":
 		var final_wave = _final_wave()
 		var delay = 0.0
@@ -457,8 +493,22 @@ func _resolve_small() -> void:
 		sim.sfx("alert")
 		return
 	for cell in action.targets:
-		var pos: Vector2=sim.cell_pos(int(cell.c),int(cell.r))
+		var pos: Vector2=target_position(cell)
 		match String(action.kind):
+			"wind_gust","curtain_cut","lamp_seal":
+				_hurt_cell(cell,float(config.small_skill.damage))
+				var host=target_plant(cell)
+				if sim.plant_on_stage(host):
+					if id=="wind-warden":sim.apply_plant_penalty(host,"haste",.20,4.0,"穿云拂灯")
+					elif id=="mask-master":host.sleep_until=maxf(host.sleep_until,sim.time+2.0)
+					else:sim.apply_plant_penalty(host,"damage",.20,4.0,"契灯封市")
+				emit(_chapter_effect(),pos)
+			"cloud_knot":
+				var host=target_plant(cell)
+				if sim.plant_on_stage(host) and _prop_count()<_prop_limit():
+					host.sealed_until=maxf(host.sealed_until,sim.time+3.0)
+					_add_prop("cloud_knot",cell,160,3.0)
+				emit("cloud",pos)
 			"tide_surge", "verdict":
 				var skill: Dictionary = config.small_skill
 				_hurt_cell(cell, float(skill.damage))
@@ -493,6 +543,33 @@ func _resolve_small() -> void:
 func _prop_limit() -> int:
 	return 3 if id == "paper" else 2
 
+func _chapter_effect() -> String:
+	return String({"wind-warden":"cloud","mask-master":"curtain","market-lamplord":"lamps"}.get(id,"paper"))
+
+func _chapter_major_targets() -> Array:
+	var pool: Array=[]
+	for plant in sim.plants:
+		if sim.plant_on_stage(plant) and not plant.is_lily and not plant.ash and _cell_ok(plant.col,plant.row):pool.append(plant)
+	var targets: Array=[]
+	if id=="wind-warden":
+		var pair: int=sim.rng.randi_range(0,2)
+		pool=pool.filter(func(p):return int(p.row/2)==pair)
+		pool.sort_custom(func(a,b):return a.col>b.col)
+	elif id=="mask-master":
+		pool.sort_custom(func(a,b):return a.col>b.col if a.col!=b.col else a.row<b.row)
+	else:
+		pool.sort_custom(func(a,b):return a.row<b.row if a.row!=b.row else a.col>b.col)
+	var used: Dictionary={}
+	if id=="market-lamplord":
+		for row in sim.rows:
+			for plant in pool:
+				if plant.row==row:
+					targets.append(_target(plant.col,plant.row));used[plant.uid]=true;break
+	for plant in pool:
+		if targets.size()>=int(config.major.hit_count):break
+		if not used.has(plant.uid):targets.append(_target(plant.col,plant.row));used[plant.uid]=true
+	return targets
+
 
 func _prop_count() -> int:
 	var n=0
@@ -507,10 +584,10 @@ func _add_prop(kind: String,cell: Dictionary,health: float,life: float) -> void:
 		{"kind":kind,"until":sim.time+life,"next":sim.time+(4.0 if kind=="tunnel" else 3.0),
 		"c":int(cell.c),"r":int(cell.r)})
 	props.append(z)
-	if kind=="paper_seal":
+	if kind in ["paper_seal","cloud_knot"]:
 		var host=sim.main_plant_at(int(cell.c),int(cell.r))
 		if host!=null:z.boss_meta.host_uid=host.uid
-	emit("paper" if kind!="tunnel" else "earth",pos)
+	emit("cloud" if kind=="cloud_knot" else ("paper" if kind!="tunnel" else "earth"),pos)
 
 func _update_props(dt: float,paused_adds: bool) -> void:
 	var keep: Array=[]
@@ -528,9 +605,10 @@ func _update_props(dt: float,paused_adds: bool) -> void:
 		z.cc_immune=maxf(0,z.cc_immune-dt)
 		var meta: Dictionary=z.boss_meta
 		if sim.time>=float(meta.until):break_prop(z);continue
-		if String(meta.kind)=="paper_seal":
-			var host=sim.main_plant_at(int(meta.c),int(meta.r))
+		if String(meta.kind) in ["paper_seal","cloud_knot"]:
+			var host=target_plant(meta)
 			if host==null or host.dead or host.uid!=String(meta.get("host_uid",host.uid)):break_prop(z);continue
+			z.pos=host.pos;z.row=host.row
 		elif z.boss_role=="crab":
 			var factor=(1.0-z.slow_amount) if z.slow_t>0 else 1.0
 			if z.stun_t>0:z.stun_t=maxf(0,z.stun_t-dt);factor=0.0
@@ -558,13 +636,13 @@ func break_prop(z) -> void:
 	if z.dead:return
 	z.dead=true;z.hp=0
 	var kind=String(z.boss_meta.get("kind","tunnel"))
-	if kind=="paper_seal":
-		var host=sim.main_plant_at(int(z.boss_meta.c),z.row)
+	if kind in ["paper_seal","cloud_knot"]:
+		var host=target_plant(z.boss_meta)
 		if host!=null and host.uid==String(z.boss_meta.get("host_uid",host.uid)):
 			var remaining:=0.0
 			for peer in sim.active_bosses():
 				for prop in peer.props:
-					if prop!=z and prop.alive() and String(prop.boss_meta.get("kind",""))=="paper_seal" and String(prop.boss_meta.get("host_uid",""))==host.uid:
+					if prop!=z and prop.alive() and String(prop.boss_meta.get("kind","")) in ["paper_seal","cloud_knot"] and String(prop.boss_meta.get("host_uid",""))==host.uid:
 						remaining=maxf(remaining,float(prop.boss_meta.until))
 			if is_equal_approx(host.sealed_until,float(z.boss_meta.until)):host.sealed_until=remaining
 			else:host.sealed_until=maxf(host.sealed_until,remaining)
@@ -574,8 +652,8 @@ func break_prop(z) -> void:
 func _hurt_cell(cell: Dictionary,amount: float) -> void:
 	amount = roundf(amount * SKILL_FORCE)
 	if int(cell.c)<2:return
-	var p=sim.main_plant_at(int(cell.c),int(cell.r))
-	if p==null or p.dead or p.is_lily or p.ash:return
+	var p=target_plant(cell)
+	if not sim.plant_on_stage(p) or p.is_lily or p.ash:return
 	var lethal_allowed=destruction_used<int(config.destruction_budget) and int(action.get("kills",0))<2
 	# Charged crabs are separate casts, but never split one frame into several losses.
 	if String(action.get("kind",""))!="major":lethal_allowed=destruction_used<int(config.destruction_budget) and absf(last_boss_destroy_at-sim.time)>0.0001
@@ -603,7 +681,7 @@ func _resolve_major() -> void:
 		if id in ["paper", "magistrate-full"]:
 			var host=sim.main_plant_at(int(cell.c),int(cell.r))
 			if host!=null and not host.dead:host.sealed_until=maxf(host.sealed_until,sim.time + 2.0 * SKILL_FORCE)
-		emit("earth" if id=="earth" else ("paper" if id in ["paper", "magistrate-full"] else "water"),sim.cell_pos(int(cell.c),int(cell.r)))
+		emit(_chapter_effect() if id in ["wind-warden","mask-master","market-lamplord"] else ("earth" if id=="earth" else ("paper" if id in ["paper", "magistrate-full"] else "water")),target_position(cell))
 		sim.shake=maxf(sim.shake,3.0);sim.sfx("boss_impact")
 		action.hit=index+1
 	var last_hit=float(action.warning_end)+maxi(0,targets.size()-1)*float(config.major.hit_spacing_s)

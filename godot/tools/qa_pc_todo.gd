@@ -83,7 +83,7 @@ func run():
 				check("三阶使用战斗动画资源/" + actor, texture is AtlasTexture and texture.atlas.resource_path == "res://" + String(manifest[actor].file))
 	for row in preload("res://ui/screen_settings.gd").ROWS[2]: check("设置移除音乐风格/" + row.key, row.key != "music_style")
 	game.set_setting("music_style", "plain")
-	check("旧音乐设置强制迁移", game.music_style() == "complete" and game.settings.music_style == "complete" and game._music_players.size() == 16)
+	check("旧音乐设置强制迁移", game.music_style() == "complete" and game.settings.music_style == "complete" and game._music_players.size() == 25)
 	for day in range(1, 6):
 		for phase in ["battle", "hot", "final"]:
 			check("完整曲目/%d/%s" % [day, phase], game.resolve_battle_track(day, phase) == "day%d-%s" % [day, phase] and game._has_track("day%d-%s" % [day, phase]))

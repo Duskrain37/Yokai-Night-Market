@@ -26,11 +26,21 @@ var _growth_textures: Dictionary = {}
 var _guest_gear: Dictionary = {}
 var _face_pins: Dictionary = {}
 var _profile_armor: Dictionary = {}
+var _numbers_layer: Node2D
+var _cloud_veil: Texture2D
+var _chapter_frames = ActorFrames.new()
 
 
 func _ready() -> void:
 	z_index = 10
+	if ResourceLoader.exists("res://assets/scenery/cloud-veil.png"):_cloud_veil=load("res://assets/scenery/cloud-veil.png")
+	_numbers_layer=Node2D.new()
+	_numbers_layer.name="CombatNumbers"
+	_numbers_layer.z_index=30
+	add_child(_numbers_layer)
+	_numbers_layer.draw.connect(_draw_vital_numbers.bind(_numbers_layer))
 	_actor_frames.load_sheets()
+	_chapter_frames.load_sheets("v070-")
 	_effect_frames.load_sheets("v05")
 	_buff_frames.load_sheets("v053-")
 	_new_frames=_effect_frames
@@ -190,6 +200,7 @@ func _draw() -> void:
 	_draw_shadows(cell_h)
 	for plant in sim.plants:
 		_draw_plant(plant, cell_h)
+	_draw_cloud_veils()
 	var ordered = sim.zombies.duplicate()
 	ordered.sort_custom(_zombie_sort)
 	for z in ordered:
@@ -199,6 +210,7 @@ func _draw() -> void:
 	_draw_orbs()
 	_draw_particles()
 	_draw_floaters()
+	_numbers_layer.queue_redraw()
 	# Interaction markers are painted after every actor, matching their highest hit priority.
 	for plant in sim.plants:
 		if not plant.dead:
@@ -214,7 +226,7 @@ static func _zombie_sort(a, b) -> bool:
 
 func _draw_shadows(cell_h: float) -> void:
 	for plant in sim.plants:
-		if plant.dead:
+		if not sim.plant_on_stage(plant):
 			continue
 		var foot = _plant_foot(plant, cell_h)
 		var width = 30.0 if not plant.is_lily else 40.0
@@ -232,7 +244,7 @@ func _draw_shadows(cell_h: float) -> void:
 
 ## 平面坐标 → 屏幕坐标：单位站在台面上，位置与大小都随深度变。
 func _plant_foot(plant: Sim.Plant, cell_h: float) -> Vector2:
-	return Geo.to_screen(plant.pos + Vector2(0.0, cell_h * 0.3), sim.rows)
+	return PlantRegions.foot(plant,sim.rows)
 
 
 func _zombie_foot(z: Sim.Zombie, cell_h: float) -> Vector2:
@@ -247,6 +259,14 @@ func _zombie_height(z: Sim.Zombie, cell_h: float) -> float:
 # ── 草木 ────────────────────────────────────────────────────────────────────
 func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 	if plant.dead:
+		return
+	if plant.transplant_progress<1:
+		var progress: float=plant.transplant_progress
+		var clip: String="pickup" if progress<.22 else ("walk" if progress<.75 else "land")
+		var frame: float=progress/.22*3.99 if clip=="pickup" else ((progress-.75)/.25*3.99 if clip=="land" else (progress-.22)*14)
+		_actor_frames.draw_pose(self,"root-palanquin",clip,frame,_plant_foot(plant,cell_h)+Vector2(0,49),95,false,Color.WHITE)
+	if not sim.plant_on_stage(plant):
+		_draw_cloud_plant(plant,cell_h)
 		return
 	var texture = plant_texture(plant)
 	var foot = _plant_foot(plant, cell_h)
@@ -349,6 +369,14 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 		var age = sim.time - plant.action_at
 		var action = age < 0.42
 		var frame = clampf(age * 9.5, 0.0, 3.99) if action else sim.time * 5.0 + phase
+		var rain:=plant.type=="shooter" and plant.skill_shots_left>0
+		if plant.type=="ember-cicada" and sim.time-plant.skill_cast_at<1.0:
+			action=true;frame=clampf((sim.time-plant.skill_cast_at)*3.99,0,3.99)
+		if rain:
+			action=true;frame=shooter_cast_frame(plant,sim.time)
+			var elapsed:float=sim.time-plant.skill_cast_at
+			foot+=Vector2(-4+sin(elapsed*42)*2.5,sin(elapsed*28)*1.8)
+			_draw_sign_rain_cast(foot,height,elapsed)
 		if not action and plant.type == "bomb" and plant.timer > 0.6:
 			action = true
 			frame = minf(1.99, (plant.timer - 0.6) * 3.3)
@@ -389,6 +417,68 @@ func _draw_plant(plant: Sim.Plant, cell_h: float) -> void:
 	if health_bars != "off":
 		_draw_plant_health_bar(plant, foot, height)
 
+
+static func shooter_cast_frame(plant: Sim.Plant, clock: float) -> float:
+	# The last projectile time resets every .02 seconds; the cast clock must keep running.
+	return fposmod(maxf(0,clock-plant.skill_cast_at)*7.5,4.0)
+
+
+func _draw_cloud_plant(plant: Sim.Plant, cell_h: float) -> void:
+	var elevation: float = sim.chapter.plant_elevation(plant)
+	var foot := _plant_foot(plant,cell_h)
+	var height: float = PlantRegions.height(plant,sim.rows)
+	var tint := Color(.75+.25*elevation,.83+.17*elevation,.95+.05*elevation,.70+.30*elevation)
+	var actor: String = plant.type
+	var capstone := Upgrades.capstone(plant.upgrades)
+	if capstone > 0 and _actor_frames.catalog.has("%s-e%d" % [actor,capstone]): actor = "%s-e%d" % [actor,capstone]
+	if not _actor_frames.draw_pose(self,actor,"idle",sim.time*3+plant.phase,foot,height,false,tint):
+		_sprite(plant_texture(plant),foot,height,false,tint)
+	_draw_shell(plant,foot,height)
+	_draw_upgrade_pips(plant,foot,height)
+	if health_bars!="off": _draw_plant_health_bar(plant,foot,height)
+
+
+func _draw_cloud_veils() -> void:
+	if sim.level.get("map","")!="sky" or _cloud_veil==null:return
+	var state: Dictionary = sim.chapter.lift_state(sim.time)
+	for group in 2:
+		var elevation: float = state.a if group==0 else state.b
+		var start: Vector2 = sim.chapter.platform_start(group,sim.time)
+		var strength: float = .12+(1.0-elevation)*.50
+		for local_row in 3:
+			var row: int = int(start.y)+local_row
+			var at := Geo.to_screen(Vector2(Geo.BOARD_X+(start.x+2.0)*Geo.CELL_W,sim.row_y(row)+Geo.cell_h(sim.rows)*.28),sim.rows)
+			at+=Vector2(sin(sim.time*.65+group+local_row)*9,plant_cloud_drop(elevation)+sin(sim.time*.9+local_row)*3)
+			var width: float = 4.25*Geo.CELL_W*Geo.half_width_at_depth((row+.8)/6.0)/(Geo.BOARD_W*.5)
+			var rect := Rect2(at-Vector2(width*.5,33),Vector2(width,78))
+			draw_texture_rect(_cloud_veil,rect,false,Color(.75,.88,1,strength*(.82+.12*sin(sim.time+local_row*2))))
+	# Individual footfall vapor makes cloud crossing read as contact and motion.
+	for z in sim.zombies:
+		if not z.alive() or z.boss_role!="" or z.pos.x>Geo.BOARD_X+6*Geo.CELL_W:continue
+		var frame: float = fposmod(z.scene_walk_distance/16.0,1.0)
+		var at := _zombie_foot(z,Geo.cell_h(sim.rows))
+		draw_texture_rect(_cloud_veil,Rect2(at-Vector2(24+frame*12,14),Vector2(48+frame*24,27)),false,Color(.85,.94,1,.16*(1-frame)))
+
+
+func plant_cloud_drop(elevation: float) -> float:
+	return (1.0-elevation)*38.0
+
+func _draw_sign_rain_cast(foot: Vector2,height: float,elapsed: float) -> void:
+	var center:=foot-Vector2(0,height*.48)
+	var strength:=minf(1,elapsed/.12)
+	_draw_glow(center,height*.65,Color(1,.65,.25,.28*strength))
+	for i in 9:
+		var angle:float=-PI*.82+i*PI*.08+sin(elapsed*11)*.025
+		var length:float=height*(.37+sin(elapsed*19+i)*.035)
+		var start:=center+Vector2.from_angle(angle)*height*.16
+		var end:=center+Vector2.from_angle(angle)*length
+		draw_line(start,end,Color(.97,.74,.37,.8*strength),3,true)
+		draw_circle(end,2,Color(1,.93,.65,strength))
+	for i in 4:
+		var x:float=fposmod(elapsed*3.5+i*.25,1)
+		var at:=center+Vector2(height*(.1+x*.9),(i-1.5)*9)
+		draw_line(at-Vector2(24,0),at,Color(1,.87,.49,(1-x)*.7),2.5,true)
+	draw_arc(center,height*.45,-PI*.85,PI*.85,40,Color(1,.78,.38,.45*strength),1.5,true)
 
 func ember_pose(plant: Sim.Plant) -> Dictionary:
 	var action_age := float(sim.time - plant.action_at)
@@ -697,6 +787,10 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	if not swimming:
 		clip = "attack" if z.eating else "walk"
 	var frame = z.chomp * 10.0 if z.eating else z.anim * (7.0 if swimming else 6.5)
+	if sim.level.get("map", "") == "sky" and not z.eating and not swimming and not z.dying:
+		# Drive actual 32-frame gait by distance travelled on the narrow beam.
+		frame = z.scene_walk_distance / 8.0
+		lift -= sin(fposmod(z.scene_walk_distance/16.0,1.0)*PI)*2.0
 	if (z.def.has("special_period") or z.def.has("reed_shot")) and sim.time - z.guest_action_at < 0.42:
 		clip = "swim_bite" if swimming else "attack"
 		frame = clampf((sim.time - z.guest_action_at) * 9.0, 0.0, 3.99)
@@ -1245,6 +1339,9 @@ func _draw_shots() -> void:
 				var d:=Vector2.from_angle(i*PI/2)
 				draw_line(mark+d*24,mark+d*39,Color(1,.84,.54,.9),2,true)
 		var look = String(shot.look)
+		if look=="vow-coin":
+			_chapter_frames.draw_pose(self,"v070-fx-toad","coin",sim.time*5,at+Vector2(0,13),30,false,Color.WHITE)
+			continue
 		if look in ["kite", "firework"] or (shot.kind == "lob" and shot.src == "lobber"):
 			var clip: String = "dumpling" if shot.src == "lobber" else look
 			var sprite_height := 26.0 if clip != "firework" else 23.0
@@ -1452,7 +1549,16 @@ func _draw_particles() -> void:
 				_actor_frames.draw_pose(self,"oar-barge","sink",(1.0-k)*3.99,pos+Vector2(0,15),110*Geo.unit_scale(sim.rows),true,Color(1,1,1,minf(1,k*4)))
 			"magic":
 				var effect := String(p.effect)
-				if effect in ["judge-sanctuary","judge-cleanse"]:
+				if effect.begins_with("v070-"):
+					var parts: PackedStringArray=effect.trim_prefix("v070-").split("-")
+					var family: String=parts[0]
+					var clip: String={"bloom-tally":"tally","bloom-cast":"cast","flare-rise":"rise","flare-burst":"burst","flare-stun":"stun","coin-burst":"burst","toad-pact":"pact"}.get(effect.trim_prefix("v070-"),"burst")
+					if family=="coin":family="toad"
+					var foot: Vector2=pos
+					if effect=="v070-flare-rise":foot=pos.lerp(Vector2(pos.x,145),1-k)
+					if effect=="v070-flare-burst":foot=Vector2(pos.x,145+float(p.size)*.5)
+					_chapter_frames.draw_pose(self,"v070-fx-"+family,clip,(1-k)*3.99,foot,float(p.size),false,Color(1,1,1,minf(1,k*4)))
+				elif effect in ["judge-sanctuary","judge-cleanse"]:
 					var radius:float=float(p.size)*(.25+(1-k)*.6)
 					draw_arc(pos,radius,0,TAU,64,Color(.55,1,.8,k*.8),3,true)
 					for i in 8:
@@ -1574,3 +1680,26 @@ func _draw_ember_round(at: Vector2) -> void:
 		var t := fposmod(sim.time * 4.5 + index / 3.0, 1.0)
 		draw_circle(at + Vector2(-8.0 - 21.0 * t, sin(t * TAU + index) * 4.0),
 			2.0 - t, Color(1.0, 0.55, 0.23, 1.0 - t))
+
+func _draw_vital_numbers(canvas: CanvasItem) -> void:
+	if sim==null or sim.vital_numbers.mode=="off":return
+	var font:=Ui.medium_font()
+	var point_size:int={"small":17,"medium":23,"large":30}.get(sim.vital_numbers.mode,23)
+	var used:Array[Rect2]=[]
+	for entry in sim.vital_numbers.entries:
+		var progress:float=clampf(float(entry.age)/float(entry.life),0,1)
+		var anchor:Vector2=Geo.to_screen(entry.at,sim.rows)
+		anchor.y-=float(entry.height)*Geo.unit_scale(sim.rows)*Geo.scale_at_flat(entry.at,sim.rows)*.92
+		anchor+=Vector2(36 if entry.healing else -24,-progress*34-sin(minf(progress*3,1)*PI)*6)
+		var text:String=preload("res://scripts/combat_numbers.gd").text(entry.amount,entry.healing)
+		var color:=Color("#b8f5bf") if entry.healing else Color("#ffe0a0") if String(entry.uid).begins_with("z") else Color("#ff9c91")
+		color.a=minf(1,(1-progress)*3)
+		var width:float=font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,point_size).x
+		var pos:Vector2=anchor-Vector2(width*.5,0)
+		var bounds:=Rect2(pos-Vector2(2,point_size),Vector2(width+4,point_size+5))
+		for attempt in 5:
+			if not used.any(func(rect):return rect.intersects(bounds)):break
+			pos.y-=point_size+5;bounds.position.y-=point_size+5
+		used.append(bounds)
+		canvas.draw_string_outline(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,point_size,4,Color(0.025,.025,.02,color.a*.95))
+		canvas.draw_string(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,point_size,color)

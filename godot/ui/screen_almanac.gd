@@ -12,6 +12,7 @@ var game = null
 var tab = "plant"
 var index = 0
 var _expanded = false           # 进化全表是否展开：默认只给「白板 → 下一级」
+var _tier_selection: Dictionary = {}
 
 var _page: VBoxContainer = null
 var _scroll: ScrollContainer = null
@@ -450,21 +451,21 @@ func _path_block(type: String, path: Dictionary) -> Control:
 	route.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(route)
 	route.add_child(Ui.strong(String(path.name), 22, Ui.GOLD_BRIGHT))
-	var progress = Control.new()
-	progress.custom_minimum_size = Vector2(200, 22)
-	progress.draw.connect(func():
-		progress.draw_line(Vector2(12, 11), Vector2(156, 11), Color(Ui.GOLD_DIM, 0.6), 1, true)
-		for i in 3:
-			Art.diamond(progress, Vector2(12 + i * 72, 11), 5, Ui.GOLD, i == 0)
-			progress.draw_string(Ui.body_font(), Vector2(24 + i * 72, 16), str(i + 1), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Ui.TEXT_DIM))
+	var selected:=int(_tier_selection.get(type+":"+str(path.id),1))
+	var progress:=Ui.hbox(7)
+	for i in 3:
+		var node=preload("res://ui/evolution_card.gd").node(i+1,selected==i+1)
+		node.name="EvolutionNode_%s_%d" % [path.id,i+1]
+		node.tooltip_text="查看%s：%s" % [TIER_WORDS[i],path.tiers[i].name]
+		node.pressed.connect(_select_evolution.bind(type,int(path.id),i+1));progress.add_child(node)
 	route.add_child(progress)
 	var portrait = TextureRect.new()
-	portrait.texture = Ui.capstone_sprite(type, int(path.id))
-	portrait.set_meta("capstone_actor", "%s-e%d" % [type, int(path.id)])
+	portrait.texture = Ui.capstone_sprite(type, int(path.id)) if selected==3 else Ui.sprite(type)
+	portrait.set_meta("capstone_actor", "%s-e%d" % [type, int(path.id)] if selected==3 else type)
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	portrait.custom_minimum_size = Vector2(110, 100)
-	portrait.tooltip_text = "三阶形态"
+	portrait.tooltip_text = TIER_WORDS[selected-1]+"展示"
 	header.add_child(portrait)
 	var skill:Dictionary=preload("res://data/active_skills.gd").definition(type)
 	if not skill.is_empty() and int(skill.path)==int(path.id):
@@ -472,22 +473,29 @@ func _path_block(type: String, path: Dictionary) -> Control:
 		icon.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;icon.custom_minimum_size=Vector2(60,60)
 		icon.tooltip_text=("唯一 · " if skill.unique else "主动 · ")+String(skill.name);header.add_child(icon)
 	var tiers: Array = path.tiers
-	var shown = tiers.size() if _expanded else mini(1, tiers.size())
+	var shown:Array=range(tiers.size()) if _expanded else [selected-1]
 	for i in shown:
+		var stage=preload("res://ui/evolution_card.gd").new();stage.name="EvolutionCard_%s_%d" % [path.id,i+1]
+		stage.set_tier(i+1);box.add_child(stage)
+		var details:=Ui.vbox(8);stage.add_child(details)
 		var row = Ui.hbox(12)
-		box.add_child(row)
+		details.add_child(row)
 		var step = Ui.strong("%s · %s" % [TIER_WORDS[i], String(tiers[i].name)], 17, Ui.TEXT)
 		step.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(step)
 		row.add_child(Ui.label("%d 香火" % Upgrades.tier_cost(type, int(path.id), i + 1), 17, Ui.GOLD_BRIGHT))
 		var desc = Ui.label(String(tiers[i].desc), 16, Ui.TEXT_DIM)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		box.add_child(desc)
-	if not _expanded and tiers.size() > 1:
-		var names = PackedStringArray()
-		for i in range(1, tiers.size()): names.append(String(tiers[i].name))
-		box.add_child(Ui.label("后续：" + " → ".join(names), 14, Ui.TEXT_FAINT))
+		details.add_child(desc)
+	if not _expanded:box.add_child(Ui.label("点击 1—2—3 节点，查看对应等级的完整能力与费用。",14,Ui.TEXT_FAINT))
 	return panel
+
+func _select_evolution(type: String,path_id: int,tier: int) -> void:
+	_tier_selection[type+":"+str(path_id)]=clampi(tier,1,3)
+	var previous:=_scroll.scroll_vertical
+	_render_page()
+	_scroll.set_deferred("scroll_vertical",previous)
+	game.play_sfx("click")
 
 func _section(caption: String, key: String) -> Label:
 	var label = Ui.strong(caption, 21, Ui.GOLD)
@@ -533,7 +541,7 @@ func _sorted_indices() -> Array:
 	var result: Array = range(entries.size())
 	if tab == "boss" or String(game.settings.get(_sort_key(), "release")) == "release":
 		return result
-	var roles := ["产能","射弹","群攻","近战","防御","辅助","灰烬"]
+	var roles := ["产能","射弹","抛弹","追魂","群攻","近战","防御","辅助","灰烬"]
 	result.sort_custom(func(a, b):
 		var left := 0
 		var right := 0

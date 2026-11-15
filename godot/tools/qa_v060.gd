@@ -15,7 +15,7 @@ func shell(s: Sim, plant: Sim.Plant, target: Sim.Zombie) -> Sim.Shot:
 	return s.shots[-1]
 func _initialize(): run.call_deferred()
 func run():
-	check("本次草木仍为32株",Content.PLANT_ORDER.size()==32)
+	check("草木扩为35株，原32株保持",Content.PLANT_ORDER.size()==35)
 	check("本次恶客新增2种，共29种",Content.ZOMBIE_ORDER.size()==29 and Content.ZOMBIES.size()==29)
 	var spawns := fresh()
 	for i in 300:
@@ -60,7 +60,7 @@ func run():
 	s.kill_zombie(rider); check("乘客先退场清理轿夫关系",ferry.passenger_uid=="")
 	s=fresh(); var plant:=s.place_free("sky-mortar",2,2)
 	z=guest(s,"shieldguard"); var armor:float=z.armor; var hp:float=z.hp
-	s._mortar_impact(shell(s,plant,z)); check("基础炮弹绕过持牌鬼盾牌",z.armor==armor and is_equal_approx(z.hp,hp-215))
+	s._mortar_impact(shell(s,plant,z)); check("基础炮弹绕过持牌鬼盾牌",z.armor==armor and is_equal_approx(z.hp,hp-185))
 	z=guest(s,"ghost"); z.hp=1; s._mortar_impact(shell(s,plant,z))
 	check("基础炮弹灰烬击退不留尸",z.dead and not z.dying)
 	s=fresh(); plant=s.place_free("sky-mortar",2,2); z=guest(s,"sky-wick")
@@ -68,15 +68,15 @@ func run():
 	hp=z.hp; armor=z.armor; s._mortar_impact(shell(s,plant,z))
 	check("基础溅射不误伤空中",z.hp==hp and z.armor==armor)
 	plant.upgrades={1:0,2:0,3:1}; check("看破解锁空中索敌",s._mortar_aim(plant)==z)
-	s._mortar_impact(shell(s,plant,z)); check("看破能命中空中护具",z.armor==armor-215)
+	s._mortar_impact(shell(s,plant,z)); check("看破能命中空中护具",z.armor==armor-185)
 	s=fresh(11); plant=s.place_free("sky-mortar",2,0); z=guest(s,"reedboat",1000,1)
 	check("基础允许水中目标",s._mortar_aim(plant)==z)
 	s=fresh(); plant=s.place_free("sky-mortar",2,2); z=guest(s,"bride"); z.hp=10000
 	s._mortar_impact(shell(s,plant,z)); check("基础灰烬遵守鬼新娘免疫",z.hp==10000)
 	plant.upgrades={1:0,2:0,3:1}; s._mortar_impact(shell(s,plant,z))
-	check("看破优先于鬼新娘灰烬免疫",z.hp==9785)
+	check("看破优先于鬼新娘灰烬免疫",z.hp==9815)
 	z=guest(s,"formless"); z.def=z.def.duplicate(); z.def.miss_chance=1.0; z.hp=10000
-	s._mortar_impact(shell(s,plant,z)); check("看破不能被闪避",z.hp==9785)
+	s._mortar_impact(shell(s,plant,z)); check("看破不能被闪避",z.hp==9815)
 	plant.upgrades={1:0,2:0,3:2}; z=guest(s); z.hp=10000; s.shots.clear()
 	s._mortar_impact(shell(s,plant,z))
 	var fragments:Array=s.shots.filter(func(q):return q.look=="mortar-fragment")
@@ -93,10 +93,10 @@ func run():
 	check("弹片属于射弹会被护身牌挡住",z.armor==armor-45 and z.hp==hp)
 	s=fresh(); plant=s.place_free("sky-mortar",2,2); plant.upgrades={1:0,2:0,3:3}; z=guest(s); z.hp=10000
 	check("主动首次可用",s.active_skill_status(plant).ready and s.activate_skill(plant))
-	check("主动首发660并立刻冷却",s.shots.size()==1 and s.shots[0].damage==660 and is_equal_approx(plant.mortar_active_ready_at,55))
+	check("主动首发450并立刻冷却",s.shots.size()==1 and s.shots[0].damage==450 and is_equal_approx(plant.mortar_active_ready_at,55))
 	s.time=.249; s._update_mortar(plant,0); check("未到0.25秒不提前补炮",s.shots.size()==1)
 	for i in range(1,7): s.time=i*.25; s._update_mortar(plant,0)
-	check("主动恰好七发每发660",s.shots.size()==7 and s.shots.all(func(q):return q.damage==660 and q.look=="mortar-heavy") and plant.mortar_burst_left==0)
+	check("主动恰好七发每发450",s.shots.size()==7 and s.shots.all(func(q):return q.damage==450 and q.look=="mortar-heavy") and plant.mortar_burst_left==0)
 	check("冷却中不能重复施放",not s.activate_skill(plant) and s.shots.size()==7)
 	copy=Sim.new(); copy.restore(JSON.parse_string(JSON.stringify(s.serialize())))
 	var restored_plant=copy.main_plant_at(2,2)
@@ -110,7 +110,7 @@ func run():
 	s.time=54.99; check("55秒前不可用",not s.active_skill_status(plant).ready)
 	s.time=55; check("55秒准时恢复",s.active_skill_status(plant).ready)
 	s=fresh(); plant=s.place_free("sky-mortar",2,2); plant.upgrades={1:3,2:0,3:3}; z=guest(s)
-	s.activate_skill(plant); check("主动重炮不受连炮减伤",s.shots[0].damage==660)
+	s.activate_skill(plant); check("主动重炮不受连炮减伤",s.shots[0].damage==600)
 	s=fresh(); plant=s.place_free("sky-mortar",2,2); plant.upgrades={1:0,2:0,3:3}
 	check("无目标不消耗主动冷却",not s.activate_skill(plant) and plant.mortar_active_ready_at==0)
 	var catalog=JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json"))

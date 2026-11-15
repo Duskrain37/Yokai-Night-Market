@@ -34,11 +34,11 @@ static func run_all(harness) -> void:
 
 
 static func _check_content(h) -> void:
-	h.check("内容", "32 种草木齐备", Content.PLANTS.size() == 32,
+	h.check("内容", "35 种草木齐备", Content.PLANTS.size() == 35,
 		"实际 %d" % Content.PLANTS.size())
 	h.check("内容", "29 种恶客齐备", Content.ZOMBIES.size() == 29,
 		"实际 %d" % Content.ZOMBIES.size())
-	h.check("内容", "二十五夜与特殊关齐备", Content.LEVELS.size() == 26 and Content.get_level(16).get("special",false),
+	h.check("内容", "四十夜与特殊关齐备", Content.LEVELS.size() == 41 and Content.get_level(16).get("special",false),
 		"实际 %d" % Content.LEVELS.size())
 	var missing = []
 	for id in Content.PLANT_ORDER:
@@ -168,7 +168,7 @@ static func _check_upgrade_rules(h) -> void:
 					detail += "%s-%d-%d=%d " % [type, path["id"], tier + 1, cost]
 				last = cost
 	h.check("升阶", "所有升阶费用都是 25 的倍数且逐阶递增", cost_ok, detail)
-	h.check("升阶", "23 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 23, detail)
+	h.check("升阶", "25 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 25, detail)
 	h.check("升阶", "签筒连发一级 100 香火",
 		Upgrades.tier_cost("shooter", 1, 1) == 100,
 		str(Upgrades.tier_cost("shooter", 1, 1)))
@@ -381,8 +381,8 @@ static func _check_music(h) -> void:
 		h.resolve_track("complete", 1, "battle", false) == "day1-battle")
 	h.check("音乐", "菜单曲两种风格共用",
 		h.music_menu_track() == "menu")
-	h.check("音乐", "十六首配乐都在资源里",
-		h.music_assets_present() == 16, str(h.music_assets_present()))
+	h.check("音乐", "二十五首配乐都在资源里",
+		h.music_assets_present() == 25, str(h.music_assets_present()))
 	for day in range(1, Content.DAYS.size() + 1):
 		h.check("音乐", "第 %d 周只保留新篇" % day,
 			not ResourceLoader.exists("res://assets/music/complete/day%d-hot-alt.ogg" % day))

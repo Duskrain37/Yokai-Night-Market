@@ -18,7 +18,7 @@ var _loading_hold: Dictionary = {}
 var load_timings: Array=[]
 var _loading_busy := false
 
-const VERSION = "0.6.1"
+const VERSION = "0.7.0"
 const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
 var touch_router: Node
 const SAVE_PATH = "user://run.json"
@@ -38,6 +38,7 @@ const RECORDS_PATH = "user://records.json"
 const DEFAULT_SETTINGS = {
 	"mobile_target_fps": 60,
 	"active_skill_mode": "both",
+	"combat_numbers":"medium",
 	"news_seen_version": "",
 	"speed": 1.0,
 	"auto_collect": true,
@@ -391,6 +392,24 @@ func start_battle(level_id: int, cards: Array, mode = "normal", restore_data: Di
 		paused = true
 		await _reveal_loaded()
 		paused = false
+	if mode == "normal" and restore_data.is_empty() and (not _qa or "--qa-week-guide" in OS.get_cmdline_user_args()):
+		_show_chapter_guide()
+
+
+func _show_chapter_guide() -> void:
+	if sim == null or bool(sim.level.get("special",false)): return
+	var week: int = int(sim.level.get("day",1))
+	var seen: Array = progress.get("chapter_guides",[])
+	if week in seen: return
+	var guide = preload("res://ui/chapter_guide.gd").new()
+	guide.week = week
+	paused = true
+	guide.acknowledged.connect(func():
+		if not seen.has(week): seen.append(week)
+		progress["chapter_guides"] = seen
+		save_progress()
+		paused = false)
+	hud.add_child(guide)
 
 
 func _start_battle_now(level_id: int, cards: Array, mode: String, save_initial := true) -> void:
@@ -418,6 +437,7 @@ func _start_battle_now(level_id: int, cards: Array, mode: String, save_initial :
 		sim.setup(level, cards, String(settings["difficulty"]))
 		if mode == "training":
 			sim.training = true
+			sim.no_skill_cooldown=bool(training.get("skill_cooldown_unlocked",false))
 			sim.no_cooldown = not bool(training.get("cooldown_locked", true))
 			sim.sun = 1000
 			sim.count_mul = 1.0
@@ -432,6 +452,7 @@ func _start_battle_now(level_id: int, cards: Array, mode: String, save_initial :
 	board.set_map(_battle_map(level_id, mode))
 	_battle_parent().add_child(board)
 	units = UnitView.new()
+	sim.vital_numbers.mode=String(settings.get("combat_numbers","medium"))
 	units.sim = sim
 	units.health_bars = String(settings["health_bars"])
 	units.tier_shapes = bool(settings["tier_shapes"])
@@ -466,6 +487,8 @@ func _battle_map(level_id: int, mode: String) -> String:
 
 func _battle_resources(level_id: int, cards: Array, background: String, map: String) -> Array[String]:
 	var paths: Array[String] = [background]
+	if map=="day6":
+		paths.append_array(["res://assets/scenery/cloud-platform.png","res://assets/scenery/cloud-veil.png"])
 	if mobile:
 		var day: int=int(Content.get_level(level_id).get("day",1))
 		for phase in ["battle","hot","final"]:paths.append(_music_path("day%d-%s" % [day,phase]))
@@ -482,6 +505,8 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 		paths.append("res://assets/sprites/%s.png" % role)
 	var allies = cards.duplicate()
 	allies.append("lantern")
+	for type in cards:
+		for path in range(1,4):allies.append("%s-e%d" % [type,path])
 	var foes = Content.plants_in_level(Content.get_level(level_id)) if level_id > 0 else ["ghost"]
 	if "sedan" in foes or "matchmaker" in foes:
 		foes.append_array(["sedan", "sedan-empty", "sedan-loaded", "bride", "ghost"])
@@ -489,7 +514,7 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 		foes.append_array(["phase-veil", "phase-kite"])
 	var motion = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion_mobile.json" if mobile and FileAccess.file_exists("res://data/actor_motion_mobile.json") else "res://data/actor_motion.json"))
 	if motion is Dictionary:
-		for actor in allies + foes + ["v052-boss-fx", "v052-plant-fx", "v052-projectiles", "v052-craters", "v053-buff-fx"]:
+		for actor in allies + foes + ["v052-boss-fx", "v052-plant-fx", "v052-projectiles", "v052-craters", "v053-buff-fx","v070-fx-flare","v070-fx-bloom","v070-fx-toad","v070-fx-wind-warden","v070-fx-mask-master","v070-fx-market-lamplord"]:
 			if motion.has(actor):
 				for file in motion[actor].get("clip_files",{"default":motion[actor].file}).values():paths.append("res://"+String(file))
 		var level := Content.get_level(level_id)
@@ -746,7 +771,7 @@ func _update_hover() -> void:
 		return
 	var pos = _mouse_world()
 	# 舞台是透视的：屏幕点要先换算回平面格
-	var cell = Geo.screen_cell_at(pos, sim.rows)
+	var cell = sim.cell_at_screen(pos)
 	board.hover_cell = cell if screen == "battle" and not paused else Vector2i(-1, -1)
 	units.hover_target = null
 
@@ -787,6 +812,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if screen == "battle" and hud != null:
+				if hud.transplant_source!=null or (hud.card_selected>=0 and String(sim.cards[hud.card_selected].id)=="root-palanquin"):
+					hud.cancel_selection();get_viewport().set_input_as_handled();return
 				if not paused and sim!=null and not hud.blocks_simulation() and active_skill_right_enabled():
 					var at:Vector2=_mobile_world_transform().affine_inverse()*event.position if mobile else event.position
 					var target:Dictionary=preload("res://scripts/plant_regions.gd").pick(sim,at)
@@ -813,6 +840,8 @@ func _on_escape() -> void:
 		"prep":
 			show_levels() if not bool(prep.get("training", false)) else show_training_menu()
 		"battle":
+			if hud!=null and (hud.transplant_source!=null or hud.card_selected>=0):
+				hud.transplant_source=null;hud.card_selected=-1;hud.refresh();return
 			if not paused:
 				toggle_pause()
 		"result":
@@ -834,7 +863,7 @@ func _handle_battle_click(pos: Vector2) -> void:
 		return
 	if hud.has_method("blocks_simulation") and hud.blocks_simulation():
 		return
-	var cell = Geo.screen_cell_at(pos, sim.rows)
+	var cell = sim.cell_at_screen(pos)
 	if hud.shovel_mode:
 		if cell.x >= 0:
 			var outcome = sim.shovel_at(cell.x, cell.y)
@@ -848,6 +877,17 @@ func _handle_battle_click(pos: Vector2) -> void:
 		sim.collect_orb(orb)
 		return
 	if hud.card_selected >= 0:
+		if String(sim.cards[hud.card_selected].id)=="root-palanquin":
+			if hud.transplant_source==null or hud.transplant_source.dead:
+				var found: Dictionary=preload("res://scripts/plant_regions.gd").pick(sim,pos)
+				var plant=found.get("plant",null)
+				var reason: String=sim.additions.transplant_reason(plant)
+				if not reason.is_empty():sim.deny(reason,pos);return
+				hud.transplant_source=plant;units.focus_plant=plant
+				sim.banner={"text":"根须已托稳 · 点一个空位，右键可收轿","t":4.0,"max":4.0}
+			elif cell.x>=0 and sim.additions.transplant(hud.card_selected,hud.transplant_source,cell.x,cell.y,pos):
+				hud.transplant_source=null;hud.card_selected=-1;units.focus_plant=null;hud.refresh()
+			return
 		if cell.x >= 0:
 			var ok = sim.try_place_card(hud.card_selected, cell.x, cell.y, pos)
 			if ok:
@@ -893,6 +933,9 @@ func set_setting(key: String, value) -> void:
 		_apply_volume()
 	elif key == "show_grid" and board != null:
 		board.show_grid = bool(value)
+	elif key == "combat_numbers" and sim!=null:
+		sim.vital_numbers.mode=String(value)
+		if String(value)=="off":sim.vital_numbers.clear()
 	elif key == "health_bars" and units != null:
 		units.health_bars = String(value)
 	elif key == "auto_collect" and sim != null:
@@ -1264,6 +1307,9 @@ const MUSIC_DAY_TRACKS = [
 	"day3-battle", "day3-hot", "day3-final",
 	"day4-battle", "day4-hot", "day4-final",
 	"day5-battle", "day5-hot", "day5-final",
+	"day6-battle", "day6-hot", "day6-final",
+	"day7-battle", "day7-hot", "day7-final",
+	"day8-battle", "day8-hot", "day8-final",
 ]
 
 

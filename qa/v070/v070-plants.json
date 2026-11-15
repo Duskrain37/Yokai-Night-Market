@@ -1,0 +1,206 @@
+{
+  "checks": [
+    {
+      "name": "root-palanquin图鉴完整",
+      "ok": true
+    },
+    {
+      "name": "root-palanquin肖像存在",
+      "ok": true
+    },
+    {
+      "name": "watch-bloom图鉴完整",
+      "ok": true
+    },
+    {
+      "name": "watch-bloom肖像存在",
+      "ok": true
+    },
+    {
+      "name": "vow-toad图鉴完整",
+      "ok": true
+    },
+    {
+      "name": "vow-toad肖像存在",
+      "ok": true
+    },
+    {
+      "name": "wind-warden恶首录完整",
+      "ok": true
+    },
+    {
+      "name": "mask-master恶首录完整",
+      "ok": true
+    },
+    {
+      "name": "market-lamplord恶首录完整",
+      "ok": true
+    },
+    {
+      "name": "更筹未满15秒不触发",
+      "ok": true
+    },
+    {
+      "name": "基础只照料普通卡且排除自己灰烬",
+      "ok": true
+    },
+    {
+      "name": "同名不叠周期",
+      "ok": true
+    },
+    {
+      "name": "1-3加2-2两卡各减3秒并折价25",
+      "ok": true
+    },
+    {
+      "name": "2-2折价最多50",
+      "ok": true
+    },
+    {
+      "name": "指定优先灰烬也能减秒",
+      "ok": true
+    },
+    {
+      "name": "3-2同时减主动冷却",
+      "ok": true
+    },
+    {
+      "name": "2-3照料三卡",
+      "ok": true
+    },
+    {
+      "name": "2-3折价最多100且费用最低0",
+      "ok": true
+    },
+    {
+      "name": "折价只在种下时消费",
+      "ok": true
+    },
+    {
+      "name": "唯一主动只有一个持有",
+      "ok": true
+    },
+    {
+      "name": "全场回筹可用",
+      "ok": true
+    },
+    {
+      "name": "回筹动画完成前不提前归零",
+      "ok": true
+    },
+    {
+      "name": "回筹全卡归零且主动减十秒自身90秒",
+      "ok": true
+    },
+    {
+      "name": "回筹全局冷却存档保留",
+      "ok": true
+    },
+    {
+      "name": "默认蓄香不攻击",
+      "ok": true
+    },
+    {
+      "name": "基础可切换开火",
+      "ok": true
+    },
+    {
+      "name": "留150不足不扣费不射击",
+      "ok": true
+    },
+    {
+      "name": "基础25付费175直射",
+      "ok": true
+    },
+    {
+      "name": "2-3三发只付一次25",
+      "ok": true
+    },
+    {
+      "name": "抛币与大型翻倍标签",
+      "ok": true
+    },
+    {
+      "name": "3-2每次50且增伤70",
+      "ok": true
+    },
+    {
+      "name": "蓄香生产接受生产加成",
+      "ok": true
+    },
+    {
+      "name": "3-3无切换冷却进入超频12秒60秒周期",
+      "ok": true
+    },
+    {
+      "name": "超频间隔1.9增伤120溅射全额",
+      "ok": true
+    },
+    {
+      "name": "超频到时回蓄香",
+      "ok": true
+    },
+    {
+      "name": "超频冷却只能切换原两态",
+      "ok": true
+    },
+    {
+      "name": "照明弹可施放",
+      "ok": true
+    },
+    {
+      "name": "照明弹未到1秒不提前结算",
+      "ok": true
+    },
+    {
+      "name": "照明弹1秒结算全场及大型减半",
+      "ok": true
+    },
+    {
+      "name": "照明看破准时结束",
+      "ok": true
+    },
+    {
+      "name": "迁根不能重复同格",
+      "ok": true
+    },
+    {
+      "name": "迁根成功只扣75",
+      "ok": true
+    },
+    {
+      "name": "迁根保留同一对象全部状态",
+      "ok": true
+    },
+    {
+      "name": "迁根有连续搬运轨迹",
+      "ok": true
+    },
+    {
+      "name": "迁根轨迹中点",
+      "ok": true
+    },
+    {
+      "name": "迁根中读档保留轨迹",
+      "ok": true
+    },
+    {
+      "name": "收妖第二槽不能搬",
+      "ok": true
+    },
+    {
+      "name": "无承载水面不能搬",
+      "ok": true
+    },
+    {
+      "name": "已有夜莲水格可搬",
+      "ok": true
+    },
+    {
+      "name": "搬离水面夜莲留下",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 50
+}

@@ -32,6 +32,7 @@ const ROWS := {
 			"options": [[true, "开"], [false, "关"]]},
 	],
 	1: [
+		{"key":"combat_numbers","label":"伤害和治疗数字显示","note":"显示实际伤害与治疗；连续效果汇总跳动，香火提示照常显示","options":[["off","关闭"],["small","小"],["medium","中"],["large","大"]]},
 		{"key": "reduced_motion", "label": "界面动态", "note": "减少环境飘动和界面过渡，战斗动作照常呈现", "options": [[false, "完整"], [true, "减少"]]},
 		{"key": "resolution", "label": "窗口分辨率",
 			"note": "F11 切换全屏；窗口尺寸自动保存。",

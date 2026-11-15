@@ -2,10 +2,14 @@
 extends RefCounted
 
 static func foot(plant, rows: int) -> Vector2:
-	return Geo.to_screen(plant.pos + Vector2(0, Geo.cell_h(rows) * 0.3), rows)
+	var result := Geo.to_screen(plant.pos + Vector2(0, Geo.cell_h(rows) * 0.3), rows) + Vector2(0,plant.cloud_drop)
+	if plant.transplant_progress<1:
+		var start := Geo.to_screen(plant.transplant_from+Vector2(0,Geo.cell_h(rows)*.3),rows)+Vector2(0,plant.transplant_from_drop)
+		return start.lerp(result,plant.transplant_progress)-Vector2(0,sin(plant.transplant_progress*PI)*60)
+	return result
 
 static func height(plant, rows: int) -> float:
-	return float(plant.def.get("sprite_h", 92)) * Geo.unit_scale(rows) * Geo.scale_at_flat(plant.pos, rows)
+	return float(plant.def.get("sprite_h", 92)) * Geo.unit_scale(rows) * Geo.scale_at_flat(plant.pos, rows) * plant.cloud_scale
 
 static func skill_rect(plant, rows: int) -> Rect2:
 	var h := height(plant, rows)

@@ -260,6 +260,16 @@ static func make_theme() -> Theme:
 	theme.set_stylebox("panel", "PopupMenu", paper_style(0.98))
 	theme.set_stylebox("panel", "AcceptDialog", panel_style(0.97, GOLD_DIM, 18))
 	theme.set_stylebox("embedded_border", "Window", panel_style(0.97, GOLD_DIM, 18))
+	if not OS.has_feature("mobile"):
+		# Embedded titles sit above the content rectangle; give them an opaque backing.
+		var window_border:StyleBox=panel_style().duplicate()
+		window_border.set("expand_margin_top",40.0)
+		theme.set_stylebox("embedded_border","Window",window_border)
+		theme.set_stylebox("embedded_unfocused_border","Window",window_border)
+		theme.set_constant("title_height","Window",40)
+		theme.set_font("title_font","Window",medium_font())
+		theme.set_font_size("title_font_size","Window",20)
+		theme.set_color("title_color","Window",GOLD_BRIGHT)
 	for input_type in ["LineEdit", "TextEdit"]:
 		theme.set_stylebox("normal", input_type, panel_style(0.94, GOLD_DIM, 12, 1))
 		theme.set_stylebox("focus", input_type, flat(Color.TRANSPARENT, GOLD_BRIGHT, 12, 2))
@@ -643,3 +653,24 @@ static func style_dialog(dialog: AcceptDialog) -> void:
 		style.content_margin_left=28;style.content_margin_right=28
 		style.content_margin_top=10;style.content_margin_bottom=10
 		button.add_theme_stylebox_override(state,style)
+	if not OS.has_feature("mobile"):
+		var reference:WeakRef=weakref(dialog)
+		dialog.visibility_changed.connect(_balance_dialog.bind(reference),CONNECT_DEFERRED)
+		dialog.size_changed.connect(_balance_dialog.bind(reference),CONNECT_DEFERRED)
+
+static func _balance_dialog(reference: WeakRef) -> void:
+	var dialog=reference.get_ref()
+	if dialog==null or not dialog.visible:return
+	var row=dialog.get_ok_button().get_parent()
+	if not row is HBoxContainer:return
+	var actions:Array=[]
+	for item in row.get_children():
+		if item is Button and item.visible:actions.append(item)
+	if actions.size()<2:return
+	row.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+	for item in row.get_children():
+		if item is Control and not item is Button:item.hide()
+	for action in actions:
+		action.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		action.custom_minimum_size.x=0
+		apply_button_style(action,18)

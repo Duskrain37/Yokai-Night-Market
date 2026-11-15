@@ -31,7 +31,7 @@ try {
   Move-Item -LiteralPath $exe -Destination $backup
   $moved=$true
   Move-Item -LiteralPath $candidate -Destination $exe
-  $arg='-- "--update-ack='+$ack+'"'
+  $arg='-- "--update-ack='+$ack.Replace([char]92,[char]47)+'"'
   # The restarted game is interactive; only this helper is hidden.
   $started=Start-Process -FilePath $exe -ArgumentList $arg -WorkingDirectory ([IO.Path]::GetDirectoryName($exe)) -WindowStyle Normal -PassThru
   $until=[DateTime]::UtcNow.AddSeconds(90);$ready=$false
@@ -72,12 +72,24 @@ static func launch(exe: String,candidate: String,target: Dictionary) -> int:
 	var powershell=OS.get_environment("SystemRoot").path_join("System32/WindowsPowerShell/v1.0/powershell.exe")
 	if not FileAccess.file_exists(powershell):return -1
 	return OS.create_process(powershell,["-NoProfile","-NonInteractive","-WindowStyle","Hidden","-ExecutionPolicy","Bypass","-EncodedCommand",Marshalls.raw_to_base64(code.to_utf16_buffer())],false)
-static func acknowledge(build: String):
-	var expected=OS.get_executable_path()+".update-ack"
+static func acknowledgement_path(executable: String, argument: String) -> String:
+	if not argument.begins_with("--update-ack="):return ""
+	var expected=executable+".update-ack"
+	var requested=argument.trim_prefix("--update-ack=").trim_prefix('"').trim_suffix('"')
+	# PowerShell GetFullPath emits backslashes; Godot emits forward slashes.
+	# Compare the same absolute Windows path, while accepting only our own sidecar.
+	var left=requested.replace("\\","/").simplify_path()
+	var right=expected.replace("\\","/").simplify_path()
+	if OS.get_name()=="Windows":left=left.to_lower();right=right.to_lower()
+	return expected if left==right else ""
+
+static func acknowledge(build: String) -> bool:
 	for arg in OS.get_cmdline_user_args()+OS.get_cmdline_args():
-		if arg=="--update-ack="+expected:
-			var f=FileAccess.open(expected,FileAccess.WRITE)
-			if f!=null:f.store_string(build);f.close()
+		var path=acknowledgement_path(OS.get_executable_path(),arg)
+		if not path.is_empty():
+			var f=FileAccess.open(path,FileAccess.WRITE)
+			if f!=null:f.store_string(build);f.close();return true
+	return false
 static func notice() -> String:
 	var path="user://updates/install-result.json"
 	if not FileAccess.file_exists(path):return ""

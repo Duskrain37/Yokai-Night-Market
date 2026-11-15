@@ -76,13 +76,13 @@ func run():
 	check("炮弹选择最密集位置",s._mortar_aim() in [b,c])
 	p.timer=10;s._update_mortar(p,0);shot=s.shots[0];check("炮弹锁定落点且1.5秒飞行",shot.tx==b.pos.x and shot.flight==1.5)
 	s._update_mortar_shot(shot,1.49);check("1.49秒不结算",not shot.dead and b.hp==10000)
-	s._update_mortar_shot(shot,.011);check("炮弹1.5秒范围全额215",shot.dead and b.hp==9785 and c.hp==9785 and a.hp==10000)
+	s._update_mortar_shot(shot,.011);check("炮弹1.5秒范围全额185",shot.dead and b.hp==9815 and c.hp==9815 and a.hp==10000)
 	s=setup();p=s.place_free("sky-mortar",2,2);p.upgrades={1:3,2:0,3:0};p.timer=10;a=guest(s,2,1100)
-	s._update_mortar(p,0);check("连炮每发降伤25%",is_equal_approx(s.shots[0].damage,161.25))
+	s._update_mortar(p,0);check("连炮每发降伤25%",is_equal_approx(s.shots[0].damage,138.75))
 	s.time=.79;s._update_mortar(p,.79);check("0.8秒前不补炮",s.shots.size()==1)
 	s.time=.8;s._update_mortar(p,.01);check("0.8秒补炮后开始冷却",s.shots.size()==2 and p.timer==0 and p.mortar_followup_at<0)
 	s=setup();p=s.place_free("sky-mortar",2,2);p.upgrades={1:0,2:3,3:2};a=guest(s,2,1050,"bucket");a.armor=1000;a.max_armor=1000
-	s._mortar_launch(p,a.pos);s._mortar_impact(s.shots[0]);check("灰烬炮同时伤本体护甲525",a.hp==9475 and a.armor==475)
+	s._mortar_launch(p,a.pos);s._mortar_impact(s.shots[0]);check("灰烬炮同时伤本体护甲475",a.hp==9525 and a.armor==525)
 	a.hp=1;s._mortar_launch(p,a.pos);s._mortar_impact(s.shots[-1]);check("灰烬击退不留尸且旧返香已移除",a.dead and not a.dying and s.sun==100)
 	s=setup();a=guest(s,2,1000);s.damage_zombie(a,20000,false,false,"shooter");check("普通击退仍有尸体",a.dying and not a.dead)
 	a=guest(s,2,1000,"returner");s.damage_zombie(a,20000,false,false,"bomb");check("灰烬不留下可复生尸体",a.dead and a.revive_at<0)
@@ -112,7 +112,7 @@ func run():
 	var before: float=chief.hp;var peer_hp: float=peer.hp
 	var center: Vector2=(chief.body_targets[0].pos+chief.body_targets[1].pos)*.5
 	s._mortar_launch(p,center);s.shots[0].t=1.5;s.update_shots(.01)
-	check("炮弹覆盖双行同一恶首只结算一次",is_equal_approx(before-chief.hp,215) and peer.hp==peer_hp)
+	check("炮弹覆盖双行同一恶首只结算一次",is_equal_approx(before-chief.hp,185) and peer.hp==peer_hp)
 	chief.hp=1;chief._sync_hp();s._mortar_launch(p,center);s.shots[-1].t=1.5;var incense: int=s.sun;s.update_shots(.01)
 	check("炮弹击退恶首不再返香且另一位独立存活",not chief.alive() and peer.alive() and s.sun==incense)
 	var f=FileAccess.open("res://qa/v055-tests.json",FileAccess.WRITE);f.store_string(JSON.stringify({"total":checks.size(),"failures":failures,"checks":checks},"  "));f.close()

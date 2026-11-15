@@ -22,12 +22,16 @@ var _effect_frames = preload("res://scripts/actor_frames.gd").new()
 var _guardian: Texture2D = null
 var mower_art: Dictionary = {}
 var obstacle_art: Dictionary = {}
+var _cloud_platform: Texture2D
+var _cloud_deck_meshes: Dictionary = {}
 
 
 func _ready() -> void:
 	z_index = 0
 	_effect_frames.load_sheets("v052-")
 	_guardian = Ui.sprite("guardian")
+	if ResourceLoader.exists("res://assets/scenery/cloud-platform.png"):
+		_cloud_platform = load("res://assets/scenery/cloud-platform.png")
 	for kind in ["market", "water", "island"]:
 		for variant in [1, 2, 3]:
 			var key = "%s-%d" % [kind, variant]
@@ -62,6 +66,7 @@ func _draw() -> void:
 	_draw_background()
 	_draw_stage()
 	_draw_tiles()
+	_draw_chapter_terrain()
 	_draw_craters()
 	if show_grid:
 		_draw_grid()
@@ -90,6 +95,7 @@ static func _p(u: float, t: float) -> Vector2:
 
 
 func _cell_quad(col: int, row: int) -> PackedVector2Array:
+	if map_key=="day6":return sim.chapter.cell_polygon(col,row)
 	var u0 := float(col) / Geo.COLS
 	var u1 := float(col + 1) / Geo.COLS
 	var t0 := float(row) / float(sim.rows)
@@ -131,6 +137,13 @@ func _draw_stage() -> void:
 
 
 func _draw_grid() -> void:
+	if map_key in ["day6", "day7"]:
+		for row in sim.rows:
+			for col in Geo.COLS:
+				if not sim.chapter.placement(col,row).is_empty(): continue
+				var quad := _cell_quad(col,row)
+				draw_polyline(PackedVector2Array([quad[0],quad[1],quad[2],quad[3],quad[0]]),Color(.88,.80,.61,.10),1,true)
+		return
 	if map_key == "day4":
 		for row in sim.rows:
 			for col in Geo.COLS:
@@ -152,7 +165,7 @@ func _draw_grid() -> void:
 ## 关掉描格子也要留一道淡行界：五条行是这游戏的骨架，
 ## 全抹掉就只能凭感觉判断"这株到底罩不罩得住那一行"。
 func _draw_row_lines() -> void:
-	if map_key in ["day4", "day5"]:
+	if map_key in ["day4", "day5", "day6", "day7"]:
 		return
 	var line := Color(Ui.GOLD.r, Ui.GOLD.g, Ui.GOLD.b, 0.055)
 	for row in sim.rows + 1:
@@ -373,3 +386,108 @@ func _draw_craters() -> void:
 		_effect_frames.draw_pose(self, "v052-craters", clip, sim.time * 2.0,
 			at + Vector2(0, height * 0.37), height, true,
 			Color(1, 1, 1, clampf(remaining / 0.8, 0.0, 1.0)))
+
+
+func _draw_chapter_terrain() -> void:
+	if map_key == "day6":
+		var state: Dictionary = sim.chapter.lift_state(sim.time)
+		var order: Array = [1,0] if float(state.a) > float(state.b) else [0,1]
+		for group in order:
+			var elevation: float = state.a if group == 0 else state.b
+			var start: Vector2 = sim.chapter.platform_start(group,sim.time)
+			var top := _p(start.x/9.0,start.y/6.0)
+			var end := _p((start.x+4)/9.0,(start.y+3)/6.0)
+			var size := end-top
+			var drop := (1.0-elevation)*38.0
+			if _cloud_platform != null:
+				# Remove perspective already painted into the source before projecting
+				# through Geo. The near deck's hanging fringe must extend past row six;
+				# the ordinary board helper clamps there and would squash its third row.
+				var tint := Color(.70+.30*elevation,.80+.20*elevation,.94+.06*elevation,.50+.50*elevation)
+				draw_mesh(_cloud_deck_mesh(group,start,drop),_cloud_platform,Transform2D.IDENTITY,tint)
+			if state.warning or state.moving:
+				var strength: float = .6+.25*sin(sim.time*5.0)
+				for corner in [top+Vector2(8,10),Vector2(end.x-8,top.y+10),end-Vector2(8,10),Vector2(top.x+8,end.y-10)]:
+					_draw_cloud_tether(corner+Vector2(0,drop),strength,state.moving)
+	elif map_key == "day7": _draw_alley_lights()
+	elif map_key == "day8": _draw_market_lights()
+
+
+func _cloud_deck_mesh(group: int,start: Vector2,drop: float) -> ArrayMesh:
+	var key := [start,drop,Geo.canvas_size,Geo.STAGE_FAR_Y,Geo.STAGE_NEAR_Y]
+	var old: Dictionary = _cloud_deck_meshes.get(group,{})
+	if old.get("key",[])==key:return old.mesh
+	var vertices := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var indices := PackedInt32Array()
+	const N := 12
+	for y in N+1:
+		var sy := y/float(N)
+		var v := (sy-.065)/.600
+		var left := lerpf(.065,.030,v)
+		var right := lerpf(.940,.970,v)
+		for x in N+1:
+			var sx := x/float(N)
+			var u := (sx-left)/(right-left)
+			var world_u := (start.x+u*4.0)/9.0
+			var world_t := (start.y+v*3.0)/6.0
+			var half := lerpf(Geo.STAGE_FAR_HALF_W,Geo.STAGE_NEAR_HALF_W,world_t)
+			vertices.append(Vector3(Geo.STAGE_CX+(world_u*2-1)*half,lerpf(Geo.STAGE_FAR_Y,Geo.STAGE_NEAR_Y,world_t)+drop,0))
+			uv.append(Vector2(sx,sy))
+	for y in N:
+		for x in N:
+			var a := y*(N+1)+x
+			indices.append_array(PackedInt32Array([a,a+1,a+N+2,a,a+N+2,a+N+1]))
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX]=vertices;arrays[Mesh.ARRAY_TEX_UV]=uv;arrays[Mesh.ARRAY_INDEX]=indices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
+	_cloud_deck_meshes[group]={"key":key,"mesh":mesh}
+	return mesh
+
+
+func _draw_cloud_tether(at: Vector2, strength: float, moving: bool) -> void:
+	# Lacquered silk and a bronze cloud ring move in place of diagram arrows.
+	var path := PackedVector2Array()
+	var length := 38.0 if moving else 26.0
+	for i in 17:
+		var f := i/16.0
+		path.append(at+Vector2(sin(f*5+sim.time*4)*f*5,-length*f))
+	draw_polyline(path,Color(.15,.10,.07,.85),7,true)
+	draw_polyline(path,Color(.73,.30,.19,.75),3.5,true)
+	var ring := path[-1]
+	draw_arc(ring,7,0,TAU,28,Color(.87,.65,.30,strength),2.0,true)
+	for i in 3: draw_arc(ring+Vector2((i-1)*7,-4),4,PI,TAU,14,Color(.94,.78,.44,strength*.7),1.3,true)
+	if moving:
+		var pulse := fposmod(sim.time*1.6,1.0)
+		draw_arc(at,12+pulse*28,PI*.1,PI*.9,22,Color(.83,.87,.83,(1-pulse)*.4),2,true)
+
+
+func _draw_alley_lights() -> void:
+	var elapsed: float = sim.time-sim.chapter.event_start
+	if elapsed<0 or elapsed>18: return
+	var pair: int = sim.chapter.event_pair
+	var strength: float = minf(1,elapsed/1.2)*minf(1,(18-elapsed)/1.0)
+	for row in range(pair*2,pair*2+2):
+		var at := _p(7.0/9,(row+.25)/6.0)
+		_draw_cloud_tether(at,strength,sim.chapter.event_active())
+		var next := _p(6.0/9,((row^1)+.8)/6.0)
+		for i in 18:
+			var f := i/17.0
+			var p := at.lerp(next,f)
+			draw_circle(p,3.0+sin(sim.time*3-f*4),Color(.94,.68,.32,.10*strength))
+
+
+func _draw_market_lights() -> void:
+	var elapsed: float = sim.time-sim.chapter.event_start
+	for pair in 3:
+		var at := _p(1.03,(pair*2+1.0)/6.0)
+		var lit: bool = pair==sim.chapter.market_pair and elapsed>=0 and elapsed<20
+		var strength: float = (.55+.25*sin(sim.time*4)) if lit and elapsed<8 else (1.0 if lit else .18)
+		for glow in 4: draw_circle(at,10+glow*9,Color(.95,.48,.16,.055*strength))
+		_draw_cloud_tether(at,strength,lit)
+		if lit:
+			var top := _p(0,float(pair*2)/6)
+			var bottom := _p(1,float(pair*2+2)/6)
+			draw_rect(Rect2(top,bottom-top),Color(.78,.43,.16,.035*strength))

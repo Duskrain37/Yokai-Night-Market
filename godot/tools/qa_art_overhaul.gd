@@ -119,8 +119,8 @@ func run() -> void:
 		check("无结果不会留下无关牌 %.1f" % scale, prep._roster_nodes.all(func(card): return not card.visible))
 		search.text = ""
 		search.text_changed.emit("")
-		await click(prep._filter_buttons["守护"].get_global_rect().get_center())
-		check("职能筛选真实点击 %.1f" % scale, prep._roster_nodes.filter(func(card): return card.visible).all(func(card): return prep._category(card.plant_id) == "守护"))
+		await click(prep._filter_buttons["功能"].get_global_rect().get_center())
+		check("职能筛选真实点击 %.1f" % scale, prep._roster_nodes.filter(func(card): return card.visible).all(func(card): return prep._category(card.plant_id) == "功能"))
 		await click(prep._filter_buttons["全部"].get_global_rect().get_center())
 		var card = prep._roster_nodes[0]
 		var chosen = prep._picked.has(card.plant_id)

@@ -112,6 +112,8 @@ func _init() -> void:
 	var stages := [5, 10, 15, Content.level_id_for(4, 4), Content.level_id_for(5, 4)]
 	if "--new-only" in OS.get_cmdline_user_args():
 		stages = stages.slice(3)
+	if "--v070-only" in OS.get_cmdline_user_args():
+		stages=[Content.level_id_for(6,4),Content.level_id_for(7,4),Content.level_id_for(8,4)]
 	for id in stages:
 		for profile in (["low", "reference", "high"] if id <= 15 else ["reference"]):
 			for seed_value in [7,19,41]:
@@ -141,6 +143,6 @@ func _init() -> void:
 				# is gated on the formation with tools for the new dense reinforcement wave.
 				if profile == "reference" and not won[0]:
 					failures += 1
-	var f=FileAccess.open("res://qa/boss-balance.json",FileAccess.WRITE)
+	var f=FileAccess.open("res://qa/boss-v070-balance.json" if "--v070-only" in OS.get_cmdline_user_args() else "res://qa/boss-balance.json",FileAccess.WRITE)
 	f.store_string(JSON.stringify({"scope":"isolated normal difficulty; reference uses piercing, splash and paid reactive bombs; low/high are legacy control formations; not a full-route playtest","runs":results,"failures":failures},"  "))
 	quit(0 if failures==0 else 1)

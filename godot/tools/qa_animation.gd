@@ -109,7 +109,7 @@ func check_projectiles() -> void:
 func run() -> void:
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_frames.json"))
 	for type in Content.PLANT_ORDER:
-		check_actor(catalog, type, ["idle", "action", "switch", "far_idle", "far", "dual"] if type == "dragon" else ["idle", "action"])
+		check_actor(catalog,type,["idle","pickup","walk","land"] if type=="root-palanquin" else (["idle","action","switch","far_idle","far","dual"] if type=="dragon" else ["idle","action"]),3 if type in ["watch-bloom","vow-toad"] else 4)
 		if type == "ember-cicada":
 			check_actor(catalog, type, ["reload_enter", "reload", "reload_exit"])
 		if type in ["firework", "dragon"]:
@@ -120,7 +120,7 @@ func run() -> void:
 			var clips := ["idle", "action"]
 			if type == "ember-cicada":
 				clips += ["reload_enter", "reload", "reload_exit"]
-			check_actor(catalog, form, clips)
+			check_actor(catalog,form,clips,3 if type in ["watch-bloom","vow-toad"] else 4)
 			check("三阶独立立绘 " + form, ResourceLoader.exists("res://assets/sprites/%s.png" % form))
 	for type in Content.ZOMBIE_ORDER:
 		var clips := ["walk", "attack"]

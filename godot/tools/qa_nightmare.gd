@@ -31,26 +31,26 @@ func run():
  check("非恶首关过滤专属因子",Rules.sanitize({"twins":1,"boss_power":2,"rush":1},Content.get_level(1))=={"rush":1})
  check("因子分数不是档位之和",Rules.points({"loss":2,"one_path":1,"price":2})==7)
  for tier in [1,2]:
-  var s:=fresh({"dim":tier});var cap: int=[0,750,500][tier];var before: int=s.sun
+  var s:=fresh({"dim":tier});var cap: int=[0,1000,750][tier];var before: int=s.sun
   check("十秒限额首笔%d"%tier,s.gain_incense(cap-20)==cap-20)
   s.time=4;check("十秒限额截断%d"%tier,s.gain_incense(90)==20 and s.sun-before==cap)
   s.time=9.99;check("窗口内无额度%d"%tier,s.gain_incense(90)==0)
   s.time=10;check("滚动过期恢复%d"%tier,s.gain_incense(90)==90 and s.incense_received()==110)
   var restored:=Sim.new();restored.restore(JSON.parse_string(JSON.stringify(s.serialize())))
   check("灯火窗口读档不重置%d"%tier,restored.incense_received()==110 and restored.gain_incense(cap)==cap-110)
- for tier in [1,2]:
-  var s:=fresh({"seeds":tier});var cap: int=[0,25,15][tier]
+ for tier in [1,2,3]:
+  var s:=fresh({"seeds":tier});var cap: int=[0,30,25,20][tier]
   for i in cap:s.place_free("shooter",i%9,i/9)
   check("场上数量封顶%d"%tier,s.plant_population()==cap and not s.can_place_at("shooter",8,4).ok)
   s.kill_plant(s.plants[0],true);check("移除后恢复名额%d"%tier,s.can_place_at("shooter",8,4).ok)
  var s:=fresh({"loss":2});var failed: Array=[false];s.on_lose=func(_z):failed[0]=true
- for i in 9:
+ for i in 19:
   var p=s.place_free("bomb",1,1);s.explode(p)
- check("灰烬消耗也计损失",s.nightmare_losses==9 and not failed[0])
+ check("灰烬消耗也计损失",s.nightmare_losses==19 and not failed[0])
  var last=s.place_free("shooter",1,1);s.shovel_at(1,1)
- check("铲除触发第十株失败",s.nightmare_losses==10 and failed[0] and s.nightmare_failed)
- s.kill_plant(last,true);check("同株不重复扣损失",s.nightmare_losses==10)
- s=fresh({"unguarded":1});check("无门神因子无可触发门神",s.mowers.all(func(m):return not m.ready and m.absent))
+ check("铲除触发第二十株失败",s.nightmare_losses==20 and failed[0] and s.nightmare_failed)
+ s.kill_plant(last,true);check("同株不重复扣损失",s.nightmare_losses==20)
+ s=fresh({"unguarded":2});check("无门神因子无可触发门神",s.mowers.all(func(m):return not m.ready and m.absent))
  check("无门神不算惊动",s.battle_summary().star_flags==[true,true,true,true])
  failed=[false];s.on_lose=func(_z):failed[0]=true
  var intruder=s.spawn_zombie("ghost",0,{"x":Geo.BREACH_X-100});s.breach(intruder)

@@ -6,9 +6,12 @@
 class_name Almanac
 extends RefCounted
 
-const BOSS_ORDER = ["earth", "paper", "river", "island", "magistrate-bound", "magistrate-full"]
+const BOSS_ORDER = ["earth", "paper", "river", "island", "magistrate-bound", "magistrate-full", "wind-warden", "mask-master", "market-lamplord"]
 const BossRules = preload("res://scripts/boss_encounter.gd")
 const BOSS_PAGES = {
+	"wind-warden":["云上听铃","第六周 · 第五夜","巡使以云索缠住出手的草木。云台没入时留意常驻石台的火力，不要把所有后手都押在同一块浮台上。"],
+	"mask-master":["百面开场","第七周 · 第五夜","班主会剪落戏幕、催急鼓点，再向最前方的草木落下压轴一击。留出补防的香火，也别让火力全挤在前沿。"],
+	"market-lamplord":["万灯收契","第八周 · 第五夜","掌灯人借市灯改换客潮，契灯还能削弱草木。看清下一盏亮灯，照顾六行防线，准备接住万灯齐落。"],
 	"earth": ["街下有主", "第一周 · 第五夜", "震地前先有红纹，随后石俑沿街扑来。快拆挡路的石俑，把火力转到獾王所在的两行。"],
 	"paper": ["纸上有愿", "第二周 · 第五夜", "纸符会封住草木的本事，纸官还会从栈道唤来帮手。尽快打散符纸，留些香火补上空缺。"],
 	"river": ["潮底戴傩", "第三周 · 第五夜", "盯住涨潮的红纹和横冲的水蟹。傩主会闪到别处，把输出布在几行就能接住它。"],
@@ -49,9 +52,13 @@ static func boss_skills(id: String) -> Array:
 			rows.append(["双渡迎客", "与缚愿交替出招，预警1.8秒，在空位展开两处纸渡。纸渡耐久%d，存续15秒；3秒后开始召来斗笠鬼。" % roundi(240 * force)])
 		"river":
 			rows.append(["并潮双蟹", "预警2秒，派出两只潮蟹各冲一行。潮蟹耐久%d，最多存续10秒，撞上草木时造成%d。先拆开一路，再守住另一路。" % [roundi(180 * force), roundi(300 * force)]])
+		"wind-warden","mask-master","market-lamplord":
+			var skill:Dictionary=data.small_skill
+			var follow:String={"wind-warden":"幸存草木攻速降低20%%，持续4秒。交替的系云结不造成直接伤害，可封住最多两株草木3秒；云结耐久%d，可击碎解开。" % roundi(160*force),"mask-master":"幸存草木沉睡2秒。交替的催急鼓令最多六名普通恶客移速提高35%，持续6秒。","market-lamplord":"幸存草木伤害降低20%，持续4秒。交替的点市招客重新随机选灯，经过8秒预告后开市12秒，不额外增加客潮总量。"}[id]
+			rows.append([String(skill.label),"预警%.2f秒，直击最多%d株草木，每株%d伤害。%s" % [float(skill.warning),int(skill.targets),roundi(float(skill.damage)*force),follow]])
 		_:
 			var skill: Dictionary = data.small_skill
-			var extra := "幸存草木的攻速降低20%，持续5秒。" if id == "island" else (
+			var extra := "幸存草木的攻击速度降低20%，持续5秒。" if id == "island" else (
 				"幸存草木的伤害降低25%，持续5秒。" if id == "magistrate-full" else "")
 			rows.append([String(skill.label), "预警%.2f秒，最多波及%d行各一株草木，每株受到%d，并受封%.2f秒。%s" % [
 				float(skill.warning), int(skill.targets), roundi(float(skill.damage) * force), float(skill.seal_s) * force, extra]])
@@ -66,7 +73,7 @@ static func boss_skills(id: String) -> Array:
 	else:
 		var major: Dictionary = data.major
 		var skill_name := String({"earth":"裂街震地", "paper":"缚愿大阵", "river":"暗河决堤",
-			"island":"潮灯压岸", "magistrate-full":"冥府重判"}.get(id))
+			"island":"潮灯压岸", "magistrate-full":"冥府重判","wind-warden":"云索卷灯","mask-master":"百面压轴","market-lamplord":"万灯收契"}.get(id,"压阵"))
 		var extra := "幸存草木另受%.2f秒封印。" % (2.0 * force) if id in ["paper", "magistrate-full"] else ""
 		rows.append([skill_name, "生命降至%s时各发动一次。预警%.2f秒，最多落击%d处，每击%d，相邻落击间隔%.2f秒。%s" % [
 			"、".join(marks), float(major.warning_s), int(major.hit_count), roundi(float(major.damage_per_hit) * force), float(major.hit_spacing_s), extra]])
@@ -76,7 +83,7 @@ static func boss_skills(id: String) -> Array:
 
 static func boss_portrait(id: String) -> Texture2D:
 	if not _boss_portraits.has(id):
-		if id in ["island", "magistrate-bound", "magistrate-full"]:
+		if id in ["island", "magistrate-bound", "magistrate-full", "wind-warden", "mask-master", "market-lamplord"]:
 			var actor := "boss-" + id
 			var manifest = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_frames.json"))
 			if manifest is Dictionary and manifest.has(actor):
@@ -103,6 +110,9 @@ static func boss_portrait(id: String) -> Texture2D:
 	return _boss_portraits.get(id)
 
 const PLANTS = {
+	"root-palanquin":{"epithet":"换个落脚处，旧愿仍随身","story":"两只叶灵用青藤编了一乘小轿。它们不接夜客，只替守夜人搬动累得扎根的草木。轿帘掀起时，旧伤、旧愿与未尽的法术都跟着走，连龟甲也一并抬好。","quote":"根不伤，愿不散。"},
+	"watch-bloom":{"epithet":"把等候拨快一更","story":"更夫的竹筹落进花盆，竟生出一朵听得见时辰的花。它不追夜客，只挑最久未醒的种子敲一声。夜市里更筹再多，也只依着同一声更鼓。","quote":"别急，我替你数着呢。"},
+	"vow-toad":{"epithet":"一枚铜钱，一纸愿契","story":"金蟾蹲在旧钱匣上，嘴里含着一枚从未花出的愿钱。守夜人许它香火，它便将铜钱吐成退敌的流光；灯少时又闭嘴守财，生怕连最后一点火也付出去。","quote":"留够底火，这笔买卖我做。"},
 	"year-banyan":{"epithet":"一圈年轮，一盏长明","story":"老榕树把年轮借给守夜人。它不催更鼓，只把夜风里长出的新叶，轻轻换成下一盏灯。","quote":"再等一轮，枝头便亮。"},
 	"sky-mortar":{"epithet":"炮向云霄，声落鬼市","story":"夜市旧哨台留下了一门镇霄炮。守夜人以榕根作轮，以朱绳系住炮火，只许它在恶客聚集时响起。","quote":"诸位，让一让。"},
 	"reed-chime":{"epithet": "一篁响，半庭风", "story": "夜市旁的竹篁被风吹了百年，学会把风藏进空心里。它不开口，陶盆上的老脸替它听着街声。", "quote": "借你一口夜风。"},
@@ -228,9 +238,9 @@ const PLANTS = {
 
 const ZOMBIES = {
 	"incense-thief":{"epithet":"把灯灰藏进旧罐","story":"摊主总在盘账时少了一把香火。长街尽头的破罐轻轻一响，盗烬客便把最后一缕灯灰吞进肚里。","counter":"初次入场5秒后停步窃取，此后每7秒最多偷35香火，余额不足则扣至0。第二次起每次炼化15，击退时掉落尚未炼化的部分。沉默可阻止窃取，尽早击退可取回更多。","quote":"这缕烟，你方才数过吗？"},
-	"sky-ferry":{"epithet":"两盏浮灯，顺路载客","story":"轿架只容一位客，浮灯轿夫却从不问来人的身量。它掀起篓沿，把同路的恶客送到摊后，才肯收起两盏青灯。","counter":"携带1500耐久的浮灯轿架，飞行时速度提高50%。遇到的第一位可搭载恶客会随轿升空，大型也可搭乘。拆毁轿架或进入门神前四格后落地。追魂、抛射、灰烬可对空；在障碍上坠落会退场。","quote":"上轿吧，前头不必走。"},
-	"sky-wick":{"epithet": "借纸作翅", "story": "纸铺剩下的旧鸢，驮着一个不肯落地的饿鬼。飞到灯火近旁，纸翅就撑不住了。", "counter": "飞行时忽略障碍，移动速度提高50%，不受普通射弹与范围攻击命中；追魂、抛物线与灰烬可打中。门神前四格内遇到可落脚处便降落；障碍上破翅会坠亡。", "quote": "脚下的路，我先借过。"},
-	"shield-envoy":{"epithet": "旧牌分给后来人", "story": "它背着一摞无人认领的护身牌，沿街把牌塞给饿鬼。牌上名字已经磨平，它仍记得授牌的手势。", "counter": "入场5秒后首次授牌，此后每11秒，把2.2格内尚无护具的低阶恶客全部加上1080耐久的护身牌。抛射、范围等非普通射弹攻击可绕过护牌。沉默能阻止授牌。", "quote": "牌拿稳，莫掉了。"},
+	"sky-ferry":{"epithet":"两盏浮灯，顺路载客","story":"轿架只容一位客，浮灯轿夫却从不问来人的身量。它掀起篓沿，把同路的恶客送到摊后，才肯收起两盏青灯。","counter":"携带1500耐久的浮灯轿架，飞行时速度提高50%。遇到的第一位可搭载恶客会随轿升空，大型也可搭乘。拆毁轿架或进入门神前四格后落地。追魂、抛弹、灰烬可对空；在障碍上坠落会退场。","quote":"上轿吧，前头不必走。"},
+	"sky-wick":{"epithet": "借纸作翅", "story": "纸铺剩下的旧鸢，驮着一个不肯落地的饿鬼。飞到灯火近旁，纸翅就撑不住了。", "counter": "飞行时忽略障碍。完整纸鸢翼提供50%加速，飞行另提供50%加速，两者相加后速度为基础的2倍。没有对空能力的普通射弹与直接范围攻击无法命中它；追魂与抛弹可以命中，灰烬攻击仍遵守草木自身的对空限制。门神前四格内遇到可落脚处便降落；障碍上破翅会坠亡。", "quote": "脚下的路，我先借过。"},
+	"shield-envoy":{"epithet": "旧牌分给后来人", "story": "它背着一摞无人认领的护身牌，沿街把牌塞给饿鬼。牌上名字已经磨平，它仍记得授牌的手势。", "counter": "入场5秒后首次授牌，此后每11秒，把2.2格内尚无护具的低阶恶客全部加上1080耐久的护身牌。抛弹、范围等非普通射弹攻击可绕过护牌。沉默能阻止授牌。", "quote": "牌拿稳，莫掉了。"},
 	"oar-barge":{"epithet": "五桨一齐，阴舟不歇", "story": "暗河里五个饿鬼合坐一条旧舟，橹声总在同一拍。它们不认渡钱，只认挡在船头的摊位。", "counter": "仅从水路来。每2.4秒同步划桨，前0.75秒冲进；遇到攻击范围内的草木则改为撞击，造成300。船壳击沉后，五名饿鬼落水并继续游来。", "quote": "一、二——划。"},
 	"flinch": {"epithet": "受惊就跑", "story": "它平时贴着墙根挪，直到一支竹签把它吓离了墙。从那以后，挨一下就埋头往前冲。", "counter": "第一次受到伤害后会加快脚步。先在同一行放好后续火力。", "quote": "我本来没这么快。"},
 	"wave-herald": {"epithet": "一面破幡先到", "story": "起风时，一面旧幡会在摊头响起来。拿幡的客只管开路，每逢一大波只来一位。", "counter": "每一大波的最后一拨到场，带来这一轮最紧密的攻势。像普通恶客一样行走和啃食。", "quote": "诸位，进街。"},
@@ -275,7 +285,7 @@ const ZOMBIES = {
 	"returner": {
 		"epithet": "灯灭一息，还会再亮",
 		"story": "送灯人把最后一盏灯揣进怀里。它摔倒时，灯焰缩成一点，隔一息又沿衣襟爬起来，脚步比先前更急。",
-		"counter": "第一次击倒后继续留火力。它一秒后满血复生，移速提高50%，只复生一次。",
+		"counter": "第一次击倒后继续留火力。它一秒后满血复生，移动速度提高50%，只复生一次。",
 		"quote": "灯还没送到。",
 	},
 	"matchmaker": {
@@ -287,7 +297,7 @@ const ZOMBIES = {
 	"phaseguard": {
 		"epithet": "一副木骨，两副相",
 		"story": "扎戏偶的师傅给它做了两副肩壳。青壳紧闭，接得住飞来的暗器。黄壳像伞一样张开，接得住从高处掉下来的东西。",
-		"counter": "青相少受50%射弹伤害，多受20%近身等伤害。黄相少受50%抛射伤害，多受20%其余伤害。生命过半时换相一次。",
+		"counter": "青相少受50%射弹伤害，多受20%近身等伤害。黄相少受50%抛弹伤害，多受20%其余伤害。生命过半时换相一次。",
 		"quote": "翻一面，再来。",
 	},
 	"tamer": {
@@ -299,13 +309,13 @@ const ZOMBIES = {
 	"shieldguard": {
 		"epithet": "硬牌挡飞签",
 		"story": "旧庙门板给夜路人拆走一块。再见时，铜扣仍在，只是门板前面多了一双石脚。",
-		"counter": "护身牌只挡射弹。香雾、撞击和贴身伤害可以越过牌子直接伤它。",
+		"counter": "护身牌会先挡住直线射弹与追魂弹。抛弹、灰烬炮弹、香雾和近身攻击可绕过护身牌伤害本体。",
 		"quote": "飞来的，我替它们接。",
 	},
 	"reedboat": {
 		"epithet": "一苇过暗河",
 		"story": "河面低处有个撑蒲舟的客人。舟没破时看不清它的脚，只能看到水花一路赶着灯影。",
-		"counter": "只走水路。蒲舟完好时移速提高90%，击毁蒲舟后它只能游过去。",
+		"counter": "只走水路。蒲舟完好时移动速度提高90%，击毁蒲舟后它只能游过去。",
 		"quote": "借水一程。",
 	},
 	"dreambell": {
@@ -382,21 +392,31 @@ static func plant_rows(type: String) -> Array:
 		_row("冷却", "%s 秒" % String.num(float(d.get("cooldown", 0)), 1), "time"),
 	]
 	match type:
+		"root-palanquin":
+			rows.append(_row("搬迁","先选已有草木，再选合法空位；成功才付香火","desc"))
+			rows.append(_row("保留","生命、成长、进化、护罩、冷却和异常状态全数保留；夜莲留在原处。收妖、持续施法和特殊动作期间不能搬。","desc"))
+		"watch-bloom":
+			rows.append(_row("更筹周期","15秒，不受攻击加速影响","time"))
+			rows.append(_row("拨筹","剩余冷却最长的种植卡减少3秒；基础不作用于自己、灰烬或主动技能。同名草木不叠加拨筹频率。","desc"))
+		"vow-toad":
+			rows.append(_row("铜钱伤害","175","atk"))
+			rows.append(_row("攻击间隔","2.5秒","time"))
+			rows.append(_row("愿契","默认蓄香；主动切换开火，每发支付25香火，支付后至少留150。不够时暂停射击。基础切换冷却10秒。","desc"))
 		"year-banyan":
 			rows.append(_row("产出","50香火；首次3秒，之后每10秒","gold"))
 			rows.append(_row("成长","种下30秒、60秒各成长一次，每次产出增加15；任一路满阶后还能每30秒成长一次，共四次。","desc"))
 			rows.append(_row("能力","进化可获得榕籽连射、庇佑、明视与同心。攻击加速不改变生产节奏，专门的生产加成才有效。","desc"))
 		"sky-mortar":
-			rows.append(_row("炮弹伤害","215；一格范围内全额溅射","atk"))
-			rows.append(_row("攻击间隔","6.3秒；炮弹升空后1.5秒落下","time"))
-			rows.append(_row("目标","自动轰击最密集的地面目标（含水中恶客），炮弹落点锁定；基础不能对空。炮弹属于灰烬伤害，绕过只能挡射弹的盾牌。","desc"))
+			rows.append(_row("炮弹伤害","185；一格范围内全额溅射","atk"))
+			rows.append(_row("攻击间隔","6.9秒；炮弹升空后1.5秒落下","time"))
+			rows.append(_row("目标","炮弹落地前0.25秒，锁定当前最密集的地面目标区域（含水中恶客）；基础不能对空。炮弹属于灰烬伤害，绕过只能挡射弹的盾牌。","desc"))
 		"reed-chime":
 			rows.append(_row("竹声伤害", str(Upgrades.EFFECTS["reed-chime"].damage[0]), "atk"));rows.append(_row("攻击间隔", "1.6 秒", "time"));rows.append(_row("范围", "正前方三格的窄束范围攻击", "desc"))
 		"soul-casket":
-			rows.append(_row("收弹", "5发；每0.09秒放出一发", "desc"));rows.append(_row("收弹冷却", "放出后3.5秒", "time"));rows.append(_row("借弹增幅","基础10%，可进化为20%与30%","desc"))
+			rows.append(_row("收弹", "5发；每0.09秒放出一发", "desc"));rows.append(_row("收弹冷却", "放出后3.5秒", "time"));rows.append(_row("子弹伤害","基础20%；第二路第一阶为35%，第二阶为50%","desc"))
 		"herb-gourd":
-			rows.append(_row("治疗", "50", "hp"))
-			rows.append(_row("治疗间隔", "1.6 秒", "time"))
+			rows.append(_row("治疗", "60", "hp"))
+			rows.append(_row("治疗间隔", "1.5 秒", "time"))
 			rows.append(_row("范围", "自身及本行前方3格", "desc"))
 		"ruin-cap":
 			rows.append(_row("灰烬伤害", "%d" % int(d.ruin.damage), "atk"))
@@ -478,7 +498,7 @@ static func plant_rows(type: String) -> Array:
 			var lob: Dictionary = d["lob"]
 			rows.append(_row("汤圆伤害", str(int(lob["damage"])), "atk"))
 			rows.append(_row("攻击间隔", "%s 秒" % String.num(lob["interval"], 1), "time"))
-			rows.append(_row("目标", "本行前方最近", "desc"))
+			rows.append(_row("目标", "攻击范围内最靠左", "desc"))
 			rows.append(_row("轨迹", "抛物线越过前排", "desc"))
 		"torch":
 			var t_orch: Dictionary = Upgrades.EFFECTS["torch"]
@@ -497,10 +517,10 @@ static func plant_rows(type: String) -> Array:
 			rows.append(_row("本体伤害", str(int(needle["damage"])), "atk"))
 			rows.append(_row("攻击间隔", "%s 秒" % String.num(needle["interval"], 1), "time"))
 			rows.append(_row("目标", "本行前方", "desc"))
-			rows.append(_row("特性", "无视护具", "desc"))
+			rows.append(_row("特性", "穿透普通护具；护身牌仍会阻挡", "desc"))
 		"judge":
 			rows.append(_row("庇护", "自身为中心3×3", "desc"))
-			rows.append(_row("减伤", percent(Upgrades.EFFECTS.judge.reduction[0]), "desc"))
+			rows.append(_row("受到的伤害降低", percent(Upgrades.EFFECTS.judge.reduction[0]), "desc"))
 		"gust":
 			rows.append(_row("退敌", "全场退后2格", "desc"))
 			rows.append(_row("大型", "退后1格，遇障即止", "desc"))
@@ -549,10 +569,13 @@ static func plant_pitch(type: String) -> String:
 ## 「本事」：由数据推导的一句话说明，含基础数值与升阶方向。
 static func plant_ability(type: String) -> String:
 	const GUIDE = {
+	"root-palanquin":"点选迁根轿，先选要搬的草木，再点新空位。水面落脚处须已有夜莲；取消不付香火。搬迁不会回血、洗去异常或重算种下时的奖励，也不计作草木损失。",
+	"watch-bloom":"按更筹周期照料冷却最久的种植卡。三路分别缩短周期、照料更多卡并降低下次种植费用、扩展灰烬与主动技能支持。第三路可在升阶面板指定优先卡，满阶解锁全场回筹；同名唯一主动只由最早满阶且仍在场的更筹花持有。",
+	"vow-toad":"开火时付香火退敌，蓄香时保留火种。三路分别强化铜钱与大型伤害、加速并合并付费、改为抛射与蓄香生产，最终解锁超频。超频每60秒最多12秒，到时回到蓄香；任何射击都不会花掉最后150香火。",
 	"year-banyan":"种下3秒产出50香火，之后每10秒产出。30秒和60秒时成长，每次产出增加15；任一路升至三级后，仍可每30秒再成长一次，最多四次。三路分别侧重产能、榕籽连射、守护与全队协作。",
-	"sky-mortar":"向天空发射重炮，总飞行1.5秒；落地前0.25秒才锁定当前最密集区域，对一格内目标造成215全额灰烬伤害。基础能打陆上和水中，不能对空。第三路可看破闪避与免疫、分射八块弹片，并解锁霄炮镇平安。",
+	"sky-mortar":"向天空发射重炮，总飞行1.5秒；落地前0.25秒才锁定当前最密集区域，对一格内目标造成185全额灰烬伤害。基础能打陆上和水中，不能对空。第三路可看破闪避与免疫、分射八块弹片，并解锁霄炮镇平安。",
 	"reed-chime":"竹声穿过前方三格，打中束内的全部恶客。进化可拓宽为七向扇面、附带减速，或强化竹声与出手节奏。",
-	"soul-casket":"收集己方射弹并保留其全部效果，收满后按0.09秒间隔逐发追魂放出。基础额外增伤20%，第二路提高到35%/50%，满阶每发必定复制。灵枢可吃伤害加成，不吃攻速加成；原弹与灵枢分别乘算。",
+	"soul-casket":"收集己方射弹并保留其全部效果，收满后按0.09秒间隔逐发追魂放出。由灵枢放出的子弹造成的伤害提升20%；第二路第一阶提升至35%，第二阶提升至50%，第三阶每发必定额外复制一发。灵枢可以获得造成伤害提升效果，但不受攻击速度提升效果影响。原弹与灵枢的伤害提升分别计算并相乘。",
 	"herb-gourd": "照料自身和前方三格内生命最低的受伤草木。进化可扩大范围、提高治疗，并在同伴满血时鼓舞。",
 	"ruin-cap": "落地后稍等片刻，便对周围五行五列的恶客造成灰烬伤害。用完即退场，原地留下60秒无法种植的坑洞。",
 	"sky-kite": "越过近处恶客，向本行距离最远的一名恶客抛弹。缄音进化可以压住恶客的特殊能力。",
@@ -567,14 +590,14 @@ static func plant_ability(type: String) -> String:
 	"bell": "摇铃放慢本行前方的恶客。进化可以加快摇铃、概率定身，或让铃声照顾整行，唤醒沉睡的草木并恢复生命。",
 	"censer": "香雾能同时熏伤身边多名恶客。进化可以扩大烟圈、加深香印或加快喷烟。",
 	"umbrella": "能把靠近的非大型恶客收进伞中；遇到大型敌人则用伞骨击打。进化可以加快收妖、给自己撑起护盾，还能打开两个独立的副收妖位。",
-	"lion": "撞击并推开本行恶客。狮步可远跃、贯穿整行，满阶攻击间隔1.8秒。喝彩传给除自己外造价最高的3株草木；满堂喝彩改为5株加自己，每层攻速提高10%。",
+	"lion": "撞击并推开本行恶客。狮步可远跃、贯穿整行，满阶攻击间隔1.8秒。喝彩传给除自己外造价最高的3株草木；满堂喝彩改为5株加自己，每层攻击速度提高10%。",
 	"cat": "尾火会追向全场最近的恶客，也能跨行救急。进化可以缩短出手间隔、接连放出十团狐火，或让每团狐火命中后再追另一名。",
 	"shell": "给已有草木披上一层龟甲。恶客先啃壳，壳碎了才伤到里面的草木；用铲子可以单独拆下龟甲，不伤及被保护的草木。",
-	"lobber": "向本行前方最近的恶客抛出汤圆，越过障碍击中目标。进化可以提高伤害、缩短攻击间隔，或照顾整行，在没有恶客时给同伴送去增伤的温暖。",
-	"torch": "辅助穿过的友军射弹，基础增伤50%。最高进化阶数每阶额外增加500耐久。火色强化增伤与溅射；暖灰提高生产产出和范围；穿薪使原本无穿透的射弹继续向前命中后续目标，不改变原有穿透弹。",
+	"lobber": "向本行前方最近的恶客抛出汤圆，越过障碍击中目标。进化可以提高伤害、缩短攻击间隔，或照顾整行，在没有恶客时给同伴送去造成的伤害提升的温暖。",
+	"torch": "辅助穿过的友军射弹，基础造成的伤害提升50%。最高进化阶数每阶额外增加500耐久。火色强化造成的伤害提升与溅射；暖灰提高生产产出和范围；穿薪使原本无穿透的射弹继续向前命中后续目标，不改变原有穿透弹。",
 	"star": "场上有恶客时，五个方向同时发出灯焰。没有命中的灯焰会沿原路折返一次。进化可以提高伤害、缩短攻击间隔，或让灯焰追魂；巡天满阶还能额外发出五颗追踪灯焰。",
-	"needle": "骨针穿过护具直伤本体。进化可以贯穿一整行、加快出针并钉住恶客，或让被扎中的恶客更易受伤。",
-	"judge": "基础庇护以自身为中心的3×3草木，减伤30%。护命路线增强减伤与独立60秒续命；镇街路线覆盖整行、威慑减速并鼓舞攻速，满阶解锁唯一主动神威护境；赐福路线提高伤害。",
+	"needle": "骨针穿过普通护具直接伤害本体；护身牌仍会阻挡骨针。进化可以贯穿一整行、加快出针并钉住恶客，或让被扎中的恶客更易受伤。",
+	"judge": "基础庇护以自身为中心的3×3草木，受到的伤害降低30%。护命路线增强受到的伤害降低与独立60秒续命；镇街路线覆盖整行、威慑减速并鼓舞攻击速度，满阶解锁唯一主动神威护境；赐福路线提高伤害。",
 	"gust": "扇风不伤恶客，却能让各路恶客后退。大型恶客退得较少，路上有障碍时会被挡住。",
 	"firework": "烟花越过障碍，在本行落下并溅伤附近恶客。进化可以连抛、扩大爆炸或添上追踪烟花。",
 	"squash": "同行恶客走进索敌范围时，镇煞瓜便会跃起砸下。能压住落点周围聚在一起的恶客，用完即退场。",
@@ -647,14 +670,14 @@ static func zombie_ability(type: String) -> String:
 	if float(d.get("armor", 0)) > 0:
 		head += "，%s %d" % [d["armor_name"], int(d["armor"])]
 		if type == "shieldguard":
-			head += "（仅抵御射弹）"
+			head += "（抵御直线射弹与追魂弹）"
 		else:
 			head += "（先破护具才伤本体）"
 	else:
 		head += "，无护具"
 	head += "；行进速度 %s/秒，啃食伤害 %d/秒。" % [in_cells(float(d["speed"]),2),int(d["dps"])]
 	match type:
-		"flinch", "wave-herald", "formless", "reed-shot", "returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell":
+		"flinch", "wave-herald", "formless", "reed-shot", "returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell", "incense-thief", "sky-ferry", "sky-wick", "shield-envoy", "oar-barge":
 			head += String(ZOMBIES[type]["counter"])
 			if type in ["matchmaker", "tamer", "dreambell", "reed-shot"]:
 				head += "这是可被沉默打断的特殊能力。"
@@ -699,6 +722,9 @@ static func zombie_entries() -> Array:
 
 
 const BOSS_LORE={
+	"wind-warden":"云海旧栈曾有一名巡夜使，只听风铃便知道哪盏灯将熄。后来浮台沉入云底，他仍沿着铃声来往，将不肯歇息的灯一盏盏系住。",
+	"mask-master":"戏台散场后，总有一张没有卸下的脸留在帘后。班主将那些脸收进长袖，鼓点越急，台下越分不清是谁在看戏，又是谁正在登场。",
+	"market-lamplord":"最后一条街不卖货，只收愿。掌灯人替每个来客点一盏契灯，等万灯都亮起，便来收走守夜人尚未兑现的承诺。",
 	"earth":"旧街铺石时，匠人总在地底听见低低的磨牙声。摊贩留下第一盏灯，换得脚下安稳；等灯灭了，街下的旧主便来讨债。",
 	"paper":"河埠的纸铺曾替无名亡魂写愿。纸官把没能寄出的愿望折进袖中，夜夜沿栈道寻找署名的人。",
 	"river":"暗河捞起过一张傩面，晒了三日仍滴着水。后来守夜人见到面具从水下缓缓抬起，才知道河底也有人开市。",

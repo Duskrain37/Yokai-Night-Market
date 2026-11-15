@@ -1,0 +1,50 @@
+{
+  "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+  "target_size": 1056500708,
+  "scope": "Actual original packaged updaters, isolated cold caches and HTTP Range server; exact candidate hash; originals unchanged. Numeric reuse threshold was 70%, not the obsolete historical 90% text label.",
+  "runs": [
+    {
+      "failures": 0,
+      "message": "更新已准备好。重启后即可进入 v0.7.0。",
+      "phase": "ready",
+      "received": 176312213,
+      "required": 176312213,
+      "reused": 880194836,
+      "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+      "updater_build": "2bcd33c",
+      "updater_version": "0.5.6",
+      "wire_exe_bytes": 176312213,
+      "range_requests": 83,
+      "duration_seconds": 20.31
+    },
+    {
+      "failures": 0,
+      "message": "更新已下载并校验完成，即将重启进入 v0.7.0。",
+      "phase": "ready",
+      "received": 144185760,
+      "required": 144185760,
+      "reused": 912321409,
+      "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+      "updater_build": "f7bd605",
+      "updater_version": "0.6.1",
+      "wire_exe_bytes": 144185760,
+      "range_requests": 70,
+      "duration_seconds": 19.3
+    },
+    {
+      "failures": 0,
+      "message": "更新已下载并校验完成，即将重启进入 v0.7.0。",
+      "phase": "ready",
+      "received": 144185760,
+      "required": 144185760,
+      "reused": 912321409,
+      "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+      "updater_build": "2a70f5b",
+      "updater_version": "0.7.0",
+      "wire_exe_bytes": 144185760,
+      "range_requests": 70,
+      "duration_seconds": 19.02
+    }
+  ],
+  "failures": 0
+}

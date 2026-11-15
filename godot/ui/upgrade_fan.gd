@@ -19,23 +19,51 @@ var sim: Sim
 var entries: Array = []       # [{id, name, color, tier, ok, cost, desc, reason}]
 var _hover := -1
 var _time := 0.0
+var _priority: OptionButton
+var _mode: Button
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	z_index = 1
+	_priority=OptionButton.new()
+	_priority.theme=Ui.make_theme()
+	_priority.add_item("优先照料：自动选择")
+	for card in sim.cards:_priority.add_item("优先照料："+String(card.def.name))
+	_priority.item_selected.connect(func(index):
+		if plant!=null:plant.seed_priority="" if index==0 else String(sim.cards[index-1].id))
+	add_child(_priority)
+	_mode=Ui.button("切换契约",17,300,34)
+	_mode.pressed.connect(func():skill_picked.emit())
+	add_child(_mode)
 
 
 func _process(delta: float) -> void:
 	_time += delta
+	if plant!=null:
+		_priority.visible=plant.type=="watch-bloom" and plant.tier(3)>=1
+		_mode.visible=plant.type=="vow-toad"
+		var controls_at:=Vector2(clampf(center().x-155,12,size.x-322),minf(center().y+59,size.y-_effects_height()-55))
+		_priority.position=controls_at;_priority.size=Vector2(310,35)
+		_mode.position=controls_at;_mode.size=Vector2(310,35)
+		if _priority.visible:
+			var selected:=0
+			for index in sim.cards.size():
+				if sim.cards[index].id==plant.seed_priority:selected=index+1
+			_priority.select(selected)
+		if _mode.visible:
+			var status:Dictionary=sim.active_skill_status(plant)
+			var mode_name:String={"hoard":"蓄香","fire":"开火","overclock":"超频"}[plant.toad_mode]
+			_mode.text="%s · %s" % [mode_name,"切换契约" if status.ready else "再等%.1f秒" % status.left]
+			_mode.disabled=not status.ready or (not entries.is_empty() and not bool(entries[0].get("panel_enabled",true)))
 	queue_redraw()
 
 
 func center() -> Vector2:
 	if plant == null:
 		return Vector2.ZERO
-	return Geo.to_screen(plant.pos, sim.rows if sim != null else 0)
+	return preload("res://scripts/plant_regions.gd").foot(plant,sim.rows)-Vector2(0,Geo.cell_h(sim.rows)*.3*Geo.scale_at_flat(plant.pos,sim.rows))
 
 
 func _petal_angle(index: int) -> float:
@@ -261,6 +289,9 @@ func _draw_effects() -> void:
 	var lines := sim.plant_effect_lines(plant)
 	if lines.is_empty():
 		lines.append("当前没有额外增益或减益")
+	var wrapped:Array=[]
+	for text in lines:wrapped.append_array(_wrap(Ui.body_font(),text,Ui.font_size(15),310))
+	lines=wrapped
 	var columns := 2 if lines.size() > 5 else 1
 	var row_count := ceili(float(lines.size()) / columns)
 	var column_width := 330.0
@@ -269,7 +300,7 @@ func _draw_effects() -> void:
 	var h := 38.0 + row_height * row_count
 	var origin := center()
 	var at := Vector2(clampf(origin.x - w * 0.5, 12.0, size.x - w - 12.0),
-		minf(origin.y + 56.0, size.y - h - 10.0))
+		minf(origin.y + (104.0 if plant.type=="vow-toad" or (plant.type=="watch-bloom" and plant.tier(3)>=1) else 56.0), size.y - h - 10.0))
 	Ui.draw_plate(self, Rect2(at, Vector2(w, h)), Color("#1b211f"), Ui.GOLD_DIM, 12, 2)
 	draw_string(Ui.display_font(), at + Vector2(13, 23), "草木状态",
 		HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(17), Ui.GOLD_BRIGHT)
@@ -280,6 +311,12 @@ func _draw_effects() -> void:
 		draw_string(Ui.body_font(), at + Vector2(13 + int(i / row_count) * column_width,
 			31 + float(i % row_count + 1) * row_height), text, HORIZONTAL_ALIGNMENT_LEFT,
 			column_width - 8, Ui.font_size(15), Ui.WARN if harmful else Ui.TEXT)
+
+func _effects_height() -> float:
+	var count:=0
+	for line in sim.plant_effect_lines(plant):count+=_wrap(Ui.body_font(),line,Ui.font_size(15),310).size()
+	count=maxi(1,count)
+	return 38.0+(Ui.font_size(15)+5)*ceili(float(count)/(2 if count>5 else 1))
 
 func skill_rect(index: int) -> Rect2:
 	return Rect2(_point(OUTER-28,_petal_angle(index))-Vector2(20,20),Vector2(40,40))

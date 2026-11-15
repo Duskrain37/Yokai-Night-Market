@@ -118,7 +118,7 @@ func run() -> void:
 	check("既有手机版动作保留且PC仍支持",mobile_motion.keys().all(func(actor):return JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion.json")).has(actor)))
 	var split:Dictionary=mobile_motion["v053-buff-fx"]
 	check("八种增益拆为独立32帧GPU图集",split.clip_files.size()==8 and split.clips.values().all(func(x):return x.size()==32))
-	check("第三周通关衔接第四周，不误入特殊关",Content.next_story_level(15)==17 and Content.next_story_level(16)==0 and Content.next_story_level(26)==0)
+	check("第三周通关衔接第四周，不误入特殊关",Content.next_story_level(15)==17 and Content.next_story_level(16)==0 and Content.next_story_level(26)==27 and Content.next_story_level(41)==0)
 	s=battle();bell=s.place_free("bell",3,2);bell.upgrades[3]=3;s.banner={};s.kill_plant(bell)
 	check("取消旧满街铃退场报幕",s.banner.is_empty())
 	var frames: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_frames.json"))

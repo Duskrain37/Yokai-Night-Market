@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "status": "integrated_v0.5.2",
+  "status": "v070_calibrated",
   "difficulty": "normal",
   "time_unit": "game_seconds",
   "index_base": 1,
@@ -350,7 +350,162 @@
       "summon_cast_interval": 8,
       "module": "墨罚重判",
       "module_duration_scale": 1.25
+    },
+    {
+      "id": "wind-warden",
+      "name": "听风巡使",
+      "stage": "6-5",
+      "max_hp": 25000,
+      "small_first_s": 8,
+      "small_period_s": 12.0,
+      "major_thresholds": [
+        0.7,
+        0.35
+      ],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          6.5,
+          8.5
+        ],
+        "live_cap": 9,
+        "weights": {
+          "light": 70,
+          "armor": 25,
+          "heavy": 5
+        }
+      },
+      "destruction_budget": 7,
+      "entry_incense": 0,
+      "small_skill": {
+        "kind": "wind_gust",
+        "secondary_kind": "cloud_knot",
+        "label": "穿云拂灯 / 系云结",
+        "warning": 2.4,
+        "targets": 3,
+        "damage": 190,
+        "seal_s": 1.0,
+        "first_column": 2
+      },
+      "major": {
+        "warning_s": 3.0,
+        "hit_count": 6,
+        "damage_per_hit": 650,
+        "hit_spacing_s": 0.44,
+        "label": "云索卷灯"
+      },
+      "summon_final": true,
+      "summon_first_cast": 5,
+      "summon_cast_interval": 8,
+      "module": "云索卷灯",
+      "module_duration_scale": 1.25,
+      "reference_net_dps": 372,
+      "atlas": "assets/sprites/animation/boss-wind-warden.png"
+    },
+    {
+      "id": "mask-master",
+      "name": "百面班主",
+      "stage": "7-5",
+      "max_hp": 55000,
+      "small_first_s": 8,
+      "small_period_s": 11.5,
+      "major_thresholds": [
+        0.75,
+        0.45,
+        0.2
+      ],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          6.5,
+          8.5
+        ],
+        "live_cap": 9,
+        "weights": {
+          "light": 70,
+          "armor": 25,
+          "heavy": 5
+        }
+      },
+      "destruction_budget": 7,
+      "entry_incense": 0,
+      "small_skill": {
+        "kind": "curtain_cut",
+        "secondary_kind": "mask_drum",
+        "label": "落幕惊灯 / 催急鼓",
+        "warning": 2.3,
+        "targets": 3,
+        "damage": 210,
+        "seal_s": 1.0,
+        "first_column": 2
+      },
+      "major": {
+        "warning_s": 3.0,
+        "hit_count": 6,
+        "damage_per_hit": 620,
+        "hit_spacing_s": 0.44,
+        "label": "百面压轴"
+      },
+      "summon_final": true,
+      "summon_first_cast": 5,
+      "summon_cast_interval": 8,
+      "module": "百面压轴",
+      "module_duration_scale": 1.25,
+      "reference_net_dps": 818,
+      "atlas": "assets/sprites/animation/boss-mask-master.png"
+    },
+    {
+      "id": "market-lamplord",
+      "name": "鬼市掌灯人",
+      "stage": "8-5",
+      "max_hp": 58000,
+      "small_first_s": 8,
+      "small_period_s": 11.0,
+      "major_thresholds": [
+        0.75,
+        0.45,
+        0.2
+      ],
+      "adds": {
+        "first_s": 5,
+        "interval_s": [
+          6.5,
+          8.5
+        ],
+        "live_cap": 9,
+        "weights": {
+          "light": 70,
+          "armor": 25,
+          "heavy": 5
+        }
+      },
+      "destruction_budget": 7,
+      "entry_incense": 0,
+      "small_skill": {
+        "kind": "lamp_seal",
+        "secondary_kind": "market_call",
+        "label": "契灯封市 / 点市招客",
+        "warning": 2.4,
+        "targets": 3,
+        "damage": 225,
+        "seal_s": 1.0,
+        "first_column": 2
+      },
+      "major": {
+        "warning_s": 3.0,
+        "hit_count": 6,
+        "damage_per_hit": 700,
+        "hit_spacing_s": 0.44,
+        "label": "万灯收契"
+      },
+      "summon_final": true,
+      "summon_first_cast": 5,
+      "summon_cast_interval": 8,
+      "module": "万灯收契",
+      "module_duration_scale": 1.25,
+      "reference_net_dps": 863,
+      "atlas": "assets/sprites/animation/boss-market-lamplord.png"
     }
   ],
-  "calibration": "qa/boss-balance.json: normal, three supplied legal upgrade profiles, three seeds each (27 runs); reference target 105–135 seconds, not human playtest"
+  "calibration": "Legacy fixtures: qa/boss-balance.json. Chapters6–8: qa/boss-v070-balance.json; terrain-specific mature formations, three deterministic seeds, not human playtests."
 }

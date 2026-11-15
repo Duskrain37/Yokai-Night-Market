@@ -193,7 +193,7 @@ func v051_content_regressions() -> void:
  var dying = sim.spawn_zombie("ghost", 2, {"x": ember.pos.x + 40.0})
  dying.hp = 20
  sim.damage_zombie(dying, 40, false, false, "ember-cicada", "", false, "homing", ember.uid)
- check("烬翼蝉击杀只返还给原本发射的草木", ember.ember_ammo == 4 and ember.timer >= 0.4)
+ check("烬翼蝉击杀只返还给原本发射的草木", ember.ember_ammo == 4 and ember.ember_quick_pending)
  sim.setup(Content.get_level(1), ["shooter", "wall"], "easy")
  var flinch = sim.spawn_zombie("flinch", 0, {"x": 900.0})
  var slow: float = flinch.speed
@@ -236,7 +236,7 @@ func v051_content_regressions() -> void:
    check("第%d周第%d夜有本夜教学和对应来客" % [week, night + 1],
     not String(level.theme).is_empty() and (theme_guest.is_empty() or actual.has(theme_guest)))
  var featured := {}
- for map in ["street", "market", "water", "island", "cavern"]:
+ for map in ["street", "market", "water", "island", "cavern", "sky", "theatre", "ghostmarket"]:
   var picks := Content.loadout_tips(map)
   var ranks := {}
   for type in picks:
@@ -348,10 +348,10 @@ func run() -> void:
  game.hud._set_speed(0.1)
  check("右上角可即时切到0.1倍速", game.speed == 0.1 and not game.sim.cheated)
  var old_sun = game.sim.sun
- var add = button_named(game.hud._cheat_panel, "香火 +500")
+ var add = button_named(game.hud._cheat_panel, "香火 +2000")
  check("作弊面板有香火按钮", add != null)
  if add != null: add.emit_signal("pressed")
- check("作弊点击即刻生效而无需退出面板", game.sim.sun == old_sun + 500 and game.hud.cheat_open and game.sim.cheated)
+ check("作弊点击即刻生效而无需退出面板", game.sim.sun == old_sun + 2000 and game.hud.cheat_open and game.sim.cheated)
  game.set_setting("cheats", false)
  check("关闭作弊选项后按钮和面板均收起", not game.hud._tool_cheat.visible and not game.hud.cheat_open)
  var upgraded = game.sim.place_free("shooter", 1, 2)

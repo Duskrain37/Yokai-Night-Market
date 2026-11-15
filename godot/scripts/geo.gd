@@ -61,6 +61,12 @@ const STAGES = {
 		"near_half": 612.0, "far_scale": 0.94, "near_scale": 1.04},
 	"day5": {"cx": 840.0, "far_y": 187.0, "near_y": 751.0, "far_half": 640.0,
 		"near_half": 640.0, "far_scale": 0.94, "near_scale": 1.04},
+	"day6": {"cx": 840.0, "far_y": 205.0, "near_y": 730.0, "far_half": 600.0,
+		"near_half": 640.0, "far_scale": 0.94, "near_scale": 1.04},
+	"day7": {"cx": 840.0, "far_y": 210.0, "near_y": 746.0, "far_half": 610.0,
+		"near_half": 640.0, "far_scale": 0.94, "near_scale": 1.04},
+	"day8": {"cx": 840.0, "far_y": 210.0, "near_y": 746.0, "far_half": 610.0,
+		"near_half": 640.0, "far_scale": 0.94, "near_scale": 1.04},
 }
 
 static var STAGE_CX = (BOARD_X + BOARD_W * 0.5)

@@ -68,7 +68,7 @@ func _stage_levels() -> void:
 	var screen = game.screen_node
 	check("选关", "选关页已建立", game.screen == "levels" and screen != null)
 	var nights = screen.night_total()
-	check("选关", "二十五夜与特殊关都可选", nights == 26, "nights=%d" % nights)
+	check("选关", "四十夜与特殊关都可选", nights == 41, "nights=%d" % nights)
 	check("选关", "选关页有返回与进入按钮", _all_buttons(screen).size() >= 3,
 		"buttons=%d" % _all_buttons(screen).size())
 	for week in [4, 5]:
@@ -278,7 +278,7 @@ func _stage_music() -> void:
 	await game.get_tree().process_frame
 	check("音乐", "完整风格：第二天用 day2 曲子",
 		String(game._music_current).begins_with("day2-"), str(game._music_current))
-	check("音乐", "十六首配乐都已装载", game._music_players.size() == 16,
+	check("音乐", "二十五首配乐都已装载", game._music_players.size() == 25,
 		str(game._music_players.size()))
 	game.sim.wave_index = 9
 	game._music_for_wave()
