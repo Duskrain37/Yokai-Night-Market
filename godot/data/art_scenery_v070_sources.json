@@ -1,0 +1,89 @@
+{
+  "tool": "image_gen.imagegen",
+  "scope": "v0.7.0 same-version scenery and combat feedback refinement",
+  "original_images": [
+    {
+      "name": "clean-market.png",
+      "sha256": "66b4452b5b2a0ed103d1d73432ef532517c50640a1ce4018773c49f9adaefe24",
+      "bytes": 2608307
+    },
+    {
+      "name": "clean-theatre.png",
+      "sha256": "7186aef2aec6e94deeffbdc67f074a6e94585785341f6ccca408461dbee3be71",
+      "bytes": 2497477
+    },
+    {
+      "name": "cloud-lamp.png",
+      "sha256": "5902afed8a39915e9000a39e49dae9eb623dd479abaecb013493f63946fb6693",
+      "bytes": 1611904
+    },
+    {
+      "name": "impact-ink.png",
+      "sha256": "d88b27badcd91693a41005892607e825620a6b30f7f2f032800eeff75aa479cc",
+      "bytes": 1542178
+    },
+    {
+      "name": "lotus-lamp.png",
+      "sha256": "3fd4d703e9fe88e3939fbabcd1ae3c19ae9d0b0d87be010c0e4b63ec532aef60",
+      "bytes": 1863104
+    },
+    {
+      "name": "pact-lamp.png",
+      "sha256": "9d62997837dcb2b1af6fa30fde41c823fcefcc4222b72a4c50c3664a095f2d79",
+      "bytes": 2054449
+    },
+    {
+      "name": "troupe-deck.png",
+      "sha256": "6557a0fc4e9b145897cc45fb1f800884873b5e0d391aa094ccb5cc91f7ef4c56",
+      "bytes": 2909290
+    },
+    {
+      "name": "troupe.png",
+      "sha256": "9a7be918df0dc3dc3f6e2a057133018d51a9871c03056058801caf6436061dfd",
+      "bytes": 2906406
+    }
+  ],
+  "prompts": [
+    {
+      "key": "clean-theatre",
+      "paths": [
+        "C:/TempD/PersonalData/神秘创作/nightmarket/godot/assets/bg/map-day7.png"
+      ],
+      "transparent": false,
+      "prompt": "Use case: precise-object-edit. Edit the supplied Chinese folk-horror night-market battlefield BACKGROUND only. Preserve its exact canvas, elevated gently-perspectival camera, board boundaries, six horizontal lanes, wooden floor grain and frayed rugs, warm amber lamps, dry-gouache ink-brush texture, old theatre facade at the top and framing objects. Remove completely the vertical strip of three gold X/cross braces in the right third (about x64–75%, y24–77%). Replace that strip seamlessly with ordinary weathered horizontal timber floor matching its immediate surroundings, continuing the same mild perspective and lighting. No X/diagonal strips or rails, no mechanical stage markers, no theatre characters on the playable floor, no new lamps. This is a clean empty backplate: a separately animated troupe and modular stage will be overlaid later by the game. Keep all other scenery and board proportions unchanged. No text, no HUD, no grid outlines. Production-quality scene repair, keep details crisp and painterly, never smooth CGI."
+    },
+    {
+      "key": "clean-market",
+      "paths": [
+        "C:/TempD/PersonalData/神秘创作/nightmarket/godot/assets/bg/map-day8.png"
+      ],
+      "transparent": false,
+      "prompt": "Use case: precise-object-edit. Edit supplied Chinese folk-horror night-market game BACKGROUND only. Preserve exact canvas/camera, mildly perspectival six-lane nine-column playable board, jade ceramic upper floor, aged wood middle floor and worn lower earth/rugs, all top market architecture, moonlit indigo atmosphere and controlled warm lamps, premium dry-gouache brush texture. Remove ONLY the THREE large spherical market lamps with their hanging arms and supporting pole occupying the extreme RIGHT edge around x91–100%, y17–77%. Seamlessly restore dark cave/market edge and the clear continuous walking ground behind them. Ordinary small distant architectural lamps may stay. No replacement lamps, no character, no new large object at right; three independently animated props will be added there in game. The playable floor must remain geometrically continuous and unchanged: no water, pits or extra obstacles. No text/HUD/grid lines. Match surrounding hand-painted details exactly."
+    },
+    {
+      "key": "troupe-deck",
+      "transparent": true,
+      "prompt": "Use case: stylized-concept. Asset type: TRANSPARENT modular game scenery, standalone wooden opera troupe deck, high oblique view with very mild perspective like a Chinese folk-horror tower-defense board. One low square deck footprint spanning TWO columns by TWO lanes; width about1.55 times height in its painted TOP surface, nearly parallel row edges, far edge only6% narrower. Premium dry-gouache/ink brush, weathered dark mahogany timber, aged brass, faded cinnabar silk, subtle jade shadows, controlled amber reflected light. It must look like a real portable antique theatre wing set harmoniously on an old plank courtyard, not a diagram or flat board texture. Broad OPEN centre of continuous warm timber walking floor, rounded worn organic corners, small gently-curving plank inlays suggest two passable diagonal approaches without drawing any X or harsh crossing stripes. Dainty theatre wing furniture only at outside corners: a low gong stand, rolled silk banners, carved cloud-end posts, small back curtain wing that DOES NOT block the centre or span across walking paths. Empty performance court, NO performers or people (animated troupe separate). Keep the whole top floor readable and unobstructed; shallow apron/fascia at front, no tall roof. Actual transparent alpha around the object, isolated object with fine naturally painted edges, no rectangular background, floor plane, drop-shadow rectangle, text, arrows or labels. Landscape about1536x1024, one object fills canvas with8% transparent padding. Cohesive old Chinese opera craft, not photoreal 3D, neon, toy cartoon or hard-edged fantasy tile."
+    },
+    {
+      "key": "troupe",
+      "prompt": "Production painted animation atlas for a Chinese folk-horror nightmarket tower-defense game. Premium dry gouache and ink-brush edges, weathered old bronze and cinnabar lacquer, warm amber practical light against muted jade/ink shadows, fine hand-painted material detail. No smooth cartoon CGI, neon, captions, labels, text, grid lines, watermark or baked background. Actual transparent alpha. Exact FOUR columns, evenly sized cells, generous clear margins, no cell overlap. Every row four DISTINCT consecutive KEY POSES with real changing silhouette, joints, fabric or flame, consistent object shape/anchor and scale, not four copies with different glow. FOUR COLUMNS by FOUR ROWS. Subject: one small THREE-PUPPET Chinese opera troupe as a single cohesive group, seen from a mildly elevated frontal/three-quarter game camera, facing LEFT into the battle. A graceful masked qingyi wooden puppet in weathered teal/ivory robe with long water sleeves, an ochre/cinnabar elder puppet with a small guiding fan, and a compact seated gong/drum puppet in rust-red theatre garb. Antique expressive painted masks/wooden faces; old objects alive, not scary flesh zombies. Their feet/seat line consistent, no giant stage or roof or floor (standalone stage separate), at most tiny contact shadows. Keep silhouettes separated and readable at 100px height, warm muted detail matching environment. Row1 IDLE: puppets breathe and turn heads, sleeves settle, drummer tests sticks. Row2 GUIDE-UP: guide raises left sleeve from right-low toward left-high; fan puppet ushers upward, drummer taps gong, four clear successive poses, return to composed posture. Row3 GUIDE-DOWN: opposite sweeping gesture from right-high to left-low, distinct fabric arcs and hand poses, fan follows. Row4 HASTE: drummer lifts paired mallets, strikes the drum, cloth/hat ribbons recoil, guide's sleeves and fan snap in a brisk cadence. All four rows contain SAME THREE figures, same arrangement, costume identities, viewing angle, relative size and anchor. Four distinct painted key poses per action, not translating whole group. Wide overall atlas, each cell landscape about1.3:1."
+    },
+    {
+      "key": "cloud-lamp",
+      "prompt": "Production painted animation atlas for a Chinese folk-horror nightmarket tower-defense game. Premium dry gouache and ink-brush edges, weathered old bronze and cinnabar lacquer, warm amber practical light against muted jade/ink shadows, fine hand-painted material detail. No smooth cartoon CGI, neon, captions, labels, text, grid lines, watermark or baked background. Actual transparent alpha. Exact FOUR columns, evenly sized cells, generous clear margins, no cell overlap. Every row four DISTINCT consecutive KEY POSES with real changing silhouette, joints, fabric or flame, consistent object shape/anchor and scale, not four copies with different glow. FOUR COLUMNS by FIVE ROWS. One single full-height freestanding market lamp prop in EACH cell, same lamp design in all20 cells, same elevated gentle-perspective camera and fixed contact foot anchor. upper market lamp: antique BRONZE CLOUD lantern, squat octagonal pale tea-paper body enclosed by oxidised bronze cloud-scroll cage, a small aged-bronze upturned canopy, warm amber inner wick, two long faded red silk tassels and a little jade tally. A curved short wooden bracket attached to its own slender grounded bronze post, leaning slightly LEFT toward the battlefield; stable small carved stone foot. Elegant specific silhouette, full object always visible. Row1 DARK IDLE: inner light off, paper deep muted tea colour, tassels and loose paper sway through four poses. Row2 IGNITION transition: dark ember first; little flame catches; illuminated paper reveals translucent painted fibres; warm flame fully lights the lamp, tassels lift gently with heat. Row3 LIT IDLE: steady warm amber, four distinct lively flame shapes, slow paper/tassel movement, controlled glow inside and near fixture only. Row4 EXTINGUISH transition: bright flame curls and contracts; ember dims; a thin grey-blue smoke wisp rises; fully dark lamp with settling ribbons. Row5 WARNING: still mostly dark paper, a tiny travelling ember and small hanging tally/tassels visibly rattle to signal imminent opening, NOT a uniformly blinking whole sprite. Four distinct poses for each transition, no background light rectangle, no massive halo hiding shape. Lamp must look solid/grounded with a clear complete carved foot. Not gigantic gate or shrine, no extra people."
+    },
+    {
+      "key": "pact-lamp",
+      "prompt": "Production painted animation atlas for a Chinese folk-horror nightmarket tower-defense game. Premium dry gouache and ink-brush edges, weathered old bronze and cinnabar lacquer, warm amber practical light against muted jade/ink shadows, fine hand-painted material detail. No smooth cartoon CGI, neon, captions, labels, text, grid lines, watermark or baked background. Actual transparent alpha. Exact FOUR columns, evenly sized cells, generous clear margins, no cell overlap. Every row four DISTINCT consecutive KEY POSES with real changing silhouette, joints, fabric or flame, consistent object shape/anchor and scale, not four copies with different glow. FOUR COLUMNS by FIVE ROWS. One single full-height freestanding market lamp prop in EACH cell, same lamp design in all20 cells, same elevated gentle-perspective camera and fixed contact foot anchor. middle market lamp: antique CINNABAR CONTRACT lantern, elongated six-sided red-lacquer wooden frame around worn ivory parchment panels with abstract ink seals (NO legible characters), old-gold ribs, dark glazed crown, an amber inner candle, layered cream/red paper streamers and short tassels. Suspended from its own slender darkwood upright with a small bronze scale-like finial, bracket leaning slightly LEFT and low stone pedestal. Distinct elongated silhouette different from round lamps. Row1 DARK IDLE: inner light off, paper deep muted tea colour, tassels and loose paper sway through four poses. Row2 IGNITION transition: dark ember first; little flame catches; illuminated paper reveals translucent painted fibres; warm flame fully lights the lamp, tassels lift gently with heat. Row3 LIT IDLE: steady warm amber, four distinct lively flame shapes, slow paper/tassel movement, controlled glow inside and near fixture only. Row4 EXTINGUISH transition: bright flame curls and contracts; ember dims; a thin grey-blue smoke wisp rises; fully dark lamp with settling ribbons. Row5 WARNING: still mostly dark paper, a tiny travelling ember and small hanging tally/tassels visibly rattle to signal imminent opening, NOT a uniformly blinking whole sprite. Four distinct poses for each transition, no background light rectangle, no massive halo hiding shape. Lamp must look solid/grounded with a clear complete carved foot. Not gigantic gate or shrine, no extra people."
+    },
+    {
+      "key": "lotus-lamp",
+      "prompt": "Production painted animation atlas for a Chinese folk-horror nightmarket tower-defense game. Premium dry gouache and ink-brush edges, weathered old bronze and cinnabar lacquer, warm amber practical light against muted jade/ink shadows, fine hand-painted material detail. No smooth cartoon CGI, neon, captions, labels, text, grid lines, watermark or baked background. Actual transparent alpha. Exact FOUR columns, evenly sized cells, generous clear margins, no cell overlap. Every row four DISTINCT consecutive KEY POSES with real changing silhouette, joints, fabric or flame, consistent object shape/anchor and scale, not four copies with different glow. FOUR COLUMNS by FIVE ROWS. One single full-height freestanding market lamp prop in EACH cell, same lamp design in all20 cells, same elevated gentle-perspective camera and fixed contact foot anchor. lower market lamp: antique OLD-GOLD LOTUS lantern, rounded pear-shaped ochre paper body cradled by aged-gold lotus petal cage and ink-jade ceramic cap, amber central flame, small hanging copper prayer discs and faded vermilion tassel. Own short gnarled wooden standing arm/post and worn stone lotus foot, leaning slightly LEFT toward battlefield. Distinct rounded petal silhouette, restrained period ornament. Row1 DARK IDLE: inner light off, paper deep muted tea colour, tassels and loose paper sway through four poses. Row2 IGNITION transition: dark ember first; little flame catches; illuminated paper reveals translucent painted fibres; warm flame fully lights the lamp, tassels lift gently with heat. Row3 LIT IDLE: steady warm amber, four distinct lively flame shapes, slow paper/tassel movement, controlled glow inside and near fixture only. Row4 EXTINGUISH transition: bright flame curls and contracts; ember dims; a thin grey-blue smoke wisp rises; fully dark lamp with settling ribbons. Row5 WARNING: still mostly dark paper, a tiny travelling ember and small hanging tally/tassels visibly rattle to signal imminent opening, NOT a uniformly blinking whole sprite. Four distinct poses for each transition, no background light rectangle, no massive halo hiding shape. Lamp must look solid/grounded with a clear complete carved foot. Not gigantic gate or shrine, no extra people."
+    },
+    {
+      "key": "impact-ink",
+      "prompt": "Production painted animation atlas for a Chinese folk-horror nightmarket tower-defense game. Premium dry gouache and ink-brush edges, weathered old bronze and cinnabar lacquer, warm amber practical light against muted jade/ink shadows, fine hand-painted material detail. No smooth cartoon CGI, neon, captions, labels, text, grid lines, watermark or baked background. Actual transparent alpha. Exact FOUR columns, evenly sized cells, generous clear margins, no cell overlap. Every row four DISTINCT consecutive KEY POSES with real changing silhouette, joints, fabric or flame, consistent object shape/anchor and scale, not four copies with different glow. FOUR COLUMNS by TWO ROWS. TRANSPARENT painted COMBAT FEEDBACK effects, to frame floating yellow damage NUMBERS drawn by the engine later; DO NOT draw digits or words. Row1 HEAVY IMPACT: a compact kinetic old-gold dry-brush starburst, diagonal gold-ochre ink slashes, a few crisp cinnabar paper chips and dark ink flecks; four steps tightly compressed contact -> sharp expanding burst -> trailing brush stroke -> scattered fading specks. Row2 CROWD FINISH: a shallow fan-shaped sweep of warm gold foil, fluttering old red prayer-paper scraps and two calligraphic ochre arcs; four frames build -> exuberant layered fan -> outward scattering sparks -> faint settled flakes. Centre kept OPEN for legible numeric overlay. Rich material brush texture but controlled visual footprint, exciting short hit punctuation, no neon magic circle, no modern anime letters or comic words."
+    }
+  ]
+}

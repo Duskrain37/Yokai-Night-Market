@@ -77,15 +77,15 @@ func run() -> void:
 		var polygon: PackedVector2Array = s.chapter.cell_polygon(plant.col,plant.row)
 		var point: Vector2 = (polygon[0]+polygon[1]+polygon[2]+polygon[3])*.25
 		check("移动/云下投影反选对应格位",s.cell_at_screen(point)==Vector2i(plant.col,plant.row))
-	s=setup(7);s.time=12;s.chapter.event_start=6;s.chapter.event_mode="guide";s.chapter.event_pair=0
-	var z=s.spawn_zombie("ghost",0,{"x":Geo.BOARD_X+7*Geo.CELL_W})
+	s=setup(7);s.time=12;s.chapter.event_start=6;s.chapter.event_mode="guide";s.chapter.event_pair=0;s.chapter.guide_up=false
+	var z=s.spawn_zombie("ghost",0,{"x":Geo.BOARD_X+8*Geo.CELL_W})
 	s.chapter.try_route(z)
 	check("借道真正进入斜巷",z.scene_route_active and z.scene_route_from==0 and z.scene_route_to==1)
 	var before: float=z.hp
 	s.damage_zombie(z,20,true)
 	check("借道只承受半伤",is_equal_approx(before-z.hp,10))
-	z.pos.x-=Geo.CELL_W*.25;s.chapter.step_route(z)
-	check("斜巷四分之一连续坐标",is_equal_approx(z.pos.y,lerpf(s.row_y(0),s.row_y(1),.25)))
+	z.pos.x-=Geo.CELL_W*.5;s.chapter.step_route(z)
+	check("斜巷四分之一连续坐标",is_equal_approx(z.pos.y,lerpf(s.row_y(0),s.row_y(1),smoothstep(0,1,.25))))
 	restored=Sim.new();restored.restore(JSON.parse_string(JSON.stringify(s.serialize())))
 	check("斜巷中途存档保持实际位置与减伤",restored.zombies[0].scene_route_active and restored.zombies[0].pos.is_equal_approx(z.pos))
 	z.pos.x=Geo.BOARD_X+6*Geo.CELL_W;s.chapter.step_route(z)

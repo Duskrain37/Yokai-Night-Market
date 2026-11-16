@@ -479,7 +479,7 @@ func _resolve_small() -> void:
 			emit("curtain",guest.pos)
 		sim.sfx("boss_impact");return
 	if String(action.kind)=="market_call":
-		sim.chapter.market_pair=sim.rng.randi_range(0,2)
+		sim.chapter.begin_market(sim.rng.randi_range(0,2))
 		sim.chapter.event_start=sim.time;sim.chapter.market_last_at=sim.time
 		sim.banner={"text":"契灯摇曳 · 下一市客潮将至","t":3.0,"max":3.0}
 		emit("lamps",Vector2(body_x(),sim.row_y(body_row)));sim.sfx("bell");return

@@ -1,151 +1,507 @@
 {
   "version": "0.7.0",
-  "build": "2a70f5b",
-  "bytes": 1056500708,
-  "sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
-  "package": {
-    "failures": 0,
-    "frames": 14592,
-    "total": 15382
+  "build": "c78bb7d",
+  "sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+  "bytes": 1084387644,
+  "same_version_revision": true,
+  "announcement_unchanged": true,
+  "source": {
+    "version": "0.7.0",
+    "build": "c78bb7d",
+    "files": 861,
+    "frozen_at": "2026-11-16T13:42:52.715372+08:00",
+    "baseline_build": "2a70f5b",
+    "regression_suites": 28,
+    "final_affected_suites": 10,
+    "specialized_checks": 118,
+    "native_input_checks": 12,
+    "native_scenery_captures": 63,
+    "legacy_native_ui_checks": 31,
+    "legacy_native_captures": 32,
+    "campaign_runs": 12,
+    "new_motion_clips": 21,
+    "new_motion_frames": 672,
+    "legacy_motion_unchanged": 176,
+    "all_motion_frames": 15264,
+    "approved_music_unchanged": 24,
+    "news_sha256": "7c7cc3d5f52d98c3feee0f8b2f794d77664469824f5a6ab678c3d170df5da555",
+    "failures": 0
   },
-  "delivery_startup": {
+  "package": {
+    "entries_md5_verified": 1244,
+    "legacy_motion_byte_identical": 176,
+    "legacy_music_byte_identical": 24,
+    "news_byte_identical": true,
+    "motion_actors": 181,
+    "frames": 15264,
+    "sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+    "size": 1084387644,
+    "failures": 0
+  },
+  "startup": {
     "total": 4,
     "runs": [
       {
         "name": "menu",
         "exit": 0,
-        "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070\\direct-menu.png",
+        "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070-scenery\\direct-menu.png",
         "failures": 0
       },
       {
         "name": "training",
         "exit": 0,
-        "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070\\direct-training.png",
+        "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070-scenery\\direct-training.png",
         "failures": 0
       },
       {
         "name": "almanac-boss",
         "exit": 0,
-        "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070\\direct-almanac-boss.png",
+        "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070-scenery\\direct-almanac-boss.png",
         "failures": 0
       },
       {
         "name": "levels",
         "exit": 0,
-        "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070\\direct-levels.png",
+        "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070-scenery\\direct-levels.png",
         "failures": 0
       }
     ],
     "failures": 0
   },
-  "real_handoff": {
-    "actual_exe": "0.7.0",
-    "build": "2a70f5b",
-    "original_90s_timeout_retained": true,
-    "qa_visibility_and_storage_isolation_only": true,
+  "updates": {
+    "target_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+    "target_size": 1084387644,
+    "old_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
     "runs": [
       {
-        "helper": "original-helper",
-        "replacement_and_ack": true,
-        "result": {
-          "detail": null,
-          "ok": true,
-          "message": "更新完成。",
-          "version": "0.7.0",
-          "time": "2026-11-15T20:42:59.3534124Z"
-        },
-        "survived_100s": true,
-        "pid": 25944
-      },
-      {
-        "helper": "fixed-helper",
-        "replacement_and_ack": true,
-        "result": {
-          "detail": null,
-          "ok": true,
-          "message": "更新完成。",
-          "version": "0.7.0",
-          "time": "2026-11-15T20:42:59.5837929Z"
-        },
-        "survived_100s": true,
-        "pid": 41872
-      }
-    ],
-    "failures": 0
-  },
-  "incremental_updates": {
-    "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
-    "target_size": 1056500708,
-    "scope": "Actual original packaged updaters, isolated cold caches and HTTP Range server; exact candidate hash; originals unchanged. Numeric reuse threshold was 70%, not the obsolete historical 90% text label.",
-    "runs": [
-      {
+        "checks": [
+          {
+            "name": "updater loaded from actual packaged build",
+            "ok": true
+          },
+          {
+            "name": "project version from mounted pack",
+            "ok": true
+          },
+          {
+            "name": "packaged updater to v070 is ready",
+            "ok": true
+          },
+          {
+            "name": "only differences downloaded",
+            "ok": true
+          },
+          {
+            "name": "reused more than ninety percent",
+            "ok": true
+          },
+          {
+            "name": "candidate exact final EXE hash",
+            "ok": true
+          },
+          {
+            "name": "original game unchanged",
+            "ok": true
+          },
+          {
+            "name": "fixture does not install or exit",
+            "ok": true
+          }
+        ],
         "failures": 0,
         "message": "更新已准备好。重启后即可进入 v0.7.0。",
         "phase": "ready",
-        "received": 176312213,
-        "required": 176312213,
-        "reused": 880194836,
-        "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+        "received": 204199372,
+        "required": 204199372,
+        "reused": 880194841,
+        "target_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
         "updater_build": "2bcd33c",
         "updater_version": "0.5.6",
-        "wire_exe_bytes": 176312213,
-        "range_requests": 83,
-        "duration_seconds": 20.31
+        "wire_exe_bytes": 204199372,
+        "range_requests": 91,
+        "duration_seconds": 64.17
       },
       {
+        "checks": [
+          {
+            "name": "updater loaded from actual packaged build",
+            "ok": true
+          },
+          {
+            "name": "project version from mounted pack",
+            "ok": true
+          },
+          {
+            "name": "packaged updater to v070 is ready",
+            "ok": true
+          },
+          {
+            "name": "only differences downloaded",
+            "ok": true
+          },
+          {
+            "name": "reused more than ninety percent",
+            "ok": true
+          },
+          {
+            "name": "candidate exact final EXE hash",
+            "ok": true
+          },
+          {
+            "name": "original game unchanged",
+            "ok": true
+          },
+          {
+            "name": "fixture does not install or exit",
+            "ok": true
+          }
+        ],
         "failures": 0,
         "message": "更新已下载并校验完成，即将重启进入 v0.7.0。",
         "phase": "ready",
-        "received": 144185760,
-        "required": 144185760,
-        "reused": 912321409,
-        "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+        "received": 172072919,
+        "required": 172072919,
+        "reused": 912321414,
+        "target_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
         "updater_build": "f7bd605",
         "updater_version": "0.6.1",
-        "wire_exe_bytes": 144185760,
-        "range_requests": 70,
-        "duration_seconds": 19.3
+        "wire_exe_bytes": 172072919,
+        "range_requests": 78,
+        "duration_seconds": 57.11
       },
       {
+        "checks": [
+          {
+            "name": "updater loaded from actual packaged build",
+            "ok": true
+          },
+          {
+            "name": "project version from mounted pack",
+            "ok": true
+          },
+          {
+            "name": "packaged updater to v070 is ready",
+            "ok": true
+          },
+          {
+            "name": "only differences downloaded",
+            "ok": true
+          },
+          {
+            "name": "reused more than ninety percent",
+            "ok": true
+          },
+          {
+            "name": "candidate exact final EXE hash",
+            "ok": true
+          },
+          {
+            "name": "original game unchanged",
+            "ok": true
+          },
+          {
+            "name": "fixture does not install or exit",
+            "ok": true
+          }
+        ],
         "failures": 0,
         "message": "更新已下载并校验完成，即将重启进入 v0.7.0。",
         "phase": "ready",
-        "received": 144185760,
-        "required": 144185760,
-        "reused": 912321409,
-        "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+        "received": 36949236,
+        "required": 36949236,
+        "reused": 1047438670,
+        "target_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
         "updater_build": "2a70f5b",
         "updater_version": "0.7.0",
-        "wire_exe_bytes": 144185760,
-        "range_requests": 70,
-        "duration_seconds": 19.02
+        "wire_exe_bytes": 36949236,
+        "range_requests": 25,
+        "duration_seconds": 22.47
+      },
+      {
+        "checks": [
+          {
+            "name": "updater loaded from actual packaged build",
+            "ok": true
+          },
+          {
+            "name": "project version from mounted pack",
+            "ok": true
+          },
+          {
+            "name": "newest same-version build is current",
+            "ok": true
+          },
+          {
+            "name": "current EXE remains untouched",
+            "ok": true
+          }
+        ],
+        "failures": 0,
+        "phase": "current",
+        "received": 0,
+        "required": 0,
+        "updater_build": "c78bb7d",
+        "updater_version": "0.7.0",
+        "wire_exe_bytes": 0,
+        "range_requests": 0,
+        "duration_seconds": 2.42
       }
-    ],
-    "failures": 0
+    ]
   },
-  "source_freeze": {
+  "failures": 0,
+  "prior_release_review": {
     "version": "0.7.0",
     "build": "2a70f5b",
-    "files": 845,
-    "frozen_at": "2026-11-16T04:31:25.390372+08:00",
-    "regression_suites": 28,
-    "affected_rechecks": 10,
-    "new_mechanics": 186,
-    "viewport_interactions_per_resolution": 31,
-    "native_captures": 96,
-    "resolutions": [
-      "1600x900",
-      "1280x720",
-      "1600x1000"
-    ],
-    "campaign_runs": 160,
-    "final_boss_campaigns": 12,
-    "mature_boss_fixtures": 9,
-    "new_motion_clips": 49,
-    "total_motion_frames": 14592,
-    "approved_music": 24,
-    "source_checks_passed": true,
-    "failures": 0
-  },
-  "failures": 0
+    "bytes": 1056500708,
+    "sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+    "package": {
+      "failures": 0,
+      "frames": 14592,
+      "total": 15382
+    },
+    "delivery_startup": {
+      "total": 4,
+      "runs": [
+        {
+          "name": "menu",
+          "exit": 0,
+          "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070\\direct-menu.png",
+          "failures": 0
+        },
+        {
+          "name": "training",
+          "exit": 0,
+          "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070\\direct-training.png",
+          "failures": 0
+        },
+        {
+          "name": "almanac-boss",
+          "exit": 0,
+          "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070\\direct-almanac-boss.png",
+          "failures": 0
+        },
+        {
+          "name": "levels",
+          "exit": 0,
+          "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070\\direct-levels.png",
+          "failures": 0
+        }
+      ],
+      "failures": 0
+    },
+    "real_handoff": {
+      "actual_exe": "0.7.0",
+      "build": "2a70f5b",
+      "original_90s_timeout_retained": true,
+      "qa_visibility_and_storage_isolation_only": true,
+      "runs": [
+        {
+          "helper": "original-helper",
+          "replacement_and_ack": true,
+          "result": {
+            "detail": null,
+            "ok": true,
+            "message": "更新完成。",
+            "version": "0.7.0",
+            "time": "2026-11-15T20:42:59.3534124Z"
+          },
+          "survived_100s": true,
+          "pid": 25944
+        },
+        {
+          "helper": "fixed-helper",
+          "replacement_and_ack": true,
+          "result": {
+            "detail": null,
+            "ok": true,
+            "message": "更新完成。",
+            "version": "0.7.0",
+            "time": "2026-11-15T20:42:59.5837929Z"
+          },
+          "survived_100s": true,
+          "pid": 41872
+        }
+      ],
+      "failures": 0
+    },
+    "incremental_updates": {
+      "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+      "target_size": 1056500708,
+      "scope": "Actual original packaged updaters, isolated cold caches and HTTP Range server; exact candidate hash; originals unchanged. Numeric reuse threshold was 70%, not the obsolete historical 90% text label.",
+      "runs": [
+        {
+          "failures": 0,
+          "message": "更新已准备好。重启后即可进入 v0.7.0。",
+          "phase": "ready",
+          "received": 176312213,
+          "required": 176312213,
+          "reused": 880194836,
+          "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+          "updater_build": "2bcd33c",
+          "updater_version": "0.5.6",
+          "wire_exe_bytes": 176312213,
+          "range_requests": 83,
+          "duration_seconds": 20.31
+        },
+        {
+          "failures": 0,
+          "message": "更新已下载并校验完成，即将重启进入 v0.7.0。",
+          "phase": "ready",
+          "received": 144185760,
+          "required": 144185760,
+          "reused": 912321409,
+          "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+          "updater_build": "f7bd605",
+          "updater_version": "0.6.1",
+          "wire_exe_bytes": 144185760,
+          "range_requests": 70,
+          "duration_seconds": 19.3
+        },
+        {
+          "failures": 0,
+          "message": "更新已下载并校验完成，即将重启进入 v0.7.0。",
+          "phase": "ready",
+          "received": 144185760,
+          "required": 144185760,
+          "reused": 912321409,
+          "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+          "updater_build": "2a70f5b",
+          "updater_version": "0.7.0",
+          "wire_exe_bytes": 144185760,
+          "range_requests": 70,
+          "duration_seconds": 19.02
+        }
+      ],
+      "failures": 0
+    },
+    "source_freeze": {
+      "version": "0.7.0",
+      "build": "2a70f5b",
+      "files": 845,
+      "frozen_at": "2026-11-16T04:31:25.390372+08:00",
+      "regression_suites": 28,
+      "affected_rechecks": 10,
+      "new_mechanics": 186,
+      "viewport_interactions_per_resolution": 31,
+      "native_captures": 96,
+      "resolutions": [
+        "1600x900",
+        "1280x720",
+        "1600x1000"
+      ],
+      "campaign_runs": 160,
+      "final_boss_campaigns": 12,
+      "mature_boss_fixtures": 9,
+      "new_motion_clips": 49,
+      "total_motion_frames": 14592,
+      "approved_music": 24,
+      "source_checks_passed": true,
+      "failures": 0
+    },
+    "failures": 0,
+    "publication": {
+      "branch": "v0.7.0",
+      "commit": "349f32bf359b6d49cfc573254163648797915c35",
+      "parent_v061": "2592d7f9f90a0d030dc26b01cd1217b79b41472c",
+      "tree": "cc7ba34cba6e21161355c4a31fad85313451754d",
+      "source_members": 1741,
+      "source_tree_verified": true,
+      "build": "2a70f5b",
+      "release": "https://github.com/Duskrain37/Yokai-Night-Market/releases/tag/v0.7.0",
+      "release_id": 446359992,
+      "default_branch": "v0.7.0",
+      "latest": "v0.7.0",
+      "assets": [
+        {
+          "name": "YokaiNightMarket-update-map.json",
+          "bytes": 350679,
+          "digest": "sha256:debb5387bc294fa63a359c4f3ad3bf7e14b0f17eb4eac8d64c699603e1825989",
+          "url": "https://github.com/Duskrain37/Yokai-Night-Market/releases/download/v0.7.0/YokaiNightMarket-update-map.json"
+        },
+        {
+          "name": "YokaiNightMarket-win64.exe",
+          "bytes": 1056500708,
+          "digest": "sha256:75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+          "url": "https://github.com/Duskrain37/Yokai-Night-Market/releases/download/v0.7.0/YokaiNightMarket-win64.exe"
+        }
+      ],
+      "prior_branches_releases_mobile_unchanged": true
+    },
+    "public_online_verification": {
+      "release": "https://github.com/Duskrain37/Yokai-Night-Market/releases/tag/v0.7.0",
+      "branch": "v0.7.0",
+      "commit": "349f32bf359b6d49cfc573254163648797915c35",
+      "metadata_and_ranges": {
+        "checks": [
+          {
+            "name": "公开latest API可访问",
+            "ok": true
+          },
+          {
+            "name": "公开最新版本为v0.7.0且两份附件齐备",
+            "ok": true
+          },
+          {
+            "name": "索引下载及GitHub摘要一致",
+            "ok": true
+          },
+          {
+            "name": "公开索引认证最终EXE",
+            "ok": true
+          },
+          {
+            "name": "Godot经HTTPS和跳转读取准确Range·0",
+            "ok": true
+          },
+          {
+            "name": "Godot经HTTPS和跳转读取准确Range·528250354",
+            "ok": true
+          },
+          {
+            "name": "Godot经HTTPS和跳转读取准确Range·1056499684",
+            "ok": true
+          }
+        ],
+        "failures": 0,
+        "total": 7
+      },
+      "actual_original_games": [
+        {
+          "input_version": "0.6.1",
+          "source": "Actual original standalone game, native update dialog, public GitHub API/assets",
+          "candidate_exact": true,
+          "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+          "old_file_unchanged": true,
+          "fresh_fetched_unique_chunks": 10,
+          "fresh_resource_bytes_hash_verified": 254177,
+          "needed_unique_chunks": 266,
+          "matching_cache_chunks_available_before": 256,
+          "seconds": 18.45,
+          "qa_process_stopped_before_install": true,
+          "failures": 0
+        },
+        {
+          "input_version": "0.5.6",
+          "source": "Actual original standalone game, native update dialog, public GitHub API/assets",
+          "candidate_exact": true,
+          "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+          "old_file_unchanged": true,
+          "fresh_fetched_unique_chunks": 65,
+          "fresh_resource_bytes_hash_verified": 32126573,
+          "needed_unique_chunks": 331,
+          "matching_cache_chunks_available_before": 266,
+          "seconds": 131.95,
+          "qa_process_stopped_before_install": true,
+          "failures": 0
+        }
+      ],
+      "current_game": {
+        "phase": "current",
+        "latest": "0.7.0",
+        "exit_code": 0,
+        "failures": 0
+      },
+      "failures": 0
+    }
+  }
 }

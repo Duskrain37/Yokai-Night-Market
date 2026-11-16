@@ -1,0 +1,30 @@
+{
+  "total": 4,
+  "runs": [
+    {
+      "name": "menu",
+      "exit": 0,
+      "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070-scenery\\direct-menu.png",
+      "failures": 0
+    },
+    {
+      "name": "training",
+      "exit": 0,
+      "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070-scenery\\direct-training.png",
+      "failures": 0
+    },
+    {
+      "name": "almanac-boss",
+      "exit": 0,
+      "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070-scenery\\direct-almanac-boss.png",
+      "failures": 0
+    },
+    {
+      "name": "levels",
+      "exit": 0,
+      "capture": "C:\\TempD\\PersonalData\\神秘创作\\nightmarket\\tmp\\v070-scenery\\direct-levels.png",
+      "failures": 0
+    }
+  ],
+  "failures": 0
+}

@@ -1,0 +1,76 @@
+{
+  "release": "https://github.com/Duskrain37/Yokai-Night-Market/releases/tag/v0.7.0",
+  "branch": "v0.7.0",
+  "commit": "349f32bf359b6d49cfc573254163648797915c35",
+  "metadata_and_ranges": {
+    "checks": [
+      {
+        "name": "公开latest API可访问",
+        "ok": true
+      },
+      {
+        "name": "公开最新版本为v0.7.0且两份附件齐备",
+        "ok": true
+      },
+      {
+        "name": "索引下载及GitHub摘要一致",
+        "ok": true
+      },
+      {
+        "name": "公开索引认证最终EXE",
+        "ok": true
+      },
+      {
+        "name": "Godot经HTTPS和跳转读取准确Range·0",
+        "ok": true
+      },
+      {
+        "name": "Godot经HTTPS和跳转读取准确Range·528250354",
+        "ok": true
+      },
+      {
+        "name": "Godot经HTTPS和跳转读取准确Range·1056499684",
+        "ok": true
+      }
+    ],
+    "failures": 0,
+    "total": 7
+  },
+  "actual_original_games": [
+    {
+      "input_version": "0.6.1",
+      "source": "Actual original standalone game, native update dialog, public GitHub API/assets",
+      "candidate_exact": true,
+      "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+      "old_file_unchanged": true,
+      "fresh_fetched_unique_chunks": 10,
+      "fresh_resource_bytes_hash_verified": 254177,
+      "needed_unique_chunks": 266,
+      "matching_cache_chunks_available_before": 256,
+      "seconds": 18.45,
+      "qa_process_stopped_before_install": true,
+      "failures": 0
+    },
+    {
+      "input_version": "0.5.6",
+      "source": "Actual original standalone game, native update dialog, public GitHub API/assets",
+      "candidate_exact": true,
+      "target_sha256": "75285dafdab5822baa6cca17a9cc7d4d128ae4c9cc3ed81e98ac5e576a0155ab",
+      "old_file_unchanged": true,
+      "fresh_fetched_unique_chunks": 65,
+      "fresh_resource_bytes_hash_verified": 32126573,
+      "needed_unique_chunks": 331,
+      "matching_cache_chunks_available_before": 266,
+      "seconds": 131.95,
+      "qa_process_stopped_before_install": true,
+      "failures": 0
+    }
+  ],
+  "current_game": {
+    "phase": "current",
+    "latest": "0.7.0",
+    "exit_code": 0,
+    "failures": 0
+  },
+  "failures": 0
+}

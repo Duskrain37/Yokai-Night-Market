@@ -622,7 +622,7 @@ func _tick_battle(delta: float) -> void:
 		board.position = Vector2(sin(sim.time * 61.0) * amount * 0.5,
 			cos(sim.time * 53.0) * amount * 0.4)
 	if sim.hit_stop_requested > 0.0:
-		if _visual_hold_gate <= 0.0:
+		if _visual_hold_gate <= 0.0 and not MarketArt.reduced_motion:
 			_visual_hold_left = sim.hit_stop_requested
 			_visual_hold_gate = _visual_hold_left + 0.12
 			sim.visual_hold = true

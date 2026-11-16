@@ -6,6 +6,7 @@ extends Node2D
 const PlantRegions = preload("res://scripts/plant_regions.gd")
 
 const ActorFrames = preload("res://scripts/actor_frames.gd")
+var _feedback = preload("res://scripts/combat_feedback_view.gd").new()
 var _actor_frames = ActorFrames.new()
 var _effect_frames = ActorFrames.new()
 var _buff_frames = ActorFrames.new()
@@ -1682,24 +1683,4 @@ func _draw_ember_round(at: Vector2) -> void:
 			2.0 - t, Color(1.0, 0.55, 0.23, 1.0 - t))
 
 func _draw_vital_numbers(canvas: CanvasItem) -> void:
-	if sim==null or sim.vital_numbers.mode=="off":return
-	var font:=Ui.medium_font()
-	var point_size:int={"small":17,"medium":23,"large":30}.get(sim.vital_numbers.mode,23)
-	var used:Array[Rect2]=[]
-	for entry in sim.vital_numbers.entries:
-		var progress:float=clampf(float(entry.age)/float(entry.life),0,1)
-		var anchor:Vector2=Geo.to_screen(entry.at,sim.rows)
-		anchor.y-=float(entry.height)*Geo.unit_scale(sim.rows)*Geo.scale_at_flat(entry.at,sim.rows)*.92
-		anchor+=Vector2(36 if entry.healing else -24,-progress*34-sin(minf(progress*3,1)*PI)*6)
-		var text:String=preload("res://scripts/combat_numbers.gd").text(entry.amount,entry.healing)
-		var color:=Color("#b8f5bf") if entry.healing else Color("#ffe0a0") if String(entry.uid).begins_with("z") else Color("#ff9c91")
-		color.a=minf(1,(1-progress)*3)
-		var width:float=font.get_string_size(text,HORIZONTAL_ALIGNMENT_LEFT,-1,point_size).x
-		var pos:Vector2=anchor-Vector2(width*.5,0)
-		var bounds:=Rect2(pos-Vector2(2,point_size),Vector2(width+4,point_size+5))
-		for attempt in 5:
-			if not used.any(func(rect):return rect.intersects(bounds)):break
-			pos.y-=point_size+5;bounds.position.y-=point_size+5
-		used.append(bounds)
-		canvas.draw_string_outline(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,point_size,4,Color(0.025,.025,.02,color.a*.95))
-		canvas.draw_string(font,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,point_size,color)
+	_feedback.draw(canvas,sim)

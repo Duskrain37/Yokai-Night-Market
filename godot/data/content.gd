@@ -768,7 +768,7 @@ static func terrain_factor(level: Dictionary) -> float:
 		var duration: float = wave_groups(level)*54.0+16.0
 		var opening_share := minf(1.0,70.0/duration)
 		return 54.0/lerpf(18.0+12.0*(1.0-2.4/40.0),42.0,opening_share)
-	if map == "theatre": return 54.0 / 48.0 * 1.10 # six transit-only cells + diversion.
+	if map == "theatre": return 54.0 / 42.0 * 1.10 # twelve transit-only cells; three simultaneous diversions.
 	if map == "ghostmarket": return 1.15 # one pair receives half of an unchanged roster.
 	if map not in ["island", "cavern"]:
 		return 1.0
@@ -911,7 +911,7 @@ const NEW_NIGHTS = [
 ]
 const NEW_LESSONS = [
 	["先在右侧三列扎稳阵脚。铜铃响起时，两座云台就快换位了。", "把香火分散留在常驻石台，别让整条防线随同一座云台歇下。", "借助追魂和抛射支援暂时失去火力的街道。", "落台上的草木会暂歇，归位后接着出手；留一手应急的草木。", "听风巡使会卷起风带、牵动云索。留心预警，给六条石梁都留火力。"],
-	["第七列是戏班通行的斜巷，不能种植。先在巷子两边各留一道防线。", "巷灯转向时，恶客会沿斜巷走到邻行；途中仍能打中，但不易打伤。", "催场锣会让脚步变急。用石磨拦住，铜铃放慢它们的步子。", "相邻两行互相照应，别把全部火力堆在引路前的那一行。", "百面班主登场后，留心幕布和锣点，把应急草木留给压轴。"],
+	["第七、八列是戏班通道，不能种植；第九列仍可落子。先在通道前后留好防线。", "挥袖引路时，三组斜巷同时把客人引往邻行；途中能打中，但只受一半伤害。", "催场锣会让通道里的所有客人加快五成。用石磨拦住，铜铃放慢它们的步子。", "相邻两行互相照应，别把全部火力堆在引路前的那一行。", "百面班主登场后，留心幕布和锣点，把应急草木留给压轴。"],
 	["看清三盏市灯的位置。每次开市会随机亮起一盏，客人循光而来。", "亮灯的两路来客更密，另四路仍有客人，不能空守。", "开市只改变客流方向。分散布阵，手里留些香火补最吃紧的两路。", "市灯转亮前会先摇晃报信，趁这几息把薄弱的一路补齐。", "鬼市掌灯人会封灯、招客。留意它所在两行，也别放过另外四条街。"],
 ]
 const NEW_INTRODUCTIONS = [

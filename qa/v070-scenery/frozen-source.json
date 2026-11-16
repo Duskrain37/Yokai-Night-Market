@@ -1,0 +1,22 @@
+{
+  "version": "0.7.0",
+  "build": "c78bb7d",
+  "files": 861,
+  "frozen_at": "2026-11-16T13:42:52.715372+08:00",
+  "baseline_build": "2a70f5b",
+  "regression_suites": 28,
+  "final_affected_suites": 10,
+  "specialized_checks": 118,
+  "native_input_checks": 12,
+  "native_scenery_captures": 63,
+  "legacy_native_ui_checks": 31,
+  "legacy_native_captures": 32,
+  "campaign_runs": 12,
+  "new_motion_clips": 21,
+  "new_motion_frames": 672,
+  "legacy_motion_unchanged": 176,
+  "all_motion_frames": 15264,
+  "approved_music_unchanged": 24,
+  "news_sha256": "7c7cc3d5f52d98c3feee0f8b2f794d77664469824f5a6ab678c3d170df5da555",
+  "failures": 0
+}

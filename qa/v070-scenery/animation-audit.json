@@ -1,0 +1,132 @@
+{
+  "clips": [
+    {
+      "actor": "scenery-troupe",
+      "clip": "idle",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-troupe",
+      "clip": "guide_up",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-troupe",
+      "clip": "guide_down",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-troupe",
+      "clip": "haste",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-cloud-lamp",
+      "clip": "dark",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-cloud-lamp",
+      "clip": "ignite",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-cloud-lamp",
+      "clip": "lit",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-cloud-lamp",
+      "clip": "extinguish",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-cloud-lamp",
+      "clip": "warning",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-pact-lamp",
+      "clip": "dark",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-pact-lamp",
+      "clip": "ignite",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-pact-lamp",
+      "clip": "lit",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-pact-lamp",
+      "clip": "extinguish",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-pact-lamp",
+      "clip": "warning",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-lotus-lamp",
+      "clip": "dark",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-lotus-lamp",
+      "clip": "ignite",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-lotus-lamp",
+      "clip": "lit",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-lotus-lamp",
+      "clip": "extinguish",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-lotus-lamp",
+      "clip": "warning",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-impact-ink",
+      "clip": "heavy",
+      "frames": 32,
+      "unique_frames": 32
+    },
+    {
+      "actor": "scenery-impact-ink",
+      "clip": "crowd",
+      "frames": 32,
+      "unique_frames": 32
+    }
+  ],
+  "frames": 672,
+  "failures": 0
+}

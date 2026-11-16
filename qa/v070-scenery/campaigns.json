@@ -1,0 +1,114 @@
+{
+  "failures": 0,
+  "runs": [
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "easy",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 248.299999999988,
+      "week": 6
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "easy",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 860.299999999875,
+      "week": 7
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "easy",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 742.766666666648,
+      "week": 8
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "normal",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 193.266666666658,
+      "week": 6
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "normal",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 452.866666666811,
+      "week": 7
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "normal",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 476.100000000163,
+      "week": 8
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "hard",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 232.099999999989,
+      "week": 6
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "hard",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 448.533333333475,
+      "week": 7
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "hard",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 382.700000000089,
+      "week": 8
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "nightmare",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 224.933333333323,
+      "week": 6
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "nightmare",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 191.966666666658,
+      "week": 7
+    },
+    {
+      "bad": "",
+      "bot_stalemate": 0,
+      "difficulty": "nightmare",
+      "outcome": "lost",
+      "pace_ok": true,
+      "t": 422.533333333454,
+      "week": 8
+    }
+  ],
+  "scope": "Final three chapter fifth nights; four difficulties; seeded normal-cost recommendation bot, not human playtest or proof of impossibility"
+}

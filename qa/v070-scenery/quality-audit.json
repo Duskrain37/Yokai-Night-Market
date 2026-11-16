@@ -1,0 +1,27 @@
+{
+  "fonts": [
+    {
+      "font": "LXGWWenKai-Medium.ttf",
+      "required_supported": 1869,
+      "missing": []
+    },
+    {
+      "font": "LXGWWenKai-Regular.ttf",
+      "required_supported": 1869,
+      "missing": []
+    },
+    {
+      "font": "MaShanZheng-Regular.ttf",
+      "required_supported": 1841,
+      "missing": []
+    }
+  ],
+  "new_animation_actors": 5,
+  "new_32frame_clips": 21,
+  "all_motion_frames": 15264,
+  "legacy_motion_unchanged": 176,
+  "ordinary_guest_data_unchanged": true,
+  "approved_music": 24,
+  "plant_docx_sha256": "021b1b9114bc002a24d58a71aa6170c683a2117fbc75d428d2b996966fd5bbce",
+  "failures": 0
+}

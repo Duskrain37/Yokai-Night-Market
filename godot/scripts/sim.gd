@@ -217,6 +217,10 @@ class Plant:
 
 class Zombie:
 	var flare_reveal_until := 0.0
+	var scene_route_event := -1000.0
+	var scene_route_left := 0.0
+	var scene_route_right := 0.0
+	var scene_route_curved := false
 	var scene_route_done := false
 	var scene_route_active := false
 	var scene_route_from := 0
@@ -672,7 +676,8 @@ func _make_tiles() -> Array:
 			for col in 6:
 				grid[row][col]["kind"] = "cloud-platform" if chapter.platform_group(col,row) >= 0 else "walkway"
 	elif map == "theatre":
-		for row in rows: grid[row][6]["kind"] = "walkway"
+		for row in rows:
+			for col in [6,7]: grid[row][col]["kind"] = "walkway"
 	elif map == "cavern":
 		for row in rows:
 			for col in Content.CAVERN_WATER_CELLS[row]:
@@ -2061,6 +2066,8 @@ func tick(dt: float) -> void:
 	update_orbs(dt)
 	update_particles(dt)
 	vital_numbers.update(dt)
+	if vital_numbers.punch_requested:
+		request_hit_stop(.075); vital_numbers.punch_requested=false
 	flush_pending_spawns()
 	note_wave_peak()
 	_cleanup()
@@ -4720,8 +4727,8 @@ func update_zombies(dt: float) -> void:
 		var armor_speed = float(z.def.get("armor_speed", 1.0)) if z.armor > 0.0 and (z.type != "reedboat" or z.water_entered) else 1.0
 		var step = z.speed * slow_mult * rage * dt
 		chapter.try_route(z)
-		if z.scene_haste_until > time: step *= 1.5
-		if z.scene_route_active: step /= sqrt(1.0 + pow(Geo.cell_h(rows) / Geo.CELL_W, 2.0))
+		if chapter.haste_applies(z): step *= 1.5
+		step *= chapter.route_speed_factor(z)
 		z.scene_walk_distance += step
 		if z.reverse_t > 0.0:
 			# 回头：往进场方向走一小段，不传送、不换行、不强制停止啃食
@@ -5475,7 +5482,7 @@ func _damage_zombie_impl(z: Zombie, amount: float, silent: bool = false,
 			sfx("armor_break", {"armor": String(z.armor_type)})
 	z.set_meta("armor_was", z.armor)
 	var damage = amount
-	if z.scene_route_active: damage *= 0.5
+	if z.scene_route_active or (not z.carrier_uid.is_empty() and guest_uid(z.carrier_uid)!=null and guest_uid(z.carrier_uid).scene_route_active): damage *= 0.5
 	if z.type == "phaseguard":
 		var resisted = delivery != "" if z.phase_form == 0 else delivery == "lob"
 		damage *= 0.5 if resisted else 1.2
@@ -5602,6 +5609,7 @@ func kill_zombie(z: Zombie, spread_incense: bool = true, ash_damage: bool = fals
 	z.breached = true
 	sfx("zombie_die")
 	kills += 1
+	vital_numbers.defeated(z.pos)
 	_on_guest_defeated(z.row)
 	sfx("kill")
 	var colors = {
@@ -6673,8 +6681,10 @@ func _step_sky_wick(z: Zombie,dt: float) -> bool:
 	if z.pos.x<=Geo.BREACH_X+4*Geo.CELL_W and String(tile.kind) not in ["obstacle","object","blocked","pit","edge"]:
 		_land_sky_wick(z);return true
 	z.eating=false
-	var speed: float=z.speed*guest_attribute_factor(z,"speed",.5)
+	chapter.try_route(z)
+	var speed: float=z.speed*guest_attribute_factor(z,"speed",.5)*chapter.route_speed_factor(z)
 	z.pos.x+=speed*dt*(1 if z.reverse_t>0 else -1)
+	chapter.step_route(z)
 	z.reverse_t=maxf(0,z.reverse_t-dt);z.anim+=dt
 	if not z.passenger_uid.is_empty():
 		var passenger := guest_uid(z.passenger_uid)
@@ -6964,7 +6974,7 @@ func _guest_bonus(z: Zombie, kind: String) -> float:
 func guest_attribute_factor(z: Zombie, kind: String, form_bonus: float = 0.0) -> float:
 	var penalty:=Attr.penalty(z.attribute_penalties,kind,time)
 	if kind=="speed" and z.attribute_penalties.is_empty() and z.slow_t>0:penalty=1.0-z.slow_amount
-	return (_guest_bonus(z,kind)+form_bonus)*penalty
+	return (_guest_bonus(z,kind)+form_bonus)*penalty*(1.5 if kind=="speed" and chapter.haste_applies(z) else 1.0)
 
 func guest_vulnerability(z: Zombie, armor: bool = false) -> float:
 	var by_source:Dictionary={}

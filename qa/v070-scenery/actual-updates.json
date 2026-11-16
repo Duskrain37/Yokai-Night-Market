@@ -1,0 +1,180 @@
+{
+  "target_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+  "target_size": 1084387644,
+  "old_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+  "runs": [
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v070 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused more than ninety percent",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已准备好。重启后即可进入 v0.7.0。",
+      "phase": "ready",
+      "received": 204199372,
+      "required": 204199372,
+      "reused": 880194841,
+      "target_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+      "updater_build": "2bcd33c",
+      "updater_version": "0.5.6",
+      "wire_exe_bytes": 204199372,
+      "range_requests": 91,
+      "duration_seconds": 64.17
+    },
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v070 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused more than ninety percent",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已下载并校验完成，即将重启进入 v0.7.0。",
+      "phase": "ready",
+      "received": 172072919,
+      "required": 172072919,
+      "reused": 912321414,
+      "target_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+      "updater_build": "f7bd605",
+      "updater_version": "0.6.1",
+      "wire_exe_bytes": 172072919,
+      "range_requests": 78,
+      "duration_seconds": 57.11
+    },
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v070 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused more than ninety percent",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已下载并校验完成，即将重启进入 v0.7.0。",
+      "phase": "ready",
+      "received": 36949236,
+      "required": 36949236,
+      "reused": 1047438670,
+      "target_sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+      "updater_build": "2a70f5b",
+      "updater_version": "0.7.0",
+      "wire_exe_bytes": 36949236,
+      "range_requests": 25,
+      "duration_seconds": 22.47
+    },
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "newest same-version build is current",
+          "ok": true
+        },
+        {
+          "name": "current EXE remains untouched",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "phase": "current",
+      "received": 0,
+      "required": 0,
+      "updater_build": "c78bb7d",
+      "updater_version": "0.7.0",
+      "wire_exe_bytes": 0,
+      "range_requests": 0,
+      "duration_seconds": 2.42
+    }
+  ]
+}

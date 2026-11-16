@@ -22,6 +22,7 @@ var _effect_frames = preload("res://scripts/actor_frames.gd").new()
 var _guardian: Texture2D = null
 var mower_art: Dictionary = {}
 var obstacle_art: Dictionary = {}
+var _scenery = preload("res://scripts/chapter_scenery_view.gd").new()
 var _cloud_platform: Texture2D
 var _cloud_deck_meshes: Dictionary = {}
 
@@ -465,29 +466,7 @@ func _draw_cloud_tether(at: Vector2, strength: float, moving: bool) -> void:
 
 
 func _draw_alley_lights() -> void:
-	var elapsed: float = sim.time-sim.chapter.event_start
-	if elapsed<0 or elapsed>18: return
-	var pair: int = sim.chapter.event_pair
-	var strength: float = minf(1,elapsed/1.2)*minf(1,(18-elapsed)/1.0)
-	for row in range(pair*2,pair*2+2):
-		var at := _p(7.0/9,(row+.25)/6.0)
-		_draw_cloud_tether(at,strength,sim.chapter.event_active())
-		var next := _p(6.0/9,((row^1)+.8)/6.0)
-		for i in 18:
-			var f := i/17.0
-			var p := at.lerp(next,f)
-			draw_circle(p,3.0+sin(sim.time*3-f*4),Color(.94,.68,.32,.10*strength))
-
+	_scenery.theatre(self,sim)
 
 func _draw_market_lights() -> void:
-	var elapsed: float = sim.time-sim.chapter.event_start
-	for pair in 3:
-		var at := _p(1.03,(pair*2+1.0)/6.0)
-		var lit: bool = pair==sim.chapter.market_pair and elapsed>=0 and elapsed<20
-		var strength: float = (.55+.25*sin(sim.time*4)) if lit and elapsed<8 else (1.0 if lit else .18)
-		for glow in 4: draw_circle(at,10+glow*9,Color(.95,.48,.16,.055*strength))
-		_draw_cloud_tether(at,strength,lit)
-		if lit:
-			var top := _p(0,float(pair*2)/6)
-			var bottom := _p(1,float(pair*2+2)/6)
-			draw_rect(Rect2(top,bottom-top),Color(.78,.43,.16,.035*strength))
+	_scenery.market(self,sim)

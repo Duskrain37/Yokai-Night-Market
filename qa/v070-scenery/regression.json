@@ -1,0 +1,170 @@
+[
+  {
+    "suite": "logic",
+    "exit": 0,
+    "seconds": 1.5,
+    "issues": []
+  },
+  {
+    "suite": "battle",
+    "exit": 0,
+    "seconds": 34.3,
+    "issues": []
+  },
+  {
+    "suite": "boss",
+    "exit": 0,
+    "seconds": 0.9,
+    "issues": []
+  },
+  {
+    "suite": "special",
+    "exit": 0,
+    "seconds": 2.2,
+    "issues": []
+  },
+  {
+    "suite": "click",
+    "exit": 0,
+    "seconds": 8.9,
+    "issues": []
+  },
+  {
+    "suite": "player_ui",
+    "exit": 0,
+    "seconds": 6.6,
+    "issues": []
+  },
+  {
+    "suite": "patch",
+    "exit": 0,
+    "seconds": 8.6,
+    "issues": []
+  },
+  {
+    "suite": "animation",
+    "exit": 0,
+    "seconds": 19.1,
+    "issues": []
+  },
+  {
+    "suite": "v050",
+    "exit": 0,
+    "seconds": 1.0,
+    "issues": []
+  },
+  {
+    "suite": "v051_refresh",
+    "exit": 0,
+    "seconds": 5.3,
+    "issues": []
+  },
+  {
+    "suite": "v052",
+    "exit": 0,
+    "seconds": 4.4,
+    "issues": []
+  },
+  {
+    "suite": "v053",
+    "exit": 0,
+    "seconds": 7.7,
+    "issues": []
+  },
+  {
+    "suite": "v054",
+    "exit": 0,
+    "seconds": 7.0,
+    "issues": []
+  },
+  {
+    "suite": "v054_content",
+    "exit": 0,
+    "seconds": 0.8,
+    "issues": []
+  },
+  {
+    "suite": "nightmare",
+    "exit": 0,
+    "seconds": 4.7,
+    "issues": []
+  },
+  {
+    "suite": "dual_soak",
+    "exit": 0,
+    "seconds": 22.0,
+    "issues": []
+  },
+  {
+    "suite": "v055",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "update",
+    "exit": 0,
+    "seconds": 0.4,
+    "issues": []
+  },
+  {
+    "suite": "v056",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "v060",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "pc_todo",
+    "exit": 0,
+    "seconds": 12.5,
+    "issues": []
+  },
+  {
+    "suite": "art_overhaul",
+    "exit": 0,
+    "seconds": 11.1,
+    "issues": []
+  },
+  {
+    "suite": "v061",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "v061_ui",
+    "exit": 0,
+    "seconds": 4.3,
+    "issues": []
+  },
+  {
+    "suite": "todo_20261115",
+    "exit": 0,
+    "seconds": 0.9,
+    "issues": []
+  },
+  {
+    "suite": "todo_ui_20261115",
+    "exit": 0,
+    "seconds": 6.2,
+    "issues": []
+  },
+  {
+    "suite": "v070",
+    "exit": 0,
+    "seconds": 0.7,
+    "issues": []
+  },
+  {
+    "suite": "v070_plants",
+    "exit": 0,
+    "seconds": 0.8,
+    "issues": []
+  }
+]

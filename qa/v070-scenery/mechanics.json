@@ -1,0 +1,478 @@
+{
+  "checks": [
+    {
+      "name": "第0行7/8禁种9可种",
+      "ok": true
+    },
+    {
+      "name": "第1行7/8禁种9可种",
+      "ok": true
+    },
+    {
+      "name": "第2行7/8禁种9可种",
+      "ok": true
+    },
+    {
+      "name": "第3行7/8禁种9可种",
+      "ok": true
+    },
+    {
+      "name": "第4行7/8禁种9可种",
+      "ok": true
+    },
+    {
+      "name": "第5行7/8禁种9可种",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道true路0",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道true路1",
+      "ok": true
+    },
+    {
+      "name": "借道半伤",
+      "ok": true
+    },
+    {
+      "name": "两列中点连续且与绘制路径同坐标",
+      "ok": true
+    },
+    {
+      "name": "中途保存不跳帧且方向不变",
+      "ok": true
+    },
+    {
+      "name": "走完两列才换行结束",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道true路2",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道true路3",
+      "ok": true
+    },
+    {
+      "name": "借道半伤",
+      "ok": true
+    },
+    {
+      "name": "两列中点连续且与绘制路径同坐标",
+      "ok": true
+    },
+    {
+      "name": "中途保存不跳帧且方向不变",
+      "ok": true
+    },
+    {
+      "name": "走完两列才换行结束",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道true路4",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道true路5",
+      "ok": true
+    },
+    {
+      "name": "借道半伤",
+      "ok": true
+    },
+    {
+      "name": "两列中点连续且与绘制路径同坐标",
+      "ok": true
+    },
+    {
+      "name": "中途保存不跳帧且方向不变",
+      "ok": true
+    },
+    {
+      "name": "走完两列才换行结束",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道false路0",
+      "ok": true
+    },
+    {
+      "name": "借道半伤",
+      "ok": true
+    },
+    {
+      "name": "两列中点连续且与绘制路径同坐标",
+      "ok": true
+    },
+    {
+      "name": "中途保存不跳帧且方向不变",
+      "ok": true
+    },
+    {
+      "name": "走完两列才换行结束",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道false路1",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道false路2",
+      "ok": true
+    },
+    {
+      "name": "借道半伤",
+      "ok": true
+    },
+    {
+      "name": "两列中点连续且与绘制路径同坐标",
+      "ok": true
+    },
+    {
+      "name": "中途保存不跳帧且方向不变",
+      "ok": true
+    },
+    {
+      "name": "走完两列才换行结束",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道false路3",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道false路4",
+      "ok": true
+    },
+    {
+      "name": "借道半伤",
+      "ok": true
+    },
+    {
+      "name": "两列中点连续且与绘制路径同坐标",
+      "ok": true
+    },
+    {
+      "name": "中途保存不跳帧且方向不变",
+      "ok": true
+    },
+    {
+      "name": "走完两列才换行结束",
+      "ok": true
+    },
+    {
+      "name": "三组同时借道false路5",
+      "ok": true
+    },
+    {
+      "name": "十八名恶客均引路，无四人上限",
+      "ok": true
+    },
+    {
+      "name": "通道内第0名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第1名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第2名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第3名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第4名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第5名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第6名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第7名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第8名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第9名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第10名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第11名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第12名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第13名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第14名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第15名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第16名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "通道内第17名全员加速",
+      "ok": true
+    },
+    {
+      "name": "离开通道不再加速",
+      "ok": true
+    },
+    {
+      "name": "飞行恶客属性移动也加速",
+      "ok": true
+    },
+    {
+      "name": "大型恶客也受催场影响",
+      "ok": true
+    },
+    {
+      "name": "旧版单列中途存档仍沿原路径",
+      "ok": true
+    },
+    {
+      "name": "市灯连续阶段warning",
+      "ok": true
+    },
+    {
+      "name": "市灯连续阶段ignite",
+      "ok": true
+    },
+    {
+      "name": "市灯连续阶段lit",
+      "ok": true
+    },
+    {
+      "name": "市灯连续阶段extinguish",
+      "ok": true
+    },
+    {
+      "name": "市灯连续阶段dark",
+      "ok": true
+    },
+    {
+      "name": "新灯报信时旧灯独立熄灭",
+      "ok": true
+    },
+    {
+      "name": "市灯熄灭中途读档连续",
+      "ok": true
+    },
+    {
+      "name": "同一盏重新报信也先自然熄灭",
+      "ok": true
+    },
+    {
+      "name": "同灯熄灭后接续报信",
+      "ok": true
+    },
+    {
+      "name": "伤害治疗皆无正负号",
+      "ok": true
+    },
+    {
+      "name": "伤害与字号严格递增且有上限",
+      "ok": true
+    },
+    {
+      "name": "连续伤害按实际累计，数值未变",
+      "ok": true
+    },
+    {
+      "name": "十名同时击退只有一个强反馈",
+      "ok": true
+    },
+    {
+      "name": "关闭数字清理全部额外反馈",
+      "ok": true
+    },
+    {
+      "name": "数字与群体反馈不改变战斗存档或随机数",
+      "ok": true
+    },
+    {
+      "name": "troupe/idle独立32帧",
+      "ok": true
+    },
+    {
+      "name": "troupe/guide_up独立32帧",
+      "ok": true
+    },
+    {
+      "name": "troupe/guide_down独立32帧",
+      "ok": true
+    },
+    {
+      "name": "troupe/haste独立32帧",
+      "ok": true
+    },
+    {
+      "name": "cloud-lamp/dark独立32帧",
+      "ok": true
+    },
+    {
+      "name": "cloud-lamp/ignite独立32帧",
+      "ok": true
+    },
+    {
+      "name": "cloud-lamp/lit独立32帧",
+      "ok": true
+    },
+    {
+      "name": "cloud-lamp/extinguish独立32帧",
+      "ok": true
+    },
+    {
+      "name": "cloud-lamp/warning独立32帧",
+      "ok": true
+    },
+    {
+      "name": "pact-lamp/dark独立32帧",
+      "ok": true
+    },
+    {
+      "name": "pact-lamp/ignite独立32帧",
+      "ok": true
+    },
+    {
+      "name": "pact-lamp/lit独立32帧",
+      "ok": true
+    },
+    {
+      "name": "pact-lamp/extinguish独立32帧",
+      "ok": true
+    },
+    {
+      "name": "pact-lamp/warning独立32帧",
+      "ok": true
+    },
+    {
+      "name": "lotus-lamp/dark独立32帧",
+      "ok": true
+    },
+    {
+      "name": "lotus-lamp/ignite独立32帧",
+      "ok": true
+    },
+    {
+      "name": "lotus-lamp/lit独立32帧",
+      "ok": true
+    },
+    {
+      "name": "lotus-lamp/extinguish独立32帧",
+      "ok": true
+    },
+    {
+      "name": "lotus-lamp/warning独立32帧",
+      "ok": true
+    },
+    {
+      "name": "impact-ink/heavy独立32帧",
+      "ok": true
+    },
+    {
+      "name": "impact-ink/crowd独立32帧",
+      "ok": true
+    }
+  ],
+  "failures": 0,
+  "total": 118
+}

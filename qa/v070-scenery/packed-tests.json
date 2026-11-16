@@ -1,0 +1,29 @@
+{
+  "runs": [
+    {
+      "suite": "qa_scenery_hotfix",
+      "exit": 0,
+      "issues": [],
+      "seconds": 0.75
+    },
+    {
+      "suite": "qa_v070",
+      "exit": 0,
+      "issues": [],
+      "seconds": 0.6
+    },
+    {
+      "suite": "qa_v070_plants",
+      "exit": 0,
+      "issues": [],
+      "seconds": 0.67
+    },
+    {
+      "suite": "qa_v070_boss",
+      "exit": 0,
+      "issues": [],
+      "seconds": 0.77
+    }
+  ],
+  "failures": 0
+}

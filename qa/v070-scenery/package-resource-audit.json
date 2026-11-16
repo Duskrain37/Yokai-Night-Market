@@ -1,0 +1,11 @@
+{
+  "entries_md5_verified": 1244,
+  "legacy_motion_byte_identical": 176,
+  "legacy_music_byte_identical": 24,
+  "news_byte_identical": true,
+  "motion_actors": 181,
+  "frames": 15264,
+  "sha256": "8609f3885c5eb86facccdea117b85cce604556c3946329bff04b8937fbf7189d",
+  "size": 1084387644,
+  "failures": 0
+}

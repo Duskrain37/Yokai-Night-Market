@@ -105,7 +105,7 @@ def bake_actor(item):
     for clip, (w, h, y, anchor, motions) in baked.items():
         frames = []
         for sample in range(FRAME_COUNT):
-            if (actor.startswith("v070-") and clip != "coin") or (actor in {"boss-wind-warden","boss-mask-master","boss-market-lamplord"} and clip in {"small","major","blink"}) or clip in {"reload_enter", "reload_exit", "land", "splash", "break", "sink", "collect", "release", "death", "steal", "pickup"}:
+            if (actor.startswith("scenery-") and clip in {"ignite","extinguish","heavy","crowd"}) or (actor.startswith("v070-") and clip != "coin") or (actor in {"boss-wind-warden","boss-mask-master","boss-market-lamplord"} and clip in {"small","major","blink"}) or clip in {"reload_enter", "reload_exit", "land", "splash", "break", "sink", "collect", "release", "death", "steal", "pickup"}:
                 position = min(len(motions) - 1.000001, sample * (len(motions) - 1) / (FRAME_COUNT - 1))
             else:
                 position = sample * len(motions) / FRAME_COUNT
