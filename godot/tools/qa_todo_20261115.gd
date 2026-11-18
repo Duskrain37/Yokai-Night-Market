@@ -30,7 +30,7 @@ func run():
 	check("回执拒绝其他文件路径",Installer.acknowledgement_path(own,"--update-ack=C:/其他/夜市.exe.update-ack").is_empty())
 	check("回执拒绝其他参数",Installer.acknowledgement_path(own,"--other="+own).is_empty())
 	check("新助手使用规范路径并保留90秒验证",Installer.script(own,own+".update-"+"a".repeat(12)+".part",{"sha256":"a".repeat(64),"build":"f7bd605","version":"0.6.1","size":100},1,"C:/game/result.json").contains("Replace([char]92,[char]47)") and Installer.script(own,"x",{"sha256":"a".repeat(64),"build":"f7bd605","version":"0.6.1","size":100},1,"x").contains("AddSeconds(90)"))
-	check("噩梦因子15种并且名字唯一",Rules.FACTORS.size()==15 and unique_count(Rules.FACTORS.map(func(f):return f.name))==15)
+	check("原有15项通用与新增6项地图因子名称均唯一",Rules.FACTORS.size()==21 and unique_count(Rules.FACTORS.map(func(f):return f.name))==21)
 	check("因子规定等级与点数",Rules.FACTORS.filter(func(f):return f.id=="no_capstone")[0].points==[3] and Rules.FACTORS.filter(func(f):return f.id=="seeds")[0].points.size()==3 and Rules.FACTORS.filter(func(f):return f.id=="early")[0].points.size()==2)
 	for spec in [[4,0],[5,1],[9,1],[10,2],[14,2],[15,3]]:check("总因子数危险层次%d"%spec[0],Rules.danger_band(spec[0])==spec[1])
 	for tier in [1,2]:

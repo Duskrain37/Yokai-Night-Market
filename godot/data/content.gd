@@ -14,7 +14,7 @@ const PLANT_ORDER: Array[String] = [
 	"mushroom", "cat", "shell", "lobber", "torch", "star", "needle", "judge",
 	"lily", "kelp", "gust", "firework", "squash", "dragon",
 	"ruin-cap", "sky-kite", "wish-till", "cash-pod", "ember-cicada", "herb-gourd", "reed-chime", "soul-casket", "year-banyan", "sky-mortar",
-	"root-palanquin", "watch-bloom", "vow-toad",
+	"root-palanquin", "watch-bloom", "vow-toad", "five-brew", "blank-orchid",
 ]
 
 const ZOMBIE_ORDER: Array[String] = [
@@ -22,7 +22,7 @@ const ZOMBIE_ORDER: Array[String] = [
 	"vault", "mourner", "sedan", "artisan", "ironjudge", "mountain", "bride",
 	"returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell",
 	"flinch", "wave-herald", "formless", "reed-shot", "sky-wick", "shield-envoy", "oar-barge",
-	"incense-thief", "sky-ferry",
+	"incense-thief", "sky-ferry", "mist-hat", "cloud-porter", "gong-imp", "curtain-effigy", "wick-pilgrim", "lantern-judge",
 ]
 
 const TIERS = {
@@ -34,6 +34,8 @@ const TIERS = {
 # ── 草木 ────────────────────────────────────────────────────────────────────
 # cost 香火 / cooldown 冷却秒 / hp 耐久 / sprite_h 立绘高度基准（像素，1600×900 画布）
 const PLANTS = {
+	"five-brew":{"name":"五味酿","role":"特殊","cost":175,"cooldown":15,"hp":300,"sprite_h":93,"tint":"#bd854e","five_brew":true},
+	"blank-orchid":{"name":"留白兰","role":"射弹","cost":200,"cooldown":16,"hp":300,"sprite_h":93,"tint":"#9ab7a0","blank_orchid":true},
 	"root-palanquin": {"name":"迁根轿","role":"灰烬","cost":75,"cooldown":35,"hp":1,"sprite_h":92,"ash":true,"no_upgrade":true,"transplant":true,"tint":"#8b9d68"},
 	"watch-bloom": {"name":"更筹花","role":"辅助","cost":175,"cooldown":20,"hp":300,"sprite_h":96,"watch_bloom":true,"tint":"#c0a56e"},
 	"vow-toad": {"name":"愿契金蟾","role":"射弹","cost":200,"cooldown":12,"hp":300,"sprite_h":92,"vow_toad":true,"tint":"#b19b59"},
@@ -444,6 +446,12 @@ const PLANTS = {
 }
 
 const ZOMBIES = {
+	"mist-hat":{"name":"蓑雾客","kind":"初阶 · 防灼","tier":"l","home_week":6,"hp":230,"speed":21,"dps":45,"sprite_h":93,"death":"ghost"},
+	"cloud-porter":{"name":"踏云役","kind":"中阶 · 借升台","tier":"m","home_week":6,"hp":525,"speed":20,"dps":60,"sprite_h":108,"death":"ghost"},
+	"gong-imp":{"name":"碎锣童","kind":"初阶 · 催步","tier":"l","home_week":7,"hp":200,"speed":23,"dps":48,"sprite_h":83,"death":"ghost"},
+	"curtain-effigy":{"name":"提幕傀","kind":"高阶 · 追引路","tier":"h","home_week":7,"hp":1050,"speed":19,"dps":80,"sprite_h":124,"death":"ghost"},
+	"wick-pilgrim":{"name":"循灯纸客","kind":"中阶 · 借灯火","tier":"m","home_week":8,"hp":510,"speed":22,"dps":62,"sprite_h":103,"death":"ghost"},
+	"lantern-judge":{"name":"裂灯判客","kind":"高阶 · 一次挡重击","tier":"h","home_week":8,"hp":970,"speed":19,"dps":86,"sprite_h":122,"death":"ghost"},
 	"incense-thief":{"name":"盗烬客","kind":"窃香","tier":"m","hp":380,"armor":0,"speed":13,"dps":55,"sprite_h":111,"death":"ghost","incense_thief":true},
 	"sky-ferry":{"name":"浮灯轿夫","kind":"空运","tier":"h","hp":480,"armor":1500,"armor_type":"sky-basket","armor_name":"浮灯轿架","speed":23,"armor_speed":1.5,"dps":70,"sprite_h":128,"death":"ghost","flying_tool":true,"air_ferry":true},
 	"sky-wick":{"name":"纸鸢鬼","kind":"飞行","tier":"m","hp":280,"armor":260,"armor_type":"kite-wing","armor_name":"纸鸢翼","speed":20,"armor_speed":1.5,"dps":60,"sprite_h":116,"death":"ghost","flying_tool":true},
@@ -586,7 +594,8 @@ const CAVERN_WATER_ROWS = [4, 5]
 const CAVERN_WATER_CELLS = [[1], [1, 2], [1, 2, 3], [2, 3], [0, 2, 3, 4, 5, 6, 7, 8], [0, 2, 3, 4, 5, 6, 7, 8]]
 const CAVERN_PITS = [[4, 6, 7], [6, 7], [6], [], [], []]
 const ISLAND_EDGE = [[0, 1, 7, 8], [0, 8], [], [], [0, 8], [0, 1, 7, 8]]
-const SPECIAL_THREATS = [1.6, 2.1, 3.1, 3.6, 4.2]
+const SPECIAL_THREATS = [2.5, 2.86, 3.21, 3.57, 3.93, 4.29, 4.64, 5.0]
+const SPECIAL_BOSSES = ["earth","paper","river","island","magistrate-full","wind-warden","mask-master","market-lamplord"]
 
 
 static func level_id_for(week: int, night: int = 0) -> int:
@@ -598,6 +607,7 @@ static func map_key(level: Dictionary) -> String:
 
 
 static func map_picture(level: Dictionary, overview := false) -> String:
+	if overview and bool(level.get("special",false)):return "res://assets/bg/map-deep-overview.png"
 	var key := map_key(level)
 	if overview and key in ["day6","day7","day8"]:return "res://assets/bg/map-%s-overview.png" % key
 	return "res://assets/bg/map-%s.%s" % [key, "jpg" if overview else "png"]
@@ -623,9 +633,9 @@ static func loadout_tips(map: String) -> Array:
 			if type not in first: first.append(type)
 		result=first
 	else:result=LOADOUT_TIPS.get(map,LOADOUT_TIPS.street).duplicate()
-	for type in ["watch-bloom","vow-toad","root-palanquin"]:
+	for type in ["watch-bloom","vow-toad","root-palanquin","five-brew","blank-orchid"]:
 		result.erase(type)
-		var position: int = {"watch-bloom":8,"vow-toad":11,"root-palanquin":18}[type]
+		var position: int = {"watch-bloom":8,"vow-toad":11,"root-palanquin":18,"five-brew":12,"blank-orchid":15}[type]
 		if map not in ["sky","theatre","ghostmarket"] and type=="watch-bloom":position=14
 		if map=="sky" and type=="root-palanquin":position=7
 		if map=="ghostmarket" and type=="vow-toad":position=7
@@ -910,14 +920,14 @@ const NEW_NIGHTS = [
 	["点市", "引客", "守市", "易市", "万灯"],
 ]
 const NEW_LESSONS = [
-	["先在右侧三列扎稳阵脚。铜铃响起时，两座云台就快换位了。", "把香火分散留在常驻石台，别让整条防线随同一座云台歇下。", "借助追魂和抛射支援暂时失去火力的街道。", "落台上的草木会暂歇，归位后接着出手；留一手应急的草木。", "听风巡使会卷起风带、牵动云索。留心预警，给六条石梁都留火力。"],
+	["先在右侧三列扎稳阵脚。铜铃响起时，留意哪座浮台上升、哪座下沉。", "在常驻石台留火力，产能草木通常可以在云中继续运作。", "借助追魂和抛射支援暂时失去火力的街道。", "浮台归位后，暂歇的草木会接着出手；留一手应急的草木。", "听风巡使会卷起风带、牵动云索。留心预警，给六条来路都留火力。"],
 	["第七、八列是戏班通道，不能种植；第九列仍可落子。先在通道前后留好防线。", "挥袖引路时，三组斜巷同时把客人引往邻行；途中能打中，但只受一半伤害。", "催场锣会让通道里的所有客人加快五成。用石磨拦住，铜铃放慢它们的步子。", "相邻两行互相照应，别把全部火力堆在引路前的那一行。", "百面班主登场后，留心幕布和锣点，把应急草木留给压轴。"],
 	["看清三盏市灯的位置。每次开市会随机亮起一盏，客人循光而来。", "亮灯的两路来客更密，另四路仍有客人，不能空守。", "开市只改变客流方向。分散布阵，手里留些香火补最吃紧的两路。", "市灯转亮前会先摇晃报信，趁这几息把薄弱的一路补齐。", "鬼市掌灯人会封灯、招客。留意它所在两行，也别放过另外四条街。"],
 ]
 const NEW_INTRODUCTIONS = [
-	[["ghost","tongue","straw","paper","mountain"],["stonehat","bucket","incense-thief"],["vault","sky-wick","mourner","returner"],["sky-ferry","artisan","shield-envoy","tamer"]],
-	[["ghost","tongue","straw","paper","mountain"],["vault","stonehat","returner"],["bucket","mourner","reed-shot","formless"],["sedan","dreambell","artisan","shield-envoy"]],
-	[["ghost","tongue","straw","paper","mountain"],["stonehat","bucket","incense-thief"],["vault","shieldguard","mourner","phaseguard"],["sedan","artisan","tamer","shield-envoy","sky-ferry"]],
+	[["ghost","tongue","straw","paper","mountain","mist-hat"],["stonehat","bucket","incense-thief","cloud-porter"],["vault","sky-wick","mourner","returner"],["sky-ferry","artisan","shield-envoy","tamer"]],
+	[["ghost","tongue","straw","paper","mountain","gong-imp"],["vault","stonehat","returner"],["bucket","mourner","reed-shot","formless"],["sedan","dreambell","artisan","shield-envoy","curtain-effigy"]],
+	[["ghost","tongue","straw","paper","mountain"],["stonehat","bucket","incense-thief","wick-pilgrim"],["vault","shieldguard","mourner","phaseguard"],["sedan","artisan","tamer","shield-envoy","sky-ferry","lantern-judge"]],
 ]
 
 
@@ -954,24 +964,31 @@ static func _build_levels() -> Array:
 				"waves": _night_roster(_with_guest_variants(build_waves(info["band"], [4, 4, 6, 6, 8][night]),
 					day_index + 1, night), day_index, night),
 			})
-	# 鬼市深处：二十大波，每四大波迎战一位恶首。
+	# 八个四波段落沿用各周压轴的来客组合；第一周街道不投放水路专属客人。
 	var special_waves: Array=[]
 	for section in SPECIAL_THREATS.size():
-		var chunk = _with_guest_variants(build_waves("late", 4), 3, 4)
+		var chunk := _night_roster(_with_guest_variants(build_waves("late", 4), section+1, 4), section, 4)
 		for wave in chunk:
 			wave.t=float(wave.t)+section*216.0
-			wave.threat= SPECIAL_THREATS[section]
-			if not allows_high_tier(special_waves.size()):
-				wave["budget_groups"] = wave["groups"]
-				wave["groups"] = wave["budget_groups"].map(func(group):
-					return [wave_guest_type(group[0], special_waves.size()), group[1]])
+			wave.threat=SPECIAL_THREATS[section]
+			wave.theme_week=section+1
+			for picks in wave.guest_slots:
+				for i in picks.size():
+					if bool(ZOMBIES[picks[i]].get("water_only",false)) or ZOMBIES[picks[i]].has("home_week"):
+						picks[i]={"l":"ghost","m":"paper","h":"mountain"}[ZOMBIES[picks[i]].tier]
+			var counts := {}
+			for picks in wave.guest_slots:
+				for guest in picks:
+					var legal := wave_guest_type(guest,special_waves.size())
+					counts[legal]=int(counts.get(legal,0))+1
+			wave.groups=[]
+			for guest in counts:wave.groups.append([guest,counts[guest]])
 			special_waves.append(wave)
-	special_waves = _night_roster(special_waves, 4, 4)
 	out.insert(SPECIAL_ID - 1, {"id":SPECIAL_ID,"special":true,"day":5,"night":0,"day_name":"特殊关","day_sub":"鬼市深处",
-		"map":"cavern","rows":6,"name":"鬼市深处","tag":"终极守夜","threat":SPECIAL_THREATS[0],"band":"late",
-		"water_rows":CAVERN_WATER_ROWS,"lane_weights":[10,20,20,20,15,15],"object_cells":[],"start_sun":100,"wave_groups":20,"boss_id":"",
-		"boss_checkpoints":["earth","paper","river","island","magistrate-full"],"waves":special_waves,
-		"theme":"二十大波，五场恶首。每四波击退一位恶首，带着阵容和香火继续深入。",
+		"map":"street","rows":DAYS[0].rows,"name":"鬼市深处","tag":"终极守夜","threat":SPECIAL_THREATS[0],"band":"late",
+		"water_rows":[],"lane_weights":[],"object_cells":[],"start_sun":100,"wave_groups":32,"boss_id":"",
+		"boss_checkpoints":SPECIAL_BOSSES,"waves":special_waves,
+		"theme":"三十二大波，八场恶首。每四波击退一位恶首，带着阵容和香火继续深入。",
 		"theme_zombie":""})
 	return out
 
@@ -983,6 +1000,7 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 		for type in ZOMBIE_ORDER:
 			if type == "incense-thief" and week < 1: continue
 			if type == "sky-ferry" and week < 3: continue
+			if int(ZOMBIES[type].get("home_week",week+1))!=week+1:continue
 			if not bool(ZOMBIES[type].get("sedan_only", false)) and not bool(ZOMBIES[type].get("flag_only", false)) and (week in [2, 4] or not bool(ZOMBIES[type].get("water_only", false))):
 				allowed.append(type)
 	else:

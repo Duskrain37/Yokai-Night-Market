@@ -15,8 +15,8 @@ func shell(s: Sim, plant: Sim.Plant, target: Sim.Zombie) -> Sim.Shot:
 	return s.shots[-1]
 func _initialize(): run.call_deferred()
 func run():
-	check("草木扩为35株，原32株保持",Content.PLANT_ORDER.size()==35)
-	check("本次恶客新增2种，共29种",Content.ZOMBIE_ORDER.size()==29 and Content.ZOMBIES.size()==29)
+	check("原35株及v0.7.2两株均在役",Content.PLANT_ORDER.size()==37)
+	check("原29种恶客及六位周特色恶客均在役",Content.ZOMBIE_ORDER.size()==35 and Content.ZOMBIES.size()==35)
 	var spawns := fresh()
 	for i in 300:
 		var incoming := spawns.spawn_zombie("ghost", i % spawns.rows)
@@ -60,7 +60,7 @@ func run():
 	s.kill_zombie(rider); check("乘客先退场清理轿夫关系",ferry.passenger_uid=="")
 	s=fresh(); var plant:=s.place_free("sky-mortar",2,2)
 	z=guest(s,"shieldguard"); var armor:float=z.armor; var hp:float=z.hp
-	s._mortar_impact(shell(s,plant,z)); check("基础炮弹绕过持牌鬼盾牌",z.armor==armor and is_equal_approx(z.hp,hp-185))
+	s._mortar_impact(shell(s,plant,z)); check("基础炮弹始终命中持牌鬼本体，范围同时削牌",is_equal_approx(z.armor,armor-185) and is_equal_approx(z.hp,hp-185))
 	z=guest(s,"ghost"); z.hp=1; s._mortar_impact(shell(s,plant,z))
 	check("基础炮弹灰烬击退不留尸",z.dead and not z.dying)
 	s=fresh(); plant=s.place_free("sky-mortar",2,2); z=guest(s,"sky-wick")

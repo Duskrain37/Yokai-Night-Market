@@ -114,6 +114,8 @@ func _ready() -> void:
 	for i in Content.DAYS.size():
 		var path = Content.map_picture(Content.DAYS[i], true)
 		if ResourceLoader.exists(path): _textures[DAY_KEYS[i]] = load(path)
+	var deep := Content.map_picture(Content.get_level(Content.SPECIAL_ID), true)
+	if ResourceLoader.exists(deep):_textures["deep"]=load(deep)
 	_build_actions()
 	_build_week_tabs()
 	_refresh_actions()
@@ -131,14 +133,15 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	_draw_picture()
-	_draw_route()
-	_draw_nodes()
+	if selected != Content.SPECIAL_ID:
+		_draw_route()
+		_draw_nodes()
 	_draw_footer()
 	_draw_header()
 
 func _draw_picture() -> void:
 	draw_rect(Rect2(Vector2.ZERO, Ui.canvas_size), Ui.INK)
-	var texture: Texture2D = _textures.get(DAY_KEYS[day - 1])
+	var texture: Texture2D = _textures.get("deep" if selected==Content.SPECIAL_ID else DAY_KEYS[day-1])
 	if texture != null:
 		var drawn = texture.get_size() * maxf(Ui.canvas_size.x / texture.get_width(), Ui.canvas_size.y / texture.get_height())
 		draw_texture_rect(texture, Rect2((Ui.canvas_size - drawn) / 2, drawn), false)
@@ -156,7 +159,7 @@ func _draw_header() -> void:
 	draw_string(Ui.display_font(), Vector2(230, 74), "守夜舆图", HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(34), Ui.GOLD_BRIGHT)
 	Art.diamond(self, Vector2(429, 62), 4, Ui.VERMILION, true)
 	var info: Dictionary = Content.DAYS[day - 1]
-	draw_string(Ui.medium_font(), Vector2(451, 69), "%s · %s" % [info.name, info.sub], HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(20), Ui.TEXT_DIM)
+	draw_string(Ui.medium_font(), Vector2(451, 69), "特殊关 · 鬼市深处" if selected==Content.SPECIAL_ID else "%s · %s" % [info.name,info.sub], HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(20), Ui.TEXT_DIM)
 	draw_string(Ui.body_font(), Vector2(820, 68), "← → 选夜 · Enter 入场", HORIZONTAL_ALIGNMENT_LEFT, -1, Ui.font_size(14), Ui.TEXT_FAINT)
 
 func _build_week_tabs() -> void:
@@ -370,6 +373,7 @@ func _draw_centered_glyph(font: Font, value: String, center: Vector2,
 
 
 func _gui_input(event: InputEvent) -> void:
+	if selected==Content.SPECIAL_ID:return
 	if event is InputEventKey and event.pressed:
 		if event.keycode in [KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END]:
 			var night = int(Content.get_level(selected).get("night", 0))

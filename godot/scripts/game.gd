@@ -18,7 +18,7 @@ var _loading_hold: Dictionary = {}
 var load_timings: Array=[]
 var _loading_busy := false
 
-const VERSION = "0.7.0"
+const VERSION = "0.7.2"
 const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
 var touch_router: Node
 const SAVE_PATH = "user://run.json"
@@ -1350,6 +1350,9 @@ func music_style() -> String:
 func wave_phase() -> String:
 	var total = int(sim.level.get("waves", []).size())
 	var index = sim.wave_index
+	if bool(sim.level.get("special",false)) and sim.level.get("boss_checkpoints",[]).size()==8:
+		var in_segment: int = maxi(0,index-1) - sim.special_bosses_completed*4*Content.WAVES_PER_GROUP
+		return "hot" if in_segment >= 2*Content.WAVES_PER_GROUP else "battle"
 	if sim.boss != null and sim.boss.alive():
 		return "final"
 	if total > 0 and index >= ceili(total * 0.5):
@@ -1410,9 +1413,12 @@ func _music_for_wave() -> void:
 	var day = 1
 	if sim.training:
 		day = int(training.get("day", 1))
+	elif bool(sim.level.get("special",false)) and sim.level.get("boss_checkpoints",[]).size()==8:
+		day = clampi(sim.special_bosses_completed+1,1,Content.SPECIAL_BOSSES.size())
 	elif sim.level.has("day"):
 		day = int(sim.level["day"])
 	var phase := wave_phase()
+	if phase == "battle" and bool(sim.level.get("special",false)):sim.battle_hot=false
 	if phase == "hot" and not sim.battle_hot and not sim.training and sim.tutorial == null:
 		sim.battle_hot = true
 		if sim.banner.is_empty():

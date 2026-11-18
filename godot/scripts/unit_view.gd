@@ -199,6 +199,7 @@ func _draw() -> void:
 		return
 	var cell_h = Geo.cell_h(sim.rows)
 	_draw_shadows(cell_h)
+	_draw_orchid_leaves()
 	for plant in sim.plants:
 		_draw_plant(plant, cell_h)
 	_draw_cloud_veils()
@@ -208,6 +209,7 @@ func _draw() -> void:
 		if z.boss_role=="" and z.carrier_uid.is_empty():_draw_zombie(z, cell_h)
 	_draw_armor_falls()
 	_draw_shots()
+	_draw_orchid_drops()
 	_draw_orbs()
 	_draw_particles()
 	_draw_floaters()
@@ -792,6 +794,11 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 		# Drive actual 32-frame gait by distance travelled on the narrow beam.
 		frame = z.scene_walk_distance / 8.0
 		lift -= sin(fposmod(z.scene_walk_distance/16.0,1.0)*PI)*2.0
+	if z.def.has("home_week"):
+		if z.dying:
+			clip="death";frame=clampf(z.death_t/maxf(.01,z.death_dur)*3.99,0,3.99)
+		elif z.hurt>0 and not z.eating:
+			clip="hurt";frame=clampf((.14-z.hurt)*23,0,3.99)
 	if (z.def.has("special_period") or z.def.has("reed_shot")) and sim.time - z.guest_action_at < 0.42:
 		clip = "swim_bite" if swimming else "attack"
 		frame = clampf((sim.time - z.guest_action_at) * 9.0, 0.0, 3.99)
@@ -877,12 +884,26 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 				Color(0.59, 0.83, 0.82, (1.0 - plunge) * (0.7 - band * 0.22)), 2.0)
 	if not z.dying:
 		_draw_status(z, foot, height, lift)
+		_draw_brew_seal(z,foot+Vector2(0,-height*.70+lift))
 	if health_bars != "off" and not z.dying:
 		_draw_health_bar(z, foot, height)
 	if tier_shapes and not z.dying:
 		var tier := String(z.def.get("tier", "l"))
 		var color := Color(String(Content.TIERS[tier].color))
 		Ui.draw_tier_shape(self, tier, foot + Vector2(-33, -height - 13), color)
+
+
+func _draw_brew_seal(z: Sim.Zombie, center: Vector2) -> void:
+	var mark: Dictionary=sim.v072.brews.get(z.uid,{})
+	if mark.is_empty():return
+	var mask := int(mark.get("mask",0))
+	var permanent := bool(mark.get("permanent",false))
+	var shade := Color("#c9a4de") if permanent else Color("#d0a476")
+	draw_colored_polygon(PackedVector2Array([center+Vector2(-8,0),center+Vector2(0,-8),center+Vector2(8,0),center+Vector2(0,8)]),Color(.10,.08,.10,.84))
+	draw_arc(center,8,0,TAU,20,shade,1.2,true)
+	for i in 4:
+		draw_circle(center+Vector2.from_angle(i*TAU/4.0)*5,1.7,Color(["#e4ca78","#ef9c87","#9cd8bc","#a4b8ee"][i]) if mask & (1<<i) else Color(.49,.39,.33,.72),true,-1,true)
+	if int(mark.get("extra",0))>0:draw_circle(center,1.8,Color("#f6e3b9"),true,-1,true)
 
 
 func _draw_ferry(z: Sim.Zombie, cell_h: float) -> void:
@@ -1371,6 +1392,11 @@ func _draw_shots() -> void:
 			_new_frames.draw_pose(self,"v054-relay-fx","range",sim.time*6.0,at,24,false,Color.WHITE)
 			continue
 		match look if look != "" else String(shot.kind):
+			"orchid":
+				var direction: Vector2=shot.dir.normalized()
+				_draw_glow(at,12,Color(.52,.83,.68,.34))
+				draw_colored_polygon(PackedVector2Array([at+direction*11,at+Vector2(0,-3),at-direction*9,at+Vector2(0,4)]),Color("#718e7b"))
+				draw_line(at-direction*6,at+direction*8,Color("#dfebbd"),1.5,true)
 			"dragon_1", "dragon_2", "dragon_3":
 				_draw_dragon_round(at, int(look.right(1)))
 			"ember":
@@ -1393,6 +1419,48 @@ func _draw_shots() -> void:
 				_draw_star(at, 8.0, Color("#ffe9a8"))
 			_:
 				_draw_pea(shot)
+
+
+func _draw_orchid_leaves() -> void:
+	for plant in sim.plants:
+		if plant.type!="blank-orchid" or plant.tier(1)!=3 or not sim.plant_on_stage(plant):continue
+		var state: Dictionary=sim.v072.orchids.get(plant.uid,{})
+		var layout: Dictionary=state.get("cells",{})
+		var origin: Vector2=Geo.to_screen(plant.pos,sim.rows)+Vector2(0,-10-plant.cloud_drop)
+		for item in layout.values():
+			var growth:=clampf((sim.time-float(item.at)+.55)/.55,0,1)
+			var target: Vector2=Geo.to_screen(sim.cell_pos(int(item.col),int(item.row)),sim.rows)+Vector2(0,-8-plant.cloud_drop)
+			var extent: Vector2=origin.lerp(target,.86*growth)
+			var delta: Vector2=extent-origin
+			var width:=delta.normalized().orthogonal()
+			var points:=PackedVector2Array()
+			for side in [1.0,-1.0]:
+				for j in 17:
+					var u: float=(j if side>0 else 16-j)/16.0
+					var bend: float=sin(PI*u)*(6.0+1.8*sin(sim.time*2+u*3+plant.phase))
+					points.append(origin+delta*u+width*(bend+side*8.0*sin(PI*u)*growth))
+			draw_colored_polygon(points,Color(.13,.22,.20,.74))
+			draw_line(origin,extent,Color(.55,.65,.47,.7),1.3,true)
+
+
+func _draw_orchid_drops() -> void:
+	for drop in sim.v072.droplets:
+		if sim.time<float(drop.start):continue
+		var u:=clampf((sim.time-float(drop.start))/maxf(.1,float(drop.end)-float(drop.start)),0,1)
+		for plant in sim.plants:
+			if plant.uid!=drop.uid or plant.dead:continue
+			var start:=Vector2(float(drop.from[0]),float(drop.from[1]))
+			var finish: Vector2=plant.pos+Vector2(0,-19-plant.cloud_drop)
+			var previous:=Vector2.ZERO
+			for j in range(9,-1,-1):
+				var k:=maxf(0,u-j*.028)
+				var at: Vector2=Geo.to_screen(start.lerp(finish,k)+Vector2(0,-50*sin(PI*k)),sim.rows)
+				if previous!=Vector2.ZERO:draw_line(previous,at,Color(.65,.96,.87,.48*(1.0-j/10.0)),2,true)
+				previous=at
+			_draw_glow(previous,15,Color(.44,.87,.77,.48))
+			draw_colored_polygon(PackedVector2Array([previous+Vector2(0,-12),previous+Vector2(-5,-3),previous+Vector2(-5,3),previous+Vector2(0,7),previous+Vector2(5,3),previous+Vector2(5,-3)]),Color("#b0e5d4"))
+			draw_circle(previous+Vector2(-2,-2),2,Color("#f1fcdb"),true,-1,true)
+			break
 
 
 func _draw_dragon_round(at: Vector2, tier: int) -> void:

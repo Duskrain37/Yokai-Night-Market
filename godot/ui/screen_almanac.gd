@@ -467,7 +467,7 @@ func _path_block(type: String, path: Dictionary) -> Control:
 	portrait.custom_minimum_size = Vector2(110, 100)
 	portrait.tooltip_text = TIER_WORDS[selected-1]+"展示"
 	header.add_child(portrait)
-	var skill:Dictionary=preload("res://data/active_skills.gd").definition(type)
+	var skill:Dictionary=preload("res://data/active_skills.gd").definition(type,int(path.id))
 	if not skill.is_empty() and int(skill.path)==int(path.id):
 		var icon:=TextureRect.new();icon.texture=load(skill.icon);icon.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;icon.custom_minimum_size=Vector2(60,60)

@@ -396,9 +396,6 @@ func _draw_chapter_terrain() -> void:
 		for group in order:
 			var elevation: float = state.a if group == 0 else state.b
 			var start: Vector2 = sim.chapter.platform_start(group,sim.time)
-			var top := _p(start.x/9.0,start.y/6.0)
-			var end := _p((start.x+4)/9.0,(start.y+3)/6.0)
-			var size := end-top
 			var drop := (1.0-elevation)*38.0
 			if _cloud_platform != null:
 				# Remove perspective already painted into the source before projecting
@@ -407,9 +404,7 @@ func _draw_chapter_terrain() -> void:
 				var tint := Color(.70+.30*elevation,.80+.20*elevation,.94+.06*elevation,.50+.50*elevation)
 				draw_mesh(_cloud_deck_mesh(group,start,drop),_cloud_platform,Transform2D.IDENTITY,tint)
 			if state.warning or state.moving:
-				var strength: float = .6+.25*sin(sim.time*5.0)
-				for corner in [top+Vector2(8,10),Vector2(end.x-8,top.y+10),end-Vector2(8,10),Vector2(top.x+8,end.y-10)]:
-					_draw_cloud_tether(corner+Vector2(0,drop),strength,state.moving)
+				_scenery.cloud_signal(self,sim,state,group,start,drop)
 	elif map_key == "day7": _draw_alley_lights()
 	elif map_key == "day8": _draw_market_lights()
 
@@ -446,23 +441,6 @@ func _cloud_deck_mesh(group: int,start: Vector2,drop: float) -> ArrayMesh:
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,arrays)
 	_cloud_deck_meshes[group]={"key":key,"mesh":mesh}
 	return mesh
-
-
-func _draw_cloud_tether(at: Vector2, strength: float, moving: bool) -> void:
-	# Lacquered silk and a bronze cloud ring move in place of diagram arrows.
-	var path := PackedVector2Array()
-	var length := 38.0 if moving else 26.0
-	for i in 17:
-		var f := i/16.0
-		path.append(at+Vector2(sin(f*5+sim.time*4)*f*5,-length*f))
-	draw_polyline(path,Color(.15,.10,.07,.85),7,true)
-	draw_polyline(path,Color(.73,.30,.19,.75),3.5,true)
-	var ring := path[-1]
-	draw_arc(ring,7,0,TAU,28,Color(.87,.65,.30,strength),2.0,true)
-	for i in 3: draw_arc(ring+Vector2((i-1)*7,-4),4,PI,TAU,14,Color(.94,.78,.44,strength*.7),1.3,true)
-	if moving:
-		var pulse := fposmod(sim.time*1.6,1.0)
-		draw_arc(at,12+pulse*28,PI*.1,PI*.9,22,Color(.83,.87,.83,(1-pulse)*.4),2,true)
 
 
 func _draw_alley_lights() -> void:

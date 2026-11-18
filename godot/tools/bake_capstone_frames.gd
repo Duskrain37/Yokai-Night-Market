@@ -34,6 +34,19 @@ func _bake() -> void:
 		var pair := arg.split("=", true, 1)
 		if pair.size() == 2:
 			options[pair[0].trim_prefix("--")] = pair[1]
+	if options.has("v072"):
+		for base in ["five-brew","blank-orchid"]:
+			var profile := "vessel" if base=="five-brew" else "canopy"
+			for tail in ["","-e1","-e2","-e3"]:
+				var actor: String=base+tail
+				var path: String="res://assets/sprites/"+actor+".png"
+				if not ResourceLoader.exists(path):
+					printerr("Missing sprite ",path);quit(1);return
+				var result: Dictionary=await _bake_actor(viewport,actor,"wall",_single_sprite(path,profile))
+				if result.is_empty():quit(1);return
+				catalog[actor]=result
+		_save_catalog(catalog)
+		quit(0);return
 	if options.has("actor"):
 		var actor := String(options["actor"])
 		var profile := String(options.get("profile", "upright"))

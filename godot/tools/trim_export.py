@@ -13,6 +13,7 @@ PORTRAITS = {"incense-thief", "sky-ferry", "bride", "gust", "firework", "squash"
              "flinch", "wave-herald", "formless", "reed-shot"}
 DESTRUCTION = {"sedan-loaded", "sedan-empty"}
 BOSS_PORTRAITS = {"boss-island", "boss-magistrate-bound", "boss-magistrate-full", "boss-wind-warden", "boss-mask-master", "boss-market-lamplord"}
+LAMP_SOURCE_LAYERS = {"scenery-cloud-lamp","scenery-pact-lamp","scenery-lotus-lamp"}
 
 
 class Pack:
@@ -57,7 +58,7 @@ def remove_candidates(pack):
     keys = json.loads(pack.file("data/actor_frames.json"))
     motion = json.loads(pack.file("data/actor_motion.json"))
     assert keys and keys.keys() == motion.keys()
-    retained_sources = {keys[actor]["file"] for actor in PORTRAITS | DESTRUCTION | BOSS_PORTRAITS}
+    retained_sources = {keys[actor]["file"] for actor in PORTRAITS | DESTRUCTION | BOSS_PORTRAITS | LAMP_SOURCE_LAYERS}
     removable_sources = set()
     for actor, info in keys.items():
         animated = motion[actor]
@@ -71,7 +72,7 @@ def remove_candidates(pack):
               "assets/bg/loading-menu.png"}
     return {
         "fallback_key_atlases": set().union(*(pack.imported(x) for x in removable_sources)),
-        "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name.endswith("_art_sources.json") or name in {"data/shell_open_art_local.json","data/art_overhaul_local.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json","data/news_v055.json","data/news_v056.json","data/news_v060.json"})}
+        "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name.endswith("_art_sources.json") or name in {"data/shell_open_art_local.json","data/art_overhaul_local.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json","data/news_v055.json","data/news_v056.json","data/news_v060.json","data/news_v070.json"})}
             | set().union(*(pack.imported(x) for x in unused if x + ".import" in pack.entries)),
     }
 

@@ -12,8 +12,10 @@ func tick_clear(s: Sim,seconds: float) -> void:
 		s.tick(1.0/60.0);s.sounds.clear();s.sound_detail.clear()
 func _init() -> void:
 	var level=Content.get_level(16)
-	check("独立特殊关二十大波",level.special and level.waves.size()==60 and Content.wave_groups(level)==20)
-	for i in 60:check("小拨%d威胁" % (i+1),is_equal_approx(float(level.waves[i].threat),Content.SPECIAL_THREATS[int(i/12)]))
+	check("独立特殊关三十二大波",level.special and level.waves.size()==96 and Content.wave_groups(level)==32)
+	check("第一周地形及独立舆图",level.map=="street" and level.rows==Content.DAYS[0].rows and ResourceLoader.exists(Content.map_picture(level,true)))
+	for i in 96:
+		check("小拨%d威胁和周主题" % (i+1),is_equal_approx(float(level.waves[i].threat),Content.SPECIAL_THREATS[int(i/12)]) and int(level.waves[i].theme_week)==int(i/12)+1)
 	for pair in [[0,[0,1,2,3]],[12,[0,1,2,3]],[13,[4,5,6,7]],[24,[4,5,6,7]],[25,[8,9,10,11]],[36,[8,9,10,11]]]:
 		check("四波翻页边界%d" % pair[0],Content.visible_wave_groups(level,pair[0])==pair[1])
 	check("六波末页不显示不存在的波",Content.visible_wave_groups(Content.get_level(3),13)==[4,5])
@@ -21,7 +23,7 @@ func _init() -> void:
 	var s=Sim.new();s.setup(level,["lantern","lily","shooter"],"normal")
 	var wins=[0];s.on_win=func():wins[0]+=1
 	var p=s.place_free("shooter",2,0);p.paid_incense=225
-	for section in 5:
+	for section in 8:
 		for i in int(360*60):
 			if s.boss!=null:break
 			tick_clear(s,1.0/60.0)
@@ -36,7 +38,7 @@ func _init() -> void:
 		s.boss.damage_token="";s.boss.damage(null,s.boss.max_hp*2)
 		tick_clear(s,2.1)
 		check("段%d击败后只推进一个检查点" % section,s.special_bosses_completed==section+1 and s.boss==null)
-		if section<4:
+		if section<7:
 			check("中途恶首不能结算全关",wins[0]==0 and not s.is_cleared())
 			check("深入鬼市不重置阵容",s.main_plant_at(2,0)==p and p.paid_incense==225)
 			var expected := (section + 1) * Content.WAVES_PER_GROUP * 4 + 1
@@ -46,7 +48,7 @@ func _init() -> void:
 			check("下一拨仍按正常节奏接续", s.wave_index == next_index)
 			var resumed=Sim.new();resumed.restore(JSON.parse_string(JSON.stringify(s.serialize())))
 			check("下一段存档保留时钟偏移",is_equal_approx(resumed.wave_time_offset,s.wave_time_offset) and resumed.special_bosses_completed==section+1 and resumed.boss==null)
-		else:check("第五恶首之后才通关",s.is_cleared() and wins[0]>0 and s.boss_history.size()==5)
+		else:check("第八恶首之后才通关",s.is_cleared() and wins[0]>0 and s.boss_history.size()==8)
 	var f=FileAccess.open("res://qa/special-tests.json",FileAccess.WRITE)
 	f.store_string(JSON.stringify({"total":rows.size(),"failures":failures,"checks":rows},"  "))
 	print("SPECIAL ",rows.size()," FAILURES ",failures)

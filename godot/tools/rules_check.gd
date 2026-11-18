@@ -34,9 +34,9 @@ static func run_all(harness) -> void:
 
 
 static func _check_content(h) -> void:
-	h.check("内容", "35 种草木齐备", Content.PLANTS.size() == 35,
+	h.check("内容", "37 种草木齐备", Content.PLANTS.size() == 37,
 		"实际 %d" % Content.PLANTS.size())
-	h.check("内容", "29 种恶客齐备", Content.ZOMBIES.size() == 29,
+	h.check("内容", "35 种恶客齐备", Content.ZOMBIES.size() == 35,
 		"实际 %d" % Content.ZOMBIES.size())
 	h.check("内容", "四十夜与特殊关齐备", Content.LEVELS.size() == 41 and Content.get_level(16).get("special",false),
 		"实际 %d" % Content.LEVELS.size())
@@ -53,7 +53,7 @@ static func _check_content(h) -> void:
 	var rows_ok = true
 	var detail = ""
 	for level in Content.LEVELS:
-		var expect = 5 if level["day"] == 3 or level["day"] == 1 else 6
+		var expect = 5 if level["day"] == 3 or level["day"] == 1 or level.get("special",false) else 6
 		if int(level["rows"]) != expect:
 			rows_ok = false
 			detail += "关%d 行数=%d " % [level["id"], level["rows"]]
@@ -168,7 +168,7 @@ static func _check_upgrade_rules(h) -> void:
 					detail += "%s-%d-%d=%d " % [type, path["id"], tier + 1, cost]
 				last = cost
 	h.check("升阶", "所有升阶费用都是 25 的倍数且逐阶递增", cost_ok, detail)
-	h.check("升阶", "25 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 25, detail)
+	h.check("升阶", "27 株都是三路三阶", tree_ok and Upgrades.TREES.size() == 27, detail)
 	h.check("升阶", "签筒连发一级 100 香火",
 		Upgrades.tier_cost("shooter", 1, 1) == 100,
 		str(Upgrades.tier_cost("shooter", 1, 1)))
@@ -1529,7 +1529,7 @@ static func _check_v042_cards_and_guests(h) -> void:
 	armor = guard.armor
 	sim.damage_zombie(guard, 80.0, true)
 	sim.damage_zombie(guard, 100.0, true, true, "needle", "", false, "pea")
-	h.check("持牌鬼", "盾只挡射弹，非射弹伤本体", is_equal_approx(guard.hp, old_hp - 80.0)
+	h.check("持牌鬼", "非射弹伤本体，穿透射弹分别伤盾和本体", is_equal_approx(guard.hp, old_hp - 180.0)
 		and is_equal_approx(guard.armor, armor - 100.0))
 	h.check("蒲舟客", "陆地图无法出场", sim.spawn_zombie("reedboat", 0) == null)
 	var river = h.sim_for(11, ["lantern"], "easy")

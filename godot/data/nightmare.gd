@@ -174,7 +174,13 @@ const FACTORS = [
 		"points": [
 			1
 		]
-	}
+	},
+	{"id":"cloud_silence","name":"云中绝香","map":"sky","descriptions":["浮台没入云间后，产能草木也停止运作"],"points":[1]},
+	{"id":"cloud_immediate","name":"云渡抢更","map":"sky","descriptions":["开局立即开始浮台升降，取消70秒准备时间"],"points":[1]},
+	{"id":"troupe_fervor","name":"红绫催客","map":"theatre","descriptions":["引路途中的恶客减伤75%；催场加速提高至100%"],"points":[1]},
+	{"id":"troupe_encore","name":"急锣连场","map":"theatre","descriptions":["戏班发动能力的间隔缩短50%"],"points":[1]},
+	{"id":"lamp_ward","name":"灯下藏煞","map":"ghostmarket","descriptions":["市灯亮起时，对应两路的恶客减伤20%"],"points":[1]},
+	{"id":"lamp_crowd","name":"三灯赶市","map":"ghostmarket","descriptions":["每第三次三灯齐亮，亮灯期间来客总数增至1.5倍；六路各获原客流的25%"],"points":[2]}
 ]
 const INFO = "初月 · 月色尚浅，来客稀疏，适合初到夜市的守夜人。恶客数量与血量为常夜的 0.8 倍。\n\n常夜 · 长街寻常的一夜，以原定来客与血量迎战，数量与血量均为 1 倍。\n\n沉夜 · 夜色渐浓，来客稍密、身骨稍硬，数量与血量均为常夜的 1.1 倍。\n\n噩梦 · 百鬼叩门，四种守夜方式中最为凶险。恶客数量与血量均为常夜的 1.2 倍，另可在备战时添加噩梦因子。\n\n红星与金星\n噩梦守到天亮即可独立获得第四颗红星，惊动门神也不会失去红星。三颗金星分别要求：通关、至多惊动一次门神、从未惊动门神；每颗分别保存已获得的成绩。\n\n噩梦因子\n每条旁的数字为因子数，分级词条按当前等级计分。带因子通关，可在红星旁留下朱印与最佳因子数，并收录本次挑战徽章。因子随本局保存，开战后不能更改。\n\n残灯锁香：以连续滚动的 10 秒为窗口，超出香火上限的部分不会入账。\n夜禁封市：从一大波提示出现时开始，持续 5 秒，其间不能种植或升阶。\n草木薄命：被摧毁、铲除和灰烬草木用毕均计为损失；夜莲和龟甲罩也各算一株。龟甲罩被拆除、击碎或随宿主退场时同样计入。\n独修一途：按每株草木分别限制进化路线。香价腾烟只提高升阶费用。无门神不视为惊动门神。\n行囊缄缚：按所选等级携带十株或八株；选好因子后须取下超出的牌，开战时锁定。\n\n训练、教学和使用作弊的战斗不授予噩梦星与徽章。"
 static func loadout_limit(raw: Dictionary) -> int:
@@ -182,10 +188,12 @@ static func loadout_limit(raw: Dictionary) -> int:
 
 static func has_boss(level: Dictionary) -> bool:
 	return String(level.get("boss_id",""))!="" or not Array(level.get("boss_checkpoints",[])).is_empty()
+static func eligible(factor: Dictionary, level: Dictionary) -> bool:
+	return (not factor.get("boss_only",false) or has_boss(level)) and (not factor.has("map") or factor.map == level.get("map",""))
 static func sanitize(raw: Dictionary, level: Dictionary) -> Dictionary:
 	var result := {}
 	for f in FACTORS:
-		if f.get("boss_only",false) and not has_boss(level):continue
+		if not eligible(f,level):continue
 		var tier := clampi(int(raw.get(f.id,0)),0,f.points.size())
 		if tier>0:result[f.id]=tier
 	return result

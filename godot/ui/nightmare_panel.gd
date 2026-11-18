@@ -29,7 +29,7 @@ func _ready() -> void:
 	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED;box.add_child(scroll)
 	var list:=Ui.vbox(9);list.size_flags_horizontal=Control.SIZE_EXPAND_FILL;scroll.add_child(list)
 	for factor in Rules.FACTORS:
-		if factor.get("boss_only",false) and not Rules.has_boss(level):continue
+		if not Rules.eligible(factor,level):continue
 		var panel:=Danger.new();panel.name="Factor_"+String(factor.id);list.add_child(panel)
 		var row:=Ui.hbox(14);panel.add_child(row)
 		var icon:=Danger.emblem(factor.id);row.add_child(icon)
@@ -46,7 +46,7 @@ func _ready() -> void:
 		minus.pressed.connect(_change.bind(factor,-1));plus.pressed.connect(_change.bind(factor,1))
 	_refresh()
 func _change(factor: Dictionary,delta: int) -> void:
-	var raw:=Rules.sanitize(Dictionary(game.settings.get("nightmare_factors",{})),level)
+	var raw:=Dictionary(game.settings.get("nightmare_factors",{})).duplicate()
 	var tier:=clampi(int(raw.get(factor.id,0))+delta,0,factor.points.size())
 	if tier==0:raw.erase(factor.id)
 	else:raw[factor.id]=tier

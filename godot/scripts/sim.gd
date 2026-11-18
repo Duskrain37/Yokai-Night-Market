@@ -6,7 +6,7 @@
 ##
 ## 必须守住的设计不变量：
 ##  1. 增益异源相加、减益异源相乘；同来源更强覆盖、等强续时，较弱不延长较强效果。
-##  2. 护具先于本体：攻击先扣 armor，破具后才伤 hp。
+##  2. 普通命中按护具顺序；穿透射弹、范围伤害对外置护具与本体分别结算。
 ##  3. 每座最多开两路，每路逐级，只有一路能到三级（见 Upgrades.path_status）。
 ##  4. 尸体在死亡动画期间仍然挡射弹，但不啃食。
 ##  5. 训练场不刷波次、不判负、不写存档；教学关不写存档。
@@ -18,6 +18,9 @@ const ChapterDynamics = preload("res://scripts/chapter_dynamics.gd")
 var chapter = ChapterDynamics.new(self)
 const PlantAdditions = preload("res://scripts/plant_additions_v070.gd")
 var additions = PlantAdditions.new(self)
+const V072 = preload("res://scripts/plant_additions_v072.gd")
+var v072 = V072.new(self)
+const EXTERNAL_ARMOR := ["shield","raft","barge","sedan","sky-basket","sky-lantern"]
 var _moving_existing := false
 var _restoring_cloud_units := false
 var skill_serial := 0
@@ -603,6 +606,7 @@ func setup(p_level: Dictionary, loadout: Array, p_difficulty: String = "easy", f
 
 
 func _reset(loadout: Array) -> void:
+	v072.clear()
 	chapter = ChapterDynamics.new(self)
 	additions = PlantAdditions.new(self)
 	time = 0.0
@@ -820,6 +824,7 @@ func upgrade_status(plant: Plant,path_id: int) -> Dictionary:
 	var status := Upgrades.path_status(plant.type,plant.upgrades,path_id)
 	if not status.ok:return status
 	status.cost=ceili(float(status.cost)*float([1.0,1.5,2.0][factor("price")]))
+	status.cost=ceili(float(status.cost)*v072.discount(plant))
 	if time<curfew_until:
 		status.ok=false;status.reason="宵禁中，%d 秒后可升阶" % ceili(curfew_until-time)
 	if factor("no_capstone")>0 and int(status.next_tier)>=3:
@@ -1054,7 +1059,7 @@ func damage_plant(plant: Plant, amount: float, from: Zombie = null) -> void:
 	vital_numbers.record(plant.uid,plant.pos,absf(actual),actual<0,from!=null,float(plant.def.get("sprite_h",100)))
 
 func _damage_plant_impl(plant: Plant, amount: float, from: Zombie = null) -> void:
-	if not plant_on_stage(plant) or amount <= 0.0:
+	if not chapter.deck_exposed(plant) or amount <= 0.0:
 		return
 	if bool(plant.ash) or time < plant.ward_until:
 		return
@@ -1272,6 +1277,7 @@ func _refresh_plant_penalties(plant: Plant) -> void:
 func plant_effect_lines(plant: Plant) -> PackedStringArray:
 	var lines := PackedStringArray()
 	if not plant_on_stage(plant):lines.append("云台暂歇 · 升回后继续出手，仍可种植和升阶")
+	elif not chapter.deck_exposed(plant):lines.append("云间产能 · 浮台未升起，产能草木仍可运作")
 	if plant.type=="vow-toad":
 		lines.append("愿契 · %s · 至少留150香火" % {"hoard":"蓄香","fire":"开火","overclock":"超频"}.get(plant.toad_mode,"蓄香"))
 		if plant.toad_overclock_ready_at>time:lines.append("超频 · %d秒后可再次唤起" % ceili(plant.toad_overclock_ready_at-time))
@@ -1334,7 +1340,7 @@ func plant_can_attack(plant: Plant) -> bool:
 
 func plant_projectile(plant: Plant) -> bool:
 	if plant.type=="vow-toad":return true
-	return plant.type in ["shooter","needle","lobber","firework","sky-kite","cat","ember-cicada","star","sky-mortar","soul-casket"] or (plant.type=="year-banyan" and plant.tier(2)>0) or (plant.type=="wall" and plant.tier(3)>0) or (plant.type=="lantern" and plant.tier(2)>=3) or (plant.type=="wish-till" and plant.tier(2)>=3) or (plant.type=="dragon" and plant.tier(3)>0)
+	return plant.type in ["shooter","needle","lobber","firework","sky-kite","cat","ember-cicada","star","sky-mortar","soul-casket","blank-orchid"] or (plant.type=="year-banyan" and plant.tier(2)>0) or (plant.type=="wall" and plant.tier(3)>0) or (plant.type=="lantern" and plant.tier(2)>=3) or (plant.type=="wish-till" and plant.tier(2)>=3) or (plant.type=="dragon" and plant.tier(3)>0)
 
 func _tree_covers(source: Plant,target: Plant) -> bool:
 	if not plant_on_stage(source) or not plant_on_stage(target): return false
@@ -1365,6 +1371,7 @@ func _owner_air(uid: String) -> bool:
 
 func refresh_plant_buffs() -> void:
 	plant_bonus_sources.clear()
+	var orchid_bonuses: Dictionary=v072.collect_bonuses()
 	var lantern_damage := {}
 	var judge_damage := {}
 	var judge_haste := {}
@@ -1377,7 +1384,7 @@ func refresh_plant_buffs() -> void:
 	var lantern_fx: Dictionary = Upgrades.EFFECTS["lantern"]
 	var judge_fx: Dictionary = Upgrades.EFFECTS["judge"]
 	for source in plants:
-		if not plant_on_stage(source) or source.sleep_until > time or source.sealed_until > time:
+		if not chapter.deck_exposed(source) or source.sleep_until > time or source.sealed_until > time:
 			continue
 		if source.type=="bell" and source.tier(3)>=2:
 			for target in plants:
@@ -1446,6 +1453,13 @@ func refresh_plant_buffs() -> void:
 		plant.haste = (blessing_haste + till + cheer + herbal + bell + banyan) if attacks and plant.type!="soul-casket" else 0.0
 		if not attacks or plant.type=="soul-casket":blessing_haste=0;till=0;cheer=0;herbal=0;bell=0
 		var sources := {}
+		var orchid: Vector2=orchid_bonuses.get(plant.uid,Vector2.ZERO)
+		if attacks and not orchid.is_zero_approx():
+			plant.buff_damage+=orchid.x;plant.haste+=orchid.y
+			sources["留白兰"]=orchid
+		if attacks and v072.blessed(plant):
+			plant.buff_damage+=.20;plant.haste+=.20
+			sources["雨露"]=Vector2(.20,.20)
 		if bell>0:sources["铜铃"]=Vector2(0,bell)
 		if banyan>0 and attacks:sources["岁灯榕"]=Vector2(banyan,banyan if plant.type!="soul-casket" else 0.0)
 		for source in _banyan_pool():
@@ -1516,11 +1530,11 @@ func _release_queued_zombies() -> void:
 		# 旧存档可能在前三大波已排队、尚未放出高阶恶客。
 		if type != queued_type:
 			mass_scale *= _enemy_mass(queued_type) / _enemy_mass(type)
-		var z = spawn_zombie(type, int(entry["row"]), {
+		var arrived := spawn_market_arrivals(type, int(entry["row"]), {
 			"wave_no": wave_no, "mass_scale": mass_scale, "boss_wave": boss_wave,
 		})
-		if boss_wave and z != null and boss != null:
-			boss.add_count += 1
+		if boss_wave and boss != null:
+			boss.add_count += arrived
 	spawn_queue = keep
 
 
@@ -1801,6 +1815,19 @@ func choose_spawn_row(type: String, flexible_water: float = -1.0, water_share: f
 	return int(choices.back()[0])
 
 
+func spawn_market_arrivals(type: String, row: int, opts: Dictionary = {}) -> int:
+	var triple := chapter.triple_market_active() and type != "wave-herald" and not bool(Content.ZOMBIES.get(type, {}).get("water_only", false))
+	var entry_row: int = chapter.market_lane_cursor % 6 if triple else row
+	if spawn_zombie(type, entry_row, opts) == null: return 0
+	if triple:
+		chapter.next_market_lane()
+		chapter.market_base_count += 1
+		if chapter.market_base_count % 2 == 0 and spawn_zombie(type, chapter.market_lane_cursor % 6, opts) != null:
+			chapter.next_market_lane()
+			return 2
+	return 1
+
+
 func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 	if boss != null and boss.alive() and not bool(opts.get("sedan_split", false)) and not bool(opts.get("boss_wave", false)) \
 			and not bool(opts.get("guest_summoned", false)) \
@@ -1899,6 +1926,7 @@ func apply_vulnerable(z: Zombie, duration: float, amount: float, source: String 
 func apply_burn(z: Zombie, duration: float, dps: float, src: String = "", owner_uid: String = "") -> void:
 	if z == null or not z.alive() or duration <= 0.0 or dps <= 0.0:
 		return
+	if z.type=="mist-hat" and time>=z.silence_until:duration*=.5
 	var current = z.burn_dps if z.burn_t > 0.0 else 0.0
 	if dps > current + 0.0001 or (absf(dps - current) <= 0.0001 and duration > z.burn_t):
 		z.burn_dps = dps
@@ -2019,10 +2047,10 @@ func apply_shot_blast(shot: Shot, victim: Zombie) -> void:
 			continue
 		var distance = z.pos.distance_to(victim.pos)
 		if shot.firework_radius > 0.0 and distance <= shot.firework_radius:
-			damage_zombie(z, shot.damage * shot.firework_splash, false, false, String(shot.src), "", false, shot.kind, shot.owner_uid)
+			damage_zombie(z, shot.damage * shot.firework_splash, false, false, String(shot.src), "", false, "area", shot.owner_uid)
 			touched = true
 		if shot.torch_splash_ratio > 0.0 and distance <= shot.torch_splash_radius:
-			damage_zombie(z, shot.damage * shot.torch_splash_ratio, false, false, String(shot.src), "", false, shot.kind, shot.owner_uid)
+			damage_zombie(z, shot.damage * shot.torch_splash_ratio, false, false, String(shot.src), "", false, "area", shot.owner_uid)
 			touched = true
 		if shot.blast <= 0.0 or distance > shot.blast:
 			continue
@@ -2051,6 +2079,7 @@ func tick(dt: float) -> void:
 	time += dt
 	chapter.tick(dt)
 	additions.tick(dt)
+	v072.tick()
 	update_rear_notices()
 	_update_craters()
 	update_economy(dt)
@@ -2231,7 +2260,11 @@ func update_plants(dt: float) -> void:
 		if plant.shell_pulse > 0.0:
 			plant.shell_pulse = maxf(0.0, plant.shell_pulse - dt)
 		var def = plant.def
-		if def.has("watch_bloom"):
+		if def.has("five_brew"):
+			v072.update_brew(plant,dt)
+		elif def.has("blank_orchid"):
+			v072.update_orchid(plant,dt)
+		elif def.has("watch_bloom"):
 			pass # one shared clock is updated once by PlantAdditions.tick.
 		elif def.has("vow_toad"):
 			additions.update_toad(plant,dt)
@@ -2376,7 +2409,7 @@ func _direct_incense(plant: Plant, value: int) -> void:
 
 func _till_income(plant: Plant, value: int) -> void:
 	_direct_incense(plant, value)
-	if plant.tier(2) < 3 or time < plant.income_shot_at:
+	if plant.tier(2) < 3 or time < plant.income_shot_at or not chapter.deck_exposed(plant):
 		return
 	plant.income_shot_at = time + 0.4
 	var shot := Shot.new()
@@ -2391,7 +2424,7 @@ func _till_income(plant: Plant, value: int) -> void:
 
 func _on_guest_defeated(row: int) -> void:
 	for plant in plants:
-		if not plant.dead and plant.type == "wish-till" and plant.row == row and plant.sealed_until <= time and plant.sleep_until <= time:
+		if plant.type == "wish-till" and plant.row == row and plant_on_stage(plant) and plant.sealed_until <= time and plant.sleep_until <= time:
 			_till_income(plant, int(Upgrades.EFFECTS["wish-till"].income[plant.tier(1)]))
 
 
@@ -2401,6 +2434,7 @@ func _update_wish_till(plant: Plant, dt: float) -> void:
 		if plant.timer >= 6.0:
 			plant.timer -= 6.0
 			_till_income(plant, 50)
+	if not chapter.deck_exposed(plant):return
 	var tier := plant.tier(3)
 	if tier < 2 or time < plant.lane_pull_at:
 		return
@@ -2541,7 +2575,7 @@ func _update_producer(plant: Plant, dt: float) -> void:
 		})
 		# 火树（2-3）：每次产出香火顺手甩出一枚灯焰
 		var ember = float(Upgrades.EFFECTS["lantern"]["produce_shot"][plant.tier(2)])
-		if ember > 0.0:
+		if ember > 0.0 and chapter.deck_exposed(plant):
 			plant.action_at = time
 			plant.recoil = 0.8
 			var shot = Shot.new()
@@ -3116,7 +3150,7 @@ func plant_guard(target: Plant) -> float:
 			result = maxf(result, float(Upgrades.EFFECTS["judge"]["reduction"][source.tier(1)]))
 	for source in plants:
 		if _tree_covers(source,target):result=maxf(result,.25)
-	return result
+	return 1.0-(1.0-result)*(.7 if v072.blessed(target) else 1.0)
 
 
 func _judge_covers(source: Plant, target: Plant) -> bool:
@@ -4400,7 +4434,7 @@ func eat_target(z: Zombie) -> Plant:
 	var reach = float(z.def.get("reach", 38.0))
 	var best: Plant = null
 	for plant in plants:
-		if not plant_on_stage(plant) or plant.row != z.row or (plant.type=="squash" and plant.squash_at>=0):
+		if not chapter.deck_exposed(plant) or plant.row != z.row or (plant.type=="squash" and plant.squash_at>=0):
 			continue
 		if plant.is_lily and main_plant_at(plant.col, plant.row) != null:
 			continue
@@ -4582,7 +4616,7 @@ func update_zombies(dt: float) -> void:
 				var boom = z.bomb_damage
 				z.bomb_damage = 0.0
 				if boom > 0.0:
-					damage_zombie(z, boom, false, true, "lobber")
+					damage_zombie(z, boom, false, true, "lobber","soup_burst")
 					ring(Vector2(z.pos.x, z.pos.y - 24.0), Color(1.0, 0.7, 0.35, 0.62),
 						44.0, 0.45)
 					sfx("lob_shot")
@@ -4727,7 +4761,19 @@ func update_zombies(dt: float) -> void:
 		var armor_speed = float(z.def.get("armor_speed", 1.0)) if z.armor > 0.0 and (z.type != "reedboat" or z.water_entered) else 1.0
 		var step = z.speed * slow_mult * rage * dt
 		chapter.try_route(z)
-		if chapter.haste_applies(z): step *= 1.5
+		if time>=z.silence_until:
+			match z.type:
+				"cloud-porter":
+					var group: int=chapter.platform_group(floori((z.pos.x-Geo.BOARD_X)/Geo.CELL_W),z.row) if level.get("map","")=="sky" else -1
+					var lift: Dictionary=chapter.lift_state(time)
+					if group>=0 and lift.moving and float(lift.direction_a if group==0 else lift.direction_b)>0:step*=1.35
+				"gong-imp":
+					if z.phase_switched and time-z.guest_action_at<2:step*=1.45
+				"curtain-effigy":
+					if z.scene_route_done and not z.scene_route_active and time-z.guest_action_at<3:step*=1.35
+				"wick-pilgrim":
+					if chapter.event_active() and (chapter.market_all or int(z.row/2)==chapter.market_pair):step*=1.30
+		step *= chapter.haste_multiplier(z)
 		step *= chapter.route_speed_factor(z)
 		z.scene_walk_distance += step
 		if z.reverse_t > 0.0:
@@ -5055,7 +5101,8 @@ func _strike_straight(shot: Shot, victim: Zombie) -> void:
 	if large and bool(shot.payload.get("toad_large",false)):damage*=2
 	if shot.armor_double and victim.armor > 0.0:
 		damage *= 2.0
-	damage_zombie(victim, damage, false, shot.pierce_armor, String(shot.src), "", false, shot.kind, shot.owner_uid)
+	var dealt:=damage_zombie(victim,damage,false,shot.pierce_armor,String(shot.src),"",false,shot.kind,shot.owner_uid,false,shot.pierce_all or shot.pierce_left>0)
+	if dealt>0 and shot.src=="blank-orchid":v072.on_orchid_hit(shot.owner_uid)
 	# 排针（1-3）：针过去时另削 40 护具，削不完的留在护具上，不溢出本体
 	if shot.armor_strip > 0.0:
 		var before := float(victim.armor)
@@ -5250,7 +5297,7 @@ func _firework_ground_splash(shot: Shot) -> void:
 	var center = Vector2(shot.tx, shot.ty + 14.0)
 	for z in zombies:
 		if z.alive() and z.pos.distance_to(center) <= shot.firework_radius:
-			damage_zombie(z, shot.damage * shot.firework_splash, false, false, "firework", "", false, shot.kind, shot.owner_uid)
+			damage_zombie(z, shot.damage * shot.firework_splash, false, false, "firework", "", false, "area", shot.owner_uid)
 	ring(shot.pos, Color("#f5b461"), shot.firework_radius, 0.36)
 	spark(shot.pos, Color("#ffd080"), 15)
 
@@ -5290,7 +5337,7 @@ func _soup_impact(shot: Shot, victim: Zombie) -> void:
 				continue
 			extra += 1
 			damage_zombie(z, shot.base_damage * shot.splash_ratio, false, false,
-				String(shot.src), "", false, shot.kind, shot.owner_uid)
+				String(shot.src), "", false, "area", shot.owner_uid)
 		ring(shot.pos + Vector2(0, 8), Color(0.94, 0.76, 0.5, 0.55), shot.splash_radius, 0.5)
 	apply_shot_statuses(victim, shot)
 	apply_shot_blast(shot, victim)
@@ -5404,7 +5451,7 @@ func _star_impact(shot: Shot, victim: Zombie) -> void:
 		shot.counted = true
 		if seen >= 2:
 			damage *= 1.0 + shot.converge
-	var dealt = damage_zombie(victim, damage, false, false, String(shot.src), "", false, shot.kind, shot.owner_uid)
+	var dealt = damage_zombie(victim,damage,false,false,String(shot.src),"",false,shot.kind,shot.owner_uid,false,shot.pierce_left>0)
 	if not victim.alive() and shot.owner_uid != "":
 		for plant in plants:
 			if plant.uid!=shot.owner_uid or plant.dead:continue
@@ -5437,18 +5484,22 @@ func _star_impact(shot: Shot, victim: Zombie) -> void:
 # ── 伤害与死亡 ──────────────────────────────────────────────────────────────
 func damage_zombie(z: Zombie, amount: float, silent: bool = false,
 		pierce_armor: bool = false, source: String = "", event_key: String = "",
-		parallel_armor: bool = false, delivery: String = "", owner_uid: String = "", true_sight: bool = false) -> float:
-	# Boss encounters also receive direct continuous ticks; record once in that ledger.
-	if z==null or z.boss_role=="body" or vital_numbers.mode=="off":return _damage_zombie_impl(z,amount,silent,pierce_armor,source,event_key,parallel_armor,delivery,owner_uid,true_sight)
+		parallel_armor: bool = false, delivery: String = "", owner_uid: String = "", true_sight: bool = false, penetrating: bool = false) -> float:
+	if z==null or not z.alive():return 0.0
+	var attack_type := V072.primary(source,event_key,delivery)
+	var split := (z.armor_type in EXTERNAL_ARMOR or bool(z.def.get("projectile_shield",false))) and (attack_type==8 or (attack_type==1 and (penetrating or pierce_armor)))
+	amount*=v072.vulnerability(z,attack_type)
 	var before:float=maxf(0,z.hp)+maxf(0,z.armor)
-	var dealt:=_damage_zombie_impl(z,amount,silent,pierce_armor,source,event_key,parallel_armor,delivery,owner_uid,true_sight)
-	var actual:float=before-maxf(0,z.hp)-maxf(0,z.armor)
-	vital_numbers.record(z.uid,z.pos,maxf(0,actual),false,silent,float(z.def.get("sprite_h",100)))
+	var dealt:=_damage_zombie_impl(z,amount,silent,pierce_armor,source,event_key,parallel_armor or split,delivery,owner_uid,true_sight,split)
+	if z.boss_role!="body" and vital_numbers.mode!="off":
+		var actual:float=before-maxf(0,z.hp)-maxf(0,z.armor)
+		vital_numbers.record(z.uid,z.pos,maxf(0,actual),false,silent,float(z.def.get("sprite_h",100)))
+	if dealt>0.0:v072.observe(z,attack_type)
 	return dealt
 
 func _damage_zombie_impl(z: Zombie, amount: float, silent: bool = false,
 		pierce_armor: bool = false, source: String = "", event_key: String = "",
-		parallel_armor: bool = false, delivery: String = "", owner_uid: String = "", true_sight: bool = false) -> float:
+		parallel_armor: bool = false, delivery: String = "", owner_uid: String = "", true_sight: bool = false, split: bool = false) -> float:
 	if z == null or not z.alive():
 		return 0.0
 	if source=="sky-mortar" and delivery=="homing":event_key="mortar_soul"
@@ -5482,16 +5533,24 @@ func _damage_zombie_impl(z: Zombie, amount: float, silent: bool = false,
 			sfx("armor_break", {"armor": String(z.armor_type)})
 	z.set_meta("armor_was", z.armor)
 	var damage = amount
-	if z.scene_route_active or (not z.carrier_uid.is_empty() and guest_uid(z.carrier_uid)!=null and guest_uid(z.carrier_uid).scene_route_active): damage *= 0.5
+	if z.type=="lantern-judge" and not z.phase_switched and not silent and amount>=80 and time>=z.silence_until:
+		z.phase_switched=true
+		z.guest_action_at=time
+		damage-=40
+		ring(z.pos+Vector2(0,-28),Color("#eeb17b"),34,.38)
+	if z.scene_route_active or (not z.carrier_uid.is_empty() and guest_uid(z.carrier_uid)!=null and guest_uid(z.carrier_uid).scene_route_active): damage *= chapter.route_damage_multiplier()
+	damage *= chapter.market_ward_multiplier(z)
 	if z.type == "phaseguard":
 		var resisted = delivery != "" if z.phase_form == 0 else delivery == "lob"
 		damage *= 0.5 if resisted else 1.2
 	if bool(z.def.get("projectile_shield", false)) or z.armor_type=="shield":
 		pierce_armor = delivery not in ["pea", "star", "drift", "homing"]
+	if split:pierce_armor=false
 	var vulnerability := guest_vulnerability(z)-1.0
 	damage *= 1.0 + vulnerability
 	damage = quantized_damage(z.damage_carry, source + ":" + event_key, damage, silent)
 	var dealt = 0.0
+	var defer_break := false
 	if not pierce_armor and z.armor > 0.0:
 		var body_factor := 1.0 + vulnerability
 		var armor_factor := guest_vulnerability(z,true) / body_factor
@@ -5504,11 +5563,17 @@ func _damage_zombie_impl(z: Zombie, amount: float, silent: bool = false,
 		dealt += absorbed
 		if z.armor <= 0.0:
 			z.armor = 0.0
-			break_armor(z)
+			defer_break=split
+			if not defer_break:break_armor(z)
 	if dealt>0.0 or damage>0.0:last_guest_damage_at=time
 	if damage > 0.0 and z.alive():
 		z.hp -= damage
 		dealt += damage
+	if defer_break and z.hp>0:break_armor(z)
+	if z.type=="gong-imp" and not z.phase_switched and z.hp>0 and z.hp<=z.max_hp*.5 and time>=z.silence_until:
+		z.phase_switched=true
+		z.guest_action_at=time
+		ring(z.pos,Color("#e6a766"),27,.38)
 	if z.type == "phaseguard" and not z.phase_switched and z.hp > 0.0 and z.hp <= z.max_hp * 0.5:
 		z.phase_switched = true
 		z.phase_form = 1 - z.phase_form
@@ -5962,6 +6027,7 @@ func serialize() -> Dictionary:
 		"plant_rule_revision":61,"skill_serial":skill_serial,"unique_skill_ready_at":unique_skill_ready_at,"global_silence_until":global_silence_until,
 		"chapter_dynamics":chapter.serialize(),
 		"plant_additions_v070":additions.serialize(),
+		"plant_additions_v072":v072.save(),
 		"card_discounts":cards.map(func(c):return int(c.get("discount",0))),
 		"level_id": level_id, "rows": rows, "time": time, "sun": sun, "last_guest_damage_at":last_guest_damage_at,
 		"nightmare_losses":nightmare_losses,"nightmare_failed":nightmare_failed,"incense_window":incense_window.duplicate(true),"curfew_until":curfew_until,
@@ -6009,6 +6075,7 @@ func restore(data: Dictionary) -> void:
 	time = float(data.get("time", 0.0))
 	chapter.restore(Dictionary(data.get("chapter_dynamics", {})))
 	additions.restore(Dictionary(data.get("plant_additions_v070",{})))
+	v072.restore(Dictionary(data.get("plant_additions_v072",{})))
 	last_guest_damage_at=float(data.get("last_guest_damage_at",time))
 	sun = int(data.get("sun", 100))
 	wave_index = int(data.get("wave_index", 0))
@@ -6727,7 +6794,7 @@ func _sink_barge(z: Zombie) -> void:
 	z.split_done=true;z.raft_sink_t=.85;z.dying=true;z.death_t=0;z.death_dur=.85;z.eating=false
 	particles.append({"kind":"barge_sink","x":z.pos.x,"y":z.pos.y,"life":.85,"max":.85,"color":Color.WHITE})
 	for index in 5:
-		pending_spawns.append({"type":"ghost","row":z.row,"x":z.pos.x+(index-2)*48,"mass_scale":z.max_hp/(450.0*maxf(.01,hp_mul)*float(difficulty_mult().hp)),"sedan_split":true,"boss_wave":boss!=null,"wave_no":z.wave_no,"water_entry_t":.4})
+		pending_spawns.append({"type":"ghost","row":z.row,"x":z.pos.x+(index-2)*48,"mass_scale":maxf(1,z.hp)/(450.0*maxf(.01,hp_mul)*float(difficulty_mult().hp)),"sedan_split":true,"boss_wave":boss!=null,"wave_no":z.wave_no,"water_entry_t":.4})
 	ring(z.pos+Vector2(0,16),Color("#84aeb3"),68,.85);sfx("splash")
 
 
@@ -6788,7 +6855,7 @@ func _mortar_aim(plant: Plant = null) -> Zombie:
 	return best
 
 func active_skill_status(plant: Plant) -> Dictionary:
-	var data: Dictionary=Skills.definition(plant.type) if plant!=null else {}
+	var data: Dictionary=Skills.for_plant(plant) if plant!=null else {}
 	var unlocked:=plant!=null and not plant.dead and Skills.unlocked(plant)
 	var exists:=unlocked
 	var reason:=""
@@ -6814,12 +6881,13 @@ func activate_skill(plant: Plant) -> bool:
 	if not status.ready:
 		if status.unlocked:deny(String(status.reason),plant.pos)
 		return false
-	if plant.type not in ["judge","ember-cicada","watch-bloom","vow-toad"] and (_mortar_aim(plant)==null if plant.type=="sky-mortar" else lane_target(plant)==null):
+	if plant.type not in ["judge","ember-cicada","watch-bloom","vow-toad","blank-orchid"] and (_mortar_aim(plant)==null if plant.type=="sky-mortar" else lane_target(plant)==null):
 		deny("暂时没有可攻击的恶客",plant.pos);return false
 	plant.skill_ready_at=time+(0.0 if training and no_skill_cooldown else float(status.cooldown));plant.skill_cast_at=time;plant.action_at=time
 	if plant.type=="watch-bloom":additions.cast_bloom(plant)
 	elif plant.type=="ember-cicada":additions.cast_flare(plant)
 	elif plant.type=="vow-toad":additions.cycle_toad(plant);refresh_plant_buffs()
+	elif plant.type=="blank-orchid":v072.cast_orchid(plant);refresh_plant_buffs()
 	elif plant.type=="judge":
 		unique_skill_ready_at=plant.skill_ready_at;plant.skill_effect_until=time+8;global_silence_until=maxf(global_silence_until,time+8)
 		for ally in plants:
@@ -6974,7 +7042,7 @@ func _guest_bonus(z: Zombie, kind: String) -> float:
 func guest_attribute_factor(z: Zombie, kind: String, form_bonus: float = 0.0) -> float:
 	var penalty:=Attr.penalty(z.attribute_penalties,kind,time)
 	if kind=="speed" and z.attribute_penalties.is_empty() and z.slow_t>0:penalty=1.0-z.slow_amount
-	return (_guest_bonus(z,kind)+form_bonus)*penalty*(1.5 if kind=="speed" and chapter.haste_applies(z) else 1.0)
+	return (_guest_bonus(z,kind)+form_bonus)*penalty*(chapter.haste_multiplier(z) if kind=="speed" else 1.0)
 
 func guest_vulnerability(z: Zombie, armor: bool = false) -> float:
 	var by_source:Dictionary={}
@@ -7009,8 +7077,8 @@ func _torch_hit_factor(shot: Shot) -> float:
 	var factors:Array=Upgrades.EFFECTS.torch.pierce_factors[shot.torch_pierce_tier]
 	return float(factors[mini(shot.torch_hit_count,factors.size()-1)])
 
-func heal_plant(plant: Plant, amount: float, continuous: bool = false) -> float:
-	if not plant_on_stage(plant) or amount<=0:return 0.0
+func heal_plant(plant: Plant, amount: float, continuous: bool = false, reach_submerged: bool = false) -> float:
+	if plant==null or plant.dead or (not reach_submerged and not chapter.deck_exposed(plant)) or amount<=0:return 0.0
 	var actual:=minf(maxf(0,plant.max_hp-plant.hp),amount)
 	plant.hp+=actual
 	vital_numbers.record(plant.uid,plant.pos,actual,true,continuous,float(plant.def.get("sprite_h",100)))

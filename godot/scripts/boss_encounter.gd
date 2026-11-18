@@ -346,6 +346,12 @@ func _spawn_add(role: String,source=null) -> bool:
 		if lane==last_lane and lane_streak>=2:return false
 	if lane==last_lane:lane_streak+=1
 	else:last_lane=lane;lane_streak=1
+	if source == null and sim.chapter.triple_market_active():
+		var arrivals: int = sim.spawn_market_arrivals(type, lane)
+		if arrivals == 0: return false
+		spawn_gate = sim.time + 1.5
+		add_count += arrivals
+		return true
 	var z=sim.spawn_zombie(type,lane)
 	if z==null:return false
 	if source!=null and String(source.boss_meta.kind)=="tunnel" and int(source.boss_meta.c)>=5:

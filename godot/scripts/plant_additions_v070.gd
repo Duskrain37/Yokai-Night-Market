@@ -170,7 +170,7 @@ func coin_impact(shot,victim) -> void:
 		if s._guest_airborne(guest) and not s._owner_air(shot.owner_uid):continue
 		var amount: float=shot.damage*float(shot.payload.get("coin_splash",.5))
 		if guest.is_large() and bool(shot.payload.get("toad_large",false)):amount*=2
-		s.damage_zombie(guest,amount,false,false,shot.src,"",false,shot.kind,shot.owner_uid)
+		s.damage_zombie(guest,amount,false,false,shot.src,"",false,"area",shot.owner_uid)
 	if victim!=null:s.apply_shot_blast(shot,victim)
 	s.magic_effect("v070-coin-burst",center,100,.45)
 

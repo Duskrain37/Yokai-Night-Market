@@ -26,6 +26,10 @@ var spawn_lane = -1
 var _hover_card = -1
 
 var _factor_label: Label = null
+var _factor_alert: PanelContainer
+var _factor_alert_body: Label
+var _factor_alert_levels: Dictionary = {}
+var _factor_alert_until := -1.0
 var _sun_label: Label = null
 var _wave_label: Label = null
 var _hint_label: Label = null
@@ -178,6 +182,21 @@ func _build_hud() -> void:
 		_factor_label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 		_factor_label.custom_minimum_size=Vector2(184,0)
 		factor_plate.add_child(_factor_label)
+		_factor_alert = Ui.panel(.98, Color("#d08b48"))
+		_factor_alert.name = "NightmareLimitWarning"
+		_factor_alert.position = Vector2(18,505)
+		_factor_alert.custom_minimum_size.x = 220
+		_factor_alert.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var warning_box := Ui.vbox(4)
+		warning_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		warning_box.add_child(Ui.strong("夜契将触限", 17, Color("#ffd090")))
+		_factor_alert_body = Ui.label("", 14, Ui.TEXT)
+		_factor_alert_body.custom_minimum_size.x = 184
+		_factor_alert_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		warning_box.add_child(_factor_alert_body)
+		_factor_alert.add_child(warning_box)
+		_factor_alert.hide()
+		add_child(_factor_alert)
 	# 卡槽
 	var cards = HBoxContainer.new()
 	cards.add_theme_constant_override("separation", 5)
@@ -417,12 +436,7 @@ func refresh() -> void:
 	if sim == null or result_mode:
 		return
 	if _factor_label!=null:
-		var info: Array[String]=["噩梦 · 因子 %d" % sim.factor_points()]
-		if sim.factor("dim")>0:info.append("十秒香火\n%d / %d" % [sim.incense_received(),[0,1000,750][sim.factor("dim")]])
-		if sim.factor("loss")>0:info.append("草木损失 %d / %d" % [sim.nightmare_losses,[0,30,20][sim.factor("loss")]])
-		if sim.factor("seeds")>0:info.append("场上草木 %d / %d" % [sim.plant_population(),[0,30,25,20][sim.factor("seeds")]])
-		if sim.time<sim.curfew_until:info.append("宵禁还剩 %d 秒" % ceili(sim.curfew_until-sim.time))
-		_factor_label.text="\n".join(info)
+		_refresh_nightmare_limits(sim)
 	if _sun_label != null:
 		_sun_label.text = str(sim.sun)
 		_sun_label.add_theme_font_size_override("font_size", Ui.fit_font(Ui.medium_font(), _sun_label.text, 68, Ui.font_size(26)))
@@ -508,6 +522,43 @@ func refresh() -> void:
 
 ## 失败建议要对着这一夜真实发生过的事说。按"最该先改的那一件"排：
 ## 整夜没人守的行 → 香火花不完 → 前排一直倒 → 已被突口 → 兜底一句。
+func _refresh_nightmare_limits(sim: Sim) -> void:
+	var info: Array[String] = ["噩梦 · 因子 %d" % sim.factor_points()]
+	var alerts: Array[String] = []
+	var entered := false
+	for id in ["dim", "seeds", "loss"]:
+		var tier := sim.factor(id)
+		if tier == 0: continue
+		var amount := 0
+		var limit := 0
+		var threshold := 0
+		var title := ""
+		var consequence := ""
+		match id:
+			"dim":
+				amount = sim.incense_received(); limit = [0,1000,750][tier]; threshold = ceili(limit*.8)
+				title = "近十秒香火"; consequence = "超额不入账"
+			"seeds":
+				amount = sim.plant_population(); limit = [0,30,25,20][tier]; threshold = limit-3
+				title = "场上草木"; consequence = "满额后不能再种"
+			"loss":
+				amount = sim.nightmare_losses; limit = [0,30,20][tier]; threshold = limit-5
+				title = "草木损失"; consequence = "达到上限即失守"
+		var label := "%s %d / %d" % [title, amount, limit]
+		info.append(label)
+		var severity := 2 if amount >= limit-(1 if id=="loss" else 0) else (1 if amount >= threshold else 0)
+		var previous := int(_factor_alert_levels.get(id, 0))
+		if severity > previous: entered = true
+		if severity > 0:
+			alerts.append("%s\n%s" % [label, consequence])
+		_factor_alert_levels[id] = severity if amount < threshold-(25 if id=="dim" else 1) else maxi(previous, severity)
+	if sim.time < sim.curfew_until: info.append("宵禁还剩 %d 秒" % ceili(sim.curfew_until-sim.time))
+	_factor_label.text = "\n".join(info)
+	if entered: _factor_alert_until = sim.time + 5.0
+	_factor_alert_body.text = "\n".join(alerts)
+	_factor_alert.visible = not alerts.is_empty() and sim.time < _factor_alert_until
+
+
 func _loss_advice(summary: Dictionary, breached_rows: Array) -> String:
 	var empty_rows: Array = summary.get("empty_rows", [])
 	if not empty_rows.is_empty():
