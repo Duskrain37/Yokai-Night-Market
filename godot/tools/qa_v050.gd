@@ -61,7 +61,7 @@ func _run() -> void:
 	var pits := [[4, 6, 7], [6, 7], [6], [], [], []]
 	for row in 6:
 		for col in 9:
-			var expected := "water" if col in water[row] else ("pit" if col in pits[row] else "land")
+			var expected := "water" if col in water[row] else (("bridge" if row < 2 else "pit") if col in pits[row] else "land")
 			check("冥判窟表格格位 %d,%d" % [row, col], cave.tile_at(col, row).kind == expected)
 	for i in 300:
 		check("高阶与蒲舟客遵循出生路限制", cave.choose_spawn_row("mountain") < 4 and cave.choose_spawn_row("reedboat") >= 4)
@@ -72,6 +72,11 @@ func _run() -> void:
 	cave.update_zombies(0.016)
 	check("从河段回陆播放上岸", not ghost.water_entered and ghost.water_exit_t > 0)
 	ghost.pos.x = cave.cell_pos(7, 0).x
+	cave.update_zombies(0.016)
+	check("完整桥面可正常行走", ghost.object_hop <= 0 and not cave.can_place_at("shooter", 7, 0).ok)
+	for bridge in cave.shore.state.bridges:
+		if bridge.row == 0 and bridge.col in [6, 7]: bridge.intact = false
+	cave.shore.sync_tiles()
 	cave.update_zombies(0.016)
 	check("连通坑洞整段跨越", ghost.terrain_hop_to < cave.cell_pos(6, 0).x and ghost.object_hop > 0)
 	var boat := cave.spawn_zombie("reedboat", 4, {"x": cave.cell_pos(8, 4).x})

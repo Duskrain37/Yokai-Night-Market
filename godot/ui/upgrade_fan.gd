@@ -307,10 +307,35 @@ func _draw_effects() -> void:
 	draw_line(at + Vector2(13, 29), at + Vector2(w - 13, 29), Ui.GOLD_DIM, 1.0, true)
 	for i in lines.size():
 		var text := lines[i]
-		var harmful := "降低" in text or "沉睡" in text or "封印" in text
-		draw_string(Ui.body_font(), at + Vector2(13 + int(i / row_count) * column_width,
-			31 + float(i % row_count + 1) * row_height), text, HORIZONTAL_ALIGNMENT_LEFT,
-			column_width - 8, Ui.font_size(15), Ui.WARN if harmful else Ui.TEXT)
+		_draw_effect_text(at + Vector2(13 + int(i / row_count) * column_width,
+			31 + float(i % row_count + 1) * row_height), text)
+
+var _effect_numbers := RegEx.create_from_string("[0-9]+(?:\\.[0-9]+)?%?")
+
+func _draw_effect_text(at: Vector2, text: String) -> void:
+	var font := Ui.body_font()
+	var size_px := Ui.font_size(15)
+	var harmful := ("降低" in text and "受到的伤害降低" not in text) or "沉睡" in text or "封印" in text
+	var body := Ui.WARN if harmful else Ui.TEXT
+	var cursor := 0
+	for n in _effect_numbers.search_all(text):
+		var segment := text.substr(cursor, n.get_start() - cursor)
+		var context := segment
+		for delimiter in ["·", "、", "，", "（"]:
+			if context.contains(delimiter): context = context.get_slice(delimiter,context.get_slice_count(delimiter)-1)
+		draw_string(font,at,segment,HORIZONTAL_ALIGNMENT_LEFT,-1,size_px,body)
+		at.x += font.get_string_size(segment,HORIZONTAL_ALIGNMENT_LEFT,-1,size_px).x
+		var ink := Color("#daa58d") if harmful else Color("#ddc5a0")
+		if "攻击速度" in context: ink = Color("#8bcfc1")
+		elif "生产间隔" in context or "生产速度" in context: ink = Color("#bbb5ee")
+		elif "产出" in context or "香火" in context: ink = Color("#d5cf82")
+		elif "伤害" in context: ink = Color("#f0bd7d")
+		elif "护盾" in context or "罩" in text or "愿盾" in text: ink = Color("#9cbdda")
+		var number := n.get_string()
+		draw_string(font,at,number,HORIZONTAL_ALIGNMENT_LEFT,-1,size_px,ink)
+		at.x += font.get_string_size(number,HORIZONTAL_ALIGNMENT_LEFT,-1,size_px).x
+		cursor = n.get_end()
+	draw_string(font,at,text.substr(cursor),HORIZONTAL_ALIGNMENT_LEFT,-1,size_px,body)
 
 func _effects_height() -> float:
 	var count:=0

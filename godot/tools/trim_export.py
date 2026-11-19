@@ -76,10 +76,14 @@ def remove_candidates(pack):
             removable_sources.add(info["file"])
     unused = {"assets/bg/board.jpg", "assets/boss/weakpoint.svg", "assets/boss/boss_bar_frame.svg",
               "assets/bg/loading-menu.png"}
+    # Board and preload discover PNG before JPG. Keep source fallbacks for editors,
+    # but skip duplicate imported pixels in the verified Windows release.
+    unused.update(f"assets/bg/map-day{n}.jpg" for n in range(1,6)
+                  if f"assets/bg/map-day{n}.png.import" in pack.entries)
     return {
         "development_reports": DEVELOPMENT_REPORTS & pack.entries.keys(),
         "fallback_key_atlases": set().union(*(pack.imported(x) for x in removable_sources)),
-        "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name.endswith("_art_sources.json") or name in {"data/shell_open_art_local.json","data/art_overhaul_local.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json","data/news_v055.json","data/news_v056.json","data/news_v060.json","data/news_v070.json"})}
+        "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name.endswith("_art_sources.json") or name in {"data/shell_open_art_local.json","data/art_overhaul_local.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json","data/news_v055.json","data/news_v056.json","data/news_v060.json","data/news_v070.json","data/news_v072.json"})}
             | set().union(*(pack.imported(x) for x in unused if x + ".import" in pack.entries)),
     }
 

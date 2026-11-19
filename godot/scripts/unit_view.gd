@@ -202,6 +202,7 @@ func _draw() -> void:
 	_draw_orchid_leaves()
 	for plant in sim.plants:
 		_draw_plant(plant, cell_h)
+		if not plant.dead and sim.v072.nourished(plant): _draw_moistened(plant,cell_h)
 	_draw_cloud_veils()
 	var ordered = sim.zombies.duplicate()
 	ordered.sort_custom(_zombie_sort)
@@ -784,7 +785,7 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	if glow.a > 0.0 and not z.dying:
 		_draw_glow(foot + Vector2(0, -height * 0.5), height * 0.6,
 			Color(glow.r, glow.g, glow.b, 0.12))
-	var swimming = z.water_entered and z.pos.x <= Geo.BOARD_X + Geo.BOARD_W \
+	var swimming = z.water_entered and (z.pos.x <= Geo.BOARD_X + Geo.BOARD_W or sim.shore.over_water(z,9)) \
 		and not (z.type == "reedboat" and z.armor > 0.0)
 	var clip = "swim_bite" if z.eating else "swim"
 	if not swimming:
@@ -1441,6 +1442,25 @@ func _draw_orchid_leaves() -> void:
 					points.append(origin+delta*u+width*(bend+side*8.0*sin(PI*u)*growth))
 			draw_colored_polygon(points,Color(.13,.22,.20,.74))
 			draw_line(origin,extent,Color(.55,.65,.47,.7),1.3,true)
+
+
+func _draw_moistened(plant: Sim.Plant, cell_h: float) -> void:
+	var at := _plant_foot(plant, cell_h)
+	var remain: float = maxf(float(sim.v072.rain_wet.get(plant.uid,0)),float(sim.v072.rain_blessings.get(plant.uid,0))) - sim.time
+	var age := 8.0 - remain
+	var fade := clampf(remain,0,1)
+	# Ink leaves twist up from the foot; the large splash only plays on arrival.
+	for i in 5:
+		var turn: float = sim.time * .9 + float(i) * TAU / 5
+		var loc := at + Vector2(cos(turn) * 29, sin(turn) * 9 - 9 - fposmod(age * 12 + i * 8,32))
+		var stem := Vector2(3.0*cos(turn),-5.0)
+		draw_colored_polygon(PackedVector2Array([loc+stem*1.5,loc+Vector2(-3,-1),loc-stem*.6,loc+Vector2(3,1)]),Color(.46,.80,.70,.58*fade))
+		draw_line(loc-stem*.45,loc+stem,Color(.91,.97,.77,.64*fade),1.15,true)
+	if age < .6:
+		for j in 7:
+			var a := float(j) * TAU / 7
+			var loc := at + Vector2(cos(a) * (12 + 64*age), sin(a) * (5 + 15*age) - 38*sin(age*PI*.8))
+			draw_line(loc,loc+Vector2(-cos(a) * 4,6),Color(.62,.91,.85,.72*(1-age/.6)),2.1,true)
 
 
 func _draw_orchid_drops() -> void:

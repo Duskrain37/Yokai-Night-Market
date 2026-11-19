@@ -36,7 +36,7 @@ static func run_all(harness) -> void:
 static func _check_content(h) -> void:
 	h.check("内容", "37 种草木齐备", Content.PLANTS.size() == 37,
 		"实际 %d" % Content.PLANTS.size())
-	h.check("内容", "35 种恶客齐备", Content.ZOMBIES.size() == 35,
+	h.check("内容", "39 种恶客齐备", Content.ZOMBIES.size() == 39,
 		"实际 %d" % Content.ZOMBIES.size())
 	h.check("内容", "四十夜与特殊关齐备", Content.LEVELS.size() == 41 and Content.get_level(16).get("special",false),
 		"实际 %d" % Content.LEVELS.size())
@@ -317,7 +317,7 @@ static func _check_map_rules(h) -> void:
 		for c in Content.COLS:
 			if String(market.tiles[r][c]["kind"]) == "blocked":
 				blocked += 1
-	h.check("地图", "第二天有 5 个障碍格", blocked == 5, "实际 %d" % blocked)
+	h.check("地图", "第二天开局有 7 个货垛", blocked == 7, "实际 %d" % blocked)
 	var blocked_right = true
 	for r in market.rows:
 		for c in Content.COLS - 4:

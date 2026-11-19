@@ -45,6 +45,8 @@ if (-not $SkipTests) {
     & $enginePath --headless --path $projectPath --script res://tools/qa_logic.gd `
         --log-file (Join-Path $qa 'logic-tests.log')
     if ($LASTEXITCODE -ne 0) { throw '逻辑检查失败' }
+    & $enginePath --headless --path $projectPath --script res://tools/qa_v073.gd --log-file (Join-Path $qa 'v073-tests.log')
+    if ($LASTEXITCODE -ne 0) { throw '四周地图机制检查失败' }
 
     Write-Host '[4/7] 自动对局检查…'
     & $enginePath --headless --path $projectPath --script res://tools/qa_battle.gd `

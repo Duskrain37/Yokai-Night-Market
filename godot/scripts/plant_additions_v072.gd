@@ -6,21 +6,23 @@ var owner: WeakRef
 var brews := {}
 var orchids := {}
 var rain_blessings := {}
+var rain_wet := {}
 var droplets: Array = []
 
 func _init(sim) -> void:
 	owner=weakref(sim)
 
 func clear() -> void:
-	brews.clear();orchids.clear();rain_blessings.clear();droplets.clear()
+	brews.clear();orchids.clear();rain_blessings.clear();rain_wet.clear();droplets.clear()
 
 func save() -> Dictionary:
-	return {"brews":brews,"orchids":orchids,"blessings":rain_blessings,"droplets":droplets}
+	return {"brews":brews,"orchids":orchids,"blessings":rain_blessings,"wet":rain_wet,"droplets":droplets}
 
 func restore(data: Dictionary) -> void:
 	brews=Dictionary(data.get("brews",{})).duplicate(true)
 	orchids=Dictionary(data.get("orchids",{})).duplicate(true)
 	rain_blessings=Dictionary(data.get("blessings",{})).duplicate(true)
+	rain_wet=Dictionary(data.get("wet",{})).duplicate(true)
 	droplets=Array(data.get("droplets",[])).duplicate(true)
 
 static func primary(source: String, key: String, delivery: String) -> int:
@@ -317,12 +319,16 @@ func on_orchid_hit(uid: String) -> void:
 func _auto_rain(plant, state: Dictionary) -> void:
 	if int(state.dew)<3:return
 	var s=owner.get_ref()
-	var candidates: Array=s.plants.filter(func(p):return _valid_ally(p) and s.chapter.deck_exposed(p) and p.hp<p.max_hp*.5 and not droplets.any(func(drop):return drop.uid==p.uid))
-	candidates.sort_custom(func(a,b):return a.hp/a.max_hp<b.hp/b.max_hp)
-	if candidates.is_empty():return
+	var available: Array = s.plants.filter(func(p): return _valid_ally(p) and s.chapter.deck_exposed(p) and not droplets.any(func(drop): return drop.uid == p.uid))
+	var hurt: Array = available.filter(func(p): return p.hp < p.max_hp * .5)
+	hurt.sort_custom(func(a,b): return a.hp/a.max_hp < b.hp/b.max_hp)
+	var nearest: Array = available.filter(func(p): return p not in hurt and not nourished(p))
+	nearest.sort_custom(func(a,b): return a.pos.distance_squared_to(plant.pos) < b.pos.distance_squared_to(plant.pos))
+	var candidates: Array = hurt + nearest
+	if candidates.is_empty(): return
 	state.dew=int(state.dew)-3
-	for i in (2 if plant.tier(3)>=3 else 1):
-		_drop(plant,candidates[mini(i,candidates.size()-1)], false, i*.16)
+	for i in mini(candidates.size(), 2 if plant.tier(3)>=3 else 1):
+		_drop(plant,candidates[i], false, i*.16)
 
 func _drop(plant,target, all: bool, delay: float = 0) -> void:
 	var s=owner.get_ref()
@@ -349,6 +355,8 @@ func tick() -> void:
 		if key.begins_with("brew-hit:") and s.time>=float(orchids[key]):orchids.erase(key)
 	for uid in rain_blessings.keys():
 		if s.time>=float(rain_blessings[uid]):rain_blessings.erase(uid)
+	for uid in rain_wet.keys():
+		if s.time >= float(rain_wet[uid]): rain_wet.erase(uid)
 	var pending := []
 	for drop in droplets:
 		if s.time<float(drop.end):
@@ -359,11 +367,13 @@ func tick() -> void:
 				# Rain reaches plants on a submerged deck, but still uses the normal HP cap.
 				s.heal_plant(plant,maxf(200,plant.max_hp*.1),false,true)
 			else:s.heal_plant(plant,maxf(200,plant.max_hp*.1))
+			rain_wet[plant.uid] = s.time + 8
 			if drop.bless:rain_blessings[plant.uid]=s.time+8
-			s.ring(plant.pos+Vector2(0,-20),Color("#9cdecc"),28,.45)
-			s.spark(plant.pos+Vector2(0,-20),Color("#b9e9d7"),5)
 			break
 	droplets=pending
+
+func nourished(plant) -> bool:
+	return float(rain_wet.get(plant.uid,0)) > owner.get_ref().time or blessed(plant)
 
 func blessed(plant) -> bool:
 	return float(rain_blessings.get(plant.uid,0))>owner.get_ref().time

@@ -23,6 +23,7 @@ const ZOMBIE_ORDER: Array[String] = [
 	"returner", "matchmaker", "phaseguard", "tamer", "shieldguard", "reedboat", "dreambell",
 	"flinch", "wave-herald", "formless", "reed-shot", "sky-wick", "shield-envoy", "oar-barge",
 	"incense-thief", "sky-ferry", "mist-hat", "cloud-porter", "gong-imp", "curtain-effigy", "wick-pilgrim", "lantern-judge",
+	"freight-yokel", "river-fisher", "reef-haunter", "timber-bearer",
 ]
 
 const TIERS = {
@@ -446,6 +447,10 @@ const PLANTS = {
 }
 
 const ZOMBIES = {
+	"freight-yokel":{"name":"挑担客","kind":"低阶 · 抄货垛","tier":"l","min_week":2,"hp":215,"speed":22,"dps":48,"sprite_h":102,"death":"ghost"},
+	"river-fisher":{"name":"牵葫客","kind":"中阶 · 水路","tier":"m","min_week":3,"hp":510,"speed":24,"dps":55,"sprite_h":106,"water_only":true,"death":"ghost"},
+	"reef-haunter":{"name":"背罟鬼","kind":"高阶 · 借雾","tier":"h","min_week":4,"hp":1210,"speed":19,"dps":86,"sprite_h":124,"land_only":true,"death":"ghost"},
+	"timber-bearer":{"name":"衔木客","kind":"低阶 · 携木","tier":"l","min_week":5,"hp":265,"speed":18,"dps":42,"sprite_h":112,"death":"ghost"},
 	"mist-hat":{"name":"蓑雾客","kind":"初阶 · 防灼","tier":"l","home_week":6,"hp":230,"speed":21,"dps":45,"sprite_h":93,"death":"ghost"},
 	"cloud-porter":{"name":"踏云役","kind":"中阶 · 借升台","tier":"m","home_week":6,"hp":525,"speed":20,"dps":60,"sprite_h":108,"death":"ghost"},
 	"gong-imp":{"name":"碎锣童","kind":"初阶 · 催步","tier":"l","home_week":7,"hp":200,"speed":23,"dps":48,"sprite_h":83,"death":"ghost"},
@@ -966,6 +971,7 @@ static func _build_levels() -> Array:
 			})
 	# 八个四波段落沿用各周压轴的来客组合；第一周街道不投放水路专属客人。
 	var special_waves: Array=[]
+	var special_cast := ["ghost","tongue","straw","flinch","paper","stonehat","bucket","shieldguard","phaseguard","mountain","artisan","ironjudge","sky-ferry","reef-haunter"]
 	for section in SPECIAL_THREATS.size():
 		var chunk := _night_roster(_with_guest_variants(build_waves("late", 4), section+1, 4), section, 4)
 		for wave in chunk:
@@ -974,7 +980,7 @@ static func _build_levels() -> Array:
 			wave.theme_week=section+1
 			for picks in wave.guest_slots:
 				for i in picks.size():
-					if bool(ZOMBIES[picks[i]].get("water_only",false)) or ZOMBIES[picks[i]].has("home_week"):
+					if not picks[i] in special_cast or int(ZOMBIES[picks[i]].get("min_week",1)) > section+1:
 						picks[i]={"l":"ghost","m":"paper","h":"mountain"}[ZOMBIES[picks[i]].tier]
 			var counts := {}
 			for picks in wave.guest_slots:
@@ -994,6 +1000,56 @@ static func _build_levels() -> Array:
 
 
 ## Keep the exact scheduled count, timing, and original durability budget. Only substitute roles.
+static func _featured_guests(week: int, night: int) -> Array:
+	match week:
+		1: return ["freight-yokel"] if night >= 1 else []
+		2: return ["river-fisher", "reedboat"] if night >= 1 else []
+		3: return (["reef-haunter", "reedboat"] if night >= 3 else ["reedboat"])
+		4: return ["reedboat"]
+		5: return ["freight-yokel", "reef-haunter"] if night >= 2 else []
+		6: return ["timber-bearer", "reef-haunter"] if night >= 2 else []
+		7: return ["timber-bearer", "freight-yokel"] if night >= 2 else []
+	return []
+
+
+static func _budget_guest_types(candidates: Array, week: int, night: int) -> Array:
+	var order := _featured_guests(week, night)
+	if week < 5 and not String(NIGHT_LESSONS[week][night][1]).is_empty():
+		order.push_front(NIGHT_LESSONS[week][night][1])
+	if night != 4:
+		# Keep the current night's introduction ahead of the leftovers from earlier nights.
+		order.append_array(NIGHT_INTRODUCTIONS[week][night] if week < 5 else NEW_INTRODUCTIONS[week-5][night])
+	else:
+		# Give each map a recognizable cast. Reserve generalists to substitute early high ranks.
+		order.append_array({0:["vault","formless","returner","sky-wick"],1:["incense-thief","shieldguard","shield-envoy"],2:["reedboat","river-fisher","oar-barge","phaseguard"],3:["sky-ferry","tamer","reef-haunter","stonehat"],4:["dreambell","reedboat","river-fisher","vault"],5:["mist-hat","cloud-porter","sky-wick"],6:["gong-imp","curtain-effigy","tamer"],7:["wick-pilgrim","lantern-judge","shield-envoy"]}.get(week, []))
+	order.append_array(candidates)
+	var tiers := {"l":["ghost"], "m":["paper"], "h":["mountain"]}
+	var cap := 5 if night == 4 else 4
+	# The wave herald uses one low-rank slot. Cavern nights with repair logs reserve another.
+	var low_cap := cap - 1 - (1 if week == 4 and night >= 2 else 0)
+	for id in order:
+		var d: Dictionary = ZOMBIES.get(id,{})
+		if d.is_empty() or bool(d.get("flag_only",false)) or bool(d.get("sedan_only",false)) or int(d.get("min_week",1)) > week + 1:
+			continue
+		if id == "timber-bearer" and week == 4: continue
+		if bool(d.get("water_only",false)) and week not in [2,3,4]: continue
+		if week == 3 and bool(d.get("water_only",false)) and id != "reedboat": continue
+		var bucket: Array = tiers[d.tier]
+		var bucket_cap: int = low_cap if d.tier == "l" else cap
+		if not bucket.has(id) and bucket.size() < bucket_cap:
+			bucket.append(id)
+	var result: Array = tiers.l + tiers.m + tiers.h
+	# Carrier/summon variants also must fit the visible roster cap.
+	var reserved := 1 + (1 if week == 4 and night >= 2 else 0)
+	if result.has("sedan") or result.has("matchmaker"): reserved += 1
+	if result.has("matchmaker") and not result.has("sedan"): reserved += 1
+	if result.has("tamer") and not result.has("phaseguard"): reserved += 1
+	for id in ["ironjudge", "artisan", "returner", "straw", "tongue", "stonehat", "bucket"]:
+		if result.size() + reserved <= cap * 3: break
+		result.erase(id)
+	return result
+
+
 static func _night_roster(waves: Array, week: int, night: int) -> Array:
 	var allowed: Array = []
 	if night == 4:
@@ -1006,6 +1062,7 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 	else:
 		for i in range(night + 1):
 			allowed.append_array(NIGHT_INTRODUCTIONS[week][i] if week < 5 else NEW_INTRODUCTIONS[week-5][i])
+	allowed = _budget_guest_types(allowed, week, night)
 	var substitutes := {"l": "ghost", "m": "paper", "h": "mountain"}
 	var previous := {}
 	var slots: Array = []
@@ -1040,6 +1097,8 @@ static func _night_roster(waves: Array, week: int, night: int) -> Array:
 				var slot: Dictionary = slots[i]
 				if tier == "h" and not allows_high_tier(slot.wave_index):
 					continue
+				if wanted == "reedboat" and week == 3:
+					continue # tide selects its wet-lane arrivals at release
 				var incumbent := wave_guest_type(slot.picks[slot.slot], slot.wave_index)
 				if ZOMBIES[incumbent]["tier"] != donor or int(previous[incumbent]) < 2:
 					continue
@@ -1241,6 +1300,8 @@ static func _add_tier_group(groups: Array, tier: String, count: int, wi: int) ->
 
 ## 关卡里第一次出现某种恶客的夜与波（图鉴「初遇」栏用）。
 static func first_appearance(zombie_type: String) -> String:
+	if zombie_type == "timber-bearer":
+		return "第五周·第三夜 第4大波"
 	if zombie_type == "wave-herald":
 		return "第一周·第一夜 第1大波"
 	if zombie_type == "bride":
@@ -1262,13 +1323,15 @@ static func tier_label(tier: String) -> String:
 static func plants_in_level(level: Dictionary) -> Array:
 	"""该关可能出现的恶客种类（备战页展示用，按首次出现顺序）。"""
 	var seen: Array = ["wave-herald"]
+	if String(level.get("map", "")) == "island": seen.append("reedboat")
+	if String(level.get("map", "")) == "cavern" and int(level.get("wave_groups", 0)) > 4: seen.append("timber-bearer")
 	for wave in level["waves"]:
 		for group in wave["groups"]:
 			if not seen.has(group[0]):
 				seen.append(group[0])
 	var ordered: Array = []
 	for type in ZOMBIE_ORDER:
-		if seen.has(type) or (type == "bride" and (seen.has("sedan") or seen.has("matchmaker"))):
+		if seen.has(type) or (type == "phaseguard" and seen.has("tamer")) or (type == "sedan" and seen.has("matchmaker")) or (type == "bride" and (seen.has("sedan") or seen.has("matchmaker"))):
 			ordered.append(type)
 	return ordered
 

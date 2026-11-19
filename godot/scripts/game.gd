@@ -18,7 +18,7 @@ var _loading_hold: Dictionary = {}
 var load_timings: Array=[]
 var _loading_busy := false
 
-const VERSION = "0.7.2"
+const VERSION = "0.7.3"
 const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
 var touch_router: Node
 const SAVE_PATH = "user://run.json"
@@ -781,6 +781,8 @@ func _mouse_world() -> Vector2:
 	return _mobile_world_transform().affine_inverse()*get_viewport().get_mouse_position() if mobile else get_viewport().get_mouse_position()
 
 
+var _shore_grab := Vector2i(-1,-1)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if _loading_busy:
 		return
@@ -810,6 +812,14 @@ func _unhandled_input(event: InputEvent) -> void:
 							hud.step_speed(1 if action == "speed_up" else -1)
 						break
 		return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed and _shore_grab.x >= 0:
+		var origin := _shore_grab
+		_shore_grab = Vector2i(-1,-1)
+		if screen == "battle" and sim != null and hud != null and not paused and not hud.blocks_simulation():
+			var end := sim.cell_at_screen(event.position)
+			if end.y == origin.y and end.x != origin.x and sim.shore.click(end,event.position): return
+			if end == origin: _handle_battle_click(event.position)
+		return
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if screen == "battle" and hud != null:
@@ -825,6 +835,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.button_index != MOUSE_BUTTON_LEFT:
 			return
 		if screen == "battle" and not paused:
+			if not mobile and sim != null and hud != null and hud.card_selected < 0 and not hud.shovel_mode and not hud.blocks_simulation():
+				var cell := sim.cell_at_screen(event.position)
+				if not sim.shore.mat_on(cell.x,cell.y).is_empty() and sim.pick_orb(event.position).is_empty():
+					_shore_grab = cell
+					return
 			# 用事件自带的坐标，别去轮询鼠标：这样点击判定只依赖这一次事件本身
 			_handle_battle_click(event.position)
 
@@ -877,6 +892,7 @@ func _handle_battle_click(pos: Vector2) -> void:
 	if not orb.is_empty():
 		sim.collect_orb(orb)
 		return
+	if hud.card_selected < 0 and not mobile and sim.shore.click(cell,pos): return
 	if hud.card_selected >= 0:
 		if String(sim.cards[hud.card_selected].id)=="root-palanquin":
 			if hud.transplant_source==null or hud.transplant_source.dead:

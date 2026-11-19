@@ -23,6 +23,10 @@ var _guardian: Texture2D = null
 var mower_art: Dictionary = {}
 var obstacle_art: Dictionary = {}
 var _scenery = preload("res://scripts/chapter_scenery_view.gd").new()
+var _shore = preload("res://scripts/shore_scenery.gd").new()
+var _shore_fog: ColorRect
+var _shore_mask: ImageTexture
+var _fog_plants: Array = []
 var _cloud_platform: Texture2D
 var _cloud_deck_meshes: Dictionary = {}
 
@@ -58,7 +62,54 @@ func _process(delta: float) -> void:
 	if sim != null and sim.visual_hold:
 		return
 	_time += delta
+	_tick_shore_fog()
 	queue_redraw()
+
+
+func _tick_shore_fog() -> void:
+	if sim == null or map_key != "day4" or not sim.shore.enabled():
+		if _shore_fog != null: _shore_fog.hide()
+		return
+	var d: Dictionary = sim.shore.state
+	var age: float = sim.time - float(d.fog_at)
+	var remain: float = float(d.fog_until) - sim.time
+	var strength := smoothstep(0.0,1.5,age) * smoothstep(0.0,1.5,remain)
+	var old_strength := (1.0-smoothstep(0.0,1.5,age))*smoothstep(0.0,.75,float(d.fog_old_until)-sim.time)
+	if maxf(strength,old_strength)<=0:
+		if _shore_fog != null: _shore_fog.hide()
+		return
+	if _shore_fog == null:
+		_shore_fog = ColorRect.new()
+		_shore_fog.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var mat := ShaderMaterial.new()
+		mat.shader = load("res://scripts/island_fog.gdshader")
+		mat.set_shader_parameter("brush",load("res://assets/scenery/cloud-veil.png"))
+		_shore_fog.material = mat
+		add_child(_shore_fog)
+	_shore_fog.size = Geo.canvas_size
+	var living: Array = []
+	for p in sim.plants:
+		if not p.dead and p.col >= 3: living.append(Vector2i(p.col,p.row))
+	if _shore_mask == null or living != _fog_plants:
+		_fog_plants = living
+		var img := Image.create_empty(96,54,false,Image.FORMAT_RGBA8)
+		for c in living:
+			var center := Geo.screen_cell_center(c.x,c.y,sim.rows)/Geo.canvas_size*Vector2(96,54)
+			for y in range(maxi(0,floori(center.y-10)),mini(54,ceili(center.y+10))):
+				for x in range(maxi(0,floori(center.x-13)),mini(96,ceili(center.x+13))):
+					var r := ((Vector2(x,y)-center)/Vector2(10.6,9.1)).length()
+					var a := maxf(img.get_pixel(x,y).a,1.0-smoothstep(.81,1.17,r))
+					img.set_pixel(x,y,Color(1,1,1,a))
+		if _shore_mask == null: _shore_mask = ImageTexture.create_from_image(img)
+		else: _shore_mask.update(img)
+	var mat: ShaderMaterial = _shore_fog.material
+	mat.set_shader_parameter("clearance",_shore_mask)
+	mat.set_shader_parameter("now", sim.time)
+	mat.set_shader_parameter("edge",_p(float(d.fog_col)/Geo.COLS,.5).x/Geo.canvas_size.x)
+	mat.set_shader_parameter("previous_edge",_p(float(d.fog_old_col)/Geo.COLS,.5).x/Geo.canvas_size.x)
+	mat.set_shader_parameter("current_mass",strength)
+	mat.set_shader_parameter("previous_mass",old_strength)
+	_shore_fog.show()
 
 
 func _draw() -> void:
@@ -68,6 +119,7 @@ func _draw() -> void:
 	_draw_stage()
 	_draw_tiles()
 	_draw_chapter_terrain()
+	_shore.draw(self,sim)
 	_draw_craters()
 	if show_grid:
 		_draw_grid()
@@ -109,6 +161,7 @@ func _draw_background() -> void:
 	var texture: Texture2D = _textures.get(map_key)
 	if texture != null: draw_texture_rect(texture, Rect2(Vector2.ZERO, Geo.canvas_size), false)
 	else: draw_rect(Rect2(Vector2.ZERO, Geo.canvas_size), Ui.INK)
+	_shore.background(self,sim)
 	draw_rect(Rect2(Vector2.ZERO, Geo.canvas_size), Color(0.02, 0.05, 0.07, dim))
 
 
@@ -187,7 +240,7 @@ func _draw_tiles() -> void:
 					_draw_water(_cell_quad(col, row), String(tile["water"]))
 					_draw_object(col, row, int(tile["obj"]))
 				"blocked":
-					_draw_blocked(col, row, int(tile["obj"]))
+					if not (map_key=="day2" and sim.shore.enabled()): _draw_blocked(col, row, int(tile["obj"]))
 				"obstacle":
 					_paint_obstacle("island", col, row, int(tile["obj"]))
 

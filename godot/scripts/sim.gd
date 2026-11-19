@@ -16,6 +16,8 @@ const Attr=preload("res://data/attribute_rules.gd")
 const Skills=preload("res://data/active_skills.gd")
 const ChapterDynamics = preload("res://scripts/chapter_dynamics.gd")
 var chapter = ChapterDynamics.new(self)
+const ShoreDynamics = preload("res://scripts/shore_dynamics.gd")
+var shore = ShoreDynamics.new(self)
 const PlantAdditions = preload("res://scripts/plant_additions_v070.gd")
 var additions = PlantAdditions.new(self)
 const V072 = preload("res://scripts/plant_additions_v072.gd")
@@ -219,6 +221,8 @@ class Plant:
 
 
 class Zombie:
+	var shore_short := false
+	var shore_timber := false
 	var flare_reveal_until := 0.0
 	var scene_route_event := -1000.0
 	var scene_route_left := 0.0
@@ -612,6 +616,7 @@ func _reset(loadout: Array) -> void:
 	time = 0.0
 	island_seed = int(level.get("fixed_seed",Time.get_ticks_usec())) if String(level.get("map", "")) == "island" else 0
 	tiles = _make_tiles()
+	shore.setup()
 	lilies.clear()
 	cells = []
 	for r in rows:
@@ -896,6 +901,7 @@ func can_place_at(type: String, col: int, row: int) -> Dictionary:
 	if not terrain_reason.is_empty() and not _restoring_cloud_units: return {"ok":false, "reason":terrain_reason}
 	if not _moving_existing and factor("seeds")>0 and plant_population()>=int([0,30,25,20][factor("seeds")]):
 		return {"ok":false,"reason":"噩梦因子：场上草木已达上限"}
+	if shore.moving_target(col,row) and not _restoring_cloud_units: return {"ok":false,"reason":"浮席正在靠泊"}
 	var def: Dictionary = Content.PLANTS.get(type, {})
 	if def.is_empty() or bool(def.get("attach", false)):
 		return {"ok": false, "reason": "这里不能种"}
@@ -906,8 +912,12 @@ func can_place_at(type: String, col: int, row: int) -> Dictionary:
 		return {"ok": false, "reason": "障碍挡住了，不能种"}
 	if tile["kind"] in ["edge", "pit", "obstacle"]:
 		return {"ok": false, "reason": {"edge": "这是摊面的外缘", "pit": "这里是坑洞", "obstacle": "这里有障碍"}[tile["kind"]]}
-	if tile["kind"] == "object":
+	if tile["kind"] in ["object", "bridge"]:
 		return {"ok": false, "reason": "这里有物件，不能种"}
+	if not shore.mat_on(col,row).is_empty():
+		if main != null or bool(def.get("lily", false)) or bool(def.get("water_only", false)) or bool(def.get("ash", false)):
+			return {"ok":false, "reason":"浮席只容一株普通草木"}
+		return {"ok":true,"reason":""}
 	if bool(def.get("lily", false)):
 		if tile["kind"] != "water":
 			return {"ok": false, "reason": "夜莲只能放在水面"}
@@ -1308,6 +1318,8 @@ func plant_effect_lines(plant: Plant) -> PackedStringArray:
 		lines.append("滚烫 · 造成的伤害提升 %d%%" % (plant.lob_heat_stacks * 10))
 	if plant.type == "lion" and plant.dance_t > 0.0:
 		lines.append("最后一舞 · 造成的伤害和攻击速度各提升100%")
+	if v072.nourished(plant):
+		lines.append("留白兰 · 滋润中，受到的伤害降低30%" if v072.blessed(plant) else "留白兰 · 滋润中")
 	for effect in plant.penalties.values():
 		var kind: String = String(effect.get("kind","damage"))
 		if float(effect.get("until", 0.0)) > time:
@@ -1530,8 +1542,11 @@ func _release_queued_zombies() -> void:
 		# 旧存档可能在前三大波已排队、尚未放出高阶恶客。
 		if type != queued_type:
 			mass_scale *= _enemy_mass(queued_type) / _enemy_mass(type)
-		var arrived := spawn_market_arrivals(type, int(entry["row"]), {
+		var shore_pick: Array = shore.island_arrival(type, int(entry["row"]), wave_no, [])
+		if type != String(shore_pick[0]): mass_scale *= _enemy_mass(type) / _enemy_mass(String(shore_pick[0]))
+		var arrived := spawn_market_arrivals(String(shore_pick[0]), int(shore_pick[1]), {
 			"wave_no": wave_no, "mass_scale": mass_scale, "boss_wave": boss_wave,
+			"shore_short":bool(shore_pick[2]),"shore_timber":bool(entry.get("shore_timber",false)),
 		})
 		if boss_wave and boss != null:
 			boss.add_count += arrived
@@ -1583,6 +1598,7 @@ func _finish_checkpoint() -> void:
 func queue_wave(wave: Dictionary, wave_no: int = -1) -> void:
 	if wave_no < 0:
 		wave_no = maxi(0, wave_index - 1)
+	shore.on_batch(wave_no)
 	var mid_id := String(level.get("mid_boss", ""))
 	if not training and tutorial == null and mid_id != "" and wave_no == 4 * Content.WAVES_PER_GROUP - 1 and boss == null:
 		begin_boss(mid_id, 4 * Content.WAVES_PER_GROUP, true, false)
@@ -1667,6 +1683,7 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 			for entry in original:entry.mass_scale=float(entry.get("mass_scale",1.0))*early_scale
 		if cavern:
 			_assign_cavern_rows(original)
+		shore.pair_first_current(original, wave_no)
 		spawn_queue.append_array(original)
 		return
 	var roster: Array[String] = []
@@ -1702,6 +1719,7 @@ func queue_roster(wave: Dictionary, wave_no: int, mass_ratio: float = 1.0,
 		})
 	if cavern:
 		_assign_cavern_rows(entries)
+	shore.pair_first_current(entries, wave_no)
 	spawn_queue.append_array(entries)
 
 
@@ -1787,6 +1805,8 @@ func choose_spawn_row(type: String, flexible_water: float = -1.0, water_share: f
 	var market_row: int = chapter.spawn_row()
 	if market_row >= 0 and not bool(Content.ZOMBIES.get(type,{}).get("water_only",false)): return market_row
 	var water: Array = level.get("water_rows", [])
+	if shore.enabled() and shore.map_key()=="island" and bool(Content.ZOMBIES.get(type,{}).get("water_only",false)):
+		water=shore.WET_ROWS if bool(shore.state.wet) else []
 	var def: Dictionary = Content.ZOMBIES.get(type, {})
 	var water_only := bool(def.get("water_only", false))
 	var high_tier := String(def.get("tier", "")) == "h"
@@ -1843,10 +1863,12 @@ func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 	z.type = type
 	z.def = def
 	z.wave_no = int(opts.get("wave_no", -1))
+	z.shore_short = bool(opts.get("shore_short",false))
+	z.shore_timber = bool(opts.get("shore_timber",false))
 	if type == "sedan":
 		z.sedan_has_bride = bool(opts["sedan_bride"]) if opts.has("sedan_bride") else rng.randf() < 0.5
 	z.row = clampi(row, 0, rows - 1)
-	if bool(def.get("water_only", false)) and z.row not in level.get("water_rows", []):
+	if bool(def.get("water_only", false)) and z.row not in level.get("water_rows", []) and not shore.over_water(z,9) and not bool(opts.get("restore_unit",false)):
 		z.row = choose_spawn_row(type)
 		if z.row < 0:
 			return null
@@ -2078,6 +2100,7 @@ func tick(dt: float) -> void:
 	if nightmare_failed:return
 	time += dt
 	chapter.tick(dt)
+	shore.tick()
 	additions.tick(dt)
 	v072.tick()
 	update_rear_notices()
@@ -2238,7 +2261,7 @@ func update_plants(dt: float) -> void:
 	for plant in plants:
 		if plant.dead:
 			continue
-		if not plant_on_stage(plant) or plant.transplant_until>time:
+		if not plant_on_stage(plant) or plant.transplant_until>time or shore.transit(plant):
 			_pause_cloud_plant(plant, dt)
 			continue
 		if boss!=null:boss.damage_token="plant:%d:%.6f" % [plant.get_instance_id(),time]
@@ -4541,14 +4564,14 @@ func _update_enemy_shot(shot: Shot, dt: float) -> void:
 
 func _zombie_over_water(z: Zombie) -> bool:
 	var column := floori((z.pos.x - Geo.BOARD_X) / Geo.CELL_W)
-	return column >= 0 and column < Geo.COLS and String(tile_at(column, z.row).get("water", "")) != ""
+	return shore.over_water(z, column) or (column >= 0 and column < Geo.COLS and String(tile_at(column, z.row).get("water", "")) != "")
 
 
 func _update_water_pose(z: Zombie, dt: float) -> void:
 	z.water_entry_t = maxf(0.0, z.water_entry_t - dt)
 	z.water_exit_t = maxf(0.0, z.water_exit_t - dt)
 	z.raft_sink_t = maxf(0.0, z.raft_sink_t - dt)
-	if level.get("water_rows", []).is_empty():
+	if level.get("water_rows", []).is_empty() and not (shore.enabled() and shore.map_key()=="island"):
 		return
 	var in_water := _zombie_over_water(z)
 	if z.water_entered == in_water:
@@ -4774,14 +4797,14 @@ func update_zombies(dt: float) -> void:
 				"wick-pilgrim":
 					if chapter.event_active() and (chapter.market_all or int(z.row/2)==chapter.market_pair):step*=1.30
 		step *= chapter.haste_multiplier(z)
-		step *= chapter.route_speed_factor(z)
+		step *= chapter.route_speed_factor(z) * shore.speed(z)
 		z.scene_walk_distance += step
 		if z.reverse_t > 0.0:
 			# 回头：往进场方向走一小段，不传送、不换行、不强制停止啃食
 			z.reverse_t = maxf(0.0, z.reverse_t - dt)
 			z.pos.x = minf(Geo.RETREAT_MAX_X, z.pos.x + step)
 		else:
-			z.pos.x -= step
+			z.pos.x = shore.stop_position(z,z.pos.x - step)
 		chapter.step_route(z)
 		z.anim += dt * slow_mult * rage
 		var col = int((z.pos.x - Geo.BOARD_X) / Geo.CELL_W)
@@ -5516,6 +5539,9 @@ func _damage_zombie_impl(z: Zombie, amount: float, silent: bool = false,
 	if not true_sight and z.revealed_tier == 0 and bool(z.def.get("ash_immune", false)) and not _guest_exposed(z) and (source in ["bomb", "mushroom", "kelp", "squash", "ruin-cap"]
 			or event_key.begins_with("ash_")):
 		return 0.0
+	if amount > 0.0 and shore.evade(z,delivery,true_sight):
+		spark(z.pos + Vector2(0,-28), Color("#afd1cb"), 4, .6)
+		return 0.0
 	if z.boss_role=="body":
 		z.hurt=0.08
 		if boss==null:return 0.0
@@ -5661,6 +5687,7 @@ func kill_zombie(z: Zombie, spread_incense: bool = true, ash_damage: bool = fals
 		z.guest_action_at = time
 		ring(z.pos, Color("#a3743d"), 27.0, 0.4)
 		return
+	shore.bridge_wood(z)
 	z.dying = not ash_damage
 	z.dead = ash_damage
 	z.death_t = 0.0
@@ -6026,6 +6053,7 @@ func serialize() -> Dictionary:
 	return {
 		"plant_rule_revision":61,"skill_serial":skill_serial,"unique_skill_ready_at":unique_skill_ready_at,"global_silence_until":global_silence_until,
 		"chapter_dynamics":chapter.serialize(),
+		"shore_dynamics":shore.save(),
 		"plant_additions_v070":additions.serialize(),
 		"plant_additions_v072":v072.save(),
 		"card_discounts":cards.map(func(c):return int(c.get("discount",0))),
@@ -6074,6 +6102,7 @@ func restore(data: Dictionary) -> void:
 		tiles = _make_tiles()
 	time = float(data.get("time", 0.0))
 	chapter.restore(Dictionary(data.get("chapter_dynamics", {})))
+	shore.restore(Dictionary(data.get("shore_dynamics", {})), int(data.get("wave_index", 0)))
 	additions.restore(Dictionary(data.get("plant_additions_v070",{})))
 	v072.restore(Dictionary(data.get("plant_additions_v072",{})))
 	last_guest_damage_at=float(data.get("last_guest_damage_at",time))
@@ -6143,7 +6172,7 @@ func restore(data: Dictionary) -> void:
 	refresh_plant_buffs()
 	for row_data in data.get("zombies", []):
 		var z = spawn_zombie(String(row_data["type"]), int(row_data["r"]),
-			{"x": float(row_data["x"]), "hp_factor": 1.0, "sedan_split": true})
+			{"x": float(row_data["x"]), "hp_factor": 1.0, "sedan_split": true, "restore_unit": true})
 		if z == null:
 			continue
 		z.hp = float(row_data.get("hp", z.hp))

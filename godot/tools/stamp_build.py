@@ -10,7 +10,7 @@ from datetime import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CODE_DIRS = ["scripts", "data", "ui", "tools", "scenes"]
-CODE_EXT = (".gd", ".tscn", ".godot", ".cfg", ".json")
+CODE_EXT = (".gd", ".gdshader", ".tscn", ".godot", ".cfg", ".json")
 ASSET_DIRS = ["assets"]
 ASSET_EXT = (".png", ".jpg", ".jpeg", ".webp", ".svg", ".ttf", ".otf", ".ogg", ".wav")
 

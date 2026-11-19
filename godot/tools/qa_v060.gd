@@ -16,7 +16,7 @@ func shell(s: Sim, plant: Sim.Plant, target: Sim.Zombie) -> Sim.Shot:
 func _initialize(): run.call_deferred()
 func run():
 	check("原35株及v0.7.2两株均在役",Content.PLANT_ORDER.size()==37)
-	check("原29种恶客及六位周特色恶客均在役",Content.ZOMBIE_ORDER.size()==35 and Content.ZOMBIES.size()==35)
+	check("原35种恶客及四位新来客均在役",Content.ZOMBIE_ORDER.size()==39 and Content.ZOMBIES.size()==39)
 	var spawns := fresh()
 	for i in 300:
 		var incoming := spawns.spawn_zombie("ghost", i % spawns.rows)
