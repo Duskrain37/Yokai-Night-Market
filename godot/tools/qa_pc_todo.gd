@@ -10,8 +10,10 @@ class LocalGame extends "res://scripts/game.gd":
 class RestartProbe extends "res://ui/update_dialog.gd":
 	var commits := 0
 	var install_ok := true
-	func _install_and_quit() -> bool:
+	var modes: Array[bool] = []
+	func _install_and_quit(restart: bool) -> bool:
 		commits += 1
+		modes.append(restart)
 		if not install_ok:
 			updater.state("failed", "测试：启动更新助手失败，旧版保留。")
 			return false
@@ -210,16 +212,21 @@ func updater_checks():
 		check("进度阶段可见/" + phase, dialog._bar.visible and dialog._bar.show_percentage and is_equal_approx(dialog._bar.value, 42) and dialog._detail.text.contains("42%"))
 		if phase == "downloading": check("下载标明文件与分组", dialog._detail.text.contains("YokaiNightMarket-win64.exe") and dialog._detail.text.contains("2 / 5"))
 	dialog.updater.latest_version = "0.5.7"; dialog.updater.state("ready", "完成"); await settle()
-	check("完成后强制重启提示", dialog.restart_required and dialog._close.disabled and dialog._text.text.contains("自动重启") and is_equal_approx(dialog._bar.value, 100))
-	dialog._leave(); await settle(); check("返回不能绕过重启", dialog.visible and dialog.restart_required)
-	dialog.hide(); await settle(); check("关闭窗口不能绕过重启", dialog.visible)
+	check("完成后两种选项均可按", dialog.completion_pending and not dialog._close.disabled and not dialog._action.disabled and dialog._close.text=="完成更新" and dialog._action.text=="完成更新并重启" and is_equal_approx(dialog._bar.value, 100))
+	dialog._leave(); await settle(); check("返回不会代替玩家选择", dialog.visible and dialog.completion_pending and dialog.commits==0)
+	dialog.hide(); await settle(); check("窗口隐藏不启动安装", dialog.visible and dialog.commits==0)
 	var escape := InputEventKey.new(); escape.pressed = true; escape.keycode = KEY_ESCAPE
-	dialog.push_input(escape, true); await settle(); check("Esc不能绕过重启", dialog.visible and dialog.restart_required)
-	dialog._process(6); dialog._process(6)
-	check("倒计时自动重启且只执行一次", dialog.commits == 1 and dialog._restarting)
-	dialog.restart_required = false; auto_accept_quit = true; dialog.hide(); dialog.queue_free(); await settle()
+	dialog.push_input(escape, true); await settle(); check("Esc不选择更新方式", dialog.visible and dialog.completion_pending and dialog.commits==0)
+	dialog._secondary();dialog._act()
+	check("完成更新仅提交一次并且不重启", dialog.commits == 1 and dialog.modes==[false])
+	dialog.completion_pending = false; auto_accept_quit = true; dialog.hide(); dialog.queue_free(); await settle()
+	dialog = RestartProbe.new(); dialog.game = game; dialog.auto_start = false
+	game.screen_node.add_child(dialog); dialog.popup_centered(); await settle()
+	dialog.updater.state("ready", "完成");dialog._act()
+	check("完成更新并重启走重启分支",dialog.modes==[true])
+	dialog.completion_pending = false; auto_accept_quit = true; dialog.hide(); dialog.queue_free(); await settle()
 	dialog = RestartProbe.new(); dialog.game = game; dialog.auto_start = false; dialog.install_ok = false
 	game.screen_node.add_child(dialog); dialog.popup_centered(); await settle()
 	dialog.updater.state("ready", "完成"); dialog._act(); await settle()
-	check("重启助手启动失败可恢复", dialog.commits == 1 and not dialog.restart_required and dialog.updater.phase == "failed" and not dialog._close.disabled and auto_accept_quit)
+	check("更新助手启动失败可恢复", dialog.commits == 1 and not dialog.completion_pending and dialog.updater.phase == "failed" and not dialog._close.disabled and auto_accept_quit)
 	dialog.updater.phase = "failed"; dialog._leave(); await settle()

@@ -14,6 +14,12 @@ PORTRAITS = {"incense-thief", "sky-ferry", "bride", "gust", "firework", "squash"
 DESTRUCTION = {"sedan-loaded", "sedan-empty"}
 BOSS_PORTRAITS = {"boss-island", "boss-magistrate-bound", "boss-magistrate-full", "boss-wind-warden", "boss-mask-master", "boss-market-lamplord"}
 LAMP_SOURCE_LAYERS = {"scenery-cloud-lamp","scenery-pact-lamp","scenery-lotus-lamp"}
+DEVELOPMENT_REPORTS = {
+    "data/v050_music_production.json", "data/v051_music_delivery.json",
+    "data/v052_balance_audit.json", "data/v052_region_audit.json",
+    "data/v053_mobile_motion_audit.json", "data/v053_original_sync.json",
+    "data/v053_region_audit.json", "data/v054_sfx_mastering.json",
+}
 
 
 class Pack:
@@ -71,6 +77,7 @@ def remove_candidates(pack):
     unused = {"assets/bg/board.jpg", "assets/boss/weakpoint.svg", "assets/boss/boss_bar_frame.svg",
               "assets/bg/loading-menu.png"}
     return {
+        "development_reports": DEVELOPMENT_REPORTS & pack.entries.keys(),
         "fallback_key_atlases": set().union(*(pack.imported(x) for x in removable_sources)),
         "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name.endswith("_art_sources.json") or name in {"data/shell_open_art_local.json","data/art_overhaul_local.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json","data/news_v055.json","data/news_v056.json","data/news_v060.json","data/news_v070.json"})}
             | set().union(*(pack.imported(x) for x in unused if x + ".import" in pack.entries)),
@@ -92,26 +99,58 @@ def update_section(image, start, size):
     raise ValueError("Missing PCK section")
 
 
-def write_candidate(pack, removed, target):
+def compact_motion(pack, reference_file, source_root):
+    """Store byte-identical source WebP only after Godot verified the decoded pixels."""
+    references = json.loads(reference_file.read_text(encoding="utf-8"))
+    motion = json.loads(pack.file("data/actor_motion.json"))
+    paths = {info["file"] for info in motion.values()}
+    assert {path.removeprefix("res://") for path in references} == paths
+    removed, added = set(), {}
+    for path in sorted(paths):
+        record = references["res://" + path]
+        if not record["compact"]:
+            continue
+        assert path.startswith("assets/sprites/motion/") and path.endswith(".webp")
+        source = (source_root / path).read_bytes()
+        assert hashlib.sha256(source).hexdigest() == record["source_sha"], path
+        imported = pack.imported(path)
+        if len(source) >= sum(pack.entries[p][2] for p in imported):
+            continue
+        # The normal texture import is removed only for a sheet with proven equal pixels.
+        added[path + ".nma"] = source
+        removed.update(imported)
+    return removed, added
+
+
+def write_candidate(pack, removed, target, extra=None):
     header = bytearray(pack.data[:pack.start + pack.base])
     indexed = {}
     stored = {}
     duplicates = 0
+    extra = extra or {}
     with target.with_suffix(".tmp").open("w+b") as out:
         out.write(header)
-        for path, (raw_name, _, size, md5) in pack.entries.items():
-            if path in removed:
-                continue
-            content = pack.file(path)
-            assert hashlib.md5(content).digest() == md5
+        def store(path, raw_name, content, md5):
+            nonlocal duplicates
             strong = hashlib.sha256(content).digest()
             if strong not in stored:
                 stored[strong] = out.tell() - len(header)
                 out.write(content)
                 out.write(bytes((-out.tell()) % 16))
             else:
-                duplicates += size
-            indexed[path] = (raw_name, stored[strong], size, md5)
+                duplicates += len(content)
+            indexed[path] = (raw_name, stored[strong], len(content), md5)
+        for path, (raw_name, _, _, md5) in pack.entries.items():
+            if path in removed:
+                continue
+            content = pack.file(path)
+            assert hashlib.md5(content).digest() == md5
+            store(path, raw_name, content, md5)
+        for path, content in extra.items():
+            assert path not in pack.entries
+            raw = path.encode("utf-8") + bytes(1)
+            raw += bytes((-len(raw)) % 4)
+            store(path, raw, content, hashlib.md5(content).digest())
         table = out.tell() - pack.start
         out.write(struct.pack("<I", len(indexed)))
         for raw_name, offset, size, md5 in indexed.values():
@@ -132,7 +171,7 @@ def write_candidate(pack, removed, target):
         assert data[:section_field] == pack.data[:section_field]
         assert data[section_field + 4:pack.start] == pack.data[section_field + 4:pack.start]
         for path in indexed:
-            assert candidate.file(path) == pack.file(path), path
+            assert candidate.file(path) == (extra[path] if path in extra else pack.file(path)), path
     return duplicates, len(indexed)
 
 
@@ -140,15 +179,22 @@ def main():
     parser = argparse.ArgumentParser(description="Trim unused Godot assets and reuse identical payloads")
     parser.add_argument("exe", type=Path)
     parser.add_argument("report", type=Path)
+    parser.add_argument("--compact-reference", type=Path,
+                        help="Write byte-identical decoded Windows animation sheets using the native regression's reference")
     args = parser.parse_args()
     candidate = args.exe.with_suffix(".slim.exe")
     with args.exe.open("rb") as f, mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as data:
         pack = Pack(data)
         groups = remove_candidates(pack)
+        added = {}
+        if args.compact_reference:
+            groups["motion_reencoded_imports"], added = compact_motion(
+                pack, args.compact_reference, Path(__file__).resolve().parents[1])
         removed = set().union(*groups.values())
-        duplicates, kept = write_candidate(pack, removed, candidate)
+        duplicates, kept = write_candidate(pack, removed, candidate, added)
         report = {"original_bytes": len(data), "candidate_bytes": candidate.stat().st_size,
-                  "untouched_files": kept, "removed_files": len(removed),
+                  "untouched_files": kept - len(added), "removed_files": len(removed),
+                  "compact_motion_files": len(added), "compact_motion_bytes": sum(map(len, added.values())),
                   "removed_by_group": {k: sum(pack.entries[p][2] for p in v) for k, v in groups.items()},
                   "identical_payload_reuse": duplicates,
                   "removed_paths": {k: sorted(v) for k, v in groups.items()}}

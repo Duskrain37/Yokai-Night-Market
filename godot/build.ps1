@@ -106,6 +106,11 @@ if (-not $SkipTests) {
 & $python (Join-Path $projectPath 'tools\verify_music.py')
 if ($LASTEXITCODE -ne 0) { throw '五周配乐与原件不一致' }
 
+$motionReference = Join-Path $qa 'compact-motion-reference.json'
+& $enginePath --headless --path $projectPath --script res://tools/qa_compact_motion.gd `
+    --log-file (Join-Path $qa 'compact-motion.log') -- $motionReference
+if ($LASTEXITCODE -ne 0 -or -not (Select-String -LiteralPath (Join-Path $qa 'compact-motion.log') -Pattern 'MOTION TOTAL \d+ FAILURES 0' -Quiet)) { throw 'PC 动画像素校验失败' }
+
 if ($VerifyOnly) { Write-Host '本地检查完成；未封包、未上传。'; return }
 
 Write-Host '[7/7] 导出 Windows 单文件…'
@@ -113,7 +118,7 @@ Write-Host '[7/7] 导出 Windows 单文件…'
     (Join-Path $out 'YokaiNightMarket.exe') --log-file (Join-Path $qa 'export.log')
 if ($LASTEXITCODE -ne 0) { throw '导出失败' }
 if (Select-String -LiteralPath (Join-Path $qa 'export.log') -Pattern 'SCRIPT ERROR|Parse Error|Compilation failed' -Quiet) { throw '导出日志包含脚本错误' }
-& $python (Join-Path $projectPath 'tools\trim_export.py') (Join-Path $out 'YokaiNightMarket.exe') (Join-Path $qa 'pack-audit.json')
+& $python (Join-Path $projectPath 'tools\trim_export.py') (Join-Path $out 'YokaiNightMarket.exe') (Join-Path $qa 'pack-audit.json') --compact-reference $motionReference
 if ($LASTEXITCODE -ne 0) { throw '发行包瘦身或逐文件校验失败' }
 $exe = Get-Item -LiteralPath (Join-Path $out 'YokaiNightMarket.exe')
 $hash = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLower()

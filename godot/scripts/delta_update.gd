@@ -109,7 +109,7 @@ func _process(_dt):
 			state("failed",String(result.error));return
 		if _job=="scan":
 			local_chunks=result.index;_download_missing()
-		else:progress=1;state("ready","更新已下载并校验完成，即将重启进入 v%s。"%latest_version)
+		else:progress=1;state("ready","更新已下载并校验完成。请选择如何完成更新。")
 func _exit_tree():
 	_mutex.lock();_cancelled=true;_mutex.unlock()
 	if thread!=null and thread.is_started():thread.wait_to_finish()
@@ -290,9 +290,9 @@ func _assemble() -> Dictionary:
 	source.close();target.close()
 	if FileAccess.get_sha256(candidate)!=String(manifest.sha256):return {"error":"新版本完整校验未通过，当前游戏未更改。"}
 	return {"ok":true}
-func install() -> bool:
+func install(restart: bool=true) -> bool:
 	if phase!="ready" or _fixture:return false
-	var pid=Installer.launch(executable,candidate,manifest)
+	var pid=Installer.launch(executable,candidate,manifest,restart)
 	if pid<=0:state("failed","未能启动更新，请稍后重试。当前版本未更改。");return false
 	_installing=true
 	return true

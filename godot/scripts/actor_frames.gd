@@ -3,6 +3,7 @@ extends RefCounted
 const MANIFEST = "res://data/actor_frames.json"
 const MOTION_MANIFEST = "res://data/actor_motion.json"
 const MOTION_STEPS_PER_KEY := 8
+const MotionStorage = preload("res://scripts/motion_storage.gd")
 var catalog: Dictionary = {}
 var motion: Dictionary = {}
 var motion_sheets: Dictionary = {}
@@ -54,7 +55,7 @@ func draw_pose(canvas: CanvasItem, actor: String, clip: String, key_position: fl
 		var resolved_clip := clip
 		if not motion[actor].clips.has(resolved_clip):resolved_clip="walk" if clip=="swim" else "attack"
 		var sheet_key: String=actor+"#"+resolved_clip if _mobile and motion[actor].has("clip_files") else actor
-		var path: String="res://"+String(motion[actor].get("clip_files",{}).get(resolved_clip,motion[actor].file))
+		var path: String=MotionStorage.path_for("res://"+String(motion[actor].get("clip_files",{}).get(resolved_clip,motion[actor].file)))
 		_last_use[sheet_key]=Time.get_ticks_msec()
 		if not motion_sheets.has(sheet_key):
 			if ResourceLoader.exists(path):

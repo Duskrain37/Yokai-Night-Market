@@ -553,7 +553,8 @@ func _load_transition(paths: Array[String], caption: String, backdrop: String, c
 	await get_tree().process_frame
 
 	var waiting: Array[String] = []
-	for path in paths:
+	for resource_path in paths:
+		var path := preload("res://scripts/motion_storage.gd").path_for(resource_path)
 		if ResourceLoader.exists(path) and not waiting.has(path):
 			waiting.append(path)
 	var total = waiting.size()

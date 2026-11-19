@@ -1,0 +1,232 @@
+{
+  "version": "0.7.2",
+  "build": "6f20a3f",
+  "source_files": 913,
+  "sha256": "616ba2d35cc26c6f989e38c2741f89ce6c853e6840ec2604d8fe2cd6c488b012",
+  "failures": 0,
+  "source_checks": {
+    "native-motion": 195,
+    "pc-todo": 1492,
+    "update-regression": 2816,
+    "logic": 386,
+    "animation": 1384,
+    "v072": 347,
+    "v070_ui": 31,
+    "scenery_hotfix": 118,
+    "todo_20261115": 305
+  },
+  "archive": {
+    "motion_sheets": 195,
+    "unchanged_assets": 395,
+    "members": 1113,
+    "previous_bytes": 1155599000,
+    "candidate_bytes": 672249064,
+    "failures": 0
+  },
+  "same_pixels": 195,
+  "startup": {
+    "menu": "packed-menu.png",
+    "battle": "packed-battle.png",
+    "evolve": "packed-evolve.png",
+    "gauntlet": "packed-gauntlet.png"
+  },
+  "install": {
+    "finish": {
+      "detail": null,
+      "ok": true,
+      "message": "更新完成。",
+      "version": "0.7.2",
+      "time": "2026-11-19T01:41:16.9544126Z"
+    },
+    "restart": {
+      "detail": null,
+      "ok": true,
+      "message": "更新完成。",
+      "version": "0.7.2",
+      "time": "2026-11-19T01:41:17.9822596Z"
+    },
+    "bad_candidate": {
+      "detail": "Candidate check failed",
+      "ok": false,
+      "message": "更新未能完成，之前的版本保持不变。",
+      "version": "0.7.2",
+      "time": "2026-11-19T01:41:18.4411219Z"
+    }
+  },
+  "incremental": [
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v072 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused verified old resources",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已下载并校验完成，即将重启进入 v0.7.2。",
+      "phase": "ready",
+      "received": 267675196,
+      "required": 267675196,
+      "reused": 404575024,
+      "target_sha256": "616ba2d35cc26c6f989e38c2741f89ce6c853e6840ec2604d8fe2cd6c488b012",
+      "updater_build": "f4a4d6f",
+      "updater_version": "0.7.2",
+      "wire_exe_bytes": 267675196,
+      "range_requests": 81,
+      "duration_seconds": 83.72
+    },
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v072 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused verified old resources",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已下载并校验完成，即将重启进入 v0.7.2。",
+      "phase": "ready",
+      "received": 280389766,
+      "required": 280389766,
+      "reused": 391861841,
+      "target_sha256": "616ba2d35cc26c6f989e38c2741f89ce6c853e6840ec2604d8fe2cd6c488b012",
+      "updater_build": "c78bb7d",
+      "updater_version": "0.7.0",
+      "wire_exe_bytes": 280389766,
+      "range_requests": 108,
+      "duration_seconds": 86.15
+    },
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "packaged updater to v072 is ready",
+          "ok": true
+        },
+        {
+          "name": "only differences downloaded",
+          "ok": true
+        },
+        {
+          "name": "reused verified old resources",
+          "ok": true
+        },
+        {
+          "name": "candidate exact final EXE hash",
+          "ok": true
+        },
+        {
+          "name": "original game unchanged",
+          "ok": true
+        },
+        {
+          "name": "fixture does not install or exit",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "message": "更新已准备好。重启后即可进入 v0.7.2。",
+      "phase": "ready",
+      "received": 337962986,
+      "required": 337962986,
+      "reused": 334293390,
+      "target_sha256": "616ba2d35cc26c6f989e38c2741f89ce6c853e6840ec2604d8fe2cd6c488b012",
+      "updater_build": "2bcd33c",
+      "updater_version": "0.5.6",
+      "wire_exe_bytes": 337962986,
+      "range_requests": 130,
+      "duration_seconds": 101.08
+    },
+    {
+      "checks": [
+        {
+          "name": "updater loaded from actual packaged build",
+          "ok": true
+        },
+        {
+          "name": "project version from mounted pack",
+          "ok": true
+        },
+        {
+          "name": "newest same-version build is current",
+          "ok": true
+        },
+        {
+          "name": "current EXE remains untouched",
+          "ok": true
+        }
+      ],
+      "failures": 0,
+      "phase": "current",
+      "received": 0,
+      "required": 0,
+      "updater_build": "6f20a3f",
+      "updater_version": "0.7.2",
+      "wire_exe_bytes": 0,
+      "range_requests": 0,
+      "duration_seconds": 2.06
+    }
+  ],
+  "export_count": 1
+}

@@ -492,7 +492,7 @@ static func capstone_sprite(type: String, path_id: int) -> Texture2D:
 		var clip: String = ["idle", "far_idle", "dual"][clampi(path_id - 1, 0, 2)]
 		var r: Array = info.clips[clip][0].rect
 		var atlas := AtlasTexture.new()
-		atlas.atlas = load("res://" + String(info.file))
+		atlas.atlas = load(preload("res://scripts/motion_storage.gd").path_for("res://" + String(info.file)))
 		atlas.region = Rect2(r[0], r[1], r[2], r[3])
 		atlas.filter_clip = true
 		_capstone_cache[actor] = atlas
@@ -503,7 +503,7 @@ static func capstone_sprite(type: String, path_id: int) -> Texture2D:
 		if not sequence.is_empty():
 			var r: Array = sequence[0].rect
 			var atlas := AtlasTexture.new()
-			atlas.atlas = load("res://" + String(info.file))
+			atlas.atlas = load(preload("res://scripts/motion_storage.gd").path_for("res://" + String(info.file)))
 			atlas.region = Rect2(r[0], r[1], r[2], r[3])
 			atlas.filter_clip = true
 			portrait = atlas

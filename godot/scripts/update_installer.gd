@@ -2,7 +2,7 @@
 extends RefCounted
 static func encoded(value: String) -> String:
 	return Marshalls.raw_to_base64(value.to_utf8_buffer())
-static func script(exe: String,candidate: String,target: Dictionary,parent: int,result_path: String) -> String:
+static func script(exe: String,candidate: String,target: Dictionary,parent: int,result_path: String,restart: bool=true) -> String:
 	var code='''$ErrorActionPreference='Stop'
 function Decode($s) { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($s)) }
 function Hash($path) {
@@ -13,10 +13,29 @@ function Hash($path) {
 $exe=[IO.Path]::GetFullPath((Decode('__EXE__')))
 $candidate=[IO.Path]::GetFullPath((Decode('__CANDIDATE__')))
 $result=[IO.Path]::GetFullPath((Decode('__RESULT__')))
-$expected='__DIGEST__';$build='__BUILD__';$length=__SIZE__; $gamePid=__PID__
+$expected='__DIGEST__';$build='__BUILD__';$length=__SIZE__; $gamePid=__PID__; $restart=__RESTART__
 $backup=$exe+'.previous';$ack=$exe+'.update-ack';$started=$null;$moved=$false
 function SaveResult($ok,$message) {
   @{ok=$ok;message=$message;detail=$reason;version='__VERSION__';time=[DateTime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath $result -Encoding UTF8 -ErrorAction SilentlyContinue
+}
+function CleanUpdateFiles() {
+  $directory=[IO.Path]::GetDirectoryName($exe)
+  $partPattern='^'+[Regex]::Escape([IO.Path]::GetFileName($exe))+'[.]update-[a-f0-9]{12}[.]part$'
+  Get-ChildItem -LiteralPath $directory -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -match $partPattern -and -not ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) } |
+    ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }
+  # Only reserved hash directories and verified-chunk filenames belong to the updater.
+  $updates=[IO.Path]::GetDirectoryName($result)
+  if ([IO.Path]::GetFileName($updates) -ne 'updates' -or ([IO.File]::GetAttributes($updates) -band [IO.FileAttributes]::ReparsePoint)) { return }
+  Get-ChildItem -LiteralPath $updates -Directory -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -match '^[a-f0-9]{64}$' -and -not ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) } |
+    ForEach-Object {
+      $folder=$_.FullName
+      Get-ChildItem -LiteralPath $folder -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match '^[a-f0-9]{64}[.]bin$' -and -not ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) } |
+        ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }
+      if (-not (Get-ChildItem -LiteralPath $folder -Force)) { Remove-Item -LiteralPath $folder -ErrorAction SilentlyContinue }
+    }
 }
 try {
   if ([IO.Path]::GetDirectoryName($exe) -ne [IO.Path]::GetDirectoryName($candidate) -or
@@ -28,26 +47,26 @@ try {
   if (Get-Process -Id $gamePid -ErrorAction SilentlyContinue) { throw 'Game did not exit' }
   if (Test-Path -LiteralPath $backup) { Remove-Item -LiteralPath $backup -Force }
   if (Test-Path -LiteralPath $ack) { Remove-Item -LiteralPath $ack -Force }
-  Move-Item -LiteralPath $exe -Destination $backup
+  # Replace atomically rather than briefly leaving the game path without an EXE.
+  [IO.File]::Replace($candidate,$exe,$backup,$true)
   $moved=$true
-  Move-Item -LiteralPath $candidate -Destination $exe
-  $arg='-- "--update-ack='+$ack.Replace([char]92,[char]47)+'"'
-  # The restarted game is interactive; only this helper is hidden.
-  $started=Start-Process -FilePath $exe -ArgumentList $arg -WorkingDirectory ([IO.Path]::GetDirectoryName($exe)) -WindowStyle Normal -PassThru
-  $until=[DateTime]::UtcNow.AddSeconds(90);$ready=$false
-  do {
-    Start-Sleep -Milliseconds 250
-    if (Test-Path -LiteralPath $ack) { $ready=((Get-Content -LiteralPath $ack -Raw).Trim() -eq $build) }
-    $started.Refresh()
-  } while (-not $ready -and -not $started.HasExited -and [DateTime]::UtcNow -lt $until)
-  if (-not $ready) { throw 'Updated game did not confirm startup' }
+  if ((Get-Item -LiteralPath $exe).Length -ne $length -or (Hash $exe) -ne $expected) { throw 'Installed EXE check failed' }
+  if ($restart) {
+    $arg='-- "--update-ack='+$ack.Replace([char]92,[char]47)+'"'
+    $started=Start-Process -FilePath $exe -ArgumentList $arg -WorkingDirectory ([IO.Path]::GetDirectoryName($exe)) -WindowStyle Normal -PassThru
+    $until=[DateTime]::UtcNow.AddSeconds(90);$ready=$false
+    do {
+      Start-Sleep -Milliseconds 250
+      if (Test-Path -LiteralPath $ack) { $ready=((Get-Content -LiteralPath $ack -Raw).Trim() -eq $build) }
+      $started.Refresh()
+    } while (-not $ready -and -not $started.HasExited -and [DateTime]::UtcNow -lt $until)
+    if (-not $ready) { throw 'Updated game did not confirm startup' }
+  }
+  # Installation has succeeded. A subsequent normal start cannot trigger rollback.
+  $moved=$false
   Remove-Item -LiteralPath $backup -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath $ack -Force -ErrorAction SilentlyContinue
-  $cache=[IO.Path]::GetFullPath((Join-Path ([IO.Path]::GetDirectoryName($result)) $expected))
-  if ([IO.Path]::GetDirectoryName($cache) -eq [IO.Path]::GetDirectoryName($result) -and [IO.Path]::GetFileName($cache) -eq $expected -and (Test-Path -LiteralPath $cache)) {
-    Get-ChildItem -LiteralPath $cache -File -Filter '*.bin' | ForEach-Object { Remove-Item -LiteralPath $_.FullName -Force -ErrorAction SilentlyContinue }
-    if (-not (Get-ChildItem -LiteralPath $cache -Force)) { Remove-Item -LiteralPath $cache -ErrorAction SilentlyContinue }
-  }
+  try { CleanUpdateFiles } catch {}
   SaveResult $true '更新完成。'
 } catch {
   $reason=$_.Exception.Message
@@ -59,16 +78,16 @@ try {
     }
     Move-Item -LiteralPath $backup -Destination $exe
     SaveResult $false '新版本未能正常启动，已恢复之前的版本。'
-    Start-Process -FilePath $exe -WorkingDirectory ([IO.Path]::GetDirectoryName($exe)) -WindowStyle Normal
+    if ($restart) { Start-Process -FilePath $exe -WorkingDirectory ([IO.Path]::GetDirectoryName($exe)) -WindowStyle Normal }
   } else { SaveResult $false '更新未能完成，之前的版本保持不变。' }
   exit 1
 }
 '''
-	return code.replace("__EXE__",encoded(exe)).replace("__CANDIDATE__",encoded(candidate)).replace("__RESULT__",encoded(result_path)).replace("__DIGEST__",String(target.sha256)).replace("__BUILD__",String(target.build)).replace("__VERSION__",String(target.version)).replace("__SIZE__",str(int(target.size))).replace("__PID__",str(parent))
-static func launch(exe: String,candidate: String,target: Dictionary) -> int:
+	return code.replace("__EXE__",encoded(exe)).replace("__CANDIDATE__",encoded(candidate)).replace("__RESULT__",encoded(result_path)).replace("__DIGEST__",String(target.sha256)).replace("__BUILD__",String(target.build)).replace("__VERSION__",String(target.version)).replace("__SIZE__",str(int(target.size))).replace("__PID__",str(parent)).replace("__RESTART__","$true" if restart else "$false")
+static func launch(exe: String,candidate: String,target: Dictionary,restart: bool=true) -> int:
 	var dir=ProjectSettings.globalize_path("user://updates")
 	if DirAccess.make_dir_recursive_absolute(dir)!=OK:return -1
-	var code=script(exe,candidate,target,OS.get_process_id(),dir.path_join("install-result.json"))
+	var code=script(exe,candidate,target,OS.get_process_id(),dir.path_join("install-result.json"),restart)
 	var powershell=OS.get_environment("SystemRoot").path_join("System32/WindowsPowerShell/v1.0/powershell.exe")
 	if not FileAccess.file_exists(powershell):return -1
 	return OS.create_process(powershell,["-NoProfile","-NonInteractive","-WindowStyle","Hidden","-ExecutionPolicy","Bypass","-EncodedCommand",Marshalls.raw_to_base64(code.to_utf16_buffer())],false)

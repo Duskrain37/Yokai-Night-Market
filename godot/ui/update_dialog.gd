@@ -3,10 +3,8 @@ const Delta = preload("res://scripts/delta_update.gd")
 var game
 var updater
 var auto_start := true
-var restart_delay := 5.0
-var restart_remaining := -1.0
-var restart_required := false
-var _restarting := false
+var completion_pending := false
+var _committing := false
 var _text: Label
 var _bar: ProgressBar
 var _detail: Label
@@ -59,67 +57,64 @@ func _ready():
 	add_child(updater)
 	updater.changed.connect(_refresh)
 	_action.pressed.connect(_act)
-	_close.pressed.connect(_leave)
+	_close.pressed.connect(_secondary)
 	canceled.connect(_leave)
-	visibility_changed.connect(_protect_restart)
+	visibility_changed.connect(_protect_completion)
 	game.get_window().close_requested.connect(_main_close)
 	_refresh()
 	if auto_start: call_deferred("_act")
 
-func _process(dt: float) -> void:
-	if not restart_required or _restarting: return
-	restart_remaining = maxf(0, restart_remaining - dt)
-	_refresh_countdown()
-	if restart_remaining <= 0: _restart()
-
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		set_input_as_handled()
-		if not restart_required: _leave()
+		if not completion_pending: _leave()
 
 func _act():
-	if restart_required: _restart()
+	if completion_pending: _complete(true)
 	else: updater.start(game.VERSION, OS.get_executable_path())
 
-func _begin_restart() -> void:
-	if restart_required: return
-	restart_required = true
-	restart_remaining = restart_delay
+func _secondary() -> void:
+	if completion_pending: _complete(false)
+	else: _leave()
+
+func _begin_completion() -> void:
+	if completion_pending: return
+	completion_pending = true
 	_previous_auto_quit = game.get_tree().auto_accept_quit
 	game.get_tree().auto_accept_quit = false
 	borderless = true
-	_close.disabled = true
-	_close.text = "更新完成 · 即将重启"
-	title = "更新完成 · 必须重启"
+	title = "更新已就绪"
 
-func _restart() -> void:
-	if _restarting: return
-	_restarting = true
+func _complete(restart: bool) -> void:
+	if _committing: return
+	_committing = true
 	_action.disabled = true
-	if not _install_and_quit():
-		_restarting = false
-		restart_required = false
+	_close.disabled = true
+	if not _install_and_quit(restart):
+		_committing = false
+		completion_pending = false
 		borderless = false
+		title = "夜市新讯 · 检查更新"
 		game.get_tree().auto_accept_quit = _previous_auto_quit
 		_refresh()
 
-func _install_and_quit() -> bool:
+func _install_and_quit(restart: bool) -> bool:
 	game.save_progress()
 	game.save_settings()
 	game.save_records()
-	if not updater.install(): return false
+	if not updater.install(restart): return false
 	game.get_tree().quit()
 	return true
 
 func _main_close() -> void:
-	if restart_required: _restart()
+	if completion_pending: _protect_completion()
 
-func _protect_restart() -> void:
-	if restart_required and not visible and not _restarting: call_deferred("popup_centered")
+func _protect_completion() -> void:
+	if completion_pending and not visible and not _committing: call_deferred("popup_centered")
 
 func _leave():
-	if restart_required:
-		_protect_restart()
+	if completion_pending:
+		_protect_completion()
 		return
 	if updater.phase in ["checking", "scanning", "downloading", "assembling"]:
 		_leaving = true
@@ -128,11 +123,6 @@ func _leave():
 		return
 	hide()
 	queue_free()
-
-func _refresh_countdown() -> void:
-	_text.text = "更新已下载并校验完成。为启用新版本，游戏将在 %d 秒后自动重启。" % ceili(restart_remaining)
-	_detail.text = "新版本 v%s · 已保存守夜记录。重启期间请稍候，新版会自动打开。" % updater.latest_version
-	_action.text = "立即重启"
 
 func _refresh():
 	if _leaving and updater.phase in ["cancelled", "failed", "idle"]:
@@ -149,14 +139,13 @@ func _refresh():
 	_bar.visible = busy or updater.phase == "ready"
 	_detail.text = "当前版本 v%s · %s" % [game.VERSION, updater.work_detail()]
 	if updater.phase == "ready":
-		if not restart_required:
-			game.save_progress()
-			game.save_settings()
-			game.save_records()
-			_begin_restart()
-		_close.disabled = true
-		_refresh_countdown()
+		_begin_completion()
+		_action.text = "完成更新并重启"
+		_close.text = "完成更新"
+		_close.disabled = _committing
+		_action.disabled = _committing
+		_detail.text = "v%s · 两种选项都会保存记录并关闭当前游戏。选择「完成更新」后，下次打开即进入更新后的游戏。" % updater.latest_version
 
 func _exit_tree() -> void:
-	if restart_required and not _restarting: game.get_tree().auto_accept_quit = _previous_auto_quit
+	if completion_pending and not _committing: game.get_tree().auto_accept_quit = _previous_auto_quit
 

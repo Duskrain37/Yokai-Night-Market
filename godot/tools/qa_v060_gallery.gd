@@ -60,7 +60,7 @@ func run():
 	await capture("update-progress")
 	dialog.updater.latest_version="0.6.0";dialog.updater.state("ready","完成");dialog.set_process(false)
 	await capture("update-restart-required")
-	dialog.restart_required=false;auto_accept_quit=true;dialog.hide();dialog.queue_free()
+	dialog.completion_pending=false;auto_accept_quit=true;dialog.hide();dialog.queue_free()
 	game.free();await settle()
 	var file=FileAccess.open(folder.path_join("capture-%dx%d.json"%[dimensions.x,dimensions.y]),FileAccess.WRITE)
 	file.store_string(JSON.stringify(captures,"  "));file.close();quit()
