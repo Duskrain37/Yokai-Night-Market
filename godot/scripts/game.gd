@@ -18,7 +18,7 @@ var _loading_hold: Dictionary = {}
 var load_timings: Array=[]
 var _loading_busy := false
 
-const VERSION = "0.7.3"
+const VERSION = "0.7.4"
 const MOBILE_WORLD = Transform2D(0.0,Vector2(0.92,0.92),0.0,Vector2(120,40))
 var touch_router: Node
 const SAVE_PATH = "user://run.json"
@@ -95,6 +95,8 @@ var board: BoardView = null
 var units: UnitView = null
 var boss_view: Node2D = null
 var hud: Control = null
+var _guest_status: Control
+var _next_hud_refresh := 0.0
 var ui_layer: CanvasLayer = null
 var ui_root: Control = null
 var _autosave_t = 0.0
@@ -174,7 +176,7 @@ func _ready() -> void:
 			paths.append(_music_path(track))
 		for actor in Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"]:
 			paths.append("res://assets/sprites/%s.png" % actor)
-		await _load_transition(paths, "灯火将明", "res://assets/ui/nightmarket/menu-ensemble.png", true)
+		await _load_transition(paths, "灯火将明", "res://assets/bg/loading-menu.png", true)
 	Ui.warm_sprites(Content.PLANT_ORDER + Content.ZOMBIE_ORDER + ["guardian"])
 	_setup_audio()
 	loadout = _clean_loadout(Array(progress.get("loadout", [])))
@@ -381,7 +383,7 @@ func start_battle(level_id: int, cards: Array, mode = "normal", restore_data: Di
 		var background = "res://assets/bg/map-%s.png" % map
 		if not ResourceLoader.exists(background):
 			background = "res://assets/bg/map-%s.jpg" % map
-		await _load_transition(_battle_resources(level_id, cards, background, map), "守夜将启", "res://assets/ui/nightmarket/menu-ensemble.png")
+		await _load_transition(_battle_resources(level_id, cards, background, map), "守夜将启", "res://assets/bg/loading-night.png")
 	_start_battle_now(level_id, cards, mode, restore_data.is_empty())
 	if not restore_data.is_empty():
 		sim.restore(restore_data)
@@ -466,6 +468,13 @@ func _start_battle_now(level_id: int, cards: Array, mode: String, save_initial :
 	hud.game = self
 	ui_root.add_child(hud)
 	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_next_hud_refresh = 0.0
+	if not mobile:
+		_guest_status=preload("res://ui/guest_status.gd").new()
+		_guest_status.sim=sim
+		_guest_status.unit_view=units
+		hud.add_child(_guest_status)
+		_guest_status.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var boss_ui=preload("res://ui/boss_hud.gd").new()
 	boss_ui.game=self
 	hud.add_child(boss_ui)
@@ -487,6 +496,7 @@ func _battle_map(level_id: int, mode: String) -> String:
 
 func _battle_resources(level_id: int, cards: Array, background: String, map: String) -> Array[String]:
 	var paths: Array[String] = [background]
+	paths.append_array(preload("res://scripts/shore_scenery.gd").resource_paths(map))
 	if map=="day6":
 		paths.append_array(["res://assets/scenery/cloud-platform.png","res://assets/scenery/cloud-veil.png"])
 	if mobile:
@@ -510,6 +520,7 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 	var foes = Content.plants_in_level(Content.get_level(level_id)) if level_id > 0 else ["ghost"]
 	if "sedan" in foes or "matchmaker" in foes:
 		foes.append_array(["sedan", "sedan-empty", "sedan-loaded", "bride", "ghost"])
+	if map == "day4": foes.append_array(["ghost","reedboat"])
 	if "phaseguard" in foes or "tamer" in foes:
 		foes.append_array(["phase-veil", "phase-kite"])
 	var motion = JSON.parse_string(FileAccess.get_file_as_string("res://data/actor_motion_mobile.json" if mobile and FileAccess.file_exists("res://data/actor_motion_mobile.json") else "res://data/actor_motion.json"))
@@ -526,8 +537,8 @@ func _battle_resources(level_id: int, cards: Array, background: String, map: Str
 				for file in motion[actor].get("clip_files",{"default":motion[actor].file}).values():paths.append("res://"+String(file))
 	var forms = JSON.parse_string(FileAccess.get_file_as_string("res://data/evolution_art_v040.json"))
 	if forms is Dictionary and not mobile:
-		for actor in forms:
-			paths.append("res://" + String(forms[actor]["file"]))
+		for actor in allies:
+			if forms.has(actor): paths.append("res://" + String(forms[actor]["file"]))
 	for atlas in ["boss_earth_atlas", "boss_paper_atlas", "boss_river_atlas", "props_atlas", "fx_atlas"]:
 		paths.append("res://assets/boss/%s.png" % atlas)
 	return paths
@@ -638,7 +649,9 @@ func _tick_battle(delta: float) -> void:
 	if sim.is_cleared():
 		finish_run(true)
 		return
-	if hud != null and hud.has_method("refresh"):
+	_next_hud_refresh -= delta
+	if _next_hud_refresh <= 0 and hud != null and hud.has_method("refresh"):
+		_next_hud_refresh = 1.0/30.0
 		hud.refresh()
 	_music_for_wave()
 	if sim.tutorial == null and not sim.training:
@@ -724,6 +737,7 @@ func show_pause() -> void:
 	if sim == null or screen != "battle":
 		return
 	hud.cancel_selection()
+	if is_instance_valid(_guest_status): _guest_status.watch(null)
 	paused = true
 	_music_duck = 1.0
 	var node = load("res://ui/mobile_hud.gd").new() if mobile else HudScreen.new()
@@ -830,7 +844,11 @@ func _unhandled_input(event: InputEvent) -> void:
 					var target:Dictionary=preload("res://scripts/plant_regions.gd").pick(sim,at)
 					if not target.is_empty() and target.layer=="skill":
 						sim.activate_skill(target.plant);hud.refresh();get_viewport().set_input_as_handled();return
+				var may_inspect: bool = not mobile and not paused and sim!=null and not hud.blocks_simulation() and hud.card_selected < 0 and not hud.shovel_mode
 				hud.cancel_selection()
+				if may_inspect and is_instance_valid(_guest_status):
+					_guest_status.watch(units.pick_guest(event.position))
+					get_viewport().set_input_as_handled()
 			return
 		if event.button_index != MOUSE_BUTTON_LEFT:
 			return
@@ -879,6 +897,7 @@ func _handle_battle_click(pos: Vector2) -> void:
 		return
 	if hud.has_method("blocks_simulation") and hud.blocks_simulation():
 		return
+	if is_instance_valid(_guest_status): _guest_status.watch(null)
 	var cell = sim.cell_at_screen(pos)
 	if hud.shovel_mode:
 		if cell.x >= 0:

@@ -4,7 +4,7 @@ const Geo = preload("res://scripts/geo.gd")
 const Content = preload("res://data/content.gd")
 const DOCK_ROWS := [1, 4]
 const CHANNEL_ROWS := [1, 3]
-const WET_ROWS := [0, 1, 4, 5]
+const ALL_LANES := [0, 1, 2, 3, 4, 5]
 const BRIDGE_COLS := [[4, 6, 7], [6, 7]]
 const FIRST_WATER := [7, 8, 9, 9, 8, 7]
 const TIMBER_GUEST := "timber-bearer"
@@ -21,7 +21,7 @@ func setup() -> void:
 	rng.seed = hash("shore:%d:%d" % [s.level_id, int(s.level.get("fixed_seed", 0))])
 	state = {"cargo": [], "boats": [], "next_cargo": false, "mats": [], "flow": 0,
 		"flow_at": -1.0, "flow_next": 1, "wet": true, "tide_previous_stayed": false,
-		"tide_at": -1.0, "tide_next": true, "tide_anim": -10.0, "tide_lane": -1, "short_group": -1,
+		"tide_at": -1.0, "tide_next": true, "tide_anim": -10.0, "tide_text": "", "tide_text_until": -1.0,
 		"fog_at": -1.0, "fog_until": -1.0, "fog_col": 5, "fog_old_until": -1.0, "fog_old_col": 5,
 		"fog_notice": -1.0, "fog_next_col": 5, "gate_row": -1, "gate_start": -10.0, "gate_until": -10.0,
 		"gate_ready": 0.0, "bridges": [], "wood": 0, "timber_dropped": [], "group": -1}
@@ -120,7 +120,9 @@ func on_batch(index: int) -> void:
 				if next != wet:
 					state.tide_at = s.time + 8.0
 					state.tide_next = next
-					state.tide_lane = [0, 5][rng.randi_range(0, 1)] if not next else -1
+					state.tide_text = "涨潮将至" if next else "退潮将至"
+					state.tide_text_until = s.time + 3.8
+					s.sfx("wave")
 		"cavern":
 			if sub == 0 and group in [2, 5]:
 				var standing: Array = state.bridges.filter(func(b): return bool(b.intact))
@@ -170,7 +172,8 @@ func tick() -> void:
 				state.tide_at = -1.0
 				state.wet = bool(state.tide_next)
 				state.tide_anim = s.time
-				state.short_group = int(state.group) if not state.wet else -1
+				state.tide_text = "涨潮了" if state.wet else "退潮了"
+				state.tide_text_until = s.time + 3.6
 				s.sfx("splash")
 
 func _step_boats(s) -> void:
@@ -285,28 +288,39 @@ func bridge_wood(z) -> void:
 	var s = owner.get_ref()
 	s.float_text(z.pos + Vector2(0, -35), "拾到补桥木材", Color("#ddbf90"), 19, 1.6)
 
-func over_water(z, col: int) -> bool:
-	if not enabled() or map_key() != "island" or z.boss_role != "" or z.row not in WET_ROWS: return false
-	return bool(state.wet) and col >= int(FIRST_WATER[z.row])
+const TIDE_TURN_TIME := 2.1
+
+func water_column(row: int) -> int:
+	return mini(7, FIRST_WATER[row]) if bool(state.get("wet", true)) else FIRST_WATER[row]
+
+func flooded(col: int, row: int) -> bool:
+	return enabled() and map_key() == "island" and row >= 0 and row < 6 and col >= water_column(row) and (col < Geo.COLS or water_column(row) < Geo.COLS)
+
+func over_water(z, _col: int) -> bool:
+	if not enabled() or map_key() != "island" or z.boss_role != "" or z.row < 0 or z.row >= 6: return false
+	var boundary := float(water_column(z.row))
+	if float(state.tide_at) >= 0:
+		var s = owner.get_ref()
+		var age: float = s.time - (float(state.tide_at) - TIDE_TURN_TIME)
+		var next: int = mini(7,FIRST_WATER[z.row]) if bool(state.tide_next) else FIRST_WATER[z.row]
+		boundary = lerpf(boundary,float(next),smoothstep(0.0, TIDE_TURN_TIME, age))
+	return boundary < Geo.COLS - .001 and z.pos.x >= Geo.BOARD_X + boundary * Geo.CELL_W
 
 func island_arrival(type: String, row: int, wave_no: int, _weights: Array) -> Array:
 	if not enabled() or map_key() != "island" or type == "wave-herald": return [type, row, false]
-	var col_type: Dictionary = Content.ZOMBIES.get(type, {})
-	if row < 0 or row >= 6: return [type,row,false]
-	var wet := bool(state.wet)
-	if wet and row in WET_ROWS and not bool(col_type.get("water_only", false)) and (col_type.get("tier", "") == "h" or bool(col_type.get("land_only", false)) or bool(col_type.get("large", false))):
-		# Do not force land specialists onto water. Aquatic arrivals replace their own lane's scheduled slot.
-		var choices: Array = ["ghost", "reedboat"]
-		type = choices[rng.randi_range(0, choices.size() - 1)]
-	elif wet and row in WET_ROWS and wave_no >= 3 and not col_type.get("water_only", false) and rng.randf() < .22:
+	var def: Dictionary = Content.ZOMBIES.get(type, {})
+	var wet_rows := ALL_LANES.filter(func(lane): return water_column(lane) < Geo.COLS)
+	var dry_rows := ALL_LANES.filter(func(lane): return water_column(lane) >= Geo.COLS)
+	var aquatic := bool(def.get("water_only", false))
+	var land_only: bool = bool(def.get("land_only", false)) or def.get("tier", "") == "h" or bool(def.get("large", false))
+	if aquatic:
+		if row not in wet_rows: row = wet_rows[rng.randi_range(0, wet_rows.size()-1)]
+	elif land_only and row not in dry_rows:
+		if not dry_rows.is_empty(): row = dry_rows[rng.randi_range(0, dry_rows.size()-1)]
+		else: type = "reedboat" if wave_no >= 3 and rng.randf() < .34 else "ghost"
+	elif row in wet_rows and wave_no >= 3 and rng.randf() < .22:
 		type = "reedboat"
-	elif (not wet or row not in WET_ROWS) and col_type.get("water_only", false):
-		type = "ghost"
-	var short: bool = wave_no >= 0 and not wet and row == int(state.tide_lane) and (int(state.short_group) >= 0 or int(state.get("short_batch", -1)) == wave_no)
-	if short:
-		state.short_group = -1
-		state.short_batch = wave_no
-	return [type, row, short]
+	return [type, row, false]
 
 func speed(z) -> float:
 	if not enabled() or z.boss_role != "" or z.type == "wave-herald": return 1.0
@@ -317,8 +331,6 @@ func speed(z) -> float:
 	if z.type == "reef-haunter" and fogged(z): return 1.25
 	if map_key() == "water" and z.row in CHANNEL_ROWS and z.water_entered and not owner.get_ref()._guest_airborne(z):
 		return 1.2 if int(state.flow) * (1 if z.row == 1 else -1) > 0 else (.7 if int(state.flow) != 0 else 1.0)
-	if map_key() == "island" and z.shore_short and not bool(state.wet) and z.pos.x >= Geo.BOARD_X + float(FIRST_WATER[z.row]) * Geo.CELL_W:
-		return 1.5
 	return 1.0
 
 func stop_position(z, next_x: float) -> float:

@@ -27,6 +27,7 @@ var _shore = preload("res://scripts/shore_scenery.gd").new()
 var _shore_fog: ColorRect
 var _shore_mask: ImageTexture
 var _fog_plants: Array = []
+var _fog_view_time := -1.0
 var _cloud_platform: Texture2D
 var _cloud_deck_meshes: Dictionary = {}
 
@@ -47,6 +48,7 @@ func set_map(key: String) -> void:
 	map_key = key
 	# 切底图同时切舞台：每天的台面在画里的位置不一样
 	Geo.set_stage(key)
+	_shore.warm(key)
 	if not _textures.has(key):
 		var path := "res://assets/bg/map-%s.png" % key
 		if not ResourceLoader.exists(path):
@@ -70,6 +72,8 @@ func _tick_shore_fog() -> void:
 	if sim == null or map_key != "day4" or not sim.shore.enabled():
 		if _shore_fog != null: _shore_fog.hide()
 		return
+	if is_equal_approx(_fog_view_time, sim.time): return
+	_fog_view_time = sim.time
 	var d: Dictionary = sim.shore.state
 	var age: float = sim.time - float(d.fog_at)
 	var remain: float = float(d.fog_until) - sim.time
@@ -86,7 +90,8 @@ func _tick_shore_fog() -> void:
 		mat.set_shader_parameter("brush",load("res://assets/scenery/cloud-veil.png"))
 		_shore_fog.material = mat
 		add_child(_shore_fog)
-	_shore_fog.size = Geo.canvas_size
+	if _shore_fog.size != Geo.canvas_size: _shore_fog.size = Geo.canvas_size
+	var mat: ShaderMaterial = _shore_fog.material
 	var living: Array = []
 	for p in sim.plants:
 		if not p.dead and p.col >= 3: living.append(Vector2i(p.col,p.row))
@@ -100,10 +105,10 @@ func _tick_shore_fog() -> void:
 					var r := ((Vector2(x,y)-center)/Vector2(10.6,9.1)).length()
 					var a := maxf(img.get_pixel(x,y).a,1.0-smoothstep(.81,1.17,r))
 					img.set_pixel(x,y,Color(1,1,1,a))
-		if _shore_mask == null: _shore_mask = ImageTexture.create_from_image(img)
+		if _shore_mask == null:
+			_shore_mask = ImageTexture.create_from_image(img)
+			mat.set_shader_parameter("clearance",_shore_mask)
 		else: _shore_mask.update(img)
-	var mat: ShaderMaterial = _shore_fog.material
-	mat.set_shader_parameter("clearance",_shore_mask)
 	mat.set_shader_parameter("now", sim.time)
 	mat.set_shader_parameter("edge",_p(float(d.fog_col)/Geo.COLS,.5).x/Geo.canvas_size.x)
 	mat.set_shader_parameter("previous_edge",_p(float(d.fog_old_col)/Geo.COLS,.5).x/Geo.canvas_size.x)
@@ -201,7 +206,7 @@ func _draw_grid() -> void:
 	if map_key == "day4":
 		for row in sim.rows:
 			for col in Geo.COLS:
-				if sim.tile_at(col, row).kind == "edge":
+				if sim.tile_at(col, row).kind == "edge" or sim.shore.flooded(col,row):
 					continue
 				var quad := _cell_quad(col, row)
 				draw_polyline(PackedVector2Array([quad[0], quad[1], quad[2], quad[3], quad[0]]), Color(0.9, 0.82, 0.65, 0.065), 1.0, true)

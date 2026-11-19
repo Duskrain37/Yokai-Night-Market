@@ -74,16 +74,14 @@ def remove_candidates(pack):
         if info["file"] not in retained_sources:
             assert info["file"].startswith("assets/sprites/animation/")
             removable_sources.add(info["file"])
-    unused = {"assets/bg/board.jpg", "assets/boss/weakpoint.svg", "assets/boss/boss_bar_frame.svg",
-              "assets/bg/loading-menu.png"}
-    # Board and preload discover PNG before JPG. Keep source fallbacks for editors,
-    # but skip duplicate imported pixels in the verified Windows release.
-    unused.update(f"assets/bg/map-day{n}.jpg" for n in range(1,6)
-                  if f"assets/bg/map-day{n}.png.import" in pack.entries)
+    required_backdrops = [f"assets/bg/map-day{n}.jpg" for n in range(1,6)] + ["assets/bg/loading-menu.png", "assets/bg/loading-night.png"]
+    for path in required_backdrops:
+        pack.imported(path)
+    unused = {"assets/bg/board.jpg", "assets/boss/weakpoint.svg", "assets/boss/boss_bar_frame.svg", "assets/scenery/shore/tide.webp", "assets/scenery/shore/gate.webp", "assets/scenery/shore/gate-panel.webp", "assets/scenery/shore/bridge.webp"}
     return {
         "development_reports": DEVELOPMENT_REPORTS & pack.entries.keys(),
         "fallback_key_atlases": set().union(*(pack.imported(x) for x in removable_sources)),
-        "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name.endswith("_art_sources.json") or name in {"data/shell_open_art_local.json","data/art_overhaul_local.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json","data/news_v055.json","data/news_v056.json","data/news_v060.json","data/news_v070.json","data/news_v072.json"})}
+        "unused_and_art_prompts": {name for name in pack.entries if name.startswith("data/") and (name.endswith("_art_prompts.json") or name.endswith("_art_sources.json") or name in {"data/shell_open_art_local.json","data/art_overhaul_local.json","data/v055_generation_prompts.json","data/v055_sfx.json","data/news_v054.json","data/news_v055.json","data/news_v056.json","data/news_v060.json","data/news_v070.json","data/news_v072.json","data/news_v073.json"})}
             | set().union(*(pack.imported(x) for x in unused if x + ".import" in pack.entries)),
     }
 

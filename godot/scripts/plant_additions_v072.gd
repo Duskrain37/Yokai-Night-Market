@@ -197,7 +197,7 @@ func _neighbors(plant) -> Dictionary:
 		var key := "%d:%d"%[col,row]
 		if _valid_ally(other) and s.plant_on_stage(other):
 			if plant.tier(2)>=1:result[key]={"uid":other.uid,"n":_symbio(other),"col":col,"row":row}
-		elif other==null and tile.kind in ["land","water"] and (tile.kind!="water" or _valid_ally(base)) and s.chapter.placement(col,row).is_empty():
+		elif other==null and tile.kind in ["land","water"] and (tile.kind!="water" or _valid_ally(base) or not s.shore.mat_on(col,row).is_empty()) and not s.shore.flooded(col,row) and s.chapter.placement(col,row).is_empty():
 			result[key]={"uid":"","n":1,"col":col,"row":row}
 	return result
 

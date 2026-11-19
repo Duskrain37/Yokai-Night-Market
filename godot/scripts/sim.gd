@@ -748,7 +748,7 @@ func cell_pos(col: int, row: int) -> Vector2:
 
 
 func plant_on_stage(plant: Plant) -> bool:
-	return chapter.present(plant)
+	return chapter.present(plant) and not shore.flooded(plant.col,plant.row)
 
 func new_shot() -> Shot:
 	return Shot.new()
@@ -897,6 +897,8 @@ func can_place_at(type: String, col: int, row: int) -> Dictionary:
 	if time<curfew_until:return {"ok":false,"reason":"宵禁中，%d 秒后可种植" % ceili(curfew_until-time)}
 	if col < 0 or col >= Geo.COLS or row < 0 or row >= rows:
 		return {"ok": false, "reason": "这里不能种"}
+	if shore.flooded(col,row) and not _restoring_cloud_units:
+		return {"ok":false,"reason":"海水漫过此格，退潮后才能种植"}
 	var terrain_reason: String = chapter.placement(col,row)
 	if not terrain_reason.is_empty() and not _restoring_cloud_units: return {"ok":false, "reason":terrain_reason}
 	if not _moving_existing and factor("seeds")>0 and plant_population()>=int([0,30,25,20][factor("seeds")]):
@@ -1396,7 +1398,7 @@ func refresh_plant_buffs() -> void:
 	var lantern_fx: Dictionary = Upgrades.EFFECTS["lantern"]
 	var judge_fx: Dictionary = Upgrades.EFFECTS["judge"]
 	for source in plants:
-		if not chapter.deck_exposed(source) or source.sleep_until > time or source.sealed_until > time:
+		if not chapter.deck_exposed(source) or shore.flooded(source.col, source.row) or source.sleep_until > time or source.sealed_until > time:
 			continue
 		if source.type=="bell" and source.tier(3)>=2:
 			for target in plants:
@@ -1517,6 +1519,9 @@ func update_waves() -> void:
 			_finish_checkpoint()
 		return
 	var waves: Array = level.get("waves", [])
+	if tutorial == null and wave_index >= 3 * Content.WAVES_PER_GROUP + 1 and wave_index < waves.size() and spawn_queue.is_empty() and pending_spawns.is_empty() and not checkpoint_waiting() and time >= special_rest_until and active_zombies() <= 2:
+		var due: float = float(waves[wave_index].t) + wave_time_offset
+		if time < due: wave_time_offset -= due - time
 	while wave_index < waves.size() and time >= float(waves[wave_index]["t"])+wave_time_offset \
 			and not checkpoint_waiting() and time>=special_rest_until:
 		var wave: Dictionary = waves[wave_index]
@@ -1806,7 +1811,7 @@ func choose_spawn_row(type: String, flexible_water: float = -1.0, water_share: f
 	if market_row >= 0 and not bool(Content.ZOMBIES.get(type,{}).get("water_only",false)): return market_row
 	var water: Array = level.get("water_rows", [])
 	if shore.enabled() and shore.map_key()=="island" and bool(Content.ZOMBIES.get(type,{}).get("water_only",false)):
-		water=shore.WET_ROWS if bool(shore.state.wet) else []
+		water=shore.ALL_LANES.filter(func(lane):return shore.water_column(lane)<Geo.COLS)
 	var def: Dictionary = Content.ZOMBIES.get(type, {})
 	var water_only := bool(def.get("water_only", false))
 	var high_tier := String(def.get("tier", "")) == "h"
@@ -1868,7 +1873,7 @@ func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 	if type == "sedan":
 		z.sedan_has_bride = bool(opts["sedan_bride"]) if opts.has("sedan_bride") else rng.randf() < 0.5
 	z.row = clampi(row, 0, rows - 1)
-	if bool(def.get("water_only", false)) and z.row not in level.get("water_rows", []) and not shore.over_water(z,9) and not bool(opts.get("restore_unit",false)):
+	if bool(def.get("water_only", false)) and z.row not in level.get("water_rows", []) and not shore.flooded(Geo.COLS,z.row) and not bool(opts.get("restore_unit",false)):
 		z.row = choose_spawn_row(type)
 		if z.row < 0:
 			return null
@@ -1899,6 +1904,7 @@ func spawn_zombie(type: String, row: int, opts: Dictionary = {}) -> Zombie:
 	z.support_t = 1.5 + rng.randf() * float(def["support"]["interval"]) \
 		if def.has("support") else 0.0
 	zombies.append(z)
+	if shore.enabled() and shore.map_key() == "island": _update_water_pose(z,0.0)
 	return z
 
 
@@ -4456,14 +4462,13 @@ func explode(plant: Plant) -> void:
 func eat_target(z: Zombie) -> Plant:
 	var reach = float(z.def.get("reach", 38.0))
 	var best: Plant = null
+	var first_x: float=z.pos.x-reach
+	var last_x: float=z.pos.x+2.0
 	for plant in plants:
-		if not chapter.deck_exposed(plant) or plant.row != z.row or (plant.type=="squash" and plant.squash_at>=0):
-			continue
-		if plant.is_lily and main_plant_at(plant.col, plant.row) != null:
-			continue
-		if plant.pos.x <= z.pos.x + 2.0 and z.pos.x - plant.pos.x <= reach:
-			if best == null or plant.pos.x > best.pos.x:
-				best = plant
+		if plant.row != z.row or plant.pos.x < first_x or plant.pos.x > last_x: continue
+		if not chapter.deck_exposed(plant) or (plant.type=="squash" and plant.squash_at>=0): continue
+		if plant.is_lily and main_plant_at(plant.col, plant.row) != null: continue
+		if best == null or plant.pos.x > best.pos.x: best=plant
 	return best
 
 
@@ -4564,16 +4569,22 @@ func _update_enemy_shot(shot: Shot, dt: float) -> void:
 
 func _zombie_over_water(z: Zombie) -> bool:
 	var column := floori((z.pos.x - Geo.BOARD_X) / Geo.CELL_W)
-	return shore.over_water(z, column) or (column >= 0 and column < Geo.COLS and String(tile_at(column, z.row).get("water", "")) != "")
+	if level.get("map", "") == "island" and shore.enabled(): return shore.over_water(z, column)
+	if column < 0: return false
+	return String(tile_at(mini(column,Geo.COLS-1), z.row).get("water", "")) != ""
 
 
 func _update_water_pose(z: Zombie, dt: float) -> void:
 	z.water_entry_t = maxf(0.0, z.water_entry_t - dt)
 	z.water_exit_t = maxf(0.0, z.water_exit_t - dt)
 	z.raft_sink_t = maxf(0.0, z.raft_sink_t - dt)
-	if level.get("water_rows", []).is_empty() and not (shore.enabled() and shore.map_key()=="island"):
+	if level.get("water_rows", []).is_empty() and not (level.get("map", "") == "island" and shore.enabled()):
 		return
 	var in_water := _zombie_over_water(z)
+	if not in_water and z.type == "reedboat" and z.armor > 0.0 and (z.water_entered or (level.get("map", "") == "island" and shore.enabled())):
+		# A landing does not deal damage or count as a broken-armour hit.
+		z.armor = 0.0
+		z.raft_sink_t = 0.0
 	if z.water_entered == in_water:
 		return
 	z.water_entered = in_water
@@ -4584,6 +4595,9 @@ func _update_water_pose(z: Zombie, dt: float) -> void:
 
 
 func update_zombies(dt: float) -> void:
+	var judge_sources: Array = []
+	for source in plants:
+		if source.type == "judge" and source.tier(2) > 0: judge_sources.append(source)
 	for z in zombies:
 		if z.dead:
 			continue
@@ -4611,7 +4625,7 @@ func update_zombies(dt: float) -> void:
 			if z.object_hop <= 0.0:
 				z.terrain_hop_from = z.terrain_hop_to
 			continue
-		_refresh_guest_attributes(z)
+		_refresh_guest_attributes(z, judge_sources)
 		if z.slow_t > 0.0 and z.attribute_penalties.is_empty():
 			z.slow_t = maxf(0.0, z.slow_t - dt)
 			if z.slow_t <= 0.0:
@@ -7044,23 +7058,44 @@ func _judge_covers_guest(source: Plant, guest: Zombie) -> bool:
 	var reach:=2 if wide else 1
 	return absi(source.row-guest.row)<=reach and absf(source.pos.x-guest.pos.x)<=(reach+.5)*Geo.CELL_W
 
-func _refresh_guest_attributes(z: Zombie) -> void:
+func _refresh_guest_attributes(z: Zombie, judge_sources = null) -> void:
 	if not z.managed_slows and z.slow_t>0:
 		Attr.put(z.attribute_penalties,"speed","legacy",z.slow_amount,z.slow_t,time);z.managed_slows=true
 	if not z.managed_vulnerability and z.vuln_t>0:
 		Attr.put(z.vulnerability_sources,"body","legacy",z.vuln,z.vuln_t,time);z.managed_vulnerability=true
 	z.attribute_penalties.erase("judge:speed")
-	for source in plants:
+	for source in (plants if judge_sources == null else judge_sources):
 		if source.type=="judge" and source.tier(2)>0 and _judge_covers_guest(source,z) and (source.tier(2)>=2 or not z.is_large()):
 			var strength:=.4 if source.skill_effect_until>time else float(Upgrades.EFFECTS.judge.slow[source.tier(2)])
 			Attr.put(z.attribute_penalties,"speed","judge",strength,.05,time)
-	Attr.prune(z.attribute_penalties,time);Attr.prune(z.attribute_bonuses,time);Attr.prune(z.vulnerability_sources,time)
+	if not z.attribute_penalties.is_empty(): Attr.prune(z.attribute_penalties,time)
+	if not z.attribute_bonuses.is_empty(): Attr.prune(z.attribute_bonuses,time)
+	if not z.vulnerability_sources.is_empty(): Attr.prune(z.vulnerability_sources,time)
 	if z.managed_slows or not z.attribute_penalties.is_empty():
 		z.managed_slows=true
 		z.slow_amount=1.0-Attr.penalty(z.attribute_penalties,"speed",time);z.slow_t=Attr.remaining(z.attribute_penalties,"speed",time)
 	if z.managed_vulnerability or not z.vulnerability_sources.is_empty():
 		z.managed_vulnerability=true
 		z.vuln=guest_vulnerability(z)-1;z.vuln_t=Attr.remaining(z.vulnerability_sources,"body",time)
+
+func guest_status_lines(z: Zombie) -> Array:
+	var lines: Array = []
+	var soft := Color("#e1aa83")
+	var bright := Color("#b9d4aa")
+	var move:=guest_attribute_factor(z,"speed")
+	if absf(move-1.0)>.009: lines.append({"text":"移速 %+.0f%%" % ((move-1)*100.0),"ink":bright if move>1 else soft})
+	var bite:=guest_attribute_factor(z,"damage")
+	if absf(bite-1.0)>.009: lines.append({"text":"攻击 %+.0f%%" % ((bite-1)*100.0),"ink":bright if bite>1 else soft})
+	var vulnerable:=guest_vulnerability(z)
+	if vulnerable>1.009: lines.append({"text":"受到的伤害 +%.0f%%" % ((vulnerable-1)*100.0),"ink":soft})
+	var armor_vulnerable:=guest_vulnerability(z,true)
+	if z.armor>0 and armor_vulnerable>vulnerable+.009: lines.append({"text":"护具受到的伤害 +%.0f%%" % ((armor_vulnerable-1)*100.0),"ink":soft})
+	if z.burn_t>0: lines.append({"text":"灼烧 · %.1f 秒" % z.burn_t,"ink":soft})
+	if z.bleed_t>0: lines.append({"text":"流血 · %.1f 秒" % z.bleed_t,"ink":soft})
+	if z.stun_t>0: lines.append({"text":"眩晕 · %.1f 秒" % z.stun_t,"ink":soft})
+	if z.suppress_t>0: lines.append({"text":"增益受限 · %.1f 秒" % z.suppress_t,"ink":soft})
+	if lines.is_empty(): lines.append({"text":"当前没有额外状态","ink":Color("#b9ab95")})
+	return lines
 
 func _guest_bonus(z: Zombie, kind: String) -> float:
 	var bonus:=Attr.bonus(z.attribute_bonuses,kind,time)-1.0

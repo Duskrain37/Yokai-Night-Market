@@ -9,6 +9,7 @@ var motion: Dictionary = {}
 var motion_sheets: Dictionary = {}
 var _prefix := ""
 var _pending: Dictionary = {}
+var _resolved_paths: Dictionary = {}
 var _last_use: Dictionary = {}
 var _mobile := OS.has_feature("android") or "--mobile" in OS.get_cmdline_user_args()
 var sheets: Dictionary = {}
@@ -55,9 +56,11 @@ func draw_pose(canvas: CanvasItem, actor: String, clip: String, key_position: fl
 		var resolved_clip := clip
 		if not motion[actor].clips.has(resolved_clip):resolved_clip="walk" if clip=="swim" else "attack"
 		var sheet_key: String=actor+"#"+resolved_clip if _mobile and motion[actor].has("clip_files") else actor
-		var path: String=MotionStorage.path_for("res://"+String(motion[actor].get("clip_files",{}).get(resolved_clip,motion[actor].file)))
-		_last_use[sheet_key]=Time.get_ticks_msec()
+		if _mobile: _last_use[sheet_key]=Time.get_ticks_msec()
 		if not motion_sheets.has(sheet_key):
+			if not _resolved_paths.has(sheet_key):
+				_resolved_paths[sheet_key]=MotionStorage.path_for("res://"+String(motion[actor].get("clip_files",{}).get(resolved_clip,motion[actor].file)))
+			var path: String=_resolved_paths[sheet_key]
 			if ResourceLoader.exists(path):
 				if not _mobile or ResourceLoader.has_cached(path):
 					motion_sheets[sheet_key]=load(path)

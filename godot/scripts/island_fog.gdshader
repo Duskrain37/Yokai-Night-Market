@@ -20,5 +20,5 @@ void fragment() {
 	float y_mask = smoothstep(.15, .21, uv.y) * (1.0 - smoothstep(.82, .89, uv.y));
 	float density = max(bank, old_bank) * y_mask * passing;
 	vec3 ink = mix(vec3(.29,.43,.44), vec3(.59,.66,.65), n * .6 + m * .25);
-	COLOR = vec4(ink, density * (.15 + .38 * n * m));
+	COLOR = vec4(ink, density * (.26 + .51 * n * m));
 }

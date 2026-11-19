@@ -222,6 +222,24 @@ func _draw() -> void:
 			_draw_active_skill(plant)
 
 
+func guest_anchor(z: Sim.Zombie) -> Vector2:
+	return _zombie_foot(z, Geo.cell_h(sim.rows)) + get_global_transform().origin
+
+func pick_guest(point: Vector2) -> Sim.Zombie:
+	if sim == null: return null
+	var picked: Sim.Zombie
+	var cell_h:=Geo.cell_h(sim.rows)
+	var local: Vector2 = get_global_transform().affine_inverse() * point
+	for z in sim.zombies:
+		if not z.alive() or z.boss_role != "" or z.carrier_uid != "": continue
+		var h:=_zombie_height(z,cell_h)
+		if z.water_entered and not (z.type=="reedboat" and z.armor>0): h*=.72
+		var half:=maxf(22.0,h*(.48 if z.is_large() else .33))
+		var foot:=_zombie_foot(z,cell_h)
+		if Rect2(foot-Vector2(half,h),Vector2(half*2,h+10)).has_point(local) and (picked==null or _zombie_sort(picked,z)):
+			picked=z
+	return picked
+
 static func _zombie_sort(a, b) -> bool:
 	if a.row != b.row:
 		return a.row < b.row
@@ -785,8 +803,7 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 	if glow.a > 0.0 and not z.dying:
 		_draw_glow(foot + Vector2(0, -height * 0.5), height * 0.6,
 			Color(glow.r, glow.g, glow.b, 0.12))
-	var swimming = z.water_entered and (z.pos.x <= Geo.BOARD_X + Geo.BOARD_W or sim.shore.over_water(z,9)) \
-		and not (z.type == "reedboat" and z.armor > 0.0)
+	var swimming: bool = z.water_entered and not (z.type == "reedboat" and z.armor > 0.0)
 	var clip = "swim_bite" if z.eating else "swim"
 	if not swimming:
 		clip = "attack" if z.eating else "walk"
@@ -845,7 +862,7 @@ func _draw_zombie(z: Sim.Zombie, cell_h: float) -> void:
 				frame_foot + Vector2(0, height * 0.32 * entry), height, z.reverse_t <= 0.0,
 				Color(tint.r, tint.g, tint.b, tint.a * (1.0 - entry)))
 			tint.a *= entry
-		elif not swimming and z.water_exit_t > 0.0 and not (z.type == "reedboat" and z.armor > 0.0):
+		elif not swimming and z.water_exit_t > 0.0 and not (sim.shore.enabled() and sim.shore.map_key() == "island") and not (z.type == "reedboat" and z.armor > 0.0):
 			var wet: float = z.water_exit_t / 0.44
 			_actor_frames.draw_pose(self, actor, "swim", frame, frame_foot + Vector2(0, 3),
 				height, z.reverse_t <= 0.0, Color(tint.r, tint.g, tint.b, tint.a * wet))
@@ -1424,11 +1441,12 @@ func _draw_shots() -> void:
 
 func _draw_orchid_leaves() -> void:
 	for plant in sim.plants:
-		if plant.type!="blank-orchid" or plant.tier(1)!=3 or not sim.plant_on_stage(plant):continue
+		if plant.type!="blank-orchid" or not sim.plant_on_stage(plant):continue
 		var state: Dictionary=sim.v072.orchids.get(plant.uid,{})
 		var layout: Dictionary=state.get("cells",{})
 		var origin: Vector2=Geo.to_screen(plant.pos,sim.rows)+Vector2(0,-10-plant.cloud_drop)
 		for item in layout.values():
+			if plant.tier(1) < 3 and not String(item.uid).is_empty(): continue
 			var growth:=clampf((sim.time-float(item.at)+.55)/.55,0,1)
 			var target: Vector2=Geo.to_screen(sim.cell_pos(int(item.col),int(item.row)),sim.rows)+Vector2(0,-8-plant.cloud_drop)
 			var extent: Vector2=origin.lerp(target,.86*growth)

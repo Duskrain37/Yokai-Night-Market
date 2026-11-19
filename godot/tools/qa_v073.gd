@@ -64,11 +64,11 @@ func run() -> void:
 	s.shore.on_batch(4)
 	expect("second island mid-wave forecasts the falling tide",d.tide_at==8 and not d.tide_next)
 	s.time=8.1;s.shore.tick()
-	var wet_row:=int(d.tide_lane)
+	var wet_row:=0
 	var arrival: Array=s.shore.island_arrival("ghost",wet_row,5,[])
-	expect("only scheduled arrivals from chosen outer lane take the shortcut",arrival==["ghost",wet_row,true])
+	expect("ebb preserves the outer water approach without the old shortcut",arrival[1]==wet_row and not arrival[2] and s.shore.flooded(7,wet_row))
 	foe=s.spawn_zombie("ghost",wet_row,{"shore_short":true})
-	expect("shortcut grants +50 percent only on the outer stretch",s.shore.speed(foe)==1.5)
+	expect("old saved shortcut flags can no longer accelerate land guests",s.shore.speed(foe)==1.0)
 	foe.pos.x=Geo.BOARD_X+Geo.CELL_W*6
 	expect("shore speed is normal after rejoining",s.shore.speed(foe)==1)
 	s.shore.on_batch(3);s.time=13.2;s.shore.tick()

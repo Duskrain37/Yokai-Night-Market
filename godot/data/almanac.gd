@@ -77,7 +77,7 @@ static func boss_skills(id: String) -> Array:
 		var extra := "幸存草木另受%.2f秒封印。" % (2.0 * force) if id in ["paper", "magistrate-full"] else ""
 		rows.append([skill_name, "生命降至%s时各发动一次。预警%.2f秒，最多落击%d处，每击%d，相邻落击间隔%.2f秒。%s" % [
 			"、".join(marks), float(major.warning_s), int(major.hit_count), roundi(float(major.damage_per_hit) * force), float(major.hit_spacing_s), extra]])
-	rows.append(["援军与抗性", "恶首出战5秒后，援军按今夜普通来客的强度接续到来。控制时长保留四分之一，单次最多0.75秒，10秒内累计最多1.5秒；比例伤害每次与同源每秒最多造成其最大生命的1%。"])
+	rows.append(["援军与抗性", "恶首出战5秒后，援军按今夜普通来客的强度接续到来。控制效果在恶首身上只持续原时长的四分之一，单次最多0.75秒，10秒内合计最多1.5秒。按气血比例造成的伤害，每次最多削去恶首1%的最大气血；同一种效果在一秒内合计也最多削去1%。"])
 	return rows
 
 

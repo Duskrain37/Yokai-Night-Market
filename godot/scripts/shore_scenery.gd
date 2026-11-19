@@ -30,15 +30,31 @@ func _label(canvas: CanvasItem, p: Vector2, text: String, ink: Color = Color("#f
 	canvas.draw_rect(Rect2(pos+Vector2(-6,-16),Vector2(w+12,21)),Color(.065,.081,.079,.84))
 	canvas.draw_string(f,pos,text,HORIZONTAL_ALIGNMENT_LEFT,-1,15,ink)
 
+const TIDE_FRAMES := Vector2(416,484)
+
+const GROUPS := {"day2":["dock","cargo","incense-boat","freight-boat"],"day3":["mat","buoy"],
+		"day4":["island-ebb","island-flood","island-turn","fog-watch-lamp"],
+		"day5":["cave-deck","cave-broken","cave-splinter","cave-gate-stone","cave-gate-grille"]}
+static func resource_paths(key: String) -> Array[String]:
+	var paths: Array[String] = []
+	for name in GROUPS.get(key,[]): paths.append(ROOT+String(name)+".webp")
+	if key=="day4": paths.append_array(["res://scripts/island_fog.gdshader","res://assets/scenery/cloud-veil.png"])
+	return paths
+
+func warm(key: String) -> void:
+	for name in GROUPS.get(key,[]): texture(name)
+
 func background(canvas: CanvasItem, s) -> void:
 	if not s.shore.enabled() or s.shore.map_key() != "island": return
 	var d: Dictionary = s.shore.state
-	var tex := texture("tide")
+	var age: float = float(s.time) - (float(d.tide_at) - s.shore.TIDE_TURN_TIME)
+	var transition: bool = float(d.tide_at) >= 0 and age >= 0.0 and age < s.shore.TIDE_TURN_TIME
+	var tex := texture("island-turn" if transition else ("island-flood" if d.wet else "island-ebb"))
 	if tex == null: return
-	var u := clampf((s.time - float(d.tide_anim))/2.1,0,1)
-	var index := clampi(roundi(31*(u if bool(d.wet) else 1-u)),0,31)
-	var patch := Rect2(Vector2(1168./1672.,144./941.)*Geo.canvas_size,Vector2(504./1672.,666./941.)*Geo.canvas_size)
-	canvas.draw_texture_rect_region(tex,patch,Rect2((index%8)*336,(index/8)*444,336,444))
+	var u := clampf(age/s.shore.TIDE_TURN_TIME,0,1)
+	var index := roundi(31*(u if d.tide_next else 1-u)) if transition else posmod(floori(s.time*12.0),24)
+	var patch := Rect2(Vector2(1075./1672.,124./941.)*Geo.canvas_size,Vector2(597./1672.,694./941.)*Geo.canvas_size)
+	canvas.draw_texture_rect_region(tex,patch,Rect2(Vector2(index%8,index/8)*TIDE_FRAMES,TIDE_FRAMES))
 
 func draw(canvas: CanvasItem, s) -> void:
 	if not s.shore.enabled(): return
@@ -115,40 +131,56 @@ func _rivers(canvas:CanvasItem,s) -> void:
 
 func _island(canvas:CanvasItem,s) -> void:
 	var d: Dictionary = s.shore.state
-	if float(d.fog_notice)>s.time:
-		_label(canvas,at(s,Geo.BOARD_X+Geo.CELL_W*(float(d.fog_next_col)+.55),0)-Vector2(0,22),"岸雾将至",Color("#c7dbd5"))
-	if float(d.tide_at)>s.time:
-		var row := int(d.tide_lane) if int(d.tide_lane)>=0 else 0
-		var p := at(s,Geo.BOARD_X+Geo.BOARD_W+24,row)
-		var strength := float(.70+.15*sin(s.time*8))
-		canvas.draw_circle(p,17,Color(.84,.49,.20,.17*strength),true,-1,true)
-		canvas.draw_circle(p,5,Color(.94,.65,.32,strength),true,-1,true)
-		_label(canvas,p-Vector2(43,15),"涨潮将至" if bool(d.tide_next) else "潮退 · 低栈将露")
+	var foot := Vector2(Geo.canvas_size.x*.83,Geo.canvas_size.y*.944)
+	var notice: bool = float(d.fog_notice) > s.time
+	var fog_now: bool = s.time >= float(d.fog_at) and s.time < float(d.fog_until)
+	var amount := (.7+.3*sin(s.time*9)) if notice else (.48 if fog_now else .16)
+	canvas.draw_circle(foot-Vector2(0,32),31,Color(.93,.65,.28,.24*amount),true,-1,true)
+	_sprite(canvas,"fog-watch-lamp",foot,48,Color(.74+amount*.26,.76+amount*.24,.73+amount*.22))
+	if notice or fog_now:
+		var text := "雾至 · %d 秒" % ceili(float(d.fog_notice)-s.time) if notice else "海雾未散"
+		_label(canvas,foot+Vector2(2,19),text,Color("#efe0af"))
+	else: _label(canvas,foot+Vector2(2,19),"候雾灯",Color("#c7be9f"))
 
 func _cave(canvas:CanvasItem,s) -> void:
 	var d: Dictionary = s.shore.state
 	var gatex := Geo.BOARD_X + 8.0*Geo.CELL_W + 9
 	for r in 4:
-		var foot := at(s,gatex,r)+Vector2(0,22)
+		var foot := at(s,gatex,r)+Vector2(0,20)
 		var lowering := 0.0
 		if r == int(d.gate_row):
 			var ease_down := smoothstep(0,1,(s.time-float(d.gate_start))/.32)
 			var ease_up := 1.0-smoothstep(0,1,(s.time-float(d.gate_until))/.44)
 			lowering = minf(ease_up,ease_down)
-		_sprite(canvas,"gate-panel",foot+Vector2(0,-41.0*(1-lowering)),28,Color(.76,.74,.65),1.3)
-		_sprite(canvas,"gate",foot,78,Color(.76,.75,.69))
-		if lowering > 0:
-			canvas.draw_line(foot+Vector2(-19,-4),foot+Vector2(19,-4),Color(.76,.59,.40,.50*lowering),3,true)
+		# Both ends stay on the same crossing line as the collision stop.
+		var scale := Geo.scale_at_flat(Vector2(gatex,s.row_y(r)),s.rows)
+		var base := foot+Vector2(0,13)*scale
+		canvas.draw_line(base+Vector2(7,-54)*scale,base+Vector2(-7,-5)*scale,Color(.035,.045,.04,.58),18*scale,true)
+		_sprite(canvas,"cave-gate-stone",base,42*scale,Color(.79,.83,.79),1.38)
+		# Guide timbers stand at either end; the grille rises in their slots.
+		for marker in [Vector2(-14,-6),Vector2(15,-51)]:
+			var peg: Vector2=base+marker*scale
+			canvas.draw_line(peg+Vector2(-2,0),peg+Vector2(-2,-35)*scale,Color("#172222"),6*scale,true)
+			canvas.draw_line(peg,peg+Vector2(0,-35)*scale,Color("#584a36"),3*scale,true)
+			canvas.draw_circle(peg+Vector2(0,-33)*scale,2.2*scale,Color("#937850"),true,-1,true)
+		_sprite(canvas,"cave-gate-grille",base+Vector2(0,-34+32*lowering)*scale,34*scale,Color(.84,.80,.69),1.33)
+		if lowering > .2:
+			canvas.draw_line(base+Vector2(7,-54)*scale,base+Vector2(-7,-5)*scale,Color(.76,.60,.34,.33*lowering),2*scale,true)
 	for b in d.bridges:
-		var p := cell(s,int(b.col),int(b.row))+Vector2(0,17)
-		var f := clampf((s.time-float(b.at))/.87,0,1)
+		var c := int(b.col); var r := int(b.row)
+		var p := cell(s,c,r)+Vector2(0,22)
+		var f := clampf((s.time-float(b.at))/.84,0,1)
+		var x_scale := 1.10 if c in [6,7] else 1.0
+		var w := 145.0*x_scale
+		_sprite(canvas,"cave-broken",p,w,Color(.80,.78,.73),.53)
 		if bool(b.intact):
-			_sprite(canvas,"bridge",p+Vector2(0,10*(1-f)),132,Color(.70,.69,.61,minf(1,.24+f)))
+			_sprite(canvas,"cave-deck",p+Vector2(0,-8*(1-f)),w,Color(.80,.78,.73,f),.53)
 		elif f < 1.0:
-			_sprite(canvas,"bridge",p+Vector2(4*f,28*f),132*(1-.19*f),Color(.65,.63,.58,1-f),1-.36*f)
 			for i in 5:
-				var q := p+Vector2((i-2)*(6+f*13),10+32*f-f*(1-f)*(15+i*4))
-				canvas.draw_line(q,q+Vector2(6,i*1.3),Color(.60,.45,.28,1-f),2.3,true)
+				var q := p+Vector2((i-2)*(8+f*15),-14+43*f*f-32*f*(1-f))
+				canvas.draw_set_transform(q, f*(i-2)*.72)
+				_sprite(canvas,"cave-splinter",Vector2.ZERO,25-i*2,Color(.80,.74,.68,1-f))
+				canvas.draw_set_transform(Vector2.ZERO)
 		elif int(d.wood)>0:
 			_label(canvas,p+Vector2(0,6),"补桥",Color("#dec394"))
 	if int(d.wood)>0:

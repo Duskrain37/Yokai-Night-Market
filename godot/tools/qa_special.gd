@@ -36,16 +36,23 @@ func _init() -> void:
 		var restored=Sim.new();restored.restore(snapshot)
 		check("段%d恶首存档不丢阶段" % section,restored.special_bosses_completed==section and restored.wave_index==s.wave_index and restored.boss.id==s.boss.id)
 		s.boss.damage_token="";s.boss.damage(null,s.boss.max_hp*2)
-		tick_clear(s,2.1)
+		for step in 126:
+			if s.boss==null: break
+			tick_clear(s,1.0/60.0)
 		check("段%d击败后只推进一个检查点" % section,s.special_bosses_completed==section+1 and s.boss==null)
 		if section<7:
 			check("中途恶首不能结算全关",wins[0]==0 and not s.is_cleared())
 			check("深入鬼市不重置阵容",s.main_plant_at(2,0)==p and p.paid_incense==225)
 			var expected := (section + 1) * Content.WAVES_PER_GROUP * 4 + 1
+			s.tick(1.0/60.0)
 			check("击败恶首后直接放出下一段第一拨", s.wave_index == expected and not s.special_opening())
-			var next_index: int = s.wave_index
-			tick_clear(s, 12.0)
-			check("下一拨仍按正常节奏接续", s.wave_index == next_index)
+			var held: Array = []
+			for index in 3:
+				var z=s.spawn_zombie("ghost",index,{"x":1260.0})
+				z.speed=0;held.append(z)
+			for _frame in 720: s.tick(1.0/60.0)
+			check("场上尚有三位恶客时按原节奏接续", s.wave_index == expected)
+			for z in held: z.dead=true
 			var resumed=Sim.new();resumed.restore(JSON.parse_string(JSON.stringify(s.serialize())))
 			check("下一段存档保留时钟偏移",is_equal_approx(resumed.wave_time_offset,s.wave_time_offset) and resumed.special_bosses_completed==section+1 and resumed.boss==null)
 		else:check("第八恶首之后才通关",s.is_cleared() and wins[0]>0 and s.boss_history.size()==8)

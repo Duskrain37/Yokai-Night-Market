@@ -1,11 +1,24 @@
 {
-  "version": "0.7.3",
-  "build": "4904786",
-  "source_files": 941,
-  "sha256": "2f1e10e41d64f5016a1be4459f35221f4f2037d4d9126ff7ff51a3f166c919e4",
-  "bytes": 668321108,
+  "enemy_update_benchmark": {
+    "prev": {
+      "median_us": 4727,
+      "p95_us": 6499,
+      "p99_us": 6588
+    },
+    "new": {
+      "median_us": 4733,
+      "p95_us": 4882,
+      "p99_us": 5007
+    }
+  },
+  "version": "0.7.4",
+  "build": "a0db6d5",
+  "source_files": 954,
+  "sha256": "db65bf40fc4bb561a812f52967f3b1cb841dcb72bbedcf448fd1dd12b20fbe60",
+  "bytes": 692082436,
   "source_checks": {
     "qa_logic": 386,
+    "qa_v074": 24,
     "qa_v073": 78,
     "qa_animation": 1422,
     "qa_v050": 493,
@@ -16,21 +29,21 @@
     "qa_boss": 143
   },
   "source_visual_checks": {
-    "1280": 6,
-    "1600": 6,
-    "1920": 6
+    "1280": 13,
+    "1600": 13,
+    "1920": 13
   },
   "package": {
     "music_members": 50,
-    "shore_textures": 10,
+    "shore_textures": 15,
     "motion_sheets": 199,
-    "unchanged_assets": 384,
-    "members": 1140,
-    "previous_bytes": 672249064,
-    "candidate_bytes": 668321108,
+    "unchanged_assets": 395,
+    "members": 1164,
+    "previous_bytes": 668321108,
+    "candidate_bytes": 692082436,
     "failures": 0,
-    "fallback_jpg_omitted": 5,
-    "original_export_bytes": 1300381320,
+    "stage_select_and_loading_restored": 7,
+    "original_export_bytes": 1314394488,
     "motions_decoded_equal": 199
   },
   "delivery_startup": {
@@ -39,14 +52,19 @@
       "battle2",
       "battle3",
       "island",
-      "cavern"
+      "cavern",
+      "levels1",
+      "levels2",
+      "levels3",
+      "levels4",
+      "levels5"
     ],
     "failures": 0
   },
   "incremental": {
-    "target_sha256": "2f1e10e41d64f5016a1be4459f35221f4f2037d4d9126ff7ff51a3f166c919e4",
-    "target_size": 668321108,
-    "old_sha256": "2f1e10e41d64f5016a1be4459f35221f4f2037d4d9126ff7ff51a3f166c919e4",
+    "target_sha256": "db65bf40fc4bb561a812f52967f3b1cb841dcb72bbedcf448fd1dd12b20fbe60",
+    "target_size": 692082436,
+    "old_sha256": "db65bf40fc4bb561a812f52967f3b1cb841dcb72bbedcf448fd1dd12b20fbe60",
     "runs": [
       {
         "checks": [
@@ -59,7 +77,7 @@
             "ok": true
           },
           {
-            "name": "packaged updater to v073 is ready",
+            "name": "packaged updater to v074 is ready",
             "ok": true
           },
           {
@@ -86,15 +104,15 @@
         "failures": 0,
         "message": "更新已下载并校验完成。请选择如何完成更新。",
         "phase": "ready",
-        "received": 18235729,
-        "required": 18235729,
-        "reused": 650085729,
-        "target_sha256": "2f1e10e41d64f5016a1be4459f35221f4f2037d4d9126ff7ff51a3f166c919e4",
-        "updater_build": "6f20a3f",
-        "updater_version": "0.7.2",
-        "wire_exe_bytes": 18235729,
-        "range_requests": 38,
-        "duration_seconds": 17.36
+        "received": 32702186,
+        "required": 32702186,
+        "reused": 659382975,
+        "target_sha256": "db65bf40fc4bb561a812f52967f3b1cb841dcb72bbedcf448fd1dd12b20fbe60",
+        "updater_build": "4904786",
+        "updater_version": "0.7.3",
+        "wire_exe_bytes": 32702186,
+        "range_requests": 29,
+        "duration_seconds": 14.92
       },
       {
         "checks": [
@@ -119,11 +137,11 @@
         "phase": "current",
         "received": 0,
         "required": 0,
-        "updater_build": "4904786",
-        "updater_version": "0.7.3",
+        "updater_build": "a0db6d5",
+        "updater_version": "0.7.4",
         "wire_exe_bytes": 0,
         "range_requests": 0,
-        "duration_seconds": 1.99
+        "duration_seconds": 1.67
       }
     ],
     "failures": 0
